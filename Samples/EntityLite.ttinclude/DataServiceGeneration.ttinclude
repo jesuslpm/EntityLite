@@ -1,0 +1,41 @@
+﻿<#+ 
+void DataServiceGeneration_Render(DataLayerGeneration generation)
+{			
+#>
+
+namespace <#= generation.RootNamespace #>
+{
+	public partial class <#= generation.DataServiceName #> : DataService
+	{
+        public <#= generation.DataServiceName #>(string connectionStringName) : base(connectionStringName)
+        {
+        }
+
+        public <#= generation.DataServiceName #>(string connectionString, string providerName) : base(connectionString, providerName)
+        {
+        }
+<#+
+	foreach (var entity in generation.EntitySettings)
+    {
+#>
+
+		private <#= entity.GetNamespaceName(generation.RootNamespace) + "." + entity.EntityName #>Repository _<#= entity.GetRepositoryPropertyName() #>;
+		public <#= entity.GetNamespaceName(generation.RootNamespace) + "." + entity.EntityName #>Repository <#= entity.GetRepositoryPropertyName() #>
+		{
+			get 
+			{
+				if ( _<#= entity.GetRepositoryPropertyName() #> == null)
+				{
+					_<#= entity.GetRepositoryPropertyName() #> = new <#= entity.GetNamespaceName(generation.RootNamespace) + "." + entity.EntityName #>Repository(this);
+				}
+				return _<#= entity.GetRepositoryPropertyName() #>;
+			}
+		}
+<#+
+    }
+#>
+	}
+}
+<#+ 
+}
+#>

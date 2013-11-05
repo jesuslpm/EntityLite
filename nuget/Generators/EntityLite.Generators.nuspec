@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>EntityLite.Generators</id>
+    <version>1.0.0-Alfa</version>
+    <title>i-nercya EntityLite Code Generators</title>
+    <authors>Jesús López (i-nercya intelligent software)</authors>
+    <owners></owners>
+    <description>
+      A lightweight, database first, micro ORM
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      The EntityLite code generators
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://nuget.org/packages/EntityLite.Generators</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <copyright>Copyright  2013</copyright>
+    <dependencies>
+      <group targetFramework="net35-client">
+        <dependency id="EntityLite.Core" version="1.0.0-Beta" />
+      </group>
+    </dependencies>
+    <references></references>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data" />
+      <frameworkAssembly assemblyName="System.Runtime.Serialization"  />
+    </frameworkAssemblies>
+    <tags>Micro ORM</tags>
+  </metadata>
+  <files>
+    <file src="content\" target="content" />
+  </files>
+</package>

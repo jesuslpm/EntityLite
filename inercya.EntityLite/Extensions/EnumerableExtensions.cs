@@ -1,0 +1,169 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+
+namespace inercya.EntityLite.Extensions
+{
+	public static class EnumerableExtensions
+	{
+		public static IDictionary<TKey, IList<TItem>> ToListDictionary<TKey, TItem>(this IEnumerable<TItem> itemsSource, Func<TItem, TKey> keySelector)
+		{
+			IDictionary<TKey, IList<TItem>> dic = new Dictionary<TKey, IList<TItem>>();
+			foreach (var item in itemsSource)
+			{
+				IList<TItem> list = null;
+				TKey key = keySelector(item);
+				if (!dic.TryGetValue(key, out list))
+				{
+					list = new List<TItem>();
+					dic.Add(key, list);
+				}
+				list.Add(item);
+
+			}
+			return dic;
+		}
+
+		public static HashSet<TKey> ToHashSet<TKey, TItem>(this IEnumerable<TItem> items, Func<TItem, TKey> keySelector)
+		{
+			HashSet<TKey> hashSet = new HashSet<TKey>();
+			foreach (var item in items)
+			{
+				hashSet.Add(keySelector(item));
+			}
+			return hashSet;
+		}
+
+		public static IList<MasterDetail<M, D>> JoinMasterDetail<M, TKey, D>(IEnumerable<M> masters, Func<M, TKey> GetKey, IEnumerable<D> details, Func<D, TKey> GetMasterKey)
+		{
+			var masterDetails = new List<MasterDetail<M, D>>();
+			var dic = new Dictionary<TKey, MasterDetail<M, D>>();
+			foreach (var m in masters)
+			{
+				var md = new MasterDetail<M, D> { Master = m, Details = new List<D>() };
+				var key = GetKey(m);
+				if (key != null)
+				{
+					dic.Add(key, md);
+				}
+				masterDetails.Add(md);
+			}
+
+			foreach (var d in details)
+			{
+				MasterDetail<M, D> md = null;
+				if (dic.TryGetValue(GetMasterKey(d), out md))
+				{
+					md.Details.Add(d);
+				}
+			}
+			return masterDetails;
+		}
+
+		public static IList<MasterDetail<M, D1, D2>> JoinMasterDetail<M, TKey, D1, D2>(this IEnumerable<M> masters, Func<M, TKey> GetKey, IEnumerable<D1> details1, Func<D1, TKey> GetMasterKey1, IEnumerable<D2> details2, Func<D2, TKey> GetMasterKey2)
+		{
+			var masterDetails = new List<MasterDetail<M, D1, D2>>();
+			var dic = new Dictionary<TKey, MasterDetail<M, D1, D2>>();
+			foreach (var m in masters)
+			{
+				var md = new MasterDetail<M, D1, D2> { Master = m, Details1 = new List<D1>(), Details2 = new List<D2>() };
+				var key = GetKey(m);
+				if (key != null)
+				{
+					dic.Add(key, md);
+				}
+				masterDetails.Add(md);
+			}
+
+			foreach (var d in details1)
+			{
+				MasterDetail<M, D1, D2> md = null;
+				if (dic.TryGetValue(GetMasterKey1(d), out md))
+				{
+					md.Details1.Add(d);
+				}
+			}
+
+			foreach (var d in details2)
+			{
+				MasterDetail<M, D1, D2> md = null;
+				if (dic.TryGetValue(GetMasterKey2(d), out md))
+				{
+					md.Details2.Add(d);
+				}
+			}
+			return masterDetails;
+		}
+
+		public static IList<TreeNode<T>> ToTree<T, TKey>(this IEnumerable<T> entities, Func<T, TKey> keySelector, Func<T, TKey> parentKeySelector, Func<T, bool> mayHaveParent)
+		{
+			var nodesDic = entities.ToDictionary(keySelector, x => new TreeNode<T> { Entity = x });
+			var rootNodes = new List<TreeNode<T>>();
+
+			foreach (var entity in entities)
+			{
+				var node = nodesDic[keySelector(entity)];
+				TreeNode<T> parent = null;
+				if (mayHaveParent(entity) && nodesDic.TryGetValue(parentKeySelector(entity), out parent))
+				{
+					node.Parent = parent;
+					parent.Children.Add(node);
+				}
+				else
+				{
+					rootNodes.Add(node);
+				}
+			}
+			return rootNodes;
+		}
+
+
+		public static bool HasTheSameItemsAs<T>(this IEnumerable<T> enumerable, IEnumerable<T> other) where T : class
+		{
+			IEnumerator<T> enumerator1 = enumerable.GetEnumerator();
+			IEnumerator<T> enumerator2 = other.GetEnumerator();
+			while (true)
+			{
+				bool next1 = enumerator1.MoveNext();
+				bool next2 = enumerator2.MoveNext();
+				if (next1 != next2) return false;
+				if (!next1) return true;
+				if (!enumerator1.Current.IsEqualsTo(enumerator2.Current)) return false;
+
+			}
+		}
+
+        public static string Join(this IEnumerable<string> strings, string separator = ", ")
+        {
+            StringBuilder sb = new StringBuilder();
+            bool firstTime = true;
+            foreach (var str in strings)
+            {
+                if (firstTime) firstTime = false;
+                else sb.Append(separator);
+                sb.Append(str);
+            }
+            return sb.ToString();
+        }
+
+        public static void EnsureField(this List<string> sortedFields, EntityMetadata metadata, string fieldName)
+        {
+            if (!metadata.Properties.ContainsKey(fieldName)) return;
+            int position = sortedFields.BinarySearch(fieldName, StringComparer.InvariantCultureIgnoreCase);
+            if (position < 0)
+            {
+                sortedFields.Insert(~position, fieldName);
+            }
+        }
+
+        public static void EnsurePrimaryKey(this List<string> sortedFields, EntityMetadata metadata)
+        {
+            foreach (var primaryKeyPropertyName in metadata.PrimaryKeyPropertyNames)
+            {
+                sortedFields.EnsureField(metadata, primaryKeyPropertyName);
+            }
+        }
+	}
+}

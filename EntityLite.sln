@@ -1,0 +1,76 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite", "inercya.EntityLite\inercya.EntityLite.csproj", "{B74DF500-8654-40D1-A50C-7262A2095B1E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A632C4A4-E33E-4C29-A084-CA91A0C0E494}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{263706E0-73DF-4987-8FE4-07DACAB63CCE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{6ADBA794-C80D-48EE-80F9-41639CF9CF08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5FAB9A35-27CE-40E6-929D-C3CA917100E1}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Core\Build.cmd = nuget\Core\Build.cmd
+		nuget\Core\EntityLite.Core.nuspec = nuget\Core\EntityLite.Core.nuspec
+		nuget\Core\Publish.cmd = nuget\Core\Publish.cmd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{0493F652-14B1-45DD-A168-A4686ACBB9D8}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Generators\Build.cmd = nuget\Generators\Build.cmd
+		nuget\Generators\EntityLite.Generators.nuspec = nuget\Generators\EntityLite.Generators.nuspec
+		nuget\Generators\Publish.cmd = nuget\Generators\Publish.cmd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{03CAC007-291D-420D-8E8C-CC9FA92BFEB5}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Generators\content\DataLayer.tt = nuget\Generators\content\DataLayer.tt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "EntityLite.ttinclude", "{345D112F-72B2-49C2-907B-40F219FA928C}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Generators\content\EntityLite.ttinclude\DataLayerGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\DataLayerGeneration.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\DataServiceGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\DataServiceGeneration.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\FieldMetadata.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldMetadata.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\MemberVisibility.ttinclude = nuget\Generators\content\EntityLite.ttinclude\MemberVisibility.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\ProcedureGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureGeneration.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\ProcedureSetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureSetting.ttinclude
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B74DF500-8654-40D1-A50C-7262A2095B1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74DF500-8654-40D1-A50C-7262A2095B1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74DF500-8654-40D1-A50C-7262A2095B1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74DF500-8654-40D1-A50C-7262A2095B1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5FAB9A35-27CE-40E6-929D-C3CA917100E1} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
+		{0493F652-14B1-45DD-A168-A4686ACBB9D8} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
+		{03CAC007-291D-420D-8E8C-CC9FA92BFEB5} = {0493F652-14B1-45DD-A168-A4686ACBB9D8}
+		{345D112F-72B2-49C2-907B-40F219FA928C} = {03CAC007-291D-420D-8E8C-CC9FA92BFEB5}
+	EndGlobalSection
+EndGlobal
