@@ -25,11 +25,11 @@ namespace inercya.EntityLite.Builders
 	{
 		private Logger Log = NLog.LogManager.GetLogger(typeof(DataService).FullName);
 
-		private readonly DataService dataAccess;
+		private readonly DataService dataService;
 
-		public CommandBuilder(DataService dataAccess)
+		public CommandBuilder(DataService dataService)
 		{
-			this.dataAccess = dataAccess;
+			this.dataService = dataService;
 		}
 
 
@@ -107,10 +107,10 @@ namespace inercya.EntityLite.Builders
                 throw new InvalidOperationException("cannot generate update command for entity " + entityType.Name + " because it does not have a primary key");
             }
 
-            string fullTableName = entityMetadata.GetFullTableName(this.dataAccess.DefaultSchemaName);
+            string fullTableName = entityMetadata.GetFullTableName(this.dataService.DefaultSchemaName);
 
             IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
-            DbCommand cmd = dataAccess.Connection.CreateCommand();
+            DbCommand cmd = dataService.Connection.CreateCommand();
             StringBuilder commandText = new StringBuilder();
             commandText.Append("\nUPDATE ").Append(fullTableName);
             bool firstTime = true;
@@ -121,8 +121,8 @@ namespace inercya.EntityLite.Builders
                 if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
                 SqlFieldAttribute field = propMetadata.SqlField;
                 if (!field.IsKey
-                    && !string.Equals(field.BaseColumnName, dataAccess.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(field.BaseColumnName, dataAccess.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(field.BaseColumnName, dataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(field.BaseColumnName, dataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
                     )
                 {
                     if (firstTime)
@@ -134,14 +134,14 @@ namespace inercya.EntityLite.Builders
                     {
                         commandText.Append(",\n\t");
                     }
-                    if (string.Equals(propertyName, dataAccess.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(propertyName, dataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
                     {
                         hasEntityRowVersionField = true;
-                        commandText.Append(dataAccess.SpecialFieldNames.EntityRowVersionFieldName).Append(" = ").Append(dataAccess.SpecialFieldNames.EntityRowVersionFieldName).Append(" + 1");
+                        commandText.Append(dataService.SpecialFieldNames.EntityRowVersionFieldName).Append(" = ").Append(dataService.SpecialFieldNames.EntityRowVersionFieldName).Append(" + 1");
                     }
                     else
                     {
-                        string parameterName = dataAccess.ParameterPrefix + propertyName;
+                        string parameterName = dataService.ParameterPrefix + propertyName;
                         commandText.Append(field.BaseColumnName).Append(" = ").Append(parameterName);
                         IDbDataParameter param = CreateParameter(propMetadata, propertyName);
                         object fieldValue = getters[propertyName](entity);
@@ -154,14 +154,14 @@ namespace inercya.EntityLite.Builders
             firstTime = true;
 
             IEnumerable<string> whereFields = entityMetadata.PrimaryKeyPropertyNames;
-            if (hasEntityRowVersionField) whereFields = whereFields.Concat(new string[] { dataAccess.SpecialFieldNames.EntityRowVersionFieldName });
+            if (hasEntityRowVersionField) whereFields = whereFields.Concat(new string[] { dataService.SpecialFieldNames.EntityRowVersionFieldName });
             foreach (string whereField in whereFields)
             {
                 var property = entityMetadata.Properties[whereField];
                 SqlFieldAttribute field = property.SqlField;
                 if (string.Equals(whereField, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string parameterName = dataAccess.ParameterPrefix + whereField;
+                    string parameterName = dataService.ParameterPrefix + whereField;
                     if (firstTime)
                     {
                         commandText.Append("\nWHERE\n\t");
@@ -203,10 +203,10 @@ namespace inercya.EntityLite.Builders
 				throw new InvalidOperationException("cannot generate insert command for entity " + entityType.Name + " because it does not have a base table");
 			}
 
-            string fullTableName = entityMetadata.GetFullTableName(this.dataAccess.DefaultSchemaName);
+            string fullTableName = entityMetadata.GetFullTableName(this.dataService.DefaultSchemaName);
 			IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
 
-			DbCommand cmd = dataAccess.Connection.CreateCommand();
+			DbCommand cmd = dataService.Connection.CreateCommand();
 			StringBuilder commandText = new StringBuilder();
 			StringBuilder valuesText = new StringBuilder();
             commandText.Append("\nINSERT INTO  ").Append(fullTableName);
@@ -227,13 +227,13 @@ namespace inercya.EntityLite.Builders
 					valuesText.Append(", ");
 				}
 				commandText.Append(field.BaseColumnName);
-				if (string.Equals(propertyName, dataAccess.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
+				if (string.Equals(propertyName, dataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
 				{
 					valuesText.Append("1");
 				}
 				else
 				{
-					string parameterName = dataAccess.ParameterPrefix + propertyName;
+					string parameterName = dataService.ParameterPrefix + propertyName;
 					valuesText.Append(parameterName);
 					IDbDataParameter param = CreateParameter(kv.Value, propertyName);
 					SetValueToCommandParameter(entity, getters, propertyName, param);
@@ -247,7 +247,7 @@ namespace inercya.EntityLite.Builders
 
 			if (!string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName))
 			{
-				switch (dataAccess.Provider)
+				switch (dataService.Provider)
 				{
 					case Provider.SqlClient:
 						commandText.Append("\nSELECT SCOPE_IDENTITY() AS ").Append(entityMetadata.AutoIncrementFieldName).Append(";");
@@ -255,10 +255,13 @@ namespace inercya.EntityLite.Builders
 					case Provider.SQLite:
 						commandText.Append("\nSELECT last_insert_rowid() AS ").Append(entityMetadata.AutoIncrementFieldName).Append(";");
 						break;
+                    case Provider.MySql:
+                        commandText.Append("\nSELECT LAST_INSERT_ID() AS").Append(entityMetadata.AutoIncrementFieldName).Append(";");
+                        break;
 					case Provider.OracleClient:
 						throw new NotImplementedException("autoincrement fields for oracle are not implemented yet");
 					default:
-						throw new NotSupportedException("Provider " + dataAccess.Provider.ToString() + "  not supported");
+						throw new NotSupportedException("Provider " + dataService.Provider.ToString() + "  not supported");
 				}
 			}
 			cmd.CommandText = commandText.ToString();
@@ -311,8 +314,8 @@ namespace inercya.EntityLite.Builders
 		protected IDbDataParameter CreateParameter(PropertyMetadata property, string fieldName)
 		{
 			var field = property.SqlField;
-			string parameterName = dataAccess.ParameterPrefix + fieldName;
-			IDbDataParameter parameter = dataAccess.ProviderFactory.CreateParameter();
+			string parameterName = dataService.ParameterPrefix + fieldName;
+			IDbDataParameter parameter = dataService.ProviderFactory.CreateParameter();
 			parameter.ParameterName = parameterName;
 			Type propertyType = property.PropertyInfo.PropertyType.UndelyingType();
 			if (propertyType.FullName.StartsWith("Microsoft.SqlServer.Types.Sql"))
@@ -363,16 +366,16 @@ namespace inercya.EntityLite.Builders
 					throw new InvalidOperationException("cannot generate delete command for entity " + entityType.Name + " because it does not have a primary key");
 				}
 				IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
-				DbCommand cmd = dataAccess.Connection.CreateCommand();
+				DbCommand cmd = dataService.Connection.CreateCommand();
 				StringBuilder commandText = new StringBuilder();
-                string fullTableName = entityMetadata.GetFullTableName(this.dataAccess.DefaultSchemaName);
+                string fullTableName = entityMetadata.GetFullTableName(this.dataService.DefaultSchemaName);
 				commandText.Append("\nDELETE FROM ").Append(fullTableName);
 				bool firstTime = true;
 				foreach (string fieldName in entityMetadata.PrimaryKeyPropertyNames)
 				{
 					var property = entityMetadata.Properties[fieldName];
 					SqlFieldAttribute field = property.SqlField;
-					string parameterName = dataAccess.ParameterPrefix + fieldName;
+					string parameterName = dataService.ParameterPrefix + fieldName;
 					if (firstTime)
 					{
 						commandText.Append("\nWHERE\n\t");

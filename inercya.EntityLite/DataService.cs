@@ -20,7 +20,8 @@ namespace inercya.EntityLite
     {
         SqlClient,
         OracleClient,
-        SQLite
+        SQLite,
+        MySql
     }
 
     public class ConnectionOpennedEventArgs : EventArgs
@@ -190,6 +191,9 @@ namespace inercya.EntityLite
                        case "System.Data.OracleClient":
                            _provider = Provider.OracleClient;
                            break;
+                       case "MySql.Data.MySqlClient":
+                           _provider = Provider.MySql;
+                           break;
                        default:
                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
                    }
@@ -210,6 +214,7 @@ namespace inercya.EntityLite
                     {
                         case Provider.SqlClient:
                         case Provider.SQLite:
+                        case Provider.MySql:
                             _parameterPrefix = "@";
                             break;
                         case Provider.OracleClient:
@@ -220,6 +225,60 @@ namespace inercya.EntityLite
                     }
                 }
                 return _parameterPrefix;
+            }
+        }
+
+        private string _startQuote;
+        public string StartQuote
+        {
+            get
+            {
+                if (_startQuote == null)
+                {
+                    switch (Provider)
+                    {
+                        case Provider.SqlClient:
+                        case Provider.SQLite:
+                            _startQuote = "[";
+                            break;
+                        case Provider.MySql:
+                            _startQuote = "`";
+                            break;
+                        case Provider.OracleClient:
+                            _startQuote = "\"";
+                            break;
+                        default:
+                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
+                    }
+                }
+                return _startQuote;
+            }
+        }
+
+        private string _endQuote;
+        public string EndQuote
+        {
+            get
+            {
+                if (_endQuote == null)
+                {
+                    switch (Provider)
+                    {
+                        case Provider.SqlClient:
+                        case Provider.SQLite:
+                            _endQuote = "]";
+                            break;
+                        case Provider.MySql:
+                            _endQuote = "`";
+                            break;
+                        case Provider.OracleClient:
+                            _endQuote = "\"";
+                            break;
+                        default:
+                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
+                    }
+                }
+                return _endQuote;
             }
         }
 
@@ -236,7 +295,23 @@ namespace inercya.EntityLite
             return factory;
         }
 
+        private IIdentityMap _identityMap;
 
+        public IIdentityMap IdentityMap
+        {
+            get
+            {
+                if (_identityMap == null)
+                {
+                    _identityMap = new IdentityMapLite();
+                }
+                return _identityMap;
+            }
+            protected set
+            {
+                _identityMap = value;
+            }
+        }
 
         static DataService()
         {
@@ -452,11 +527,9 @@ namespace inercya.EntityLite
 					CommandExecutionLogger.LogCommandExecution(cmd, this, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
 					return result;
 				}, maxRetries, this.InitialMillisecondsRetryDelay, (ex, willRetry) => this.NotifyErrorOcurred(ex, willRetry));
-                if (ContextLite.SessionIdentityMap != null)
-                {
+
                     var identity = entity.TryGetId();
-                    if (identity != null) ContextLite.SessionIdentityMap.Remove(entity.GetType(), identity);
-                }
+                    if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
 			}
 			catch (Exception ex)
 			{
@@ -628,12 +701,8 @@ namespace inercya.EntityLite
                     return result;
 
                 }, maxRetries, this.InitialMillisecondsRetryDelay, (ex, willRetry) => this.NotifyErrorOcurred(ex, willRetry));
-
-                if (ContextLite.SessionIdentityMap != null)
-                {
-                    var identity = entity.TryGetId();
-                    if (identity != null) ContextLite.SessionIdentityMap.Remove(entityType, identity);
-                }
+                var identity = entity.TryGetId();
+                if (identity != null) IdentityMap.Remove(entityType, identity);
                 return affectedRecords;
             }
             catch (Exception ex)

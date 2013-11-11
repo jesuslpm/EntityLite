@@ -17,7 +17,7 @@ namespace inercya.EntityLite
 
         private readonly Logger Log = LogManager.GetCurrentClassLogger();
         public string FieldList { get; set; }
-        public ICollection<SimpleConditionLite> Filter { get; set; }
+        public ICollection<ConditionLite> Filter { get; set; }
         public ICollection<SortDescriptor> Sort { get; set; }
 		public ICollection<string> Options { get; set; }
 
@@ -170,7 +170,7 @@ namespace inercya.EntityLite
 
         protected AbstractQueryLite()
         {
-            this.Filter = new List<SimpleConditionLite>();
+            this.Filter = new List<ConditionLite>();
             this.Sort = new List<SortDescriptor>();
 			this.Options = new List<string>();
             this.FieldList = "*";

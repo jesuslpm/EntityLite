@@ -5,9 +5,9 @@ using System.Text;
 
 namespace inercya.EntityLite
 {
-	public interface ILocalizationContext
+	public interface ICurrentLanguageService
 	{
-		string CurrentLanguageCode { get; }
+        string CurrentLanguageCode { get; }
 		int GetCurrentLanguageIndex();
 	}
 }

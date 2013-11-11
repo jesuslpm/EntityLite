@@ -9,7 +9,7 @@ namespace inercya.EntityLite
 {
     public interface IQueryLite
     {
-        ICollection<SimpleConditionLite> Filter { get; set; }
+        ICollection<ConditionLite> Filter { get; set; }
         ICollection<SortDescriptor> Sort { get; set; }
 		ICollection<string> Options { get; set; }
 		IEnumerable ToEnumerable();

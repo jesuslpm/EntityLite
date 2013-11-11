@@ -1,5 +1,6 @@
 ﻿<#@ template debug="false" hostspecific="false" language="C#" #>
 <#@ assembly name="System.Core" #>
+<#@ assembly name="Microsoft.CSharp" #>
 <#@ assembly name="System.Data" #>
 <#@ assembly name="System.Xml" #>
 <#@ assembly name="$(SolutionDir)packages\EntityLite.Core.1.0.0-Beta\lib\net35-client\inercya.EntityLite.dll" #>

@@ -1,14 +1,63 @@
 ﻿<#@ include file ="EntityLite.ttinclude\EntityLite.ttinclude" #>
 <#
+/*
+To generate the datalayer from a SQLite database you need to install
+http://system.data.sqlite.org/downloads/1.0.89.0/sqlite-netFx45-setup-bundle-x86-2012-1.0.89.0.exe
+and mark "Install the assemblies into the Global Assembly Cache". 
+A Restart may be required for SQLite data provider to be available.
+
+To generate the datalayer for MySQL you need  to:
+1.- Install MySQL Connector: http://dev.mysql.com/downloads/connector/net/
+2.- Add MySql.Data.dll assembly to the GAC
+3.- Add the MySQL Data Provider factory to the DbProviderFactories element in machine.config
+
+  <system.data>
+    <DbProviderFactories>
+      <add name="MySQL Data Provider" invariant="MySql.Data.MySqlClient" description=".NET Framework Data Provider for MySQL" type="MySql.Data.MySqlClient.MySqlClientFactory, MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+    </DbProviderFactories>
+  </system.data>
+
+*/
 	var generation = new DataLayerGeneration
 	{
-		ProviderName = "System.Data.SqlClient",
-		ConnectionString = @"Data Source=SQLD\SQL2008R2;Integrated Security=SSPI;Initial Catalog=Northwind",
-		DefaultSchema = "dbo",
+		//ProviderName = "System.Data.SqlClient",
+		//ConnectionString = @"Data Source=(LocalDb)\V11.0;Initial Catalog=Northwind",
+		// DefaultSchema = "dbo",
+		ProviderName = "System.Data.SQLite",
+		ConnectionString = @"Data Source=C:\Projects\EntityLite\Samples\Northwind.db3",
+		DefaultSchema = null,
+		//ProviderName = "MySql.Data.MySqlClient",
+		//ConnectionString = @"server=SQL;uid=root;pwd=SSss33..;database=Northwind",
+		//DefaultSchema = "Northwind",
 		RootNamespace = "Samples.Entities",
 		DataServiceName = "NorhtwindDataService",
 		EntitySettings = new List<EntitySetting>
 		{
+			new EntitySetting 
+			{
+				BaseTableName = "Categories",
+				EntityName = "Category"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "Customers",
+				EntityName = "Customer"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "Employees",
+				EntityName = "Employee"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "OrderDetails",
+				EntityName = "OrderDetail"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "Orders",
+				EntityName = "Orders"  
+			},
 			new EntitySetting 
 			{
 				BaseTableName = "Products",
@@ -16,9 +65,13 @@
 			},
 			new EntitySetting 
 			{
-				Schema = "Security",
-				BaseTableName = "Users",
-				EntityName = "User"  
+				BaseTableName = "Shippers",
+				EntityName = "Shipper"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "Suppliers",
+				EntityName = "Supplier"  
 			}
 		},
 		ProcedureSettings = new List<ProcedureSetting>

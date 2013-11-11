@@ -94,12 +94,15 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Builders\AbstractQueryBuilder.cs" />
+    <Compile Include="CurrentLanguageService.cs" />
+    <Compile Include="Extensions\CurrentLanguageServiceExtensions.cs" />
     <Compile Include="FetchMode.cs" />
     <Compile Include="Extensions\FieldsOption.cs" />
     <Compile Include="Extensions\TreeNode.cs" />
     <Compile Include="AbstractQueryLite.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Builders\FunctionQueryBuilder.cs" />
+    <Compile Include="IdentityMapLite.cs" />
     <Compile Include="Templates\Extensions.cs" />
     <Compile Include="CacheLite.cs" />
     <Compile Include="Extensions\ConversionMethods.cs" />
@@ -124,7 +127,6 @@
     <Compile Include="Builders\IQueryBuilder.cs" />
     <Compile Include="Builders\FromDataReaderFactoryBuilder.cs" />
     <Compile Include="IQueryLite.cs" />
-    <Compile Include="ContextLite.cs" />
     <Compile Include="IIdentityMap.cs" />
     <Compile Include="ILocalizationContext.cs" />
     <Compile Include="KeyLocker.cs" />

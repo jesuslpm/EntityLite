@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Samples.Entities;
+using System.Data;
 
 namespace Samples
 {
@@ -10,9 +12,8 @@ namespace Samples
     {
         static void Main(string[] args)
         {
-            //InsertUpdateDeleteProduct();
-            InsertUpdateDeleteUser();
-            
+            Program.InsertUpdateDeleteProduct();
+            //ShowOrderDetails();
         }
 
         static byte[] GetSalt()
@@ -23,42 +24,52 @@ namespace Samples
             return salt;
         }
 
+        
+
+        static void ShowOrderDetails()
+        {
+            using (var ds = new Entities.NorhtwindDataService("Northwind"))
+            {
+                var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
+                    .Where(OrderDetailFields.OrderID, 10248)
+                    .ToList();
+
+            }
+
+        }
+
+        static void P()
+        {
+            using (var ds = new Entities.NorhtwindDataService("Northwind"))
+            {
+                ds.OpenConnection();
+                using (var cmd = ds.Connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT * FROM OrderDetail_Detailed LIMIT 1";
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        var schema = reader.GetSchemaTable();
+                    }
+                }
+            }
+        }
+
+        //void p()
+        //{
+        //    DataTable schema = new DataTable();
+        //    schema.Columns.Add("FieldType", typeof(Type));
+        //    IDataReader reader = null;
+        //    foreach(DataRow row in schema.Rows)
+        //    {
+        //        row["FieldType"] = reader.GetFieldType((int)row["ColumnOrdinal"]);
+        //    }
+        //}
+
         static byte[] GetSecureHash(string password, byte[] salt)
         {
             var rfc = new System.Security.Cryptography.Rfc2898DeriveBytes(password, salt);
             return rfc.GetBytes(64);
         }
-
-        static void InsertUpdateDeleteUser()
-        {
-            using (var ds = new Entities.NorhtwindDataService("Northwind"))
-            {
-                ds.CurrentUserId = 1;
-                var salt = GetSalt();
-                var u = new Entities.Security.User
-                {
-                    EmailAddress = "jesuslpm@hotmail.com",
-                    IsActive = true,
-                    LoginName = "jesuslpm",
-                    UserName = "Jesús López",
-                    UserPasswordHash = GetSecureHash("€ntity£it€1", salt),
-                    UserPassworkdSalt = salt
-                };
-
-                ds.SecurityUserRepository.Save(u);
-                Console.WriteLine("Inserted UserId:" + u.UserId);
-
-                u.UserName = "Jesús López Méndez";
-                ds.SecurityUserRepository.Save(u);
-
-                u = ds.SecurityUserRepository.Get(Projection.BaseTable, u.UserId);
-
-                Console.WriteLine("User Name: " + u.UserName);
-
-                ds.SecurityUserRepository.Delete(u.UserId);
-            }
-        }
-
 
         static void InsertUpdateDeleteProduct()
         {
@@ -73,7 +84,8 @@ namespace Samples
                     SupplierID = 2,
                     UnitPrice = 10,
                     UnitsInStock = 1,
-                    UnitsOnOrder = 0
+                    UnitsOnOrder = 0,
+                    Discontinued = false
                 };
 
                 // inserts the new product
@@ -91,6 +103,7 @@ namespace Samples
                 Console.WriteLine("CategoryName:" + p.CategoryName);
 
                 ds.ProductRepository.Delete(p.ProductID);
+
 
             }
         }

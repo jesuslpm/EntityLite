@@ -13,44 +13,47 @@ namespace inercya.EntityLite.Extensions
     {
         public static byte[] GetByteArray(this IDataRecord dataRecord, int fieldOrdinal)
         {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
             return (byte[])dataRecord.GetValue(fieldOrdinal);
         }
 
         public static TimeSpan GetTimeSpan(this IDataRecord dataRecord, int fieldOrdinal)
         {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
             return (TimeSpan)dataRecord.GetValue(fieldOrdinal);
+        }
+
+        public static UInt64 GetUInt64(this IDataRecord dataRecord, int fieldOrdinal)
+        {
+            return (UInt64)dataRecord.GetValue(fieldOrdinal);
+        }
+
+        public static UInt32 GetUInt32(this IDataRecord dataRecord, int fieldOrdinal)
+        {
+            return (UInt32)dataRecord.GetValue(fieldOrdinal);
+        }
+
+        public static UInt16 GetUInt16(this IDataRecord dataRecord, int fieldOrdinal)
+        {
+            return (UInt16)dataRecord.GetValue(fieldOrdinal);
         }
 
         public static DateTimeOffset GetDateTimeOffset(this IDataRecord dataRecord, int fieldOrdinal)
         {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
             return (DateTimeOffset)dataRecord.GetValue(fieldOrdinal);
-        }
-
-        public static object GetObject(this IDataRecord dataRecord, int fieldOrdinal)
-        {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
-            return dataRecord[fieldOrdinal];
         }
 
         public static SqlHierarchyId GetSqlHierarchyId(this IDataRecord dataRecord, int fieldOrdinal)
         {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
-            return (SqlHierarchyId)dataRecord[fieldOrdinal];
+            return (SqlHierarchyId)dataRecord.GetValue(fieldOrdinal);
         }
 
         public static SqlGeometry GetSqlGeometry(this IDataRecord dataRecord, int fieldOrdinal)
         {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
-            return (SqlGeometry)dataRecord[fieldOrdinal];
+            return (SqlGeometry)dataRecord.GetValue(fieldOrdinal);
         }
 
         public static SqlGeography GetSqlGeography(this IDataRecord dataRecord, int fieldOrdinal)
         {
-			if (dataRecord == null) throw new ArgumentNullException("dataRecord");
-            return (SqlGeography)dataRecord[fieldOrdinal];
+            return (SqlGeography)dataRecord.GetValue(fieldOrdinal);
         }
 
         private static string GetMetadataSummary(this IDataReader reader)

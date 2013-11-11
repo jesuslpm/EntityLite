@@ -27,10 +27,23 @@ public class DataLayerGeneration : IDisposable
         ProceduresClassName = "StoredProcedures";
     }
 
+	private  DbProviderFactory _factory;
+	public DbProviderFactory Factory
+	{
+		get
+		{
+			if (_factory==null)
+			{
+				_factory = DbProviderFactories.GetFactory(ProviderName);
+			}
+			return _factory;
+		}
+	}
+
+
     private DbConnection OpenConnection()
     {
-        DbProviderFactory factory = DbProviderFactories.GetFactory(ProviderName);
-        DbConnection cn = factory.CreateConnection();
+        DbConnection cn = Factory.CreateConnection();
         cn.ConnectionString = this.ConnectionString;
         cn.Open();
         return cn;
@@ -162,18 +175,23 @@ public class DataLayerGeneration : IDisposable
         //SetEntityTypes();
     }
 
-    public static DbType ToDbType(int providerType, string providerName)
+    public DbType ToDbType(int providerType)
     {
-        switch (providerName)
+        switch (ProviderName)
         {
             case "System.Data.SqlClient":
-                SqlParameter param = new SqlParameter();
-                param.SqlDbType = (SqlDbType)providerType;
-                return param.DbType;
+                SqlParameter sqlParam = new SqlParameter();
+                sqlParam.SqlDbType = (SqlDbType)providerType;
+                return sqlParam.DbType;
             case "System.Data.SQLite":
                 return (DbType)providerType;
+			case "MySql.Data.MySqlClient":
+				dynamic mySqlParam = Factory.CreateParameter();
+				Type mySqlDbTypeType = mySqlParam.MySqlDbType.GetType();
+				ObjectExtensions.SetPropertyValue(mySqlParam, "MySqlDbType", Enum.ToObject(mySqlDbTypeType, providerType));
+				return (DbType) mySqlParam.DbType; 
             default:
-                throw new NotSupportedException("provider " + providerName + " is not supported");
+                throw new NotSupportedException("provider " + ProviderName + " is not supported");
         }
     }
 
@@ -203,14 +221,14 @@ public class DataLayerGeneration : IDisposable
 
                 var readOnlyFields = entity.GetReadOnlyFields();
                 HashSet<string> localizedFields = new HashSet<string>();
-                foreach (var row in schema.Rows.Cast<DataRow>().Where( x => !(bool) x["IsHidden"]))
+                foreach (var row in schema.Rows.Cast<DataRow>().Where( x => x["IsHidden"].GetType() != typeof(bool) || !(bool) x["IsHidden"]))
                 {                     
                     var fieldMetadata = new FieldMetadata
                     {
                         BaseColumnName =  Convert.IsDBNull(row["BaseColumnName"]) ? string.Empty : (string) row["BaseColumnName"],
                         BaseSchemaName = Convert.IsDBNull(row["BaseSchemaName"]) ? string.Empty : (string) row["BaseSchemaName"],
                         BaseTableName = Convert.IsDBNull(row["BaseTableName"]) ? string.Empty : (string) row["BaseTableName"],
-                        DbType = ToDbType( (int) row["ProviderType"], ProviderName),
+                        DbType = ToDbType( (int) row["ProviderType"]),
                         IsAutoIncrement = (bool)row["IsAutoincrement"],
                         IsKey =  (bool) row["IsKey"],
                         IsNullable = ((Type)row["DataType"]).IsValueType && (bool) row["AllowDBNull"],
@@ -222,6 +240,10 @@ public class DataLayerGeneration : IDisposable
                         ColumnSize = (int) row["ColumnSize"]
 
                     };
+					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")
+					{
+						fieldMetadata.BaseSchemaName = string.Empty;
+					}
                     fieldsMetadata.Add(fieldMetadata);
                     if (fieldMetadata.PropertyName.Length > langLength)
                     {
@@ -259,16 +281,25 @@ public class DataLayerGeneration : IDisposable
         using (DbCommand selectCommand = cn.CreateCommand())
         {
             selectCommand.CommandText = "SELECT * FROM " + tableOrView;
-            using (DbDataReader reader = selectCommand.ExecuteReader(CommandBehavior.KeyInfo | CommandBehavior.SchemaOnly))
+			if (ProviderName == "System.Data.SQLite")
+			{
+				selectCommand.CommandText +=  " LIMIT 1";
+			}
+			else
+			{
+				selectCommand.CommandText += " WHERE 1=0";
+			}
+            using (DbDataReader reader = selectCommand.ExecuteReader(CommandBehavior.KeyInfo))
             {
                 var schema = reader.GetSchemaTable();
-                var hidden = schema.Rows.Cast<DataRow>().Where(x => (bool) x["IsHidden"]).ToList();
+                var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
                 foreach (var row in hidden)
                 {
                     schema.Rows.Remove(row);
                 }
                 schema.Constraints.Add("PK_Schema", schema.Columns["ColumnName"], true);
                 schema.Columns["IsAutoIncrement"].ReadOnly = false;
+				schema.AcceptChanges();
                 return schema;
             }
         }
@@ -334,7 +365,7 @@ public class DataLayerGeneration : IDisposable
         }
 		if (schemaUnion == null)
 		{
-			throw new InvalidOperationException("Cannot obtain metadata for entity " + entitySetting.EntityName + " from sql server");
+			throw new InvalidOperationException("Cannot obtain metadata for entity " + entitySetting.EntityName + " from database");
 		}
 		return schemaUnion;
     }
@@ -355,7 +386,7 @@ public class DataLayerGeneration : IDisposable
                     string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;
                         
                        
-                    if (GetSchemaName(entity) == viewSchema && viewName.StartsWith(entity.EntityName + "_"))
+                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(entity.EntityName.ToLower() + "_"))
                     {
                         views.Add(fullViewName);
                     }                      

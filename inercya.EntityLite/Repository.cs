@@ -8,13 +8,10 @@ namespace inercya.EntityLite
 {
     public interface IRepository
     {
-        IQueryLite CreateQuery(Projection projection);
-        IQueryLite CreateQuery(string projectionName);
+        IQueryLite Query(Projection projection);
+        IQueryLite Query(string projectionName);
         void Save(object entity);
         void Delete(object entity);
-        void BeginTransaction();
-        void CommitTransaction();
-        void RollbackTransaction();
         Type EntityType { get; }
 
 		object Get(Projection projection, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
@@ -28,8 +25,8 @@ namespace inercya.EntityLite
     {
         void Save(TEntity entity);
         void Delete(TEntity entity);
-        new IQueryLite<TEntity> CreateQuery(Projection projection);
-        new IQueryLite<TEntity> CreateQuery(string projectionName);
+        new IQueryLite<TEntity> Query(Projection projection);
+        new IQueryLite<TEntity> Query(string projectionName);
 
 		new TEntity Get(Projection projection, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
 		new TEntity Get(string projectionName, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
@@ -79,12 +76,12 @@ namespace inercya.EntityLite
             this.DataService.Delete(entity);
         }
 
-        public IQueryLite<TEntity> CreateQuery(Projection projection)
+        public IQueryLite<TEntity> Query(Projection projection)
         {
             return new QueryLite<TEntity>(projection, this.DataService);
         }
 
-        public IQueryLite<TEntity> CreateQuery(string projectionName)
+        public IQueryLite<TEntity> Query(string projectionName)
         {
             return new QueryLite<TEntity>(projectionName, this.DataService);
         }
@@ -98,16 +95,15 @@ namespace inercya.EntityLite
 		{
 			TEntity entity = null;
 			if (fetchMode == FetchMode.UseIdentityMap &&
-				ContextLite.SessionIdentityMap != null && 
-				(entity = ContextLite.SessionIdentityMap.Get<TEntity>(projectionName, entityId)) != null)
+				(entity = this.DataService.IdentityMap.Get<TEntity>(projectionName, entityId)) != null)
 			{
 				return entity;
 			}
 			string primaryKeyFieldName = typeof(TEntity).GetPrimaryKeyFieldName();
-			entity = this.CreateQuery(projectionName).Get(primaryKeyFieldName, entityId);
-			if (entity != null && ContextLite.SessionIdentityMap != null)
+			entity = this.Query(projectionName).Get(primaryKeyFieldName, entityId);
+			if (entity != null)
 			{
-				ContextLite.SessionIdentityMap.Put(projectionName, entity);
+				this.DataService.IdentityMap.Put(projectionName, entity);
 			}
 			return entity;
 		}
@@ -115,13 +111,12 @@ namespace inercya.EntityLite
         TEntity IRepository<TEntity>.Get(string projectionName, object entityId, string[] fields)
         {
             TEntity entity = null;
-            if (ContextLite.SessionIdentityMap != null &&
-                (entity = ContextLite.SessionIdentityMap.Get<TEntity>(projectionName, entityId)) != null)
+            if ((entity = DataService.IdentityMap.Get<TEntity>(projectionName, entityId)) != null)
             {
                 return entity;
             }
             string primaryKeyFieldName = typeof(TEntity).GetPrimaryKeyFieldName();
-            return this.CreateQuery(projectionName).Fields(fields).Get(primaryKeyFieldName, entityId);
+            return this.Query(projectionName).Fields(fields).Get(primaryKeyFieldName, entityId);
         }
 
         TEntity IRepository<TEntity>.Get(Projection projection, object entityId, string[] fields)
@@ -133,14 +128,14 @@ namespace inercya.EntityLite
 
         #region IRepository Members
 
-        IQueryLite IRepository.CreateQuery(Projection projection)
+        IQueryLite IRepository.Query(Projection projection)
         {
-            return this.CreateQuery(projection);
+            return this.Query(projection);
         }
 
-        IQueryLite IRepository.CreateQuery(string projectionName)
+        IQueryLite IRepository.Query(string projectionName)
         {
-            return this.CreateQuery(projectionName);
+            return this.Query(projectionName);
         }
 
         void IRepository.Save(object entity)
@@ -172,21 +167,6 @@ namespace inercya.EntityLite
         {
             return ((IRepository<TEntity>)this).Get(proyectionName, entityId, fields);
         }       
-
-        public void BeginTransaction()
-        {
-            this.DataService.BeginTransaction();
-        }
-
-        public void CommitTransaction()
-        {
-			this.DataService.Commit();
-        }
-
-        public void RollbackTransaction()
-        {
-            this.DataService.Rollback();
-        }
 
         public Type EntityType
         {

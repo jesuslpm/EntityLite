@@ -198,7 +198,7 @@ ORDER BY __RowNumber__
             return parameter;
         }
 
-        protected virtual void GenerateFilterForSimpleCondition(DbCommand cmd, SimpleConditionLite simpleCondition, StringBuilder sb, ref int paramIndex, ref bool firstCondition)
+        protected virtual void GenerateFilterForSimpleCondition(DbCommand cmd, ConditionLite simpleCondition, StringBuilder sb, ref int paramIndex, ref bool firstCondition)
         {
             if (simpleCondition.Filter != null && simpleCondition.Filter.IsEmpty()) return;
             if (firstCondition) { ;}
@@ -250,15 +250,11 @@ ORDER BY __RowNumber__
             }
 			if (propertyMetadata.IsLocalizedFiled)
 			{
-				if (ContextLite.LocalizationContext == null)
-				{
-					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " beacause the language context is not set");
-				}
-				fieldName = ContextLite.GetSufixedLocalizedFieldName(fieldName);
+				fieldName = CurrentLanguageService.GetSufixedLocalizedFieldName(fieldName);
 
 				if (string.IsNullOrEmpty(fieldName))
 				{
-					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + ContextLite.LocalizationContext.CurrentLanguageCode);
+					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + CurrentLanguageService.CurrentLanguageCode);
 				}
 				if (!QueryLite.EntityType.GetEntityMetadata().Properties.TryGetValue(fieldName, out propertyMetadata))
 				{
@@ -270,7 +266,7 @@ ORDER BY __RowNumber__
 				throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it has no metadata");
 			}
 
-			sb.Append("[").Append(fieldName).Append("]");
+			sb.Append(this.QueryLite.DataService.StartQuote).Append(fieldName).Append(this.QueryLite.DataService.EndQuote);
             if (simpleCondition.Operator == OperatorLite.IsNull)
             {
                 sb.Append(" IS NULL");
@@ -375,7 +371,7 @@ ORDER BY __RowNumber__
 
 
 
-        protected virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<SimpleConditionLite> filter)
+        protected virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter)
         {
             StringBuilder sb = new StringBuilder();
             bool firstCondition = true;
@@ -430,15 +426,12 @@ ORDER BY __RowNumber__
 
 			if ( propertyMetadata.IsLocalizedFiled)
 			{
-				if (ContextLite.LocalizationContext == null)
-				{
-					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " beacause the language context is not set");
-				}
-				fieldName = ContextLite.GetSufixedLocalizedFieldName(sortDescriptor.FieldName);
+	
+				fieldName = CurrentLanguageService.GetSufixedLocalizedFieldName(sortDescriptor.FieldName);
 
 				if (string.IsNullOrEmpty(fieldName))
 				{
-					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + ContextLite.LocalizationContext.CurrentLanguageCode);
+					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + CurrentLanguageService.CurrentLanguageCode);
 				}
 			}
 			commandText.Append(fieldName).Append(sortDescriptor.SortOrder == SortOrder.Descending ? " DESC" : string.Empty);

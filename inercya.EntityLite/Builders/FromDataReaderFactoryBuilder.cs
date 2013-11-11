@@ -32,9 +32,12 @@ namespace inercya.EntityLite.Builders
             { typeof(int), typeof(IDataRecord).GetMethod("GetInt32") },
             { typeof(long), typeof(IDataRecord).GetMethod("GetInt64") },
             { typeof(string), typeof(IDataRecord).GetMethod("GetString") },
+            { typeof(object), typeof(IDataRecord).GetMethod("GetValue") },
             { typeof(byte[]), typeof(DataReaderExtensions).GetMethod("GetByteArray") },
+            { typeof(UInt16), typeof(DataReaderExtensions).GetMethod("GetUInt16")},
+            { typeof(UInt32), typeof(DataReaderExtensions).GetMethod("GetUInt32")},
+            { typeof(UInt64), typeof(DataReaderExtensions).GetMethod("GetUInt64")},
             { typeof(TimeSpan), typeof(DataReaderExtensions).GetMethod("GetTimeSpan") },
-            { typeof(object), typeof(DataReaderExtensions).GetMethod("GetObject") },
             { typeof(DateTimeOffset), typeof(DataReaderExtensions).GetMethod("GetDateTimeOffset") },
 			{ typeof(SqlHierarchyId), typeof(DataReaderExtensions).GetMethod("GetSqlHierarchyId") },
 			{ typeof(SqlGeometry), typeof(DataReaderExtensions).GetMethod("GetSqlGeometry") },
@@ -110,7 +113,15 @@ namespace inercya.EntityLite.Builders
 			// cargar fieldOrdinal en la pila
 			cil.Emit(OpCodes.Ldc_I4, fieldOrdinal);
 			// llamar al método GetXX
-			MethodInfo getDataReaderMethod = GetGetDataReaderMethodForFieldType(reader.GetFieldType(fieldOrdinal));
+            MethodInfo getDataReaderMethod = null;
+            if (pi.PropertyType == typeof(object))
+            {
+                getDataReaderMethod = GetGetDataReaderMethodForFieldType(typeof(object));
+            }
+            else
+            {
+                getDataReaderMethod = GetGetDataReaderMethodForFieldType(reader.GetFieldType(fieldOrdinal));
+            }
 			if (getDataReaderMethod.IsStatic)
 			{
 				cil.Emit(OpCodes.Call, getDataReaderMethod);
@@ -129,7 +140,10 @@ namespace inercya.EntityLite.Builders
 			}
 
 			// emitir código de conversión de tipos
-			EmitConversionCode(reader.GetFieldType(fieldOrdinal), underlyingPropertyType);
+            if (underlyingPropertyType != typeof(object))
+            {
+                EmitConversionCode(reader.GetFieldType(fieldOrdinal), underlyingPropertyType);
+            }
 
 			// si el tipo es Nullable<> hay que llamar al constructor
 			if (isNullableValueType)
