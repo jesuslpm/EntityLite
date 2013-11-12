@@ -21,9 +21,9 @@ public class ProcedureSetting
         }
     }
 
-    public string GetCreateProcedureMethodName()
+    public string GetCreateProcedureMethodName(string defaultSchema)
     {
-        if (!string.IsNullOrEmpty(this.ProcedureSchema) && this.ProcedureSchema != "dbo")
+        if (!string.IsNullOrEmpty(this.ProcedureSchema) && this.ProcedureSchema != defaultSchema)
         {
             return "Create" + this.ProcedureSchema + this.ProcedureName + "Procedure";
         }
@@ -40,7 +40,6 @@ public class ProcedureSetting
 
     public ProcedureSetting()
     {
-        ProcedureSchema = "dbo";
     }
 
     public string GetReturnTypeName(string entityName)

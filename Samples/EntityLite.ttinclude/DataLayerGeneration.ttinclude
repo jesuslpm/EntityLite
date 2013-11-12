@@ -90,9 +90,15 @@ public class DataLayerGeneration : IDisposable
                 {
                     SqlCommandBuilder.DeriveParameters((SqlCommand)cmd);
                 }
+				else if (ProviderName == "MySql.Data.MySqlClient")
+				{
+					var commandBuilderType = Type.GetType("MySql.Data.MySqlClient.MySqlCommandBuilder, MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d", true);
+					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
+					mi.Invoke(null, new object[] {cmd});
+				}
                 else
                 {
-                    throw new NotSupportedException("Only SQL Server stored procedures are supported");
+                    throw new NotSupportedException("Stored procedures aren't supported for " + ProviderName);
                 }
                 ProceduresByFullName[fullName] = cmd;
             }

@@ -524,9 +524,9 @@ namespace inercya.EntityLite
                 PropertyMetadata propMetadata;
                 if (metadata.Properties.TryGetValue(x, out propMetadata))
                 {
-                    return propMetadata.SqlField != null  || propMetadata.IsLocalizedFiled;
+                    return propMetadata.SqlField == null  &&  !propMetadata.IsLocalizedFiled;
                 }
-                return false;
+                return true;
             });
 
             if (invalidField != null)

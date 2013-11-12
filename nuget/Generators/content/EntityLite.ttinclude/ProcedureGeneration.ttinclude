@@ -12,7 +12,7 @@ namespace <#= generation.RootNamespace #>
 	{
 		var proc = generation.GetProcedure(procedure);
 #>
-		public static DbCommand <#= procedure.GetCreateProcedureMethodName() #>(DbConnection connection)
+		public static DbCommand <#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(DbConnection connection, string parameterPrefix)
 		{
 			var cmd = connection.CreateCommand();
 			cmd.CommandText = "<#= procedure.GetFullProcedureName() #>";
@@ -29,7 +29,7 @@ namespace <#= generation.RootNamespace #>
 #>
 
 			p = cmd.CreateParameter();
-			p.ParameterName = "<#= p.ParameterName #>";
+			p.ParameterName = parameterPrefix + "<#= sourceColumn #>";
 			p.DbType = DbType.<#= p.DbType.ToString() #>;
 			p.Direction = ParameterDirection.<#= p.Direction.ToString() #>;
 <#+

@@ -12,7 +12,9 @@ namespace Samples
     {
         static void Main(string[] args)
         {
-            Program.InsertUpdateDeleteProduct();
+            Program.RaiseProductPrice();
+            //Program.InsertUpdateDeleteProduct();
+            //Program.ShowPagedProducts();
             //ShowOrderDetails();
         }
 
@@ -24,7 +26,40 @@ namespace Samples
             return salt;
         }
 
-        
+        static void RaiseProductPrice()
+        {
+            using (var ds = new Entities.NorhtwindDataService("Northwind"))
+            {
+                ds.ProductRepository.RaiseProductPrices(-0.11m);
+            }
+        }
+
+        static void ShowPagedProducts()
+        {
+            using (var ds = new Entities.NorhtwindDataService("Northwind"))
+            {
+                const int PageSize = 10;
+                var query = ds.ProductRepository.Query(Projection.Detailed)
+                    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+                    .OrderBy(ProductFields.CategoryName, ProductFields.ProductName);
+
+                var productCount = query.GetCount();
+
+                var fromRowIndex = 0;
+                var toRowIndex = PageSize - 1;
+                while (fromRowIndex < productCount)
+                {
+                    foreach (var product in query.ToEnumerable(fromRowIndex, toRowIndex))
+                    {
+                        Console.WriteLine("{0}\t{1}", product.CategoryName, product.ProductName);
+                    }
+                    Console.WriteLine("Press enter to view the next product page ...");
+                    Console.ReadLine();
+                    fromRowIndex = toRowIndex + 1;
+                    toRowIndex += PageSize;
+                }
+            }
+        }
 
         static void ShowOrderDetails()
         {
@@ -53,17 +88,6 @@ namespace Samples
                 }
             }
         }
-
-        //void p()
-        //{
-        //    DataTable schema = new DataTable();
-        //    schema.Columns.Add("FieldType", typeof(Type));
-        //    IDataReader reader = null;
-        //    foreach(DataRow row in schema.Rows)
-        //    {
-        //        row["FieldType"] = reader.GetFieldType((int)row["ColumnOrdinal"]);
-        //    }
-        //}
 
         static byte[] GetSecureHash(string password, byte[] salt)
         {
@@ -98,7 +122,7 @@ namespace Samples
                 // updates the product
                 ds.ProductRepository.Save(p);
 
-                p = ds.ProductRepository.Get(inercya.EntityLite.Projection.Detailed, p.ProductID);
+                p = ds.ProductRepository.Get(Projection.Detailed, p.ProductID);
 
                 Console.WriteLine("CategoryName:" + p.CategoryName);
 

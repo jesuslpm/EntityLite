@@ -102,7 +102,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 
 		<#= procedure.MemberVisibility.ToString().ToLower() #> <#= returnTypeName #> <#= procedure.ProcedureName #>(<#= parametersDefinition #>)
 		{
-			using (var proc = <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName() #>(this.DataService.Connection))
+			using (var proc = <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.ParameterPrefix))
 			{
 				this.DataService.OpenConnection();
 				if (this.DataService.IsActiveTransaction) proc.Transaction = this.DataService.Transaction;
@@ -110,7 +110,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Input) == ParameterDirection.Input))
 	{ 
 #>
-				proc.Parameters["<#= p.ParameterName #>"].Value = <#= p.SourceColumn.EscapeKeyword() #> == null ? (object) DBNull.Value : <#= p.SourceColumn.EscapeKeyword() #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+				proc.Parameters[this.DataService.ParameterPrefix + "<#= p.SourceColumn #>"].Value = <#= p.SourceColumn.EscapeKeyword() #> == null ? (object) DBNull.Value : <#= p.SourceColumn.EscapeKeyword() #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
 <#+
 	}
 	if (procedure.ResultSetKind == ProcedureResultSetKind.SingleRow	|| procedure.ResultSetKind == ProcedureResultSetKind.MultipleRows)

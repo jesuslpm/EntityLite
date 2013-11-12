@@ -33,9 +33,8 @@ namespace inercya.EntityLite.Builders
 			}
 		}
 
-        public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex)
+        private void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText)
         {
-            StringBuilder commandText = new StringBuilder();
             commandText.Append("\nSELECT ").Append(QueryLite.FieldList).Append("\nFROM \n\t").Append(GetFromClauseContent(selectCommand, ref paramIndex));
             bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
             if (hasWhereClause)
@@ -47,11 +46,29 @@ namespace inercya.EntityLite.Builders
             {
                 commandText.Append("\nORDER BY\n\t").Append(GetSort());
             }
+        }
+
+        public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex)
+        {
+            StringBuilder commandText = new StringBuilder();
+            GetSelectQuery(selectCommand, ref paramIndex, commandText);
 			SetOptions(commandText);
             return commandText.ToString();
         }
 
-        string IQueryBuilder.GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
+        string GetLimitOffsetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
+        {
+            StringBuilder commandText = new StringBuilder();
+            GetSelectQuery(selectCommand, ref paramIndex, commandText);
+            var limitParam = this.CreateIn32Parameter(toRowIndex - fromRowIndex + 1, ref paramIndex);
+            selectCommand.Parameters.Add(limitParam);
+            var offsetParam = this.CreateIn32Parameter(fromRowIndex, ref paramIndex);
+            selectCommand.Parameters.Add(offsetParam);
+            commandText.Append("\nLIMIT ").Append(limitParam.ParameterName).Append(" OFFSET ").Append(offsetParam.ParameterName);
+            return commandText.ToString();
+        }
+
+        string GetSql2005PaginatedQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
         {
             StringBuilder commandText = new StringBuilder();
             bool hasOrderbyClause = QueryLite.Sort != null && QueryLite.Sort.Count > 0;
@@ -59,13 +76,13 @@ namespace inercya.EntityLite.Builders
             {
                 foreach (var primaryKey in QueryLite.EntityType.GetEntityMetadata().PrimaryKeyPropertyNames)
                 {
-					if (QueryLite.Sort == null) QueryLite.Sort = new List<SortDescriptor>();
+                    if (QueryLite.Sort == null) QueryLite.Sort = new List<SortDescriptor>();
                     QueryLite.Sort.Add(new SortDescriptor(primaryKey));
                 }
-				if (QueryLite.Sort == null || QueryLite.Sort.Count == 0)
-				{
-					throw new InvalidOperationException("OrderBy or primary key are requiered for a paged query");
-				}
+                if (QueryLite.Sort == null || QueryLite.Sort.Count == 0)
+                {
+                    throw new InvalidOperationException("OrderBy or primary key are requiered for a paged query");
+                }
             }
 
             /*
@@ -96,8 +113,22 @@ ORDER BY __RowNumber__
             commandText.Append("WHERE __RowNumber__ BETWEEN ").Append(fromParameter.ParameterName).Append(" AND ").Append(toParameter.ParameterName);
             commandText.Append("\nORDER BY __RowNumber__");
 
-			SetOptions(commandText);
+            SetOptions(commandText);
             return commandText.ToString();
+        }
+
+        string IQueryBuilder.GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
+        {
+            switch(this.QueryLite.DataService.Provider)
+            {
+                case Provider.SqlClient:
+                    return GetSql2005PaginatedQuery(selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
+                case Provider.SQLite:
+                case Provider.MySql:
+                    return GetLimitOffsetSelectQuery(selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
+                default:
+                    throw new NotImplementedException("Paginated queries are not implemented yet for provider: " + this.QueryLite.DataService.Provider.ToString());
+            }
         }
 
         string IQueryBuilder.GetCountQuery(DbCommand selectCommand, ref int paramIndex)
