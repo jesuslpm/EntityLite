@@ -551,16 +551,7 @@ namespace inercya.EntityLite
                 sortedFields.EnsureField(metadata, query.DataService.SpecialFieldNames.EntityRowVersionFieldName);
             }
 
-            var localizableFields = fields.Where(x => metadata.Properties[x].IsLocalizedFiled).ToList();
-
-            foreach (var localizableField in localizableFields)
-            {
-                sortedFields.RemoveAt(sortedFields.BinarySearch(localizableField, StringComparer.InvariantCultureIgnoreCase));
-                string subfixedLocalizedFieldName = CurrentLanguageService.GetSufixedLocalizedFieldName(localizableField);
-                sortedFields.EnsureField(metadata, subfixedLocalizedFieldName);
-            }
-
-            query.FieldList = sortedFields.Join();
+            query.FieldList = sortedFields;
             return query;
         }
 

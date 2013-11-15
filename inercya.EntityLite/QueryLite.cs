@@ -38,8 +38,7 @@ namespace inercya.EntityLite
         {
             this.ProjectionName = projectionName;
             this.DataService = dataAccess;
-            this.FieldList = "*";
+            this.FieldList = new List<string>();
         }
-        
     }
 }

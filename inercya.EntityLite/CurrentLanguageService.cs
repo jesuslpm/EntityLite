@@ -54,7 +54,7 @@ namespace inercya.EntityLite
         public static string GetSufixedLocalizedFieldName(string localizedFieldName)
         {
             int index = GetCurrentLanguageIndex();
-            return localizedFieldName + "_Lang" + (index + 1).ToString();
+            return localizedFieldName + "Lang" + (index + 1).ToString();
         }
 
         public static string GetLocalizedValue(object entity, string localizedFieldName)

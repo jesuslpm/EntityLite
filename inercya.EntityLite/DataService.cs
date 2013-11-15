@@ -21,7 +21,8 @@ namespace inercya.EntityLite
         SqlClient,
         OracleClient,
         SQLite,
-        MySql
+        MySql,
+        Npgsql
     }
 
     public class ConnectionOpennedEventArgs : EventArgs
@@ -72,7 +73,7 @@ namespace inercya.EntityLite
                 }
                 return _defaultSchemaName;
             }
-            protected set
+            set
             {
                 _defaultSchemaName = value;
             }
@@ -188,11 +189,14 @@ namespace inercya.EntityLite
                        case "System.Data.SQLite":
                            _provider = Provider.SQLite;
                            break;
-                       case "System.Data.OracleClient":
+                       case "Oracle.DataAccess.Client":
                            _provider = Provider.OracleClient;
                            break;
                        case "MySql.Data.MySqlClient":
                            _provider = Provider.MySql;
+                           break;
+                       case "Npgsql":
+                           _provider = Provider.Npgsql;
                            break;
                        default:
                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
@@ -215,6 +219,7 @@ namespace inercya.EntityLite
                         case Provider.SqlClient:
                         case Provider.SQLite:
                         case Provider.MySql:
+                        case Provider.Npgsql:
                             _parameterPrefix = "@";
                             break;
                         case Provider.OracleClient:
@@ -245,6 +250,7 @@ namespace inercya.EntityLite
                             _startQuote = "`";
                             break;
                         case Provider.OracleClient:
+                        case Provider.Npgsql:
                             _startQuote = "\"";
                             break;
                         default:
@@ -272,6 +278,7 @@ namespace inercya.EntityLite
                             _endQuote = "`";
                             break;
                         case Provider.OracleClient:
+                        case Provider.Npgsql:
                             _endQuote = "\"";
                             break;
                         default:
@@ -619,28 +626,45 @@ namespace inercya.EntityLite
 					}
 					this.OpenConnection();
 					var watch = Stopwatch.StartNew();
-					using (IDataReader reader = cmd.ExecuteReader())
-					{
-						EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
-						string autoIncrementFieldName = entityMetadata.AutoIncrementFieldName;
+                    EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
+                    string autoIncrementFieldName = entityMetadata.AutoIncrementFieldName;
+                    if (this.Provider == EntityLite.Provider.OracleClient && entityMetadata.SequenceFieldName != null)
+                    {
+                        cmd.ExecuteNonQuery();
+                        long id = (long) cmd.Parameters[":id_seq_$param$"].Value;
+                        Type propertyType = entityMetadata.Properties[entityMetadata.SequenceFieldName].PropertyInfo.PropertyType;
+                        if (propertyType == typeof(long))
+                        {
+                            setters[entityMetadata.SequenceFieldName](entity, id);
+                        }
+                        else
+                        {
+                            setters[entityMetadata.SequenceFieldName](entity, Convert.ChangeType(id, propertyType));
+                        }
+                    }
+                    else
+                    {
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
 
-						if (!string.IsNullOrEmpty(autoIncrementFieldName) && reader.Read())
-						{
-							int fieldOrdinal = 0;
-							Type fieldType = reader.GetFieldType(fieldOrdinal);
-							Type propertyType = entityMetadata.Properties[autoIncrementFieldName].PropertyInfo.PropertyType;
-							if (fieldType == propertyType)
-							{
-								setters[autoIncrementFieldName](entity, reader.GetValue(fieldOrdinal));
-							}
-							else
-							{
-								setters[autoIncrementFieldName](entity, Convert.ChangeType(reader.GetValue(fieldOrdinal), propertyType));
-							}
-						}
-						while (reader.NextResult()) ;
+                            if (!string.IsNullOrEmpty(autoIncrementFieldName) && reader.Read())
+                            {
+                                int fieldOrdinal = 0;
+                                Type fieldType = reader.GetFieldType(fieldOrdinal);
+                                Type propertyType = entityMetadata.Properties[autoIncrementFieldName].PropertyInfo.PropertyType;
+                                if (fieldType == propertyType)
+                                {
+                                    setters[autoIncrementFieldName](entity, reader.GetValue(fieldOrdinal));
+                                }
+                                else
+                                {
+                                    setters[autoIncrementFieldName](entity, Convert.ChangeType(reader.GetValue(fieldOrdinal), propertyType));
+                                }
+                            }
+                            while (reader.NextResult()) ;
 
-					}
+                        }
+                    }
 					watch.Stop();
 					CommandExecutionLogger.LogCommandExecution(cmd, this, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
 					return 0;

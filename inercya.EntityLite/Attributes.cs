@@ -24,13 +24,14 @@ namespace inercya.EntityLite
         public string BaseColumnName { get; set; }
         public string BaseTableName { get; set; }
 
-        public SqlFieldAttribute(DbType dbType, int size, byte precision, byte scale)
+        public string ColumnName { get; set; }
+
+        public string SequenceName { get; set; }
+
+        public SqlFieldAttribute(DbType dbType, int size)
         {
             this.DbType = dbType;
             this.Size = size;
-            this.Precision = precision;
-            this.Scale = scale;
-            
         }
     }
 

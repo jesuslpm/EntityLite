@@ -13,13 +13,15 @@ public class FieldMetadata
     public string BaseColumnName { get; set; }
     public string BaseSchemaName { get; set; }
     public string BaseTableName { get; set; }
+	public string ColumnName {get; set;}
     public int ColumnSize { get; set; }
     public bool IsLocalizedField { get; set; }
+	public string SequenceName { get; set;}
     public string FullTableName
     {
         get
         {
-            if (string.IsNullOrEmpty(BaseTableName)) return string.Empty;
+            if (string.IsNullOrEmpty(BaseTableName)) return null;
             if (!string.IsNullOrEmpty(BaseSchemaName)) return BaseSchemaName + "." + BaseTableName;
             return BaseTableName;
         }

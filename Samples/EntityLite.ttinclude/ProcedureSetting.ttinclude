@@ -25,11 +25,11 @@ public class ProcedureSetting
     {
         if (!string.IsNullOrEmpty(this.ProcedureSchema) && this.ProcedureSchema != defaultSchema)
         {
-            return "Create" + this.ProcedureSchema + this.ProcedureName + "Procedure";
+            return "Create" + (this.ProcedureSchema.ToPascalNamingConvention() + this.ProcedureName.ToPascalNamingConvention()) + "Procedure";
         }
         else
         {
-            return "Create" +  this.ProcedureName + "Procedure";
+            return "Create" +  this.ProcedureName.ToPascalNamingConvention() + "Procedure";
         }
     }
 

@@ -283,7 +283,8 @@ namespace inercya.EntityLite.Builders
             for (int fieldOrdinal = 0; fieldOrdinal < fieldCount; fieldOrdinal++)
             {
                 PropertyInfo pi;
-                if (properties.TryGetValue(reader.GetName(fieldOrdinal), out pi))
+                string fieldName = reader.GetName(fieldOrdinal);
+                if (properties.TryGetValue(fieldName, out pi) || properties.TryGetValue(fieldName.ToPascalNamingConvention(), out pi))
                 {
                     EmitCilForOneField(fieldOrdinal, pi);
                 }

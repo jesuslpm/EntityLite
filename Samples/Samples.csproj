@@ -65,13 +65,12 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="inercya.EntityLite, Version=1.0.2.0, Culture=neutral, PublicKeyToken=0db7ecb3b8a17fbc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityLite.Core.1.0.2-Beta\lib\net35-client\inercya.EntityLite.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security">
+      <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -80,6 +79,12 @@
     <Reference Include="NLog, Version=2.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NLog.2.1.0\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="policy.2.0.Npgsql">
+      <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\policy.2.0.Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -116,6 +121,7 @@
     <None Include="EntityLite.ttinclude\EntityGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\EntitySetting.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldMetadata.ttinclude" />
     <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
     <None Include="EntityLite.ttinclude\MemberVisibility.ttinclude" />
@@ -133,14 +139,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AttachDb.sql" />
-    <Content Include="Northiwnd.MySql.sql" />
+    <Content Include="Scripts\Northwind.Postgres.sql" />
+    <Content Include="Scripts\Northiwnd.MySql.sql" />
     <Content Include="Northwind.mdf" />
-    <Content Include="Northwind.Sqlite3.sql" />
+    <Content Include="Scripts\Northwind.Oracle.sql" />
+    <Content Include="Scripts\Northwind.Sqlite3.sql" />
     <Content Include="Northwind_log.ldf">
       <DependentUpon>Northwind.mdf</DependentUpon>
     </Content>
-    <Content Include="views_sqlite.sql" />
-    <Content Include="Views_sql_server.sql" />
+    <Content Include="Scripts\Views_sql_server.sql" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -169,6 +176,12 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.csproj">
+      <Project>{b74df500-8654-40d1-a50c-7262a2095b1e}</Project>
+      <Name>inercya.EntityLite</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

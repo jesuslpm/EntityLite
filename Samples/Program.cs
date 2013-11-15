@@ -1,10 +1,13 @@
 ﻿using inercya.EntityLite;
+using inercya.EntityLite.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Samples.Entities;
 using System.Data;
+using System.Reflection;
+using System.Data.Common;
 
 namespace Samples
 {
@@ -12,10 +15,45 @@ namespace Samples
     {
         static void Main(string[] args)
         {
-            Program.RaiseProductPrice();
-            //Program.InsertUpdateDeleteProduct();
+            //TestOracleSeq();
+            //ToPascalTests();
+            //Program.RaiseProductPrice();
+            Program.InsertUpdateDeleteProduct();
             //Program.ShowPagedProducts();
             //ShowOrderDetails();
+        }
+
+        static void TestOracleSeq()
+        {
+            using (var ds = new NorhtwindDataService("Northwind"))
+            {
+                var cmd = ds.Connection.CreateCommand();
+                cmd.CommandText = @"
+DECLARE
+  id_seq_$var$ PLS_INTEGER;
+BEGIN
+  id_seq_$var$ := ID_SEQ.nextval;
+  :id_seq_$param$ := id_seq_$var$;
+END;";
+                IDbDataParameter id = cmd.CreateParameter();
+                id.DbType = DbType.Int32;
+                id.Direction = ParameterDirection.Output;
+                id.ParameterName = ":id_seq_$param$";
+                cmd.Parameters.Add(id);
+                ds.OpenConnection();
+                cmd.ExecuteNonQuery();
+                Console.WriteLine(id.Value);
+
+            }
+        }
+
+        static void ToPascalTests()
+        {
+            Console.WriteLine("OrderDetails".ToPascalNamingConvention());
+            Console.WriteLine("order_details".ToPascalNamingConvention());
+            Console.WriteLine("ORDER_DETAILS".ToPascalNamingConvention());
+            Console.WriteLine(string.Empty.ToPascalNamingConvention());
+
         }
 
         static byte[] GetSalt()
@@ -66,7 +104,7 @@ namespace Samples
             using (var ds = new Entities.NorhtwindDataService("Northwind"))
             {
                 var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
-                    .Where(OrderDetailFields.OrderID, 10248)
+                    .Where(OrderDetailFields.OrderId, 10248)
                     .ToList();
 
             }
@@ -95,17 +133,29 @@ namespace Samples
             return rfc.GetBytes(64);
         }
 
+        //static Func<IDataReader, DataRow, DbType> GetDbTypeFunc(string providerName, DbProviderFactory factory)
+        //{
+        //    if (providerName == "Npgsql")
+        //    {
+        //        Type datareaderType = Type.GetType("Npgsql.NpgsqlDataReader, " + factory.GetType().Assembly.FullName);
+        //        MethodInfo getFieldDbTypeMehtodInfo = datareaderType.GetMethod("GetFieldDbType");
+        //        Delegate.CreateDelegate()
+        //        // GetFieldDbType;
+        //    }
+        //}
+
         static void InsertUpdateDeleteProduct()
         {
             using (var ds = new Entities.NorhtwindDataService("Northwind"))
             {
+                //ds.DefaultSchemaName = "NORTHWIND";
                 var p = new Entities.Product
                 {
-                    CategoryID = 1,
+                    CategoryId = 2,
                     ProductName = "New Product",
                     QuantityPerUnit = "2",
                     ReorderLevel = 50,
-                    SupplierID = 2,
+                    SupplierId = 2,
                     UnitPrice = 10,
                     UnitsInStock = 1,
                     UnitsOnOrder = 0,
@@ -115,18 +165,18 @@ namespace Samples
                 // inserts the new product
                 ds.ProductRepository.Save(p);
 
-                Console.WriteLine("Inserted product id:" + p.ProductID);
+                Console.WriteLine("Inserted product id:" + p.ProductId);
 
                 p.ProductName = "Another Name";
 
                 // updates the product
                 ds.ProductRepository.Save(p);
 
-                p = ds.ProductRepository.Get(Projection.Detailed, p.ProductID);
+                p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
 
                 Console.WriteLine("CategoryName:" + p.CategoryName);
 
-                ds.ProductRepository.Delete(p.ProductID);
+                ds.ProductRepository.Delete(p.ProductId);
 
 
             }

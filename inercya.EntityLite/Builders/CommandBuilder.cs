@@ -12,14 +12,6 @@ using inercya.EntityLite.Collections;
 
 namespace inercya.EntityLite.Builders
 {
-	public enum CommandKind
-	{
-
-		Insert,
-		Update,
-		DeleteCommand
-	}
-
 
 	internal class CommandBuilder : IDisposable
 	{
@@ -127,12 +119,12 @@ namespace inercya.EntityLite.Builders
                 {
                     if (firstTime)
                     {
-                        commandText.Append(" SET\n\t");
+                        commandText.Append(" SET\n    ");
                         firstTime = false;
                     }
                     else
                     {
-                        commandText.Append(",\n\t");
+                        commandText.Append(",\n    ");
                     }
                     if (string.Equals(propertyName, dataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -159,17 +151,17 @@ namespace inercya.EntityLite.Builders
             {
                 var property = entityMetadata.Properties[whereField];
                 SqlFieldAttribute field = property.SqlField;
-                if (string.Equals(whereField, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(field.ColumnName, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     string parameterName = dataService.ParameterPrefix + whereField;
                     if (firstTime)
                     {
-                        commandText.Append("\nWHERE\n\t");
+                        commandText.Append("\nWHERE\n    ");
                         firstTime = false;
                     }
                     else
                     {
-                        commandText.Append("\n\tAND ");
+                        commandText.Append("\n    AND ");
                     }
                     commandText.Append(field.BaseColumnName).Append(" = ").Append(parameterName);
 
@@ -202,71 +194,131 @@ namespace inercya.EntityLite.Builders
 			{
 				throw new InvalidOperationException("cannot generate insert command for entity " + entityType.Name + " because it does not have a base table");
 			}
+            DbCommand cmd = dataService.Connection.CreateCommand();
+            StringBuilder commandText = new StringBuilder();
 
-            string fullTableName = entityMetadata.GetFullTableName(this.dataService.DefaultSchemaName);
-			IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
 
-			DbCommand cmd = dataService.Connection.CreateCommand();
-			StringBuilder commandText = new StringBuilder();
-			StringBuilder valuesText = new StringBuilder();
-            commandText.Append("\nINSERT INTO  ").Append(fullTableName);
-			bool firstTime = true;
-			foreach (var kv in entityMetadata.UpdatableProperties)
-			{
-				SqlFieldAttribute field = kv.Value.SqlField;
-				string propertyName = kv.Key;
-				if (firstTime)
-				{
-					commandText.Append("(");
-					valuesText.Append("\nVALUES(");
-					firstTime = false;
-				}
-				else
-				{
-					commandText.Append(", ");
-					valuesText.Append(", ");
-				}
-				commandText.Append(field.BaseColumnName);
-				if (string.Equals(propertyName, dataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
-				{
-					valuesText.Append("1");
-				}
-				else
-				{
-					string parameterName = dataService.ParameterPrefix + propertyName;
-					valuesText.Append(parameterName);
-					IDbDataParameter param = CreateParameter(kv.Value, propertyName);
-					SetValueToCommandParameter(entity, getters, propertyName, param);
-					cmd.Parameters.Add(param);
-				}
-				
-			}
-			commandText.Append(")");
-			valuesText.Append(")");
-			commandText.Append(valuesText.ToString()).Append(";");
+            string fullSequenceName = entityMetadata.GetFullSequenceName(this.dataService.DefaultSchemaName);
 
+            bool oracleSequence = this.dataService.Provider == Provider.OracleClient && fullSequenceName != null;
+            if (oracleSequence)
+            {
+                AppendOracleSequenceFirstFragment(commandText, fullSequenceName);
+            }
+
+            AppendInsertStatement(entity, entityType, entityMetadata, cmd, commandText);
+            if (oracleSequence || 
+                this.dataService.Provider != Provider.OracleClient
+                 && (this.dataService.Provider != Provider.Npgsql || string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName))
+               )
+            {
+                commandText.Append(";\n");
+            }
+            else commandText.Append("\n");
+
+            if (oracleSequence)
+            {
+                AppendOracleSequenceEndFragment(cmd, commandText);
+            }
+            
 			if (!string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName))
 			{
-				switch (dataService.Provider)
-				{
-					case Provider.SqlClient:
-						commandText.Append("\nSELECT SCOPE_IDENTITY() AS ").Append(entityMetadata.AutoIncrementFieldName).Append(";");
-						break;
-					case Provider.SQLite:
-						commandText.Append("\nSELECT last_insert_rowid() AS ").Append(entityMetadata.AutoIncrementFieldName).Append(";");
-						break;
-                    case Provider.MySql:
-                        commandText.Append("\nSELECT LAST_INSERT_ID() AS").Append(entityMetadata.AutoIncrementFieldName).Append(";");
-                        break;
-					case Provider.OracleClient:
-						throw new NotImplementedException("autoincrement fields for oracle are not implemented yet");
-					default:
-						throw new NotSupportedException("Provider " + dataService.Provider.ToString() + "  not supported");
-				}
+                AppendSelectAutoincrementStatement(entityMetadata, commandText);
 			}
 			cmd.CommandText = commandText.ToString();
 			return cmd;
 		}
+
+        private static void AppendOracleSequenceEndFragment(DbCommand cmd, StringBuilder commandText)
+        {
+            commandText.Append(@"
+    :id_seq_$param$ := id_seq_$var$;
+END;");
+            IDbDataParameter idp = cmd.CreateParameter();
+            idp.ParameterName = ":id_seq_$param$";
+            idp.Direction = ParameterDirection.Output;
+            idp.DbType = DbType.Int64;
+            cmd.Parameters.Add(idp);
+        }
+
+        private static void AppendOracleSequenceFirstFragment(StringBuilder commandText, string fullSequenceName)
+        {
+            commandText.Append(string.Format(@"
+DECLARE
+    id_seq_$var$ NUMERIC(18);
+BEGIN
+    id_seq_$var$ := {0}.nextval;", fullSequenceName));
+        }
+
+        private void AppendSelectAutoincrementStatement(EntityMetadata entityMetadata, StringBuilder commandText)
+        {
+            switch (dataService.Provider)
+            {
+                case Provider.SqlClient:
+                    commandText.Append("SELECT SCOPE_IDENTITY() AS ").Append(entityMetadata.AutoIncrementFieldName).Append(";");
+                    break;
+                case Provider.SQLite:
+                    commandText.Append("SELECT last_insert_rowid() AS ").Append(entityMetadata.AutoIncrementFieldName).Append(";");
+                    break;
+                case Provider.MySql:
+                    commandText.Append("SELECT LAST_INSERT_ID() AS").Append(entityMetadata.AutoIncrementFieldName).Append(";");
+                    break;
+                case Provider.Npgsql:
+                    commandText.Append("RETURNING ").Append(dataService.StartQuote).Append(entityMetadata.Properties[entityMetadata.AutoIncrementFieldName].SqlField.BaseColumnName).Append(dataService.EndQuote).Append(";");
+                    break;
+                default:
+                    throw new NotSupportedException("autoincrement fields for oracle are not supported for provider " + dataService.Provider.ToString());
+            }
+        }
+
+        private void AppendInsertStatement(object entity, Type entityType, EntityMetadata entityMetadata, DbCommand cmd, StringBuilder commandText)
+        {
+            string fullTableName = entityMetadata.GetFullTableName(this.dataService.DefaultSchemaName);
+            IPropertyGetterDictionary getters = entityType.GetPropertyGetters();
+
+
+
+            StringBuilder valuesText = new StringBuilder();
+            commandText.Append("\nINSERT INTO  ").Append(fullTableName);
+            bool firstTime = true;
+            foreach (var kv in entityMetadata.UpdatableProperties)
+            {
+                SqlFieldAttribute field = kv.Value.SqlField;
+                string propertyName = kv.Key;
+                if (firstTime)
+                {
+                    commandText.Append("(");
+                    valuesText.Append("\nVALUES(");
+                    firstTime = false;
+                }
+                else
+                {
+                    commandText.Append(", ");
+                    valuesText.Append(", ");
+                }
+                commandText.Append(field.BaseColumnName);
+                if (string.Equals(propertyName, dataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    valuesText.Append("1");
+                }
+                else if (string.Equals(propertyName, entityMetadata.SequenceFieldName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    valuesText.Append("id_seq_$var$");
+                }
+                else
+                {
+                    string parameterName = dataService.ParameterPrefix + propertyName;
+                    valuesText.Append(parameterName);
+                    IDbDataParameter param = CreateParameter(kv.Value, propertyName);
+                    SetValueToCommandParameter(entity, getters, propertyName, param);
+                    cmd.Parameters.Add(param);
+                }
+
+            }
+            commandText.Append(")");
+            valuesText.Append(")");
+            commandText.Append(valuesText.ToString());
+        }
 
 		private static void SetValueToCommandParameter(object entity, IPropertyGetterDictionary getters, string propertyName, IDbDataParameter param)
 		{
@@ -338,7 +390,7 @@ namespace inercya.EntityLite.Builders
 			{
 				parameter.Precision = field.Precision;
 			}
-			if (field.Scale != 255)
+			if (field.Scale != 255 && field.Scale != 0)
 			{
 				parameter.Scale = field.Scale;
 			}
@@ -378,12 +430,12 @@ namespace inercya.EntityLite.Builders
 					string parameterName = dataService.ParameterPrefix + fieldName;
 					if (firstTime)
 					{
-						commandText.Append("\nWHERE\n\t");
+						commandText.Append("\nWHERE\n    ");
 						firstTime = false;
 					}
 					else
 					{
-						commandText.Append("\n\tAND ");
+						commandText.Append("\n    AND ");
 					}
 					commandText.Append(field.BaseColumnName).Append(" = ").Append(parameterName);
 

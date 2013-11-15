@@ -79,7 +79,7 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
                 {
 #>
 		[DataMember]
-		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #>, <#= field.Precision #>, <#= field.Scale #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #>, BaseColumnName = "<#= field.BaseColumnName #>", BaseTableName="<#= field.BaseTableName #>" )]
+		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #><#= field.Precision == 0 || field.Precision == 255 ? string.Empty : ", Precision = " + field.Precision.ToString() #><#= field.Scale == 0 || field.Scale == 255 ? string.Empty : ", Scale=" + field.Scale.ToString() #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.SequenceName == null ? string.Empty : ", SequenceName = \"" + field.SequenceName + "\"" #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #><#= field.ColumnName == null ? string.Empty : ", ColumnName =\"" + field.ColumnName + "\"" #><#= field.BaseColumnName == null ? string.Empty : ", BaseColumnName =\"" + field.BaseColumnName + "\"" #><#= field.BaseTableName == null ? string.Empty : ", BaseTableName = \"" + field.BaseTableName + "\"" #> )]
 		public <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= field.PropertyName.EscapeKeyword() #> { get; set; }
 
 <#+
@@ -100,7 +100,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 	string parametersDefinition = DataLayerGeneration.GetProcedureParametersDefinition(proc);
 #>
 
-		<#= procedure.MemberVisibility.ToString().ToLower() #> <#= returnTypeName #> <#= procedure.ProcedureName #>(<#= parametersDefinition #>)
+		<#= procedure.MemberVisibility.ToString().ToLower() #> <#= returnTypeName #> <#= procedure.ProcedureName.ToPascalNamingConvention() #>(<#= parametersDefinition #>)
 		{
 			using (var proc = <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.ParameterPrefix))
 			{
@@ -109,8 +109,14 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 <#+
 	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Input) == ParameterDirection.Input))
 	{ 
+		string sourceColumn = p.ParameterName;
+		if (sourceColumn[0] == '@' || sourceColumn[0] == ':')
+		{
+			sourceColumn = sourceColumn.Substring(1);
+		}
+		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
 #>
-				proc.Parameters[this.DataService.ParameterPrefix + "<#= p.SourceColumn #>"].Value = <#= p.SourceColumn.EscapeKeyword() #> == null ? (object) DBNull.Value : <#= p.SourceColumn.EscapeKeyword() #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+				proc.Parameters[this.DataService.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
 <#+
 	}
 	if (procedure.ResultSetKind == ProcedureResultSetKind.SingleRow	|| procedure.ResultSetKind == ProcedureResultSetKind.MultipleRows)

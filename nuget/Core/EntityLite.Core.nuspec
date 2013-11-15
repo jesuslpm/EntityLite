@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite.Core</id>
-    <version>1.0.2-Beta</version>
+    <version>1.0.3-Beta</version>
     <title>i-nercya EntityLite Core</title>
     <authors>Jesús López (i-nercya intelligent software)</authors>
     <owners></owners>
@@ -22,8 +22,8 @@
     <copyright>Copyright  2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="NLog" version="2.1.0" />
-        <dependency id="Microsoft.SqlServer.Types" version="10.50.1600.1" />
+        <dependency id="NLog" version="[2.1.0]" />
+        <dependency id="Microsoft.SqlServer.Types" version="[10.50.1600.1]" />
       </group>
     </dependencies>
     <references></references>

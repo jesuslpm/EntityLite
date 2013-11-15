@@ -15,6 +15,10 @@ namespace inercya.EntityLite
  
         public string AutoIncrementFieldName { get; set; }
 
+        public string SequenceFieldName { get; set; }
+
+        public string SequenceName { get; set; }
+
         private ICollection<String> _primaryKeyProperties;
         public ICollection<String> PrimaryKeyPropertyNames
         {
@@ -49,8 +53,16 @@ namespace inercya.EntityLite
 
         public string GetFullTableName(string defaultSchemaName)
         {
+            if (string.IsNullOrEmpty(this.BaseTableName)) return null;
             string schemaName = string.IsNullOrEmpty(this.SchemaName) ? defaultSchemaName : this.SchemaName;
             return string.IsNullOrEmpty(schemaName) ? this.BaseTableName : schemaName + "." + this.BaseTableName;
+        }
+
+        public string GetFullSequenceName(string defaultSchemaName)
+        {
+            if (string.IsNullOrEmpty(this.SequenceName)) return null;
+            string schemaName = string.IsNullOrEmpty(this.SchemaName) ? defaultSchemaName : this.SchemaName;
+            return string.IsNullOrEmpty(schemaName) ? this.SequenceName : schemaName + "." + this.SequenceName;
         }
 
 		private static EntityMetadata CreateEntityMetadata(Type entityType)
@@ -85,7 +97,7 @@ namespace inercya.EntityLite
 						{
 							entityMetadata.PrimaryKeyPropertyNames.Add(pi.Name);
 						}
-						else if (field.BaseColumnName == pi.Name)
+						else if (string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
 						{
 							entityMetadata.PrimaryKeyPropertyNames.Remove(conflictingPrimaryKeyPropertyName);
 							entityMetadata.PrimaryKeyPropertyNames.Add(pi.Name);
@@ -102,7 +114,7 @@ namespace inercya.EntityLite
 						{
 							entityMetadata.UpdatableProperties.Add(pi.Name, propertyMetadata);
 						}
-						else if (field.BaseColumnName == pi.Name)
+						else if (string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
 						{
 							entityMetadata.UpdatableProperties.Remove(conflictingPropertyName);
 							entityMetadata.UpdatableProperties.Add(pi.Name, propertyMetadata);
@@ -111,11 +123,20 @@ namespace inercya.EntityLite
 
 					if (field.IsAutoincrement && !string.IsNullOrEmpty(field.BaseTableName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
 					{
-						if (string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName) || field.BaseColumnName == pi.Name)
+						if (string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName) || string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
 						{
 							entityMetadata.AutoIncrementFieldName = pi.Name;
 						}
 					}
+
+                    if (!string.IsNullOrEmpty(field.SequenceName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
+                    { 
+                        if (string.IsNullOrEmpty(entityMetadata.SequenceName) || string.Equals(field.BaseTableName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            entityMetadata.SequenceFieldName = pi.Name;
+                            entityMetadata.SequenceName = field.SequenceName;
+                        }
+                    }
 				}
 				if (pi.GetCustomAttributes(typeof(LocalizedFieldAttribute), false).Length > 0)
 				{

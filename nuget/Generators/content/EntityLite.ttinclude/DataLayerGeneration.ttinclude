@@ -2,10 +2,6 @@
 public class DataLayerGeneration : IDisposable
 {
 
-    public static Type GetTypeFromDbType(DbType dbType)
-    {
-        return TypeByDbType[dbType];
-    }
 
     public string ProviderName { get; set; }
     public string ConnectionString { get; set; }
@@ -50,6 +46,11 @@ public class DataLayerGeneration : IDisposable
     }
 
 
+	public static Type GetTypeFromDbType(DbType dbType)
+    {
+        return TypeByDbType[dbType];
+    }
+
     private IDictionary<string, IList<ProcedureSetting>> ProceduresByFullEntityName;
 
     public IList<ProcedureSetting> GetRelatedProcedures(string entityName, string schema)
@@ -92,9 +93,21 @@ public class DataLayerGeneration : IDisposable
                 }
 				else if (ProviderName == "MySql.Data.MySqlClient")
 				{
-					var commandBuilderType = Type.GetType("MySql.Data.MySqlClient.MySqlCommandBuilder, MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d", true);
+					var commandBuilderType = Type.GetType("MySql.Data.MySqlClient.MySqlCommandBuilder, " + Factory.GetType().Assembly.FullName, true);
 					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
 					mi.Invoke(null, new object[] {cmd});
+				}
+				else if (ProviderName == "Oracle.DataAccess.Client")
+				{
+					var commandBuilderType = Type.GetType("Oracle.DataAccess.Client.OracleCommandBuilder, " + Factory.GetType().Assembly.FullName, true);
+					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
+					mi.Invoke(null, new object[] {cmd});				
+				}
+				else if (ProviderName == "Npgsql")
+				{
+					var commandBuilderType = Type.GetType("Npgsql.NpgsqlCommandBuilder, " + Factory.GetType().Assembly.FullName, true);
+					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
+					mi.Invoke(null, new object[] {cmd});				
 				}
                 else
                 {
@@ -175,8 +188,10 @@ public class DataLayerGeneration : IDisposable
 
     public void Initialize()
     {
+		LoadSequences();
         SetViewsByEntity();
         SetFieldsMetadataByEntity();
+		
         //This would work only with SQL Server an if the EntityTypes Table exists
         //SetEntityTypes();
     }
@@ -196,6 +211,11 @@ public class DataLayerGeneration : IDisposable
 				Type mySqlDbTypeType = mySqlParam.MySqlDbType.GetType();
 				ObjectExtensions.SetPropertyValue(mySqlParam, "MySqlDbType", Enum.ToObject(mySqlDbTypeType, providerType));
 				return (DbType) mySqlParam.DbType; 
+			case "Oracle.DataAccess.Client":
+				dynamic oracleParam = Factory.CreateParameter();
+				Type oracleDbTypeType = oracleParam.OracleDbType.GetType();
+				ObjectExtensions.SetPropertyValue(oracleParam, "OracleDbType", Enum.ToObject(oracleDbTypeType, providerType));
+				return (DbType) oracleParam.DbType; 
             default:
                 throw new NotSupportedException("provider " + ProviderName + " is not supported");
         }
@@ -216,7 +236,7 @@ public class DataLayerGeneration : IDisposable
 
     private void SetFieldsMetadataByEntity()
     {
-        var langLength = "_Lang1".Length;
+        var langLength = "Lang1".Length;
         using (var cn = this.OpenConnection())
         {
             this.FieldsMetadataByEntity = new Dictionary<EntitySetting, List<FieldMetadata>>();
@@ -231,16 +251,17 @@ public class DataLayerGeneration : IDisposable
                 {                     
                     var fieldMetadata = new FieldMetadata
                     {
+						ColumnName = (string)row["ColumnName"],
                         BaseColumnName =  Convert.IsDBNull(row["BaseColumnName"]) ? string.Empty : (string) row["BaseColumnName"],
                         BaseSchemaName = Convert.IsDBNull(row["BaseSchemaName"]) ? string.Empty : (string) row["BaseSchemaName"],
                         BaseTableName = Convert.IsDBNull(row["BaseTableName"]) ? string.Empty : (string) row["BaseTableName"],
-                        DbType = ToDbType( (int) row["ProviderType"]),
+                        DbType = (DbType) row["DbType"],
                         IsAutoIncrement = (bool)row["IsAutoincrement"],
                         IsKey =  (bool) row["IsKey"],
                         IsNullable = ((Type)row["DataType"]).IsValueType && (bool) row["AllowDBNull"],
                         IsReadOnly = (bool) row["IsReadOnly"] || readOnlyFields.Contains((string) row["ColumnName"]),
                         Precision = Convert.IsDBNull(row["NumericPrecision"]) ? (byte) 255 : Convert.ToByte(row["NumericPrecision"]),
-                        PropertyName = (string)row["ColumnName"],
+                        PropertyName = ((string)row["ColumnName"]).ToPascalNamingConvention(),
                         PropertyType = (Type)row["DataType"],
                         Scale = Convert.IsDBNull(row["NumericScale"]) ? (byte) 255 : Convert.ToByte(row["NumericScale"]),
                         ColumnSize = (int) row["ColumnSize"]
@@ -248,14 +269,26 @@ public class DataLayerGeneration : IDisposable
                     };
 					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")
 					{
-						fieldMetadata.BaseSchemaName = string.Empty;
+						fieldMetadata.BaseSchemaName = null;
 					}
+					if (string.IsNullOrEmpty(entity.BaseTableName) 
+						|| !string.Equals(fieldMetadata.BaseTableName, entity.BaseTableName, StringComparison.InvariantCultureIgnoreCase)
+						|| ! (string.Equals(fieldMetadata.BaseSchemaName, entity.Schema, StringComparison.InvariantCultureIgnoreCase) || entity.Schema == null && string.Equals(fieldMetadata.BaseSchemaName, DefaultSchema, StringComparison.InvariantCultureIgnoreCase))
+						)
+					{
+						fieldMetadata.BaseSchemaName = null;
+						fieldMetadata.BaseColumnName = null;
+						fieldMetadata.BaseTableName = null;
+					}
+
+
+
                     fieldsMetadata.Add(fieldMetadata);
                     if (fieldMetadata.PropertyName.Length > langLength)
                     {
                         var localizedPropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - langLength);
                         var langLiteral = fieldMetadata.PropertyName.Substring(localizedPropertyName.Length, langLength - 1);
-                        if (langLiteral == "_Lang")
+                        if (langLiteral == "Lang")
                         {
                             if (!localizedFields.Contains(localizedPropertyName))
                             {
@@ -263,7 +296,6 @@ public class DataLayerGeneration : IDisposable
                             }
                         }
                     }
-
                 }
 
                 foreach (string localizedField in localizedFields)
@@ -277,7 +309,24 @@ public class DataLayerGeneration : IDisposable
                     };
                     fieldsMetadata.Add(fieldMetadata);
                 }
+
+	
+
+
                 this.FieldsMetadataByEntity.Add(entity, fieldsMetadata);
+
+				var primaryKey = GetPrimaryKey(entity);
+				if (primaryKey.Count == 1)
+				{
+					var pkfieldMetadata = primaryKey[0];
+					string schemaName = GetSchemaName(entity);
+					string fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					Sequence seq = null;
+					if (Sequences.TryGetValue(fullSequenceName, out seq))
+					{
+						pkfieldMetadata.SequenceName = seq.SequenceName;
+					}
+				}
             }
         }
     }
@@ -295,9 +344,11 @@ public class DataLayerGeneration : IDisposable
 			{
 				selectCommand.CommandText += " WHERE 1=0";
 			}
+			
             using (DbDataReader reader = selectCommand.ExecuteReader(CommandBehavior.KeyInfo))
             {
                 var schema = reader.GetSchemaTable();
+				schema.Columns.Add("DbType", typeof(DbType));
                 var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
                 foreach (var row in hidden)
                 {
@@ -305,6 +356,18 @@ public class DataLayerGeneration : IDisposable
                 }
                 schema.Constraints.Add("PK_Schema", schema.Columns["ColumnName"], true);
                 schema.Columns["IsAutoIncrement"].ReadOnly = false;
+				MethodInfo getFieldDbTypeMehtodInfo = reader.GetType().GetMethod("GetFieldDbType");
+				foreach(DataRow row in schema.Rows)
+				{
+					if (getFieldDbTypeMehtodInfo != null)
+					{
+						row["DbType"] = getFieldDbTypeMehtodInfo.Invoke(reader, new object[] { (int)row["ColumnOrdinal"] - 1} );
+					}
+					else
+					{
+						row["DbType"] = ToDbType( (int) row["ProviderType"]);
+					}
+				}
 				schema.AcceptChanges();
                 return schema;
             }
@@ -382,16 +445,22 @@ public class DataLayerGeneration : IDisposable
         {
             this.ViewsByEntity = new Dictionary<EntitySetting, List<string>>();
             DataTable allViews = cn.GetSchema("Views");
+			string nameColumn = "TABLE_NAME";
+			string schemaColumn = "TABLE_SCHEMA";
+			if (ProviderName == "Oracle.DataAccess.Client")
+			{
+				nameColumn = "VIEW_NAME";
+				schemaColumn = "OWNER";
+			}
             foreach (var entity in this.EntitySettings)
             {
                 var views = new List<string>();
                 foreach (DataRow row in allViews.Rows)
                 {
-                    string viewName = (string)row["TABLE_NAME"];
-                    string viewSchema = Convert.IsDBNull(row["TABLE_SCHEMA"]) ? null : (string)row["TABLE_SCHEMA"];
+                    string viewName = (string)row[nameColumn];
+                    string viewSchema = Convert.IsDBNull(row[schemaColumn]) ? null : (string)row[schemaColumn];
                     string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;
                         
-                       
                     if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(entity.EntityName.ToLower() + "_"))
                     {
                         views.Add(fullViewName);
@@ -442,10 +511,15 @@ public class DataLayerGeneration : IDisposable
           .Select(p =>
           {
 			  string paramDef = null;
+			  string sourceColumn = p.ParameterName;
+			  if ( sourceColumn[0] == '@' || sourceColumn[0] == ':')
+			  {
+					sourceColumn = sourceColumn.Substring(1);
+			  }
 			  Type paramType = DataLayerGeneration.GetTypeFromDbType(p.DbType);
 			  string paramTypeName = paramType.IsValueType ? paramType.Name + "?" : paramType.Name;
-
-			  paramDef = paramTypeName + " " + p.SourceColumn.EscapeKeyword();
+			  string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+			  paramDef = paramTypeName + " " + argumentName;
 
 			  if (p.Direction == ParameterDirection.Output)
 			  {
@@ -459,6 +533,28 @@ public class DataLayerGeneration : IDisposable
           }).ToArray();
           return string.Join(", ", parameters);
     }
+
+	private void LoadSequences()
+	{
+		if (ProviderName == "Oracle.DataAccess.Client")
+		{
+			using (var cn = OpenConnection())
+			using (var cmd = cn.CreateCommand())
+			{
+				cmd.CommandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
+				using (var reader = cmd.ExecuteReader())
+				{
+					Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
+				}
+			}
+		}
+		else
+		{
+			Sequences = new Dictionary<string, Sequence>();
+		}
+	}
+  
+  private Dictionary<string, Sequence> Sequences;
 
     public static readonly Dictionary<DbType, Type> TypeByDbType = new Dictionary<DbType, Type>
     {

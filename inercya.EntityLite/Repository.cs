@@ -56,7 +56,7 @@ namespace inercya.EntityLite
             if (idTypeCode == TypeCode.Int16 || idTypeCode == TypeCode.Int32 || idTypeCode == TypeCode.Int64)
             {
                 long longId = Convert.ToInt64(id);
-                if (longId == 0) isNew = true;
+                if (longId <= 0) isNew = true;
             }
             else if (id is Guid)
             {

@@ -96,6 +96,7 @@
     <Compile Include="Builders\AbstractQueryBuilder.cs" />
     <Compile Include="CurrentLanguageService.cs" />
     <Compile Include="Extensions\CurrentLanguageServiceExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="FetchMode.cs" />
     <Compile Include="Extensions\FieldsOption.cs" />
     <Compile Include="Extensions\TreeNode.cs" />
@@ -136,7 +137,7 @@
     <Compile Include="QueryLite.cs" />
     <Compile Include="Extensions\QueryLiteExtensions.cs" />
     <Compile Include="Repository.cs" />
-    <Compile Include="SimpleConditionLite.cs" />
+    <Compile Include="ConditionLite.cs" />
     <Compile Include="SortDescriptor.cs" />
     <Compile Include="Extensions\LambdaExpressionExtensions.cs" />
     <Compile Include="Extensions\MasterDetail.cs" />

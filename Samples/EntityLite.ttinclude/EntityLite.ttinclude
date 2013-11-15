@@ -18,6 +18,7 @@
 <#@ import namespace="inercya.EntityLite.Templates" #>
 
 <#@ output extension=".cs" #>
+<#@ include file ="Sequence.ttinclude" #>
 <#@ include file ="DataLayerGeneration.ttinclude" #>
 <#@ include file ="DataServiceGeneration.ttinclude" #>
 <#@ include file ="EntityGeneration.ttinclude" #>
