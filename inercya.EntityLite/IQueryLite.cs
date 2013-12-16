@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 using inercya.EntityLite.Builders;
+using inercya.EntityLite.Templates;
 
 namespace inercya.EntityLite
 {
@@ -46,5 +47,10 @@ namespace inercya.EntityLite
     public interface ITableValuedFunctionQueryLite : IParameterizedQueryLite
     {
         string FunctionName { get; set; }
+    }
+
+    public interface ITemplatedQueryLite : IQueryLite
+    {
+        ISqlTemplate Template { get; set; }
     }
 }

@@ -5,10 +5,12 @@ public class DataLayerGeneration : IDisposable
 
     public string ProviderName { get; set; }
     public string ConnectionString { get; set; }
+	public string ConnectionStringName {get; set;}
     public string RootNamespace { get; set; }
     public string DataServiceName { get; set; }
     public string ProceduresClassName { get; set; }
 	public string DefaultSchema { get; set;}
+	public TextTransform EntityNameToEntityViewTransform {get; set;}
 
     public List<EntitySetting> EntitySettings { get; set; }
     public List<ProcedureSetting> ProcedureSettings { get; set; }
@@ -21,6 +23,7 @@ public class DataLayerGeneration : IDisposable
         DataServiceName = "DataService";
         RootNamespace = "inercya.Entities";
         ProceduresClassName = "StoredProcedures";
+		EntityNameToEntityViewTransform = TextTransform.None;
     }
 
 	private  DbProviderFactory _factory;
@@ -461,7 +464,7 @@ public class DataLayerGeneration : IDisposable
                     string viewSchema = Convert.IsDBNull(row[schemaColumn]) ? null : (string)row[schemaColumn];
                     string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;
                         
-                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(entity.EntityName.ToLower() + "_"))
+                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(entity.EntityName.Transform(EntityNameToEntityViewTransform).ToLower() + "_"))
                     {
                         views.Add(fullViewName);
                     }                      

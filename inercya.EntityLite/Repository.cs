@@ -11,6 +11,10 @@ namespace inercya.EntityLite
         IQueryLite Query(Projection projection);
         IQueryLite Query(string projectionName);
         void Save(object entity);
+
+        void Insert(object entity);
+
+        void Update(object entity);
         void Delete(object entity);
         Type EntityType { get; }
 
@@ -24,6 +28,8 @@ namespace inercya.EntityLite
     public interface IRepository<TEntity> : IRepository 
     {
         void Save(TEntity entity);
+        void Insert(TEntity entity);
+        void Update(TEntity entity);
         void Delete(TEntity entity);
         new IQueryLite<TEntity> Query(Projection projection);
         new IQueryLite<TEntity> Query(string projectionName);
@@ -60,15 +66,28 @@ namespace inercya.EntityLite
             }
             else if (id is Guid)
             {
-                if (object.Equals(id, Guid.Empty)) isNew = true;
+                if (object.Equals(id, Guid.Empty))
+                {
+                    isNew = true;
+                }
             }
             else
             {
                 throw new NotSupportedException("Primary key type not supported for save");
             }
            
-            if (isNew) this.DataService.Insert(entity);
-            else this.DataService.Update(entity);
+            if (isNew) this.Insert(entity);
+            else this.Update(entity);
+        }
+
+        public virtual void Insert(TEntity entity)
+        {
+            this.DataService.Insert(entity);
+        }
+
+        public virtual void Update(TEntity entity)
+        {
+            this.DataService.Update(entity);
         }
 
         public virtual void Delete(TEntity entity)
@@ -146,6 +165,16 @@ namespace inercya.EntityLite
         void IRepository.Delete(object entity)
         {
             this.Delete((TEntity)entity);
+        }
+
+        void IRepository.Insert(object entity)
+        {
+            this.Insert((TEntity)entity);
+        }
+
+        void IRepository.Update(object entity)
+        {
+            this.Update((TEntity)entity);
         }
 
 		object IRepository.Get(Projection projection, object entityId, FetchMode fetchMode)

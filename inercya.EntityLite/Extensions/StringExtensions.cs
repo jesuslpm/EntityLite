@@ -7,44 +7,80 @@ namespace inercya.EntityLite.Extensions
 {
     public static class StringExtensions
     {
+        
         public static string ToPascalNamingConvention(this string str)
         {
-            if (str == null) return null;
-            var tokens = str.Split('_');
-            string result = null;
-            for (int i = 0; i < tokens.Length; i++)
+            StringBuilder sb = new StringBuilder(str.Length);
+            bool isPreviousCharLowerCase = false;
+            bool isNewWord = true;
+            for (int i = 0; i < str.Length; i++)
             {
-                string word;
-                var token = tokens[i];
-                if (token.HasUpperAndLowerCaseChars())
+                char c = str[i];
+                if (c == ' ' || c == '_')
                 {
-                    word = token;
+                    isNewWord = true;
+                    continue;
+                }
+                bool isUpper = char.IsUpper(c);
+                bool isLower = char.IsLower(c);
+                if (isPreviousCharLowerCase && isUpper)
+                {
+                    isNewWord = true;
+                }
+                if (isNewWord)
+                {
+                    isNewWord = false;
+                    if (isLower) c = char.ToUpper(c);
                 }
                 else
                 {
-                    if (token.Length > 1)
-                    {
-                        word = token.Substring(0, 1).ToUpper() + token.Substring(1).ToLower();
-                    }
-                    else if (token.Length == 1)
-                    {
-                        word = token.Substring(0, 1).ToUpper();
-                    }
-                    else
-                    {
-                        word = string.Empty;
-                    }
+                    if (isUpper) c = char.ToLower(c);
                 }
-                if (i == 0)
-                {
-                    result = word;
-                }
-                else
-                {
-                    result += word;
-                }
+                isPreviousCharLowerCase = isLower;
+                sb.Append(c);
             }
-            return result;
+            return sb.ToString();
+        }
+
+
+        public static string ToUnderscoreLowerCaseNamingConvention(this string str)
+        {
+            StringBuilder sb = new StringBuilder(str.Length + 6);
+            bool isPreviousCharLowerCase = false;
+            for (int i = 0; i < str.Length; i++ )
+            {
+                char c = str[i];
+                bool isUpper = char.IsUpper(c);
+                if (isPreviousCharLowerCase && isUpper)
+                {
+                    sb.Append('_');
+                }
+                if (c == ' ') c = '_';
+                isPreviousCharLowerCase = char.IsLower(c);
+                if (isUpper) c = char.ToLower(c);
+                sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+        public static string ToUnderscoreUpperCaseNamingConvention(this string str)
+        {
+            StringBuilder sb = new StringBuilder(str.Length + 8);
+            bool isPreviousCharLowerCase = false;
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                bool isLower = char.IsLower(c);
+                if (isPreviousCharLowerCase && char.IsUpper(c))
+                {
+                    sb.Append('_');
+                }
+                if (c == ' ') c = '_';
+                isPreviousCharLowerCase = isLower;
+                if (isLower) c = char.ToUpper(c);
+                sb.Append(c);
+            }
+            return sb.ToString();
         }
 
         public static bool HasUpperAndLowerCaseChars(this string str)
@@ -58,6 +94,27 @@ namespace inercya.EntityLite.Extensions
                 if (hasLower && hasUpper) return true;
             }
             return false;
+        }
+
+        public static string Transform(this string str, TextTransform textTransform)
+        {
+            switch (textTransform)
+            {
+                case TextTransform.None:
+                    return str;
+                case TextTransform.ToLower:
+                    return str.ToLower();
+                case TextTransform.ToUpper:
+                    return str.ToUpper();
+                case TextTransform.ToPascalNamingConvention:
+                    return str.ToPascalNamingConvention();
+                case TextTransform.ToUnderscoreLowerCaseNamingConvention:
+                    return str.ToUnderscoreLowerCaseNamingConvention();
+                case TextTransform.ToUnderscoreUpperCaseNamingConvention:
+                    return str.ToUnderscoreUpperCaseNamingConvention();
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }

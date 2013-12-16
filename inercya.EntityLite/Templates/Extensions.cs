@@ -1,7 +1,12 @@
-﻿using System;
+﻿using inercya.EntityLite.Providers;
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using inercya.EntityLite.Extensions;
+using System.Data;
 
 namespace inercya.EntityLite.Templates
 {
@@ -68,6 +73,41 @@ namespace inercya.EntityLite.Templates
             else
             {
                 return firstCharacter;
+            }
+        }
+
+
+        static readonly Regex parameterRegex = new Regex(@"\$\((\S)+\)", RegexOptions.Compiled);
+
+        internal static string GetSql(this ISqlTemplate template, string parameterPrefix)
+        {
+            return parameterRegex.Replace(template.TransformText(),
+                (match) => parameterPrefix + match.Value.Substring(2, match.Value.Length - 3));
+        }
+
+        internal static void AddParametersToCommand(this ISqlTemplate template, DbCommand command, string parameterPrefix)
+        {
+            if (template == null) throw new ArgumentNullException("template");
+            if (command == null) throw new ArgumentNullException("command");
+            Type templateType = template.GetType();
+            var getters = templateType.GetPropertyGetters();
+            foreach (var pi in templateType.GetProperties())
+            {
+                var attrs = pi.GetCustomAttributes(typeof(DbParameterAttribute), false);
+                if (attrs.Length > 0)
+                {
+                    var parameterAttr = (DbParameterAttribute)attrs[0];
+                    IDbDataParameter parameter = command.CreateParameter();
+                    parameter.ParameterName = parameterPrefix + pi.Name;
+                    parameter.DbType = parameterAttr.DbType;
+                    parameter.Direction = parameterAttr.Direction;
+                    if (parameterAttr.Size != 0) parameter.Size = parameterAttr.Size;
+                    if (parameterAttr.Precision != 0) parameter.Precision = parameterAttr.Precision;
+                    if (parameterAttr.Scale != 0) parameter.Scale = parameterAttr.Scale;
+                    object propValue = getters[pi.Name](template);
+                    parameter.Value = propValue == null ? DBNull.Value : propValue;
+                    command.Parameters.Add(parameter);
+                }
             }
         }
     }

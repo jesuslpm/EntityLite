@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
+using System.Data.Common;
 
 namespace inercya.EntityLite.Builders
 {
@@ -25,7 +26,7 @@ namespace inercya.EntityLite.Builders
         public string ProjectionName { get; set; }
        
  
-        protected override string GetFromClauseContent(System.Data.Common.DbCommand selectCommand, ref int paramIndex)
+        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
         {
             Type entityType = this.QueryLite.EntityType;
             EntityMetadata entityMetadata = entityType.GetEntityMetadata();
@@ -33,7 +34,7 @@ namespace inercya.EntityLite.Builders
             string schema = entityMetadata.SchemaName;
             if (string.IsNullOrEmpty(schema))
             {
-                schema = this.QueryLite.DataService.DefaultSchemaName;
+                schema = this.QueryLite.DataService.EntityLiteProvider.DefaultSchema;
             }
             string tableOrViewName;
 
@@ -47,9 +48,11 @@ namespace inercya.EntityLite.Builders
             }
             else
             {
-                tableOrViewName = entityType.Name  + "_" + this.ProjectionName;
+                tableOrViewName = (entityType.Name  + "_" + this.ProjectionName).Transform(QueryLite.DataService.EntityNameToEntityViewTransform);
             }
-            return string.IsNullOrEmpty(schema) ? tableOrViewName : schema + "." + tableOrViewName;           
+            string startQuote =  this.QueryLite.DataService.EntityLiteProvider.StartQuote;
+            string endQuote =  this.QueryLite.DataService.EntityLiteProvider.EndQuote;
+            return string.IsNullOrEmpty(schema) ? ( startQuote + tableOrViewName + endQuote): startQuote + schema + endQuote + "." + startQuote + tableOrViewName + endQuote;           
         }
     }
 }

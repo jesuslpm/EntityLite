@@ -17,7 +17,7 @@ namespace inercya.EntityLite.Builders
 
         public virtual IQueryLite QueryLite { get; set; }
 
-		private void SetOptions(StringBuilder commandText)
+		public void SetOptions(StringBuilder commandText)
 		{
 			if (QueryLite.Options != null && QueryLite.Options.Count > 0)
 			{
@@ -33,15 +33,15 @@ namespace inercya.EntityLite.Builders
 			}
 		}
 
-        private string GetColumnList()
+        public string GetColumnList()
         {
             if (QueryLite.FieldList == null || QueryLite.FieldList.Count == 0) return "*";
 
             StringBuilder sb = new StringBuilder();
             bool firstTime = true;
             var properties = QueryLite.EntityType.GetEntityMetadata().Properties;
-            string startQuote = QueryLite.DataService.StartQuote;
-            string endQuote = QueryLite.DataService.EndQuote;
+            string startQuote = QueryLite.DataService.EntityLiteProvider.StartQuote;
+            string endQuote = QueryLite.DataService.EntityLiteProvider.EndQuote;
             foreach (var fieldName in QueryLite.FieldList)
             {
                 if (firstTime) firstTime = false;
@@ -56,7 +56,7 @@ namespace inercya.EntityLite.Builders
             return sb.ToString();
         }
 
-        private void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText)
+        public void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText)
         {
             commandText.Append("\nSELECT ").Append(GetColumnList()).Append("\nFROM \n    ").Append(GetFromClauseContent(selectCommand, ref paramIndex));
             bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
@@ -79,115 +79,10 @@ namespace inercya.EntityLite.Builders
             return commandText.ToString();
         }
 
-        string GetLimitOffsetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
-        {
-            StringBuilder commandText = new StringBuilder();
-            GetSelectQuery(selectCommand, ref paramIndex, commandText);
-            var limitParam = this.CreateIn32Parameter(toRowIndex - fromRowIndex + 1, ref paramIndex);
-            selectCommand.Parameters.Add(limitParam);
-            var offsetParam = this.CreateIn32Parameter(fromRowIndex, ref paramIndex);
-            selectCommand.Parameters.Add(offsetParam);
-            commandText.Append("\nLIMIT ").Append(limitParam.ParameterName).Append(" OFFSET ").Append(offsetParam.ParameterName);
-            return commandText.ToString();
-        }
-
-        string GetOraclePagedQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
-        {
-            /*
-SELECT *
-FROM (
-  SELECT od.*, rownum AS RowNumber__
-  FROM order_details od
-) T
-WHERE RowNumber__ between 10 and 19;  
-             */
-
-            var commandText = new StringBuilder();
-            commandText.Append("\nSELECT ").Append(GetColumnList()).Append("\n")
-                       .Append("FROM (\n")
-                       .Append("SELECT IT.*, rownum AS row_number__\n")
-                       .Append("FROM ").Append(GetFromClauseContent(selectCommand, ref paramIndex)).Append(" IT\n");
-            bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
-            if (hasWhereClause)
-            {
-                commandText.Append("\nWHERE\n    ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter));
-            }
-            commandText.Append("\n) T\n");
-            IDbDataParameter fromParameter = CreateIn32Parameter(fromRowIndex + 1, ref paramIndex);
-            selectCommand.Parameters.Add(fromParameter);
-            IDbDataParameter toParameter = CreateIn32Parameter(toRowIndex + 1, ref paramIndex);
-            selectCommand.Parameters.Add(toParameter);
-            commandText.Append("WHERE row_number__ BETWEEN ")
-                .Append(fromParameter.ParameterName)
-                .Append(" AND ").Append(toParameter.ParameterName);
-            return commandText.ToString();
-
-        }
-
-        string GetSql2005PagedQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
-        {
-            StringBuilder commandText = new StringBuilder();
-            bool hasOrderbyClause = QueryLite.Sort != null && QueryLite.Sort.Count > 0;
-            if (!hasOrderbyClause)
-            {
-                foreach (var primaryKey in QueryLite.EntityType.GetEntityMetadata().PrimaryKeyPropertyNames)
-                {
-                    if (QueryLite.Sort == null) QueryLite.Sort = new List<SortDescriptor>();
-                    QueryLite.Sort.Add(new SortDescriptor(primaryKey));
-                }
-                if (QueryLite.Sort == null || QueryLite.Sort.Count == 0)
-                {
-                    throw new InvalidOperationException("OrderBy or primary key are requiered for a paged query");
-                }
-            }
-
-            /*
-SELECT *
-FROM (
-SELECT  *, ROW_NUMBER() OVER (ORDER BY CompanyName) AS __RowNumber__,
-FROM dbo.Customers C
-WHERE C.Country = 'USA'
-) T
-WHERE __RowNumber__ BETWEEN 1 AND 5
-ORDER BY __RowNumber__
- */
-
-            commandText.Append("\nSELECT ").Append(GetColumnList()).Append("\n")
-                       .Append("FROM (\n")
-                       .Append("SELECT *, ROW_NUMBER() OVER (ORDER BY ").Append(this.GetSort()).Append(") AS __RowNumber__\n")
-                       .Append("FROM ").Append(GetFromClauseContent(selectCommand, ref paramIndex)).Append("\n");
-            bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
-            if (hasWhereClause)
-            {
-                commandText.Append("\nWHERE\n    ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter));
-            }
-            commandText.Append("\n) T\n");
-            IDbDataParameter fromParameter = CreateIn32Parameter(fromRowIndex + 1, ref paramIndex);
-            selectCommand.Parameters.Add(fromParameter);
-            IDbDataParameter toParameter = CreateIn32Parameter(toRowIndex + 1, ref paramIndex);
-            selectCommand.Parameters.Add(toParameter);
-            commandText.Append("WHERE __RowNumber__ BETWEEN ").Append(fromParameter.ParameterName).Append(" AND ").Append(toParameter.ParameterName);
-            commandText.Append("\nORDER BY __RowNumber__;");
-
-            SetOptions(commandText);
-            return commandText.ToString();
-        }
 
         string IQueryBuilder.GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
         {
-            switch(this.QueryLite.DataService.Provider)
-            {
-                case Provider.SqlClient:
-                    return GetSql2005PagedQuery(selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
-                case Provider.SQLite:
-                case Provider.MySql:
-                case Provider.Npgsql:
-                    return GetLimitOffsetSelectQuery(selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
-                case Provider.OracleClient:
-                    return GetOraclePagedQuery(selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
-                default:
-                    throw new NotImplementedException("Paginated queries are not implemented yet for provider: " + this.QueryLite.DataService.ProviderName);
-            }
+            return this.QueryLite.DataService.EntityLiteProvider.GetPagedQuery(this, selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
         }
 
         string IQueryBuilder.GetCountQuery(DbCommand selectCommand, ref int paramIndex)
@@ -206,8 +101,8 @@ ORDER BY __RowNumber__
 
         protected IDbDataParameter CreateParameter(PropertyMetadata propertyMetadata, object paramValue, ref int paramIndex)
         {
-            string parameterName = QueryLite.DataService.ParameterPrefix + "P" + paramIndex.ToString();
-            IDbDataParameter parameter = QueryLite.DataService.ProviderFactory.CreateParameter();
+            string parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+            IDbDataParameter parameter = QueryLite.DataService.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.Size = propertyMetadata.SqlField.Size;
 
@@ -277,10 +172,10 @@ ORDER BY __RowNumber__
             return parameter;
         }
 
-        protected IDbDataParameter CreateIn32Parameter(int paramValue, ref int paramIndex)
+        public IDbDataParameter CreateIn32Parameter(int paramValue, ref int paramIndex)
         {
-            string parameterName = QueryLite.DataService.ParameterPrefix + "P" + paramIndex.ToString();
-            IDbDataParameter parameter = QueryLite.DataService.ProviderFactory.CreateParameter();
+            string parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+            IDbDataParameter parameter = QueryLite.DataService.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.DbType = DbType.Int32;
             parameter.Value = paramValue;
@@ -288,39 +183,6 @@ ORDER BY __RowNumber__
             return parameter;
         }
 
-        private string ConcatByFunction(string functionName, string[] strs)
-        {
-            return functionName + "(" + ConcatByOperator(", ", strs) + ")";
-        }
-
-        private string ConcatByOperator(string op, string[] strs)
-        {
-            StringBuilder sb = new StringBuilder();
-            bool firstTime = true;
-            foreach (var str in strs)
-            {
-                if (firstTime) firstTime = false;
-                else sb.Append(op);
-                sb.Append(str);
-            }
-            return sb.ToString();
-        }
-
-        private string Concat(params string[] strs )
-        {
-            switch (QueryLite.DataService.Provider)
-            {
-                case Provider.SQLite:
-                case Provider.OracleClient:
-                    return ConcatByOperator(" || ", strs);
-                case Provider.MySql:
-                    return ConcatByFunction("CONCAT", strs);
-                case Provider.SqlClient:
-                    return ConcatByOperator(" + ", strs);
-                default:
-                    throw new NotImplementedException("Concatenation not implemented for " + QueryLite.DataService.Provider.ToString());
-            }          
-        }
 
         protected virtual void GenerateFilterForCondition(DbCommand cmd, ConditionLite condition, StringBuilder sb, ref int paramIndex, ref bool firstCondition)
         {
@@ -388,7 +250,7 @@ ORDER BY __RowNumber__
 				throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it has no metadata");
 			}
 
-			sb.Append(this.QueryLite.DataService.StartQuote).Append(propertyMetadata.SqlField.ColumnName).Append(this.QueryLite.DataService.EndQuote);
+			sb.Append(this.QueryLite.DataService.EntityLiteProvider.StartQuote).Append(propertyMetadata.SqlField.ColumnName).Append(this.QueryLite.DataService.EntityLiteProvider.EndQuote);
             if (condition.Operator == OperatorLite.IsNull)
             {
                 sb.Append(" IS NULL");
@@ -430,7 +292,7 @@ ORDER BY __RowNumber__
             switch (condition.Operator)
             {
                 case OperatorLite.Contains:
-                    sb.Append(" LIKE " + Concat("'%'", parameter.ParameterName, "'%'"));
+                    sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameter.ParameterName, "'%'"));
                     break;
                 case OperatorLite.Equals:
                     sb.Append(" = ").Append(parameter.ParameterName);
@@ -448,16 +310,16 @@ ORDER BY __RowNumber__
                     sb.Append(" <= ").Append(parameter.ParameterName);
                     break;
                 case OperatorLite.NotContains:
-                    sb.Append(" NOT LIKE " + Concat("'%'", parameter.ParameterName, "'%'"));
+                    sb.Append(" NOT LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameter.ParameterName, "'%'"));
                     break;
                 case OperatorLite.NotEquals:
                     sb.Append(" <> ").Append(parameter.ParameterName);
                     break;
                 case OperatorLite.NotStartsWith:
-                    sb.Append(" NOT LIKE " + Concat(parameter.ParameterName, "'%'"));
+                    sb.Append(" NOT LIKE " + QueryLite.DataService.EntityLiteProvider.Concat(parameter.ParameterName, "'%'"));
                     break;
                 case OperatorLite.StartsWith:
-                    sb.Append(" LIKE " + Concat(parameter.ParameterName, "'%'"));
+                    sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat(parameter.ParameterName, "'%'"));
                     break;
                 case OperatorLite.IsDescendantOf:
                     sb.Append(".IsDescendantOf(" + parameter.ParameterName + ") = 1");
@@ -479,7 +341,7 @@ ORDER BY __RowNumber__
                     break;
                 case OperatorLite.STDistanceLess:
                 case OperatorLite.STDistanceLessOrEquals:
-                    string parameterName = QueryLite.DataService.ParameterPrefix + "P" + paramIndex.ToString();
+                    string parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
                     cmd.Parameters.AddWithValue(parameterName, condition.Parameter);
                     paramIndex++;
                     sb.Append(".STDistance(" + parameter.ParameterName + ") " + (condition.Operator == OperatorLite.STDistanceLess ? "< " : "<= ") + parameterName);
@@ -489,7 +351,7 @@ ORDER BY __RowNumber__
             }
         }
 
-        protected virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter)
+        public virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter)
         {
             StringBuilder sb = new StringBuilder();
             bool firstCondition = true;
@@ -502,7 +364,7 @@ ORDER BY __RowNumber__
             return sb.ToString();
         }
 
-        protected virtual string GetSort()
+        public virtual string GetSort()
         {
             bool firstTime = true;
             StringBuilder sb = new StringBuilder();
@@ -513,7 +375,7 @@ ORDER BY __RowNumber__
             return sb.ToString();
         }
 
-        protected abstract string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex);
+        public abstract string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex);
 
         protected bool IsFieldValid(string fieldName)
         {
@@ -554,7 +416,7 @@ ORDER BY __RowNumber__
 				}
 			}
             string columnName = propertyMetadata.SqlField.ColumnName;
-            commandText.Append(this.QueryLite.DataService.StartQuote).Append(columnName).Append(this.QueryLite.DataService.EndQuote).Append(sortDescriptor.SortOrder == SortOrder.Descending ? " DESC" : string.Empty);
+            commandText.Append(this.QueryLite.DataService.EntityLiteProvider.StartQuote).Append(columnName).Append(this.QueryLite.DataService.EntityLiteProvider.EndQuote).Append(sortDescriptor.SortOrder == SortOrder.Descending ? " DESC" : string.Empty);
             return firstTime;
         }
     }

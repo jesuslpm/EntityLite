@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
 using inercya.EntityLite;	
 using inercya.EntityLite.Extensions;		
@@ -17,19 +18,19 @@ namespace Samples.Entities
 	public partial class Category
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="category_id", BaseColumnName ="category_id", BaseTableName = "categories" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Categories" )]
 		public Int32 CategoryId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="category_name", BaseColumnName ="category_name", BaseTableName = "categories" )]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName", BaseColumnName ="CategoryName", BaseTableName = "Categories" )]
 		public String CategoryName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, -1, ColumnName ="description", BaseColumnName ="description", BaseTableName = "categories" )]
+		[SqlField(DbType.String, 2147483647, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]
 		public String Description { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Binary, -1, ColumnName ="picture", BaseColumnName ="picture", BaseTableName = "categories" )]
+		[SqlField(DbType.Binary, 2147483647, ColumnName ="Picture", BaseColumnName ="Picture", BaseTableName = "Categories" )]
 		public Byte[] Picture { get; set; }
 
 
@@ -43,7 +44,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -88,47 +89,47 @@ namespace Samples.Entities
 	public partial class Customer
 	{
 		[DataMember]
-		[SqlField(DbType.String, 32, IsKey=true, ColumnName ="customer_id", BaseColumnName ="customer_id", BaseTableName = "customers" )]
+		[SqlField(DbType.StringFixedLength, 5, IsKey=true, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Customers" )]
 		public String CustomerId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="company_name", BaseColumnName ="company_name", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Customers" )]
 		public String CompanyName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="contact_name", BaseColumnName ="contact_name", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Customers" )]
 		public String ContactName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="contact_title", BaseColumnName ="contact_title", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Customers" )]
 		public String ContactTitle { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="address", BaseColumnName ="address", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Customers" )]
 		public String Address { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="city", BaseColumnName ="city", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Customers" )]
 		public String City { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="region", BaseColumnName ="region", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Customers" )]
 		public String Region { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="postal_code", BaseColumnName ="postal_code", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Customers" )]
 		public String PostalCode { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="country", BaseColumnName ="country", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Customers" )]
 		public String Country { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="phone", BaseColumnName ="phone", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Customers" )]
 		public String Phone { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="fax", BaseColumnName ="fax", BaseTableName = "customers" )]
+		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Customers" )]
 		public String Fax { get; set; }
 
 
@@ -142,7 +143,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -194,71 +195,75 @@ namespace Samples.Entities
 	public partial class Employee
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="employee_id", BaseColumnName ="employee_id", BaseTableName = "employees" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Employees" )]
 		public Int32 EmployeeId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="last_name", BaseColumnName ="last_name", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 20, ColumnName ="LastName", BaseColumnName ="LastName", BaseTableName = "Employees" )]
 		public String LastName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="first_name", BaseColumnName ="first_name", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 10, ColumnName ="FirstName", BaseColumnName ="FirstName", BaseTableName = "Employees" )]
 		public String FirstName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="title", BaseColumnName ="title", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 30, ColumnName ="Title", BaseColumnName ="Title", BaseTableName = "Employees" )]
 		public String Title { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="title_of_courtesy", BaseColumnName ="title_of_courtesy", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 25, ColumnName ="TitleOfCourtesy", BaseColumnName ="TitleOfCourtesy", BaseTableName = "Employees" )]
 		public String TitleOfCourtesy { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Date, 4, AllowNull = true, ColumnName ="birth_date", BaseColumnName ="birth_date", BaseTableName = "employees" )]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="BirthDate", BaseColumnName ="BirthDate", BaseTableName = "Employees" )]
 		public DateTime? BirthDate { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Date, 4, AllowNull = true, ColumnName ="hire_date", BaseColumnName ="hire_date", BaseTableName = "employees" )]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="HireDate", BaseColumnName ="HireDate", BaseTableName = "Employees" )]
 		public DateTime? HireDate { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="address", BaseColumnName ="address", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Employees" )]
 		public String Address { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="city", BaseColumnName ="city", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Employees" )]
 		public String City { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="region", BaseColumnName ="region", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Employees" )]
 		public String Region { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="postal_code", BaseColumnName ="postal_code", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Employees" )]
 		public String PostalCode { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="country", BaseColumnName ="country", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Employees" )]
 		public String Country { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="home_phone", BaseColumnName ="home_phone", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 24, ColumnName ="HomePhone", BaseColumnName ="HomePhone", BaseTableName = "Employees" )]
 		public String HomePhone { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 16, ColumnName ="extension", BaseColumnName ="extension", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 4, ColumnName ="Extension", BaseColumnName ="Extension", BaseTableName = "Employees" )]
 		public String Extension { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, -1, ColumnName ="notes", BaseColumnName ="notes", BaseTableName = "employees" )]
+		[SqlField(DbType.Binary, 2147483647, ColumnName ="Photo", BaseColumnName ="Photo", BaseTableName = "Employees" )]
+		public Byte[] Photo { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 1073741823, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]
 		public String Notes { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="reports_to", BaseColumnName ="reports_to", BaseTableName = "employees" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ReportsTo", BaseColumnName ="ReportsTo", BaseTableName = "Employees" )]
 		public Int32? ReportsTo { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 512, ColumnName ="photo_path", BaseColumnName ="photo_path", BaseTableName = "employees" )]
+		[SqlField(DbType.String, 255, ColumnName ="PhotoPath", BaseColumnName ="PhotoPath", BaseTableName = "Employees" )]
 		public String PhotoPath { get; set; }
 
 
@@ -272,7 +277,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -319,6 +324,7 @@ namespace Samples.Entities
 		public const string Country = "Country";
 		public const string HomePhone = "HomePhone";
 		public const string Extension = "Extension";
+		public const string Photo = "Photo";
 		public const string Notes = "Notes";
 		public const string ReportsTo = "ReportsTo";
 		public const string PhotoPath = "PhotoPath";
@@ -326,43 +332,43 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
-	[SqlEntity(BaseTableName="Order_Details")]
+	[SqlEntity(BaseTableName="OrderDetails")]
 	public partial class OrderDetail
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="order_detail_id", BaseColumnName ="order_detail_id", BaseTableName = "order_details" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderDetailID", BaseColumnName ="OrderDetailID", BaseTableName = "OrderDetails" )]
 		public Int32 OrderDetailId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, ColumnName ="order_id", BaseColumnName ="order_id", BaseTableName = "order_details" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetails" )]
 		public Int32 OrderId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, ColumnName ="product_id", BaseColumnName ="product_id", BaseTableName = "order_details" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetails" )]
 		public Int32 ProductId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Decimal, -1, Precision = 19, Scale=4, ColumnName ="unit_price", BaseColumnName ="unit_price", BaseTableName = "order_details" )]
+		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetails" )]
 		public Decimal UnitPrice { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, ColumnName ="quantity", BaseColumnName ="quantity", BaseTableName = "order_details" )]
-		public Int32 Quantity { get; set; }
+		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetails" )]
+		public Int16 Quantity { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Decimal, -1, Precision = 5, Scale=4, ColumnName ="discount", BaseColumnName ="discount", BaseTableName = "order_details" )]
+		[SqlField(DbType.Decimal, 17, Precision = 5, Scale=4, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetails" )]
 		public Decimal Discount { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Decimal, -1, AllowNull = true, ColumnName ="subtotal" )]
-		public Decimal? Subtotal { get; set; }
+		[SqlField(DbType.Decimal, 17, Precision = 32, Scale=8, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]
+		public Decimal? SubTotal { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="product_name" )]
+		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]
 		public String ProductName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="category_name" )]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
 		public String CategoryName { get; set; }
 
 
@@ -376,7 +382,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -415,7 +421,7 @@ namespace Samples.Entities
 		public const string UnitPrice = "UnitPrice";
 		public const string Quantity = "Quantity";
 		public const string Discount = "Discount";
-		public const string Subtotal = "Subtotal";
+		public const string SubTotal = "SubTotal";
 		public const string ProductName = "ProductName";
 		public const string CategoryName = "CategoryName";
 	}
@@ -426,84 +432,84 @@ namespace Samples.Entities
 	public partial class Order
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="order_id", BaseColumnName ="order_id", BaseTableName = "orders" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Orders" )]
 		public Int32 OrderId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 32, ColumnName ="customer_id", BaseColumnName ="customer_id", BaseTableName = "orders" )]
+		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Orders" )]
 		public String CustomerId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="employee_id", BaseColumnName ="employee_id", BaseTableName = "orders" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Orders" )]
 		public Int32? EmployeeId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, AllowNull = true, ColumnName ="order_date", BaseColumnName ="order_date", BaseTableName = "orders" )]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate", BaseColumnName ="OrderDate", BaseTableName = "Orders" )]
 		public DateTime? OrderDate { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, AllowNull = true, ColumnName ="required_date", BaseColumnName ="required_date", BaseTableName = "orders" )]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="RequiredDate", BaseColumnName ="RequiredDate", BaseTableName = "Orders" )]
 		public DateTime? RequiredDate { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, AllowNull = true, ColumnName ="shipped_date", BaseColumnName ="shipped_date", BaseTableName = "orders" )]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ShippedDate", BaseColumnName ="ShippedDate", BaseTableName = "Orders" )]
 		public DateTime? ShippedDate { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="ship_via", BaseColumnName ="ship_via", BaseTableName = "orders" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ShipVia", BaseColumnName ="ShipVia", BaseTableName = "Orders" )]
 		public Int32? ShipVia { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Decimal, -1, Precision = 19, Scale=4, AllowNull = true, ColumnName ="freight", BaseColumnName ="freight", BaseTableName = "orders" )]
+		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="Freight", BaseColumnName ="Freight", BaseTableName = "Orders" )]
 		public Decimal? Freight { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="ship_name", BaseColumnName ="ship_name", BaseTableName = "orders" )]
+		[SqlField(DbType.String, 40, ColumnName ="ShipName", BaseColumnName ="ShipName", BaseTableName = "Orders" )]
 		public String ShipName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="ship_address", BaseColumnName ="ship_address", BaseTableName = "orders" )]
+		[SqlField(DbType.String, 60, ColumnName ="ShipAddress", BaseColumnName ="ShipAddress", BaseTableName = "Orders" )]
 		public String ShipAddress { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="ship_city", BaseColumnName ="ship_city", BaseTableName = "orders" )]
+		[SqlField(DbType.String, 15, ColumnName ="ShipCity", BaseColumnName ="ShipCity", BaseTableName = "Orders" )]
 		public String ShipCity { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="ship_region", BaseColumnName ="ship_region", BaseTableName = "orders" )]
+		[SqlField(DbType.String, 15, ColumnName ="ShipRegion", BaseColumnName ="ShipRegion", BaseTableName = "Orders" )]
 		public String ShipRegion { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="ship_postal_code", BaseColumnName ="ship_postal_code", BaseTableName = "orders" )]
+		[SqlField(DbType.String, 10, ColumnName ="ShipPostalCode", BaseColumnName ="ShipPostalCode", BaseTableName = "Orders" )]
 		public String ShipPostalCode { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="ship_country", BaseColumnName ="ship_country", BaseTableName = "orders" )]
+		[SqlField(DbType.String, 15, ColumnName ="ShipCountry", BaseColumnName ="ShipCountry", BaseTableName = "Orders" )]
 		public String ShipCountry { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Decimal, -1, Precision = 19, Scale=4, AllowNull = true, ColumnName ="order_total" )]
-		public Decimal? OrderTotal { get; set; }
+		[SqlField(DbType.String, 40, ColumnName ="CustomerCompanyName" )]
+		public String CustomerCompanyName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="line_count" )]
-		public Int32? LineCount { get; set; }
-
-		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="customercompany_name" )]
-		public String CustomercompanyName { get; set; }
-
-		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="employee_first_name" )]
+		[SqlField(DbType.String, 10, ColumnName ="EmployeeFirstName" )]
 		public String EmployeeFirstName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="employee_last_name" )]
+		[SqlField(DbType.String, 20, ColumnName ="EmployeeLastName" )]
 		public String EmployeeLastName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="shipper_company_name" )]
+		[SqlField(DbType.String, 40, ColumnName ="ShipperCompanyName" )]
 		public String ShipperCompanyName { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="OrderTotal" )]
+		public Decimal? OrderTotal { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Int64, 8, Precision = 19, AllowNull = true, ColumnName ="LineCount" )]
+		public Int64? LineCount { get; set; }
 
 
 	}
@@ -516,7 +522,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -563,12 +569,12 @@ namespace Samples.Entities
 		public const string ShipRegion = "ShipRegion";
 		public const string ShipPostalCode = "ShipPostalCode";
 		public const string ShipCountry = "ShipCountry";
-		public const string OrderTotal = "OrderTotal";
-		public const string LineCount = "LineCount";
-		public const string CustomercompanyName = "CustomercompanyName";
+		public const string CustomerCompanyName = "CustomerCompanyName";
 		public const string EmployeeFirstName = "EmployeeFirstName";
 		public const string EmployeeLastName = "EmployeeLastName";
 		public const string ShipperCompanyName = "ShipperCompanyName";
+		public const string OrderTotal = "OrderTotal";
+		public const string LineCount = "LineCount";
 	}
 
 	[Serializable]
@@ -577,48 +583,52 @@ namespace Samples.Entities
 	public partial class Product
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="product_id", BaseColumnName ="product_id", BaseTableName = "products" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Products" )]
 		public Int32 ProductId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="product_name", BaseColumnName ="product_name", BaseTableName = "products" )]
+		[SqlField(DbType.String, 40, ColumnName ="ProductName", BaseColumnName ="ProductName", BaseTableName = "Products" )]
 		public String ProductName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="supplier_id", BaseColumnName ="supplier_id", BaseTableName = "products" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Products" )]
 		public Int32? SupplierId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="category_id", BaseColumnName ="category_id", BaseTableName = "products" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Products" )]
 		public Int32? CategoryId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="quantity_per_unit", BaseColumnName ="quantity_per_unit", BaseTableName = "products" )]
+		[SqlField(DbType.String, 20, ColumnName ="QuantityPerUnit", BaseColumnName ="QuantityPerUnit", BaseTableName = "Products" )]
 		public String QuantityPerUnit { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Decimal, -1, Precision = 19, Scale=4, AllowNull = true, ColumnName ="unit_price", BaseColumnName ="unit_price", BaseTableName = "products" )]
-		public Decimal? UnitPrice { get; set; }
+		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]
+		public Decimal UnitPrice { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="units_in_stock", BaseColumnName ="units_in_stock", BaseTableName = "products" )]
-		public Int32? UnitsInStock { get; set; }
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock", BaseColumnName ="UnitsInStock", BaseTableName = "Products" )]
+		public Int16? UnitsInStock { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="units_on_order", BaseColumnName ="units_on_order", BaseTableName = "products" )]
-		public Int32? UnitsOnOrder { get; set; }
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder", BaseColumnName ="UnitsOnOrder", BaseTableName = "Products" )]
+		public Int16? UnitsOnOrder { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int32, 4, AllowNull = true, ColumnName ="reorder_level", BaseColumnName ="reorder_level", BaseTableName = "products" )]
-		public Int32? ReorderLevel { get; set; }
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="ReorderLevel", BaseColumnName ="ReorderLevel", BaseTableName = "Products" )]
+		public Int16? ReorderLevel { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Boolean, 1, ColumnName ="discontinued", BaseColumnName ="discontinued", BaseTableName = "products" )]
+		[SqlField(DbType.Boolean, 1, ColumnName ="Discontinued", BaseColumnName ="Discontinued", BaseTableName = "Products" )]
 		public Boolean Discontinued { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="category_name" )]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
 		public String CategoryName { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 40, ColumnName ="SupplierName" )]
+		public String SupplierName { get; set; }
 
 
 	}
@@ -631,7 +641,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -663,11 +673,11 @@ namespace Samples.Entities
 
 		public void RaiseProductPrices(Decimal? rate)
 		{
-			using (var proc = Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.ParameterPrefix))
+			using (var proc = Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix))
 			{
 				this.DataService.OpenConnection();
 				if (this.DataService.IsActiveTransaction) proc.Transaction = this.DataService.Transaction;
-				proc.Parameters[this.DataService.ParameterPrefix + "rate"].Value = rate == null ? (object) DBNull.Value : rate.Value;
+				proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "rate"].Value = rate == null ? (object) DBNull.Value : rate.Value;
 				proc.ExecuteNonQuery();
 			}
 		}
@@ -686,6 +696,7 @@ namespace Samples.Entities
 		public const string ReorderLevel = "ReorderLevel";
 		public const string Discontinued = "Discontinued";
 		public const string CategoryName = "CategoryName";
+		public const string SupplierName = "SupplierName";
 	}
 
 	[Serializable]
@@ -694,15 +705,15 @@ namespace Samples.Entities
 	public partial class Shipper
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="shipper_id", BaseColumnName ="shipper_id", BaseTableName = "shippers" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ShipperID", BaseColumnName ="ShipperID", BaseTableName = "Shippers" )]
 		public Int32 ShipperId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="company_name", BaseColumnName ="company_name", BaseTableName = "shippers" )]
+		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Shippers" )]
 		public String CompanyName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 32, ColumnName ="phone", BaseColumnName ="phone", BaseTableName = "shippers" )]
+		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Shippers" )]
 		public String Phone { get; set; }
 
 
@@ -716,7 +727,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -760,51 +771,51 @@ namespace Samples.Entities
 	public partial class Supplier
 	{
 		[DataMember]
-		[SqlField(DbType.Int32, 4, IsKey=true, IsAutoincrement=true, ColumnName ="supplier_id", BaseColumnName ="supplier_id", BaseTableName = "suppliers" )]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Suppliers" )]
 		public Int32 SupplierId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="company_name", BaseColumnName ="company_name", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Suppliers" )]
 		public String CompanyName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="contact_name", BaseColumnName ="contact_name", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Suppliers" )]
 		public String ContactName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="contact_title", BaseColumnName ="contact_title", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Suppliers" )]
 		public String ContactTitle { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="address", BaseColumnName ="address", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Suppliers" )]
 		public String Address { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="city", BaseColumnName ="city", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Suppliers" )]
 		public String City { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="region", BaseColumnName ="region", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Suppliers" )]
 		public String Region { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="postal_code", BaseColumnName ="postal_code", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Suppliers" )]
 		public String PostalCode { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="country", BaseColumnName ="country", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Suppliers" )]
 		public String Country { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="phone", BaseColumnName ="phone", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Suppliers" )]
 		public String Phone { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="fax", BaseColumnName ="fax", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Suppliers" )]
 		public String Fax { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 512, ColumnName ="home_page", BaseColumnName ="home_page", BaseTableName = "suppliers" )]
+		[SqlField(DbType.String, 1073741823, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]
 		public String HomePage { get; set; }
 
 
@@ -818,7 +829,7 @@ namespace Samples.Entities
 
 		public new DataService DataService  
 		{
-			get { return (NorhtwindDataService) base.DataService; }
+			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
 		}
 
@@ -865,18 +876,86 @@ namespace Samples.Entities
 		public const string HomePage = "HomePage";
 	}
 
+	[Serializable]
+	[DataContract]
+	[SqlEntity()]
+	public partial class ProductSale
+	{
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID" )]
+		public Int32? CategoryId { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
+		public String CategoryName { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID" )]
+		public Int32 ProductId { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]
+		public String ProductName { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Year" )]
+		public Int32? Year { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Quarter" )]
+		public Int32? Quarter { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]
+		public Decimal? Sales { get; set; }
+
+
+	}
+
+	public partial class ProductSaleRepository : Repository<ProductSale> 
+	{
+		public ProductSaleRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new DataService DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+	}
+
+	public static partial class ProductSaleFields
+	{
+		public const string CategoryId = "CategoryId";
+		public const string CategoryName = "CategoryName";
+		public const string ProductId = "ProductId";
+		public const string ProductName = "ProductName";
+		public const string Year = "Year";
+		public const string Quarter = "Quarter";
+		public const string Sales = "Sales";
+	}
+
 }
 
 namespace Samples.Entities
 {
-	public partial class NorhtwindDataService : DataService
+	public partial class NorthwindDataService : DataService
 	{
-        public NorhtwindDataService(string connectionStringName) : base(connectionStringName)
+        public NorthwindDataService() : base("Northwind")
         {
+			EntityNameToEntityViewTransform = TextTransform.None;
         }
 
-        public NorhtwindDataService(string connectionString, string providerName) : base(connectionString, providerName)
+        public NorthwindDataService(string connectionStringName) : base(connectionStringName)
         {
+			EntityNameToEntityViewTransform = TextTransform.None;
+        }
+
+        public NorthwindDataService(string connectionString, string providerName) : base(connectionString, providerName)
+        {
+			EntityNameToEntityViewTransform = TextTransform.None;
         }
 
 		private Samples.Entities.CategoryRepository _CategoryRepository;
@@ -982,6 +1061,19 @@ namespace Samples.Entities
 				return _SupplierRepository;
 			}
 		}
+
+		private Samples.Entities.ProductSaleRepository _ProductSaleRepository;
+		public Samples.Entities.ProductSaleRepository ProductSaleRepository
+		{
+			get 
+			{
+				if ( _ProductSaleRepository == null)
+				{
+					_ProductSaleRepository = new Samples.Entities.ProductSaleRepository(this);
+				}
+				return _ProductSaleRepository;
+			}
+		}
 	}
 }
 namespace Samples.Entities
@@ -991,14 +1083,23 @@ namespace Samples.Entities
 		public static DbCommand CreateRaiseProductPricesProcedure(DbConnection connection, string parameterPrefix)
 		{
 			var cmd = connection.CreateCommand();
-			cmd.CommandText = "raise_product_prices";
+			cmd.CommandText = "RaiseProductPrices";
 			cmd.CommandType = CommandType.StoredProcedure;
 			IDbDataParameter p = null;
+
+			p = cmd.CreateParameter();
+			p.ParameterName = parameterPrefix + "RETURN_VALUE";
+			p.DbType = DbType.Int32;
+			p.Direction = ParameterDirection.ReturnValue;
+			p.SourceColumn = "RETURN_VALUE";
+			cmd.Parameters.Add(p);
 
 			p = cmd.CreateParameter();
 			p.ParameterName = parameterPrefix + "rate";
 			p.DbType = DbType.Decimal;
 			p.Direction = ParameterDirection.Input;
+			p.Precision = 5;
+			p.Scale = 4;
 			p.SourceColumn = "rate";
 			cmd.Parameters.Add(p);
 

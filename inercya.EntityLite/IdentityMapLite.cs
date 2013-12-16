@@ -47,7 +47,7 @@ namespace inercya.EntityLite
                 Map.Add(typeof(T), dicIdentity);
             }
             Dictionary<string, object> dicProjection = null;
-            var identity = entity.GetId().ToString();
+            var identity = entity.GetId();
             if (!dicIdentity.TryGetValue(identity, out dicProjection))
             {
                 dicProjection = new Dictionary<string, object>();

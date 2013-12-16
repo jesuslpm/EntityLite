@@ -70,7 +70,7 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
 		{ 
 			get
 			{
-				return ContextLite.GetLocalizedValue(this, "<#= field.PropertyName #>");
+				return CurrentLanguageService.GetLocalizedValue(this, "<#= field.PropertyName #>");
 			} 
 		}
 <#+ 
@@ -102,7 +102,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 
 		<#= procedure.MemberVisibility.ToString().ToLower() #> <#= returnTypeName #> <#= procedure.ProcedureName.ToPascalNamingConvention() #>(<#= parametersDefinition #>)
 		{
-			using (var proc = <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.ParameterPrefix))
+			using (var proc = <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix))
 			{
 				this.DataService.OpenConnection();
 				if (this.DataService.IsActiveTransaction) proc.Transaction = this.DataService.Transaction;
@@ -116,7 +116,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 		}
 		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
 #>
-				proc.Parameters[this.DataService.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+				proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
 <#+
 	}
 	if (procedure.ResultSetKind == ProcedureResultSetKind.SingleRow	|| procedure.ResultSetKind == ProcedureResultSetKind.MultipleRows)

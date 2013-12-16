@@ -20,28 +20,32 @@ To generate the datalayer for MySQL you need  to:
 */
 	var generation = new DataLayerGeneration
 	{
-		//ProviderName = "System.Data.SqlClient",
-		//ConnectionString = @"Data Source=(LocalDb)\V11.0;Initial Catalog=Northwind",
-		//DefaultSchema = "dbo",
+		ProviderName = "System.Data.SqlClient",
+		ConnectionString = @"Data Source=(LocalDb)\V11.0;Initial Catalog=Northwind",
+		DefaultSchema = "dbo",
 
-		//ProviderName = "System.Data.SQLite",
-		//ConnectionString = @"Data Source=C:\Projects\EntityLite\Samples\Northwind.db3",
-		//DefaultSchema = null,
+		/*
+		ProviderName = "System.Data.SQLite",
+		ConnectionString = @"Data Source=C:\Projects\EntityLite\Samples\Northwind.db3",
+		DefaultSchema = null,
 
-		//ProviderName = "MySql.Data.MySqlClient",
-		//ConnectionString = @"server=SQL;uid=root;pwd=XXXXXX;database=Northwind",
-		//DefaultSchema = "Northwind",
+		ProviderName = "MySql.Data.MySqlClient",
+		ConnectionString = @"server=SQL;uid=root;pwd=XXXXXX;database=Northwind",
+		DefaultSchema = "Northwind",
 
-		//ProviderName = "Oracle.DataAccess.Client",
-		//ConnectionString = @"User Id=Northwind;Password=Northwind;Data Source=ORACLE",
-		//DefaultSchema = "Northwind",
+		ProviderName = "Oracle.DataAccess.Client",
+		ConnectionString = @"User Id=Northwind;Password=Northwind;Data Source=ORACLE",
+		DefaultSchema = "Northwind",
 
 		ProviderName = "Npgsql",
 		ConnectionString = @"Server=localhost;Port=5432;User id=Northwind;password=Northwind;Database=Northwind",
 		DefaultSchema = "public",
+		EntityNameToEntityViewTransform = TextTransform.ToUnderscoreLowerCaseNamingConvention,
+		*/
 
+		ConnectionStringName = "Northwind",
 		RootNamespace = "Samples.Entities",
-		DataServiceName = "NorhtwindDataService",
+		DataServiceName = "NorthwindDataService",
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 
@@ -61,7 +65,7 @@ To generate the datalayer for MySQL you need  to:
 			},
 			new EntitySetting 
 			{
-				BaseTableName = "Order_Details",
+				BaseTableName = "OrderDetails",
 				EntityName = "OrderDetail"  
 			},
 			new EntitySetting 
@@ -83,13 +87,17 @@ To generate the datalayer for MySQL you need  to:
 			{
 				BaseTableName = "Suppliers",
 				EntityName = "Supplier"  
+			},
+			new EntitySetting 
+			{
+				EntityName = "ProductSale"  
 			}
 		},
 		ProcedureSettings = new List<ProcedureSetting>
 		{
 			new ProcedureSetting 
 			{
-				ProcedureName = "raise_product_prices",
+				ProcedureName = "RaiseProductPrices",
 				ResultSetKind = ProcedureResultSetKind.None,
 				RelatedEntityName = "Product"
 			}

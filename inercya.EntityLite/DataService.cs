@@ -13,45 +13,15 @@ using inercya.EntityLite.Extensions;
 using inercya.EntityLite.Builders;
 using System.Linq;
 using inercya.EntityLite.Collections;
+using inercya.EntityLite.Providers;
 
 namespace inercya.EntityLite
 {
-    public enum Provider
-    {
-        SqlClient,
-        OracleClient,
-        SQLite,
-        MySql,
-        Npgsql
-    }
-
-    public class ConnectionOpennedEventArgs : EventArgs
-    {
-        public DbConnection Connection { get; private set; }
-        public ConnectionOpennedEventArgs(DbConnection connection)
-        {
-            this.Connection = connection;
-        }
-
-    }
-
-
-    public class ErrorOcurredEventArgs : EventArgs
-    {
-        public Exception Exception { get; private set; }
-        public bool WillRetry { get; private set; }
-
-        public ErrorOcurredEventArgs(Exception exception, bool willRetry)
-        {
-            if (exception == null) throw new ArgumentNullException("exception");
-            this.Exception = exception;
-        }
-    }
-
-    
 
     public partial class DataService : IDisposable
     {
+
+        public static readonly IDictionary<string, Func<DataService, IEntityLiteProvider>> EntityLiteProviderFactories = new Dictionary<string, Func<DataService, IEntityLiteProvider>>();
 
         public object CurrentUserId { get; set; }
 
@@ -59,34 +29,27 @@ namespace inercya.EntityLite
 		public int InitialMillisecondsRetryDelay { get; protected set; }
 		public SpecialFieldNames SpecialFieldNames { get; set; }
 
-        private string _defaultSchemaName;
-        public string DefaultSchemaName
+        private IEntityLiteProvider _entityLiteProvider;
+        public IEntityLiteProvider EntityLiteProvider
         {
             get
             {
-                if (_defaultSchemaName == null)
+                if (_entityLiteProvider == null)
                 {
-                    if (this.Provider == EntityLite.Provider.SqlClient)
+                    Func<DataService, IEntityLiteProvider> factory = null;
+                    if (!EntityLiteProviderFactories.TryGetValue(this.ProviderName, out factory))
                     {
-                        _defaultSchemaName = "dbo";
+                        throw new InvalidOperationException("There is no registered EntityLite provider for: " + this.ProviderName);
                     }
+                    _entityLiteProvider = factory(this);
                 }
-                return _defaultSchemaName;
-            }
-            set
-            {
-                _defaultSchemaName = value;
+                return _entityLiteProvider;
             }
         }
 
-        private void SetDefaultValues()
-        {
+        public TextTransform EntityNameToEntityViewTransform { get; set; }
 
-			this.MaxRetries = 7;
-			this.InitialMillisecondsRetryDelay = 20;
-        }
-
-		private readonly CommandBuilder commandBuilder;
+		private CommandBuilder commandBuilder;
 
 		private Logger Log = NLog.LogManager.GetLogger(typeof(DataService).FullName);
 
@@ -111,9 +74,8 @@ namespace inercya.EntityLite
                     _connectionStringName = value;
                     _connectionString = null;
                     _providerName = null;
-                    _provider = null;
-                    _providerFactory = null;
-                    _parameterPrefix = null;
+                    _dbProviderFactory = null;
+                    _entityLiteProvider = null;
                     _connection = null;
                     _transaction = null;
                 }
@@ -174,133 +136,7 @@ namespace inercya.EntityLite
             }
         }
 
-        private Provider? _provider;
-        public Provider Provider
-        {
-           get 
-           {
-               if (_provider == null)
-               {
-                   switch (ProviderName)
-                   {
-                       case "System.Data.SqlClient":
-                           _provider = Provider.SqlClient;
-                           break;
-                       case "System.Data.SQLite":
-                           _provider = Provider.SQLite;
-                           break;
-                       case "Oracle.DataAccess.Client":
-                           _provider = Provider.OracleClient;
-                           break;
-                       case "MySql.Data.MySqlClient":
-                           _provider = Provider.MySql;
-                           break;
-                       case "Npgsql":
-                           _provider = Provider.Npgsql;
-                           break;
-                       default:
-                           throw new NotSupportedException("The provider " + ProviderName + " is not supported");
-                   }
-               }
-               return _provider.Value;
-           }
-        }
-
-        private string _parameterPrefix;
-
-        public string ParameterPrefix
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_parameterPrefix))
-                {
-                    switch (Provider)
-                    {
-                        case Provider.SqlClient:
-                        case Provider.SQLite:
-                        case Provider.MySql:
-                        case Provider.Npgsql:
-                            _parameterPrefix = "@";
-                            break;
-                        case Provider.OracleClient:
-                            _parameterPrefix = ":";
-                            break;
-                        default:
-                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
-                    }
-                }
-                return _parameterPrefix;
-            }
-        }
-
-        private string _startQuote;
-        public string StartQuote
-        {
-            get
-            {
-                if (_startQuote == null)
-                {
-                    switch (Provider)
-                    {
-                        case Provider.SqlClient:
-                        case Provider.SQLite:
-                            _startQuote = "[";
-                            break;
-                        case Provider.MySql:
-                            _startQuote = "`";
-                            break;
-                        case Provider.OracleClient:
-                        case Provider.Npgsql:
-                            _startQuote = "\"";
-                            break;
-                        default:
-                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
-                    }
-                }
-                return _startQuote;
-            }
-        }
-
-        private string _endQuote;
-        public string EndQuote
-        {
-            get
-            {
-                if (_endQuote == null)
-                {
-                    switch (Provider)
-                    {
-                        case Provider.SqlClient:
-                        case Provider.SQLite:
-                            _endQuote = "]";
-                            break;
-                        case Provider.MySql:
-                            _endQuote = "`";
-                            break;
-                        case Provider.OracleClient:
-                        case Provider.Npgsql:
-                            _endQuote = "\"";
-                            break;
-                        default:
-                            throw new NotSupportedException("The provider " + ProviderName + " is not supported");
-                    }
-                }
-                return _endQuote;
-            }
-        }
-
-        private static SynchronizedDictionary<string, DbProviderFactory> providerFactories;
-
-        private static DbProviderFactory GetProviderFactory(string provider)
-        {
-            DbProviderFactory factory = null;
-            if (!providerFactories.TryGetValue(provider, out factory))
-            {                 
-                factory = DbProviderFactories.GetFactory(provider);
-                providerFactories[provider] = factory;
-            }
-            return factory;
-        }
+        private static CacheLite<string, DbProviderFactory> providerFactoriesCache;
 
         private IIdentityMap _identityMap;
 
@@ -322,19 +158,24 @@ namespace inercya.EntityLite
 
         static DataService()
         {
-            providerFactories = new SynchronizedDictionary<string, DbProviderFactory>();
+            providerFactoriesCache = new CacheLite<string, DbProviderFactory>(providerName => DbProviderFactories.GetFactory(providerName));
+            EntityLiteProviderFactories.Add(SqlServerEntityLiteProvider.ProviderName, (ds) => new SqlServerEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(SqliteEntityLiteProvider.ProviderName, (ds) => new SqliteEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(MySqlEntityLiteProvider.ProviderName, (ds) => new MySqlEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ProviderName, (ds) => new OracleEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(NpgsqlEntityLiteProvider.ProviderName, (ds) => new NpgsqlEntityLiteProvider(ds));
         }
 
-        private DbProviderFactory _providerFactory;
-        public DbProviderFactory ProviderFactory
+        private DbProviderFactory _dbProviderFactory;
+        public DbProviderFactory DbProviderFactory
         {
             get
             {
-                if (_providerFactory == null)
+                if (_dbProviderFactory == null)
                 {
-                    _providerFactory = GetProviderFactory(this.ProviderName);
+                    _dbProviderFactory = providerFactoriesCache.GetItem(this.ProviderName);
                 }
-                return _providerFactory;
+                return _dbProviderFactory;
             }
         }
 
@@ -345,7 +186,7 @@ namespace inercya.EntityLite
             {
                 if (_connection == null)
                 {
-                    _connection = ProviderFactory.CreateConnection();
+                    _connection = DbProviderFactory.CreateConnection();
                     _connection.StateChange += new StateChangeEventHandler(_connection_StateChange);
                     if (!string.IsNullOrEmpty(this.ConnectionString))
                     {
@@ -398,7 +239,6 @@ namespace inercya.EntityLite
                 _transaction = this.Connection.BeginTransaction();
             }
             TransactionCount++;
-
         }
 
         public bool IsActiveTransaction
@@ -457,9 +297,16 @@ namespace inercya.EntityLite
 
         public DataService()
         {
-			this.commandBuilder = new CommandBuilder(this);
-			this.SpecialFieldNames = new SpecialFieldNames();
-			this.SetDefaultValues();
+            Initialize();
+        }
+
+        protected virtual void Initialize()
+        {
+            this.EntityNameToEntityViewTransform = TextTransform.None;
+            this.commandBuilder = new CommandBuilder(this);
+            this.SpecialFieldNames = new SpecialFieldNames();
+            this.MaxRetries = 2;
+            this.InitialMillisecondsRetryDelay = 20;
         }
 
         public DataService(string connectionStringName) : this()
@@ -487,8 +334,6 @@ namespace inercya.EntityLite
         {
             if (disposing && !_isDisposed)
             {
-
-
                 if (_transaction != null)
                 {
                     _transaction.Dispose();
@@ -513,53 +358,14 @@ namespace inercya.EntityLite
 		#region Modification methods
 		
 
-		public virtual void Delete(object entity)
+		protected internal virtual bool Delete(object entity)
 		{
-			try
-			{
-				if (entity == null) throw new ArgumentNullException("entity");
-				DbCommand cmd = this.commandBuilder.GetDeleteCommand(entity);
-				int maxRetries = this.IsActiveTransaction ? 0 : MaxRetries;
-				FunctionExtensions.ExecuteWithRetries(delegate
-				{
-					cmd.Connection = this.Connection;
-					if (this.IsActiveTransaction)
-					{
-						cmd.Transaction = this.Transaction;
-					}
-					this.OpenConnection();
-					var watch = Stopwatch.StartNew();
-					var result = cmd.ExecuteNonQuery();
-					watch.Stop();
-					CommandExecutionLogger.LogCommandExecution(cmd, this, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
-					return result;
-				}, maxRetries, this.InitialMillisecondsRetryDelay, (ex, willRetry) => this.NotifyErrorOcurred(ex, willRetry));
-
-                    var identity = entity.TryGetId();
-                    if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
-			}
-			catch (Exception ex)
-			{
-				if (entity == null)
-				{
-					Log.ErrorException("Error deleting entity", ex);
-				}
-				else
-				{
-					Log.ErrorException(string.Format("Error deleting entity of type {0} with id {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString()), ex);
-				}
-				throw;
-			}
-		}
-
-		public void Delete<T>(IEnumerable<T> entities)
-		{
-			if (entities == null) throw new ArgumentNullException("entitiesCollection");
-			//Type entityType = entitiesCollection.GetType();
-			foreach (object entity in entities)
-			{
-				this.Delete(entity);
-			}
+			if (entity == null) throw new ArgumentNullException("entity");
+            var affectedRecords = this.ExecuteCommand( ()=>this.commandBuilder.GetDeleteCommand(entity), 
+                createCmd => createCmd().ExecuteNonQuery());
+			var identity = entity.TryGetId();
+            if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
+            return affectedRecords > 0;
 		}
 
         private void SetAuditDate(string fieldName, object entity)
@@ -600,91 +406,59 @@ namespace inercya.EntityLite
             }
         }
 
-		public virtual void Insert(object entity)
+		protected internal virtual void Insert(object entity)
 		{
-			try
-			{
-				if (entity == null) throw new ArgumentNullException("entity");
+		    if (entity == null) throw new ArgumentNullException("entity");
 
-				Type entityType = entity.GetType();
-                var setters = entityType.GetPropertySetters();
+		    Type entityType = entity.GetType();
+            var setters = entityType.GetPropertySetters();
 
-                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity);
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
-                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity);
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+            SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity);
+            SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+            SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity);
+            SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
 
-				DbCommand cmd = this.commandBuilder.GetInsertCommand(entity);
-				int maxRetries = this.IsActiveTransaction ? 0 : MaxRetries;
+            EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
 
-				FunctionExtensions.ExecuteWithRetries(delegate
-				{
-					cmd.Connection = this.Connection;
-					if (this.IsActiveTransaction)
-					{
-						cmd.Transaction = this.Transaction;
-					}
-					this.OpenConnection();
-					var watch = Stopwatch.StartNew();
-                    EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
-                    string autoIncrementFieldName = entityMetadata.AutoIncrementFieldName;
-                    if (this.Provider == EntityLite.Provider.OracleClient && entityMetadata.SequenceFieldName != null)
+            this.ExecuteCommand(() => this.commandBuilder.GetInsertCommand(entity), createCmd =>
+            {
+                var cmd = createCmd();
+                object autogeneratedFieldValue = null;
+                string autogeneratedFieldName = entityMetadata.SequenceFieldName;
+                if (entityMetadata.AutoIncrementFieldName != null) autogeneratedFieldName = entityMetadata.AutoIncrementFieldName;
+                if (autogeneratedFieldName == null)
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                else if (EntityLiteProvider.AutoGeneratedFieldFetchMode == AutoGeneratedFieldFetchMode.OutputParameter)
+                {
+                    cmd.ExecuteNonQuery();
+                    var autogeneratedFieldParam = cmd.Parameters.Cast<IDataParameter>().FirstOrDefault(x => x.Direction == ParameterDirection.Output);
+                    if (autogeneratedFieldParam == null)
                     {
-                        cmd.ExecuteNonQuery();
-                        long id = (long) cmd.Parameters[":id_seq_$param$"].Value;
-                        Type propertyType = entityMetadata.Properties[entityMetadata.SequenceFieldName].PropertyInfo.PropertyType;
-                        if (propertyType == typeof(long))
-                        {
-                            setters[entityMetadata.SequenceFieldName](entity, id);
-                        }
-                        else
-                        {
-                            setters[entityMetadata.SequenceFieldName](entity, Convert.ChangeType(id, propertyType));
-                        }
+                        throw new InvalidOperationException(string.Format("There is no output parameter in insert command for autogenerated field {0}.{1},", entityType.Name, autogeneratedFieldName));
                     }
-                    else
-                    {
-                        using (IDataReader reader = cmd.ExecuteReader())
-                        {
-
-                            if (!string.IsNullOrEmpty(autoIncrementFieldName) && reader.Read())
-                            {
-                                int fieldOrdinal = 0;
-                                Type fieldType = reader.GetFieldType(fieldOrdinal);
-                                Type propertyType = entityMetadata.Properties[autoIncrementFieldName].PropertyInfo.PropertyType;
-                                if (fieldType == propertyType)
-                                {
-                                    setters[autoIncrementFieldName](entity, reader.GetValue(fieldOrdinal));
-                                }
-                                else
-                                {
-                                    setters[autoIncrementFieldName](entity, Convert.ChangeType(reader.GetValue(fieldOrdinal), propertyType));
-                                }
-                            }
-                            while (reader.NextResult()) ;
-
-                        }
-                    }
-					watch.Stop();
-					CommandExecutionLogger.LogCommandExecution(cmd, this, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
-					return 0;
-				}, maxRetries, this.InitialMillisecondsRetryDelay, (ex, willRetry) => this.NotifyErrorOcurred(ex, willRetry));
-			}
-			catch (Exception ex)
-			{
-				if (entity == null)
-				{
-					Log.ErrorException("Error inserting entity", ex);
-				}
-				else
-				{
-					Log.ErrorException(string.Format("Error inserting entity of type {0} with primary key {1} ", entity.GetType().Name, entity.GetPrimaryKey().ToListString()), ex);
-				}
-				throw;
-			}
+                    autogeneratedFieldValue = autogeneratedFieldParam.Value;
+                }
+                else
+                {
+                    autogeneratedFieldValue = cmd.ExecuteScalar();
+                }
+                Type autogeneratedFieldType = autogeneratedFieldValue.GetType();
+                Type propertyType = entityMetadata.Properties[autogeneratedFieldName].PropertyInfo.PropertyType.UndelyingType();
+                if (autogeneratedFieldType == propertyType)
+                {
+                    setters[autogeneratedFieldName](entity, autogeneratedFieldValue);
+                }
+                else
+                {
+                    setters[autogeneratedFieldName](entity, Convert.ChangeType(autogeneratedFieldValue, propertyType));
+                }
+                return true;
+            });
 		}
 
-        public virtual int Update(object entity)
+        protected internal virtual int Update(object entity)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity));
         }
@@ -694,53 +468,64 @@ namespace inercya.EntityLite
             return Update(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
-
+        private object GeByPrimaryKeyIncludingJustPkAndRowVersionFields(Type entityType, object entity)
+        {
+            var q = this.CreateQueryLite(entityType, Projection.BaseTable);
+            var metadata = entityType.GetEntityMetadata();
+            foreach (var pkf in metadata.PrimaryKeyPropertyNames )
+            {
+                var prop = metadata.Properties[pkf];
+                q.Filter.Add(new ConditionLite
+                {
+                    FieldName = pkf,
+                    LogicalOperator = LogicalOperatorLite.And,
+                    Operator = OperatorLite.Equals,
+                    FieldValue = entity.GetPropertyValue(pkf)
+                });
+                q.FieldList.Add(pkf);
+            }
+            if (metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName))
+            {
+                q.FieldList.Add(SpecialFieldNames.EntityRowVersionFieldName);
+            }
+            return q.FirstOrDefault();
+        }
 
         protected virtual int Update(object entity, List<string> sortedFields)
         {
-            try
-            {
-                if (entity == null) throw new ArgumentNullException("entity");
-                Type entityType = entity.GetType();
-                var metadata = entityType.GetEntityMetadata();
+            if (entity == null) throw new ArgumentNullException("entity");
+            Type entityType = entity.GetType();
+            var metadata = entityType.GetEntityMetadata();
                
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+            SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+            SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
 
-                DbCommand cmd = this.commandBuilder.GetUpdateCommand(entity, sortedFields);
-
-                int maxRetries = this.IsActiveTransaction ? 0 : MaxRetries;
-                var affectedRecords = FunctionExtensions.ExecuteWithRetries(delegate
-                {
-                    cmd.Connection = this.Connection;
-                    if (this.IsActiveTransaction)
-                    {
-                        cmd.Transaction = this.Transaction;
-                    }
-                    this.OpenConnection();
-                    var watch = Stopwatch.StartNew();
-                    int result = cmd.ExecuteNonQuery();
-                    watch.Stop();
-                    CommandExecutionLogger.LogCommandExecution(cmd, this, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
-                    return result;
-
-                }, maxRetries, this.InitialMillisecondsRetryDelay, (ex, willRetry) => this.NotifyErrorOcurred(ex, willRetry));
-                var identity = entity.TryGetId();
-                if (identity != null) IdentityMap.Remove(entityType, identity);
-                return affectedRecords;
-            }
-            catch (Exception ex)
+            var affectedRecords = this.ExecuteCommand(() => this.commandBuilder.GetUpdateCommand(entity, sortedFields), createCmd =>
             {
-                if (entity == null)
+                var cmd = createCmd();
+                return cmd.ExecuteNonQuery();
+            });
+
+            var identity = entity.TryGetId();
+            if (identity != null) IdentityMap.Remove(entityType, identity);
+            bool hasEntityRowVersion = metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName);
+            object freshEntity = hasEntityRowVersion ?  GeByPrimaryKeyIncludingJustPkAndRowVersionFields(entityType, entity) : null;
+            if (freshEntity != null)
+            {
+                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName));
+            }
+            if (affectedRecords == 0)
+            {
+                if (hasEntityRowVersion && freshEntity != null)
                 {
-                    Log.ErrorException("Error updating entity", ex);
+                    throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified since it was read");
                 }
                 else
                 {
-                    Log.ErrorException(string.Format("Error updating entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString()), ex);
+                    throw new RowNotFoundException("Attempt to update an inexistent row");
                 }
-                throw;
             }
+            return affectedRecords;
         }
 
         protected List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)
@@ -783,6 +568,61 @@ namespace inercya.EntityLite
             return sortedFields;
         }
 
+
+
 		#endregion
+
+        public T ExecuteCommand<T>(Func<DbCommand> createCommand, Func<Func<DbCommand>, T> executeCommandFunc)
+        {
+            try
+            {
+                int maxRetries = this.IsActiveTransaction ? 0 : MaxRetries;
+                var watch = new Stopwatch();
+                DbCommand command = null;
+                Func<T> func = () =>
+                {
+
+                    this.OpenConnection();
+                    return executeCommandFunc(() =>
+                    {
+                        command = createCommand();
+                        command.Connection = this.Connection;
+                        if (this.IsActiveTransaction)
+                        {
+                            command.Transaction = this.Transaction;
+                        }
+                        return command;
+                    });
+                };
+                var result = func.ExecuteWithRetries(
+                        maxRetries, this.InitialMillisecondsRetryDelay,
+                        (ex, willRetry) => this.NotifyErrorOcurred(ex, willRetry));
+                CommandExecutionLogger.LogCommandExecution(command, this, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorException("Couldn't execute command", ex);
+                throw;
+            }
+        }
+
+        public IEnumerable<T> ToEnumerable<T>(Func<DbCommand> createCommand)
+        {
+            return this.ExecuteCommand(createCommand, ToEnumerableImplementation<T>);
+        }
+
+        internal static IEnumerable<T> ToEnumerableImplementation<T>(Func<DbCommand> createCommand)
+        {
+            using (var cmd = createCommand())
+            using (var reader = cmd.ExecuteReader())
+            {
+                var factory = reader.GetFactory(typeof(T));
+                while (reader.Read())
+                {
+                    yield return (T)factory(reader);
+                }
+            }
+        }
 	}
 }

@@ -7,12 +7,21 @@ namespace <#= generation.RootNamespace #>
 {
 	public partial class <#= generation.DataServiceName #> : DataService
 	{
+<#+	if (!string.IsNullOrEmpty(generation.ConnectionStringName)) { #>
+        public <#= generation.DataServiceName #>() : base("<#= generation.ConnectionStringName #>")
+        {
+			EntityNameToEntityViewTransform = TextTransform.<#= generation.EntityNameToEntityViewTransform #>;
+        }
+<#+ } #>
+
         public <#= generation.DataServiceName #>(string connectionStringName) : base(connectionStringName)
         {
+			EntityNameToEntityViewTransform = TextTransform.<#= generation.EntityNameToEntityViewTransform #>;
         }
 
         public <#= generation.DataServiceName #>(string connectionString, string providerName) : base(connectionString, providerName)
         {
+			EntityNameToEntityViewTransform = TextTransform.<#= generation.EntityNameToEntityViewTransform #>;
         }
 <#+
 	foreach (var entity in generation.EntitySettings)

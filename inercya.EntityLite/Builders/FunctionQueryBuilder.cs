@@ -25,7 +25,7 @@ namespace inercya.EntityLite.Builders
 
         public object[] ParameterValues { get; set; }
 
-        protected override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
+        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
         {
             var sb = new StringBuilder();
             sb.Append(" ").Append(this.FunctionName).Append("(");
@@ -34,7 +34,7 @@ namespace inercya.EntityLite.Builders
             {
                 if (first) first = false;
                 else sb.Append(", ");
-				string paramName = this.QueryLite.DataService.ParameterPrefix + "P" + paramIndex.ToString();
+				string paramName = this.QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
                 selectCommand.Parameters.AddWithValue(paramName, parameterValue);
                 sb.Append(paramName);
 				paramIndex++;

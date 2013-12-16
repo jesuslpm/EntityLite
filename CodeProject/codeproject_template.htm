@@ -1,0 +1,786 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>The Code Project</title>
+    <style>
+        BODY, P, TD {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 10pt;
+        }
+
+        H2, H3, H4, H5 {
+            color: #ff9900;
+            font-weight: bold;
+        }
+
+        H2 {
+            font-size: 13pt;
+        }
+
+        H3 {
+            font-size: 12pt;
+        }
+
+        H4 {
+            font-size: 10pt;
+            color: black;
+        }
+
+        PRE {
+            BACKGROUND-COLOR: #FBEDBB;
+            FONT-FAMILY: "Courier New", Courier, mono;
+            WHITE-SPACE: pre;
+        }
+
+        CODE {
+            COLOR: #990000;
+            FONT-FAMILY: "Courier New", Courier, mono;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="http://www.codeproject.com/App_Themes/Std/CodeProject.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+    <!--------------------------------------------------------------------------->
+    <!-------------------------------     STEP 1      --------------------------->
+    <!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       EntityLite: A Lightweight, Database First, Micro ORM
+Author:      JesusLopez
+Email:       jesuslpm@hotmail.com
+Language:    C# 3.0, SQL
+Platform:    Windows
+Technology:  ADO.NET
+Level:       Intermediate
+Description: This article introduces you to EntityLite and explains how to use it
+Section      Database
+SubSection   ADO.NET
+License:     <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</a>
+</pre>
+    <ul class=download>
+        <li><a href="Article_src.zip">Download source - XXX Kb</a></li>
+    </ul>
+
+    <h2>Introduction</h2>
+
+    <p>EntityLite is an open source, lightweight, database first, Micro ORM written in c# for use in c# applications that access relational databases.</p>
+
+    <p>EntityLite has been designed to accomplish the following objectives:</p>
+
+    <ul>
+        <li><strong>Simplicity</strong>. The core has only about 2,600 lines of code and has a maintenability index of 85.</li>
+        <li>
+            <strong>Easy of use and understand</strong>. EntityLite provides T4 templates to generate an easy to use data layer.
+            Queries are easy to write using the fluent interface provided by EntityLite
+        </li>
+        <li>
+            <strong>High performance</strong>. The processing time spent to generate SQL statements isn't noticeable.
+            EntityLite uses DynamicMethod to generate, at runtime, high performance methods to load entities from datareaders.
+        </li>
+        <li>
+            <strong>Fullfill application query needs</strong>. Using EntityLite you can base your queries on a table, a view or a table valued function, then add filter and order. Stored procedures are also supported. That covers most of your query needs.
+            At a last resort you can also hand craft you sql and load your entities using EntityLite
+        </li>
+        <li><strong>Levereage database power</strong>. Relational database servers have a great processing power and features that you can take advantage of by using views, functions and stored procedures</li>
+        <li><strong>Support multiple database systems</strong>. EntityLite works, out of the box, with SQL Server, Oracle, Postgre SQL, MySQL and SQLite. But it can be easily extended to others RDMS's as well.</li>
+    </ul>
+
+    <h2>Background</h2>
+
+    <p>
+        Back in year 2009 when Entity Framework was young I started using it, but soon I felt the need of a simpler, more performat ORM.
+        So I started working on EntityLite, ORMLite was its name, I changed it recently because there is others micro ORM's with that name.
+        EntitLite has evolved a lot since then, and now I decided to publish it as open source project.
+    </p>
+    <p>
+        Yes, there are several full ORM's like Entity Framework and NHibernate, and several micro ORM's such as PetaPoco, Massive and Dapper.
+        So EntityLite is just another micro ORM. But I hope you like it and love it as much as me.
+    </p>
+    <p>
+        Despite EntityLite seems like a brand new micro ORM, it has been in production several years. However now is in beta because I changed
+        it a bit and added several features before publishing it.
+    </p>
+
+    <h2>Entities, Tables and Views</h2>
+    <p>
+        In EntityLite, entities are POCO objects that map to database tables and views. You can see an entity as a denormalized projection
+        or view of the database.
+        An entity can map to zero or one table, and zero or more views. Of couse, an entity must map, at least, to one table or view.
+        If an entity maps to a table, the entity is updatable, you can use that entity to insert, update and delete rows on that table.
+        If an entity doesn't map to any table, the entity is read only, you can query it, but you cannot save it to the database.
+        For example the entity <code>Product</code> maps to  table <code>Products</code> and view <code>Product_Detailed</code>. That means
+        you can insert, update and delete products. 
+        That also means you can query for products based on either <code>Products</code> table or <code>Product_Detailed</code> view.
+    </p>
+
+    <p>
+        Entities are simple. They don't have complex properties nor collection properties. Relations are implemented as foreign keys.
+        Entity properties map to table columns and view columns. there is one property for each distinct column of the mapping table and views.
+     </p>
+    <p>  
+        Instead of abstracting the database and mostly considering it as an object graph persistence store, 
+        EntityLite embraces the relational model, providing litle abstraction, and looking at it as what's it really is:
+        a relational database. 
+        EntityLite doesn't claim to solve the impedance mismatch problem. Instead, 
+        it has relational impedance on its input and relational impedance on its output.
+    </p>
+    <p>
+        If an entity maps to a table, its entity views should accomplish the following rules regarding the primary key:
+        <ul>
+            <li>The primary key of the base table should be present in the entity view</li>
+            <li>The entity view should not return more than one row with the same value of the primary key</li>
+        </ul>
+    </p>
+    <p>
+        In EntityLite, views that map to entities are called entity views . They must follow a specific naming convention. An entity view name must start 
+        with the entity name, followed by an underscore and ended with a projection name. For example <code>Product_Detailed</code> is an entity
+        view of <code>Product</code> entity and <code>Detailed</code> is the projection name. 
+    </p>
+
+    <p>
+        EntityLite encourages the use of entity views. They help you to build your read model, they provide diferent ways to query for your entity and they allow you to load different sets of properties.
+        For example an employee of Northwind needs to review the product catalog and you want to display the product catalog on a grid. 
+        You can query the <code>Products</code> table, but this is not enough because the employee wants to see the category name and the supplier name of the product.
+        To solve this problem you create the <code>Product_Detailed</code> entity view that include these columns:
+    </p>
+    <pre lang="sql">
+CREATE VIEW [dbo].[Product_Detailed]
+AS
+SELECT
+    P.ProductID, P.ProductName, P.SupplierID, P.CategoryID, P.QuantityPerUnit, P.UnitPrice,
+    P.UnitsInStock, P.UnitsOnOrder, P.ReorderLevel, P.Discontinued,
+    C.CategoryName, S.CompanyName AS SupplierName
+FROM
+    [dbo].[Products] P
+    LEFT OUTER JOIN [dbo].[Categories] C
+        ON P.CategoryID = C.CategoryID
+    LEFT OUTER JOIN [dbo].Suppliers S
+        ON P.SupplierID = S.SupplierID
+    </pre>
+
+    <p>
+        Simmilary, when you show orders (just the headers) on a grid you may want to display the order total, 
+        the number of order details, and the name of the customer and the name of the shipper. To do that you
+        create the following two views. The first view is just a helper view, the second one is an entity view.
+    </p>
+
+    <pre lang="sql">
+CREATE VIEW [dbo].[OrderDetailsSummary]
+WITH SCHEMABINDING
+AS
+    SELECT
+        OD.OrderID, SUM(OD.Quantity * OD.UnitPrice * (1 - OD.Discount)) AS OrderTotal, COUNT_BIG(*) AS LineCount
+    FROM
+        [dbo].[OrderDetails] OD
+    GROUP BY
+        OD.OrderID
+    </pre>
+
+    <p>
+        To make the above view more efficient you can index it:
+    </p>
+    <pre lang="sql">
+CREATE UNIQUE CLUSTERED INDEX [UK_OrderDetailsSummary_OrderID] 
+ON [dbo].[OrderDetailsSummary]([OrderID])
+    </pre>
+
+    <p>And here you have the entity view:</p>
+    <pre lang="sql">
+CREATE VIEW [dbo].[Order_Extended]
+AS
+SELECT 
+    O.OrderID, O.CustomerID, O.EmployeeID, O.OrderDate, O.RequiredDate, O.ShippedDate, O.ShipVia, 
+    O.Freight, O.ShipName, O.ShipAddress, O.ShipCity, O.ShipRegion, O.ShipPostalCode, O.ShipCountry,
+    C.CompanyName AS CustomerCompanyName,
+    E.FirstName AS EmployeeFirstName, E.LastName AS EmployeeLastName,
+    S.CompanyName AS ShipperCompanyName,
+    OS.OrderTotal, OS.LineCount
+FROM
+    [dbo].[Orders] O
+    LEFT OUTER JOIN dbo.Customers C
+        ON O.CustomerID = C.CustomerID
+    LEFT OUTER JOIN dbo.Employees E
+        ON O.EmployeeID = E.EmployeeID
+    LEFT OUTER JOIN dbo.Shippers S
+        ON O.ShipVia = S.ShipperID
+    LEFT OUTER JOIN  dbo.OrderDetailsSummary OS WITH (NOEXPAND)
+        ON O.OrderID = OS.OrderID
+    </pre>
+
+    <p>
+        During the developent process, you might be tempted to do the following: you create an entity view, when you need another column
+        you modify the view, and then, every time you need more columns you add them to the view. At the end, you
+        have  "The Universal View". Don't be confused, this is a monster, 12 or more table join, 
+        inefficient and difficult to maintain view. Please don't do that, you can create as many views per entity as you
+        want, so create another view for the new use case. Don't use a view in a use case when that view access tables that the 
+        use case doesn't need, just create another view.
+    </p>
+
+    <p>
+        Views have an advantage over application genererated code, DBA's have an oportunity to optimize them. 
+        Experienced database developpers can also optimize views. 
+        They can rewrite them to make them more efficient, include query hints and other tricks that are
+        impossible with application generated code.
+    </p>
+
+    <p>
+        There are view designers for most of database servers, and if you are a beginner on SQL, use them. 
+        They can help you to create the views. However view designers don't support all SQL language features, 
+        you can create all possible views by writing SQL code, but you can't using designers.   
+    </p>
+
+    <img src="ViewDesigner.png" alt="View designer" />
+    
+    <h2>The EntityLite Nuget Package</h2>
+    <p>
+        To include EntityLite in your project you need to install EntityLite Nuget package. It includes the T4 code generator
+        and the core library. Just type the following in the Package Manager Console to install the latest prerelease version:
+    </p>
+    <pre>
+PM>Install-Package EntityLite -Pre
+    </pre>
+    <p>
+        To install the latest stable version type the following:
+    </p>
+    <pre>
+PM>Install-Package EntityLite
+    </pre>
+    <p>
+    When you install the EntityLite Nuget package the following is added to your project:
+    </p>
+    <ul>
+        <li>A reference to <code>inercya.EntityLite.dll</code>. This is the core library. It requires .NET 3.5 or later</li>
+        <li>A folder named <code>EntityLite.ttinclude</code>. This folder includes several T4 include files</li>
+        <li>The <code>DataLayer.tt</code> T4 template. 
+        This is where you define the entities you want to generate and several properties to access de database and
+        control the code generation process.
+        </li>
+    </ul>
+    <h2>Attaching The Sample Database</h2>
+    <p>
+        Before you can generate the data layer you need a database. The sample code includes a SQL Server 2012 database that
+        you need to attach. I also includes <code>AttachDb.sql</code> script. Execute the script from Visual Studio 
+        or SQL Sever Management Studio on a local SQL Server 2012 LocalDb or regular instance to attach the database. 
+        Change the Northind.mdf database file path as appropriate.
+        You can also attach the database to a remote SQL Server 2012 instance. In that case you need to copy the database files (*.mdf and *.ldf)
+        to the remote machine, and change the connection string to point to the remote SQL Server 2012 instance.
+    </p>
+<pre lang="sql">
+CREATE DATABASE Northwind
+ON (FILENAME = 'C:\Projects\EntityLite\Samples\Northwind.mdf') 
+FOR ATTACH;
+</pre>
+
+    <h2>Generating The Data Layer</h2>
+    <p>
+        To generate the data layer you need to modify the <code>DataLayer.tt</code>&nbsp;file. 
+        Change the connection string and include the entities and procedures you want.
+    </p>
+    <p>
+        Below you have a <code>DataLayer.tt</code> sample. It uses SqlClient to connect
+        to the Northwind database on the SQL Server LocaDb default instance. Generated classes are placed
+        on the <code>Samples.Entities</code> namespace. It generates a data service class
+        named "NorthwindDataService", several entities and a method for easily call the 
+        <code>RaiseProductPrices</code> stored procedure.
+    </p>
+<pre>
+&lt;#@ include file ="EntityLite.ttinclude\EntityLite.ttinclude" #&gt;
+&lt;#
+var generation = new DataLayerGeneration
+{
+    ProviderName = "System.Data.SqlClient",
+    ConnectionString = @"Data Source=(LocalDb)\V11.0;Initial Catalog=Northwind",
+    DefaultSchema = "dbo",
+    RootNamespace = "Samples.Entities",
+    DataServiceName = "NorthwindDataService",
+    EntitySettings = new List&lt;EntitySetting&gt;
+    {
+        new EntitySetting 
+        {
+            BaseTableName = "Products",
+            EntityName = "Product"  
+        },
+        new EntitySetting 
+        {
+            BaseTableName = "Categories",
+            EntityName = "Category"  
+        },
+        /* ....................... */
+        new EntitySetting 
+        {
+            BaseTableName = "Orders",
+            EntityName = "Order"  
+        }
+    },
+    ProcedureSettings = new List&lt;ProcedureSetting&gt;
+    {
+        new ProcedureSetting 
+        {
+            ProcedureName = "RaiseProductPrices",
+            ResultSetKind = ProcedureResultSetKind.None,
+            RelatedEntityName = "Product"
+        }
+    }
+};
+Render(generation);
+#&gt;
+    </pre>
+    <p>
+        If everything is OK, when you save the <code>DataLayer.tt</code> file or right click on it and select <em>Run Custom Tool</em>,
+        the <code>DataLayer.cs</code> file is generated.
+    </p>
+
+    <p>The following image shows you the generated data layer:</p>
+
+    <img src="DataLayer.png" alt="Generated Data Layer" />   
+
+    <p>As you can see there are three classes for each entity:</p>
+    <ul>
+        <li>The POCO class that represents the entity. For example <code>Category</code></li>
+        <li>The Repository class. For example <code>CategoryRepository</code>, which allows you to query, save and delete Categories</li>
+        <li>The Fields class. For example <code>CategoryFields</code> which have a constant string field for each Category property.</li>
+    </ul>
+
+    <p>
+        The <code>NorthwindDataService</code> generated class is the entry point to the data layer. 
+        It manages the connection to the database as well as transactions. It allows you to perform
+        all supported data access operations. To make this easier, <code>NorthwindDataService</code> has one 
+        property for each repository class.
+    </p>
+
+    <h3>Things That Might Go Wrong Generating The Data Layer</h3>
+
+    <p>There are a few things that might go wrong generating the data layer. Typically:</p>
+    <ul>
+        <li>
+            The ADO.NET provider you are using is not properly registered.
+            The assemblies must be in the Global Assembly Cache
+            and the provider must be registered in the DbProviderFactories section of Machine.config
+        </li>
+        <li>
+            The ADO.NET provider you are using works on 64 bits but it doesn't on 32 bits.
+            You need the provider to work on 32 bits because Visual Studio runs on 32 bits
+        </li>
+        <li>
+            You have problems connecting to the database. The connection string might be wrong or
+            you might not have permissions to connect.
+        </li>
+        <li>Typos in database objects (tables and stored procedures)</li>
+        <li>
+            Some Views and stored procedures might be invalid.
+            For example you dropped o renamed a table column, but forgot to update a view that references it
+        </li>
+    </ul>
+
+    <h2>Querying</h2>
+    <p>
+        To query entities based on base tables and entity views, you use <code>Get</code> and <code>Query</code>
+        methods of the repository. The <code>Get</code> method returns an entity by the primary key
+        and the <code>Query</code> method is used for more complex queries. 
+        Both methods have the projection as the first parameter, it can be either one of the <code>inercya.EntityLite.Projection</code>
+        enumeration values (standard projections) or the projection name.     
+    </p> 
+
+    <p>The following code snippet illustrates the use of <code>Get</code> method </p>
+    
+    <pre>
+// "Norhtwind" is the application configuration file connection string name
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    // reaads a category from the database by CategoryId
+    // SELECT * FROM dbo.Categories WHERE CategoryId = 1
+    Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1);
+
+    // Loads the product with ProductId = 2 from the database
+    // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = 2
+    Product p = ds.ProductRepository.Get(Projection.Detailed, 2, ProductFields.CategoryName, ProductFields.ProductName);
+}
+    </pre>  
+    <p>          
+       On the following example you can see how to create queries using different projections:
+    </p>
+
+ 
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    // this query is based on the dbo.Categories table
+    IQueryLite&lt;Category&gt; query1 = ds.CategoryRepository.Query(Projection.BaseTable);
+
+    // this query is based on the dbo.Product_Detailed view
+    IQueryLite&lt;Product&gt; query2 = ds.ProductRepository.Query(Projection.Detailed);
+
+    // this query is based on the dbo.ProductSale_Quarter view
+    IQueryLite&lt;ProductSale&gt; query3 = ds.ProductSaleRepository.Query("Quarter");
+}
+</pre>
+    <p>
+        You can specify the columns to retrieve from the entity base table or entity view using 
+        the <code>Fields</code> extension method. If you don't, all columns are retrieved.
+        You can also filter and order. 
+        To filter you use <code>Where</code>, <code>And</code> and <code>Or</code> extension methods.
+        To order you use <code>OrderBy</code> and <code>OrderByDesc</code> extension methods.
+        To execute the query you call <code>ToEnumerable()</code>,&nbsp;<code>ToList()</code>, 
+        or <code>FirstOrDefault()</code> methods.
+        The following code snippet shows you an example:
+    </p>
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    IEnumerable&lt;Product&gt; products = ds.ProductRepository.Query(Projection.Detailed)
+        .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+        .Where(ProductFields.Discontinued, false) // equals is the default operator
+        .And(ProductFields.SupplierId, OperatorLite.In, new int[] {2, 3}) // the value for OperatorLite.In is an enumerable
+        .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
+        .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+        .ToEnumerable();
+
+    foreach (Product p in products)
+    {
+        Console.WriteLine("CategoryName: {0}, ProductName: {1}", p.CategoryName, p.ProductName);
+    }
+}
+</pre>
+    <p>
+    Parenthesis are implemented by subfilters. For example:       
+    </p>
+    <pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    var subFilter = new FilterLite&lt;product&gt;()
+                .Where(ProductFields.SupplierId, 1) 
+                .Or(ProductFields.SupplierId, OperatorLite.IsNull);
+
+    // SELECT * FROM dbo.Products WHERE CategoryId = 1 AND (SupplierId = 1 OR SupplierId IS NULL)
+    IList&lt;Product&gt; products = ds.ProductRepository.Query(Projection.BaseTable)
+                    .Where(ProductFields.CategoryId, 1)
+                    .And(subFilter)
+                    .ToList();
+}
+    </pre>
+
+    <p>
+    To perform query pagination, <code>ToList()</code>&nbsp;and <code>ToEnumerable()</code> methods have 
+    an overload that includes <code>fromRowIndex</code> and <code>toRowIndex</code> arguments, both
+    starting at zero. These methods use specific database features such as <code>LIMT OFFET</code> for MySQL, 
+    SQLite and PostgreSQL. <code>ROW_NUMBER()</code> is used for SQL Server, and <code>rownum</code> for Oracle.
+     </p>
+    <p>The following code snipped shows the product list in a paged way:</p>
+<pre lang="cs">
+using (var ds = new Entities.NorthwindDataService("Northwind"))
+{
+    const int PageSize = 10;
+    var query = ds.ProductRepository.Query(Projection.Detailed)
+        .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+        .OrderBy(ProductFields.CategoryName, ProductFields.ProductName);
+
+    // SELECT COUNT(*) FROM ....
+    var productCount = query.GetCount();
+
+    var fromRowIndex = 0;
+    var toRowIndex = PageSize - 1;
+    while (fromRowIndex &lt; productCount)
+    {
+        foreach (var product in query.ToEnumerable(fromRowIndex, toRowIndex))
+        {
+            Console.WriteLine("{0}\t{1}", product.CategoryName, product.ProductName);
+        }
+        Console.WriteLine("Press enter to view the next product page ...");
+        Console.ReadLine();
+        fromRowIndex = toRowIndex + 1;
+        toRowIndex += PageSize;
+    }
+}
+    </pre>
+
+    <p>EntityLite has partial support for subqueries.
+    You can pass a <code>QueryLite</code>&nbsp; object as the value argument for <code>OperatorLite.In</code>
+    and <code>OperatorLite.NotIn</code>&nbsp;operators as shown on the following example:
+    </p>
+    <pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    IQueryLite&lt;OrderDetail&gt; orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
+        .Fields(OrderDetailFields.OrderId)
+        .Where(OrderDetailFields.ProductId, 11);
+
+    // SELECT OrderId, OrderDate, CustomerId
+    // FROM dbo.Orders
+    // WHERE OrderId IN (
+    //       SELECT OrderId
+    //       FROM dbo.OrderDetails
+    //       WHERE ProductId = 11
+    //    )
+    IQueryLite&lt;Order&gt; orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
+        .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
+        .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+
+    foreach(var order in orderQuery.ToEnumerable())
+    {
+        Console.WriteLine("OrderId {0}, OrderDate {1}, CustomerId {2}", 
+            order.OrderId, order.OrderDate, order.CustomerId);
+    }
+}
+    </pre>
+    <p>
+        EntityLite supports SQL Server table valued functions. To use them you create a
+        <code>FunctionLite</code>&nbsp; object. <code>FunctionLite</code> implements
+        <code>IQueryLite</code> interface, therefore you can specify columns and 
+        add filtering and ordering as usual.
+    </p>
+    <p>
+        Given the following inline table valued funcion that returns
+        a employee subtree by using a recursive CTE:
+    </p>
+<pre lang="sql">
+CREATE FUNCTION GetEmployeeSubTree(@EmployeeId int)
+RETURNS TABLE
+AS
+RETURN
+WITH H
+AS
+(
+	SELECT E.EmployeeID, E.LastName, E.FirstName,  E.ReportsTo, E.City
+	FROM
+		[dbo].[Employees] E
+	WHERE
+		E.EmployeeID = @EmployeeId
+	UNION ALL
+	SELECT E.EmployeeID, E.LastName, E.FirstName,  E.ReportsTo, E.City
+	FROM
+		[dbo].[Employees] E
+		INNER JOIN H ON E.ReportsTo = H.EmployeeID
+)
+SELECT * FROM H
+</pre>
+    <p>
+        You can get all employees from London that report directly or indirectly to Mr. Andrew Fuller
+        using the following code snippet:
+    </p>
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    // Andrew Fuller EmployeeId is 2
+    // SELECT FirstName, LastName
+    // FROM GetEmployeeSubTree(2)
+    // WHERE City = 'London'
+    // ORDER BY FirstName, LastName
+    IQueryLite&lt;Employee&gt; query = new FunctionQueryLite&lt;Employee&gt;(ds, "dbo.GetEmployeeSubTree", 2)
+        .Fields(EmployeeFields.FirstName, EmployeeFields.LastName)
+        .Where(EmployeeFields.City, "London")
+        .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
+
+    foreach(var emp in query.ToEnumerable())
+    {
+        Console.WriteLine("FirstName: {0}, LastName: {1}", emp.FirstName, emp.LastName);
+    }
+}
+</pre>
+    <p>
+        You might want to include the <code>FunctionQueryLite</code> object creation in
+        the <code>EmployeeRepository</code> class for homogeinizing and reusing purposes.
+        It is easy to do because all generated classes are partial. Here you have an example:
+    </p>
+<pre lang="cs">
+public partial class EmployeeRepository 
+{
+    public IQueryLite&lt;Employee&gt; CreateGetEmployeeSubtreeQuery(int employeeId)
+    {
+        return new FunctionQueryLite&lt;Employee&gt;(this.DataService, "dbo.GetEmployeeSubTree", employeeId);
+    }
+}
+</pre>
+    <p>
+        EntityLite extends <code>IDataReader</code> with <code>ToEnumerable()</code> and
+        <code>ToList()</code> methods. This is usefull in cases where making the query using <code>QueryLite</code>,
+       <code>FunctionQueryLite</code> or stored procedures is not possible or inconvenient, 
+       and you decide to hand craft the sql string. The following code snippet is an usage example:
+    </p>
+<pre lang="cs">
+string handCraftedSqlString = "SELECT ShipperID, CompanyName FROM dbo.Shippers";
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    using (var cmd = ds.Connection.CreateCommand())
+    {
+        cmd.CommandText = handCraftedSqlString;
+        ds.OpenConnection();
+        IEnumerable&lt;Shipper&gt; shippers = cmd.ExecuteReader().ToEnumerable&lt;Shipper&gt;();
+        // Note: the data reader is disposed automatically when the for each loop ends.
+        foreach (var shipper in shippers)
+        {
+            Console.WriteLine("ShipperId: {0}, CompanyName: {1}", shipper.ShipperId, shipper.CompanyName);
+        }
+    }
+}
+</pre>
+
+    <h2>SQL Server HierarchyId and Spatial Types</h2>
+
+    <p>
+        EntityLite supports HierarchyId, Geometry and Geography SQL Server data types. 
+        Columns of these types map to properties of type 
+        <code>SqlHierarchyId</code>, <code>SqlGeometry</code> and
+        <code>SqlGeography</code>.
+
+        EntityLite have the following operators that you can include in query filters:
+    </p>
+    <ul>
+        <li><code>OperatorLite.HierarchyLevelEquals</code></li>
+        <li><code>OperatorLite.IsChildOf</code></li>
+        <li><code>OperatorLite.IsDescendantOf</code></li>
+        <li><code>OperatorLite.STDistanceLess</code></li>
+        <li><code>OperatorLite.STDistanceLessOrEquals</code></li>
+        <li><code>OperatorLite.STEquals</code></li>
+        <li><code>OperatorLite.STIntersects</code></li>
+    </ul>
+
+    <h2>Stored Procedures</h2>
+
+    <p>
+        EntityLite supports stored procedures for SQL Server, Oracle, MySQL and PostgreSQL. The following stored
+        procedure is included in the sample code:
+    </p>
+
+<pre lang="sql">
+CREATE PROCEDURE [dbo].[RaiseProductPrices] @rate numeric(5,4)
+AS
+	UPDATE dbo.Products
+	SET UnitPrice = UnitPrice * (1 + @rate);
+</pre>
+
+    <p>
+        To generate a method for a stored procedure, you include a <code>StoredProcedureSetting</code> object 
+        in <code>DataLayer.tt</code> file. The method is placed in the <code>RelatedEntity</code> repository
+        class. In the sample <code>DataLayer.tt</code>, <code>ProcedureName</code>
+        is "RaiseProductPrices" and <code>RelatedEntity</code> is "Product", therefore a method named
+        <code>RaiseProductPrices</code> is generated in the <code>ProductRepository</code> class. The
+        following is the signature of the method:
+    </p> 
+ <pre lang="cs">
+public void RaiseProductPrices(Decimal? rate)
+</pre>       
+    <p>    
+        The method return type is determined by the <code>ResultSetKind</code> property of the <code>StoredProcedureSetting</code>
+        object. It can be one of the following values:
+    </p>
+    <ul>
+        <li><code>ProcedureResultSetKind.None</code>. The procedure returns no result set. The method return type is void</li>
+        <li><code>ProcedureResultSetKind.Scalar</code>. The result set contains only one row with only one column.
+        The method return type is the value of the <code>ScalarReturnType</code> property of the <code>StoredProcedureSetting</code> object 
+        </li>
+        <li><code>ProcedureResultSetKind.SingleRow</code>. The result set contains only one row with multiple columns. 
+        The method return type is the related entity POCO class.
+        </li>
+        <li><code>ProcedureResultSetKind.MultipleRows</code>. The result set contains multiple rows with multiple columns.
+        The method returns a list of related entities.
+        </li>
+    </ul>
+
+    <p>Multiple result sets are not supported.</p>
+
+    <p>
+        The generated method has an argument for each stored procedure parameter. IN/OUT parameters are 
+        declared as <code>ref</code> arguments.  
+    </p>
+
+    <p>
+        Calling a stored procedure is as easy as calling a method. For example:
+    </p>
+
+    <pre>
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    ds.ProductRepository.RaiseProductPrices(0.10m);
+}
+    </pre>
+
+    <h2>A Word About Stored Procedures Use</h2>
+    <p>
+        Some people love stored procedures and use them for everything. Some other people hate them and never use them.
+        I think that you should avoid using stored procedures if you can do the same thing using <code>QueryLite</code>
+        or <code>FunctionQueryLite</code>. On the other side I think stored procedures are great for set based modifications.
+        IMHO you should use stored procedures when you need to insert, update or delete more than a few rows. It doesn't worth
+        to create a stored procedure for insert, update or delete a single row.
+    </p>
+
+
+
+    <h2>DataLayerGeneration Reference</h2>
+    
+    <p>The <code>DataLayerGeneration</code> object has the following properties:</p>
+    <ul>
+        <li><code>ProviderName</code>. The ADO.NET provider invariant name. EntityLite supports several ADO.NET providers. 
+        It must be properly registered on your machine.</li>
+        <li><code>ConnectionString</code>. The connection string to connect to the database and to retrieve metadata information.</li>
+        <li><code>DefaultSchema</code>. The default database schema. When no schema is specified for an entity,
+    the entitity is associated to the default database schema to locate tables and views.
+</li>
+        <li><code>RootNamespace</code>. The namespace where the generated classes are placed.</li>
+        <li><code>DataServiceName</code>. The name of the generated data service class. More on that later.</li>
+        <li><code>EntitySettings</code>. A list of <code>EntitySetting</code> objects</li>
+        <li><code>ProcedureSettings</code>. A list of <code>ProcedureSetting</code> objects</li>
+    </ul>
+
+    <p>An entity is generated for each <code>EntitySetting</code> object in <code>EntitySettings</code> list. <code>EntitySetting</code> 
+    objects have the following properties:</p>
+
+    <ul>
+       <li><code>BaseTableName</code>. The database table that the entity maps to. If specified, the entity is updatable. If not specified
+        the entity is readonly. If not specified at least one entity view must exist.</li>
+        <li><code>Schema</code>.The database schema where the base table and entity views are located. If not specified, DefaultSchema is taken.
+        Entity classes in the default schema are generated on the RootNamespace. Entity classes in other schemas a generated in a child
+        namespace of RootNamespace. The child namespace name is the Schema name.
+        </li>
+        <li><code>EntityName</code>. The name of the generated class for the entity.</li>
+        <li><code>ReadOnlyFields</code>. A comma separated list of read only fields. Theses fields will not be included in INSERT nor UPDATE SQL statements.
+        This may be usefull to prevent overwriting table columns that are calculated inside DML triggers. For example you might want
+        to calculate the <code>MaterializedPath</code> column of a table that represents a tree by using triggers.
+        </li>
+        <li><code>FieldGeneration</code>. Can be one of the following values:
+            <ul>
+                <li><code>FieldGeneration.ForBaseTableAndViews</code>
+                Entity properties are generated from base table and entity view columns. This is the default value.</li>
+                <li><code>FieldGeneration.ForBaseTable</code>Entity properties are generated from base table columns.</li>
+                <li><code>FieldGeneration.ForViews</code>Entity properties are generated from entity view columns</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p>
+        A method is generated for each <code>ProcedureSetting</code> object  in <code>ProcedureSettings</code> list. 
+        <code>ProcedureSetting</code> objects have the following properties:
+        <ul>
+            <li><code>ProcedureName</code>. The name of the procedure</li>
+            <li><code>ProcedureSchema</code>. The database schema where the procedure is located</li>
+            <li><code>ResultSetKind</code>. One of the follwing values:
+                <ul>
+                    <li><code>ProcedureResultSetKind.None</code>. The procedure retuns no result set.</li>
+                    <li><code>ProcedureResultSetKind.Scalar</code>. The result set contains only one row with only one column</li>
+                    <li><code>ProcedureResultSetKind.SingleRow</code>. The result set contains only one row with multiple columns</li>
+                    <li><code>ProcedureResultSetKind.MultipleRows</code>. The result set contains multiple rows with multiple columns</li>
+                </ul>
+            </li>
+            <li><code>ScalarReturnType</code>. If you specified <code>ProcedureResultSetKind.Scalar</code> 
+            you must specify the type of the returned value</li>
+            <li><code>RelatedEntityName</code>. The procedure must be associated with an entity. 
+            This is the name of such entity. 
+            The method generated for the procedure will be included in the entity repository class.</li>
+            <li><code>MemberVisibility</code>. Specifies the generated method visibility. I can be one of the following values:
+            <ul>
+                <li>
+
+                </li>
+            </ul>
+            </li>
+        </ul>
+    </p>
+
+
+    
+    <h2>History</h2>
+
+    <p>Keep a running update of any changes or improvements you've made here. </p>
+
+</body>
+
+</html>

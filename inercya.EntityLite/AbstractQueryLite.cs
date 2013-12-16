@@ -15,7 +15,7 @@ namespace inercya.EntityLite
     public abstract class AbstractQueryLite : IQueryLite
     {
 
-        private readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
         public IList<string> FieldList { get; set; }
         public ICollection<ConditionLite> Filter { get; set; }
         public ICollection<SortDescriptor> Sort { get; set; }
@@ -104,62 +104,13 @@ namespace inercya.EntityLite
             return selectCommand;
         }
 
-		protected T ExecuteCommand<T>(Func<DbCommand> createCommand, Func<Func<DbCommand>, T> executeCommandFunc)
-		{
-			try
-			{
-				int maxRetries = this.DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-				var watch = new Stopwatch();
-				DbCommand command =  null;
-				Func<T> func = () => 
-				{
 
-					this.DataService.OpenConnection();
-					return executeCommandFunc(() => {
-						command = createCommand();
-						command.Connection = this.DataService.Connection;
-						if (this.DataService.IsActiveTransaction)
-						{
-							command.Transaction = this.DataService.Transaction;
-						}
-						return command;
-					});
-				};
-				var result = func.ExecuteWithRetries(
-						maxRetries, DataService.InitialMillisecondsRetryDelay,
-						(ex, willRetry) => this.DataService.NotifyErrorOcurred(ex, willRetry));
-				CommandExecutionLogger.LogCommandExecution(command, this.DataService, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
-				return result;
-			}
-			catch (Exception ex)
-			{
-				Log.ErrorException("Couldn't execute command", ex);
-				throw;
-			}
-		}
 
-		protected IEnumerable<T> ToEnumerable<T>(Func<DbCommand> createCommand)
-		{
-			return ExecuteCommand(createCommand, ToEnumerableImplementation<T>);
-		}
-
-		private static IEnumerable<T> ToEnumerableImplementation<T>(Func<DbCommand> createCommand)
-		{
-			using (var cmd = createCommand())
-			using (var reader = cmd.ExecuteReader())
-			{
-				var factory = reader.GetFactory(typeof(T));
-				while (reader.Read())
-				{
-					yield return (T)factory(reader);
-				}
-			}
-		}
 
 
         public int GetCount()
         {
-			return ExecuteCommand(GetCountCommand, (createCmd) => 
+			return this.DataService.ExecuteCommand(GetCountCommand, (createCmd) => 
 			{
 				using (var cmd = createCmd())
 				{
@@ -191,12 +142,12 @@ namespace inercya.EntityLite
 
 		public virtual IEnumerable<TEntity> ToEnumerable()
 		{
-			return base.ToEnumerable<TEntity>(GetSelectCommand);
+			return this.DataService.ToEnumerable<TEntity>(GetSelectCommand);
 		}
 
 		public virtual IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex)
 		{
-			return base.ToEnumerable<TEntity>(() => GetSelectCommand(fromIndex, toIndex));
+			return this.DataService.ToEnumerable<TEntity>(() => GetSelectCommand(fromIndex, toIndex));
 		}
 
 		public TEntity FirstOrDefault()
