@@ -25,7 +25,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{0493F652-14B1-45DD-A168-A4686ACBB9D8}"
 	ProjectSection(SolutionItems) = preProject
 		nuget\Generators\Build.cmd = nuget\Generators\Build.cmd
-		nuget\Generators\EntityLite.Generators.nuspec = nuget\Generators\EntityLite.Generators.nuspec
+		nuget\Generators\EntityLite.nuspec = nuget\Generators\EntityLite.nuspec
 		nuget\Generators\Publish.cmd = nuget\Generators\Publish.cmd
 	EndProjectSection
 EndProject
