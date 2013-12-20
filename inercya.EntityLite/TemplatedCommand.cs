@@ -34,12 +34,44 @@ namespace inercya.EntityLite
 
         public int ExecuteNonQuery()
         {
-            return this.DataService.ExecuteCommand(CreateCommand, x => x().ExecuteNonQuery());
+            return this.DataService.ExecuteCommand(CreateCommand, x => 
+            {
+                using (var cmd = x())
+                {
+                    var returnValue = cmd.ExecuteNonQuery();
+                    SetOutPutParameters(cmd);
+                    return returnValue;
+                }
+            });
         }
 
         public object ExecuteScalar()
         {
-            return this.DataService.ExecuteCommand(CreateCommand, x => x().ExecuteScalar());
+            return this.DataService.ExecuteCommand(CreateCommand, x =>
+            {
+                using (var cmd = x())
+                {
+                    var returnValue = cmd.ExecuteScalar();
+                    SetOutPutParameters(cmd);
+                    return returnValue;
+                }
+            });
+        }
+
+        private void SetOutPutParameters(DbCommand command)
+        {
+            var setters = this.Template.GetType().GetPropertySetters();
+            foreach (var p in command.Parameters.Cast<DbParameter>().Where(x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output))
+            {
+                if (p.Value == DBNull.Value)
+                {
+                    setters[p.SourceColumn](this.Template, null);
+                }
+                else
+                {
+                    setters[p.SourceColumn](this.Template, p.Value);
+                }
+            }
         }
 
         public IDataReader ExecuteReader()
@@ -59,7 +91,7 @@ namespace inercya.EntityLite
 
         public IEnumerable<T> ToEnumerable<T>() where T: class, new()
         {
-            return DataService.ToEnumerable<T>(CreateCommand);
+            return DataService.ToEnumerable<T>(CreateCommand, x => SetOutPutParameters(x));
         }
 
         public IList<T> ToList<T>() where T : class, new()

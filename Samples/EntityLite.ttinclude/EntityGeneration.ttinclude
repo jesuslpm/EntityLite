@@ -187,7 +187,7 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 		{
 		}
 
-		public new DataService DataService  
+		public new <#= generation.DataServiceName #>  DataService  
 		{
 			get { return (<#= generation.DataServiceName #>) base.DataService; }
 			set { base.DataService = value; }

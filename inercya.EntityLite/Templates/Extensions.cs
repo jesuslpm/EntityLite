@@ -99,6 +99,7 @@ namespace inercya.EntityLite.Templates
                     var parameterAttr = (DbParameterAttribute)attrs[0];
                     IDbDataParameter parameter = command.CreateParameter();
                     parameter.ParameterName = parameterPrefix + pi.Name;
+                    parameter.SourceColumn = pi.Name;
                     parameter.DbType = parameterAttr.DbType;
                     parameter.Direction = parameterAttr.Direction;
                     if (parameterAttr.Size != 0) parameter.Size = parameterAttr.Size;

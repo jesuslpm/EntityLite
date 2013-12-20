@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite</id>
-    <version>1.0.4-Beta</version>
+    <version>1.0.7-Beta</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López (i-nercya intelligent software)</authors>
     <owners></owners>
@@ -19,10 +19,10 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
-    <copyright>Copyright  2013</copyright>
+    <copyright>Copyright 2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="EntityLite.Core" version="[1.0.3-Beta]" />
+        <dependency id="EntityLite.Core" version="[1.0.7-Beta]" />
       </group>
     </dependencies>
     <references></references>

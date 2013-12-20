@@ -50,9 +50,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "Ent
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1C5CB983-90E2-4787-97E9-50418F25E240}"
-	ProjectSection(SolutionItems) = preProject
-		Performance2.psess = Performance2.psess
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeProject", "CodeProject", "{F926993D-D441-4457-9A74-E1BC8A746B52}"
 	ProjectSection(SolutionItems) = preProject
