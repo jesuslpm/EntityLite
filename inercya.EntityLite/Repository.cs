@@ -15,6 +15,7 @@ namespace inercya.EntityLite
         void Insert(object entity);
 
         void Update(object entity);
+        void Update(object entity, params string[] fieldsToUpdate);
         void Delete(object entity);
         Type EntityType { get; }
 
@@ -30,6 +31,7 @@ namespace inercya.EntityLite
         void Save(TEntity entity);
         void Insert(TEntity entity);
         void Update(TEntity entity);
+        void Update(TEntity entity, params string[] fieldsToUpdate);
         void Delete(TEntity entity);
         new IQueryLite<TEntity> Query(Projection projection);
         new IQueryLite<TEntity> Query(string projectionName);
@@ -85,9 +87,19 @@ namespace inercya.EntityLite
             this.DataService.Insert(entity);
         }
 
-        public virtual void Update(TEntity entity)
+        public void Update(TEntity entity)
         {
-            this.DataService.Update(entity);
+            this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity));
+        }
+
+        protected virtual void Update(TEntity entity, List<string> sortedFields)
+        {
+            this.DataService.Update(entity, sortedFields);
+        }
+
+        public void Update(TEntity entity, params string[] fieldsToUpdate)
+        {
+            this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
         public virtual void Delete(TEntity entity)
@@ -160,6 +172,11 @@ namespace inercya.EntityLite
         void IRepository.Save(object entity)
         {
             this.Save((TEntity)entity);
+        }
+
+        void IRepository.Update(object entity, string[] fieldsToUpdate)
+        {
+            this.Update((TEntity)entity, fieldsToUpdate);
         }
 
         void IRepository.Delete(object entity)

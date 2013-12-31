@@ -5,6 +5,7 @@ public class DataLayerGeneration : IDisposable
 
     public string ProviderName { get; set; }
     public string ConnectionString { get; set; }
+	public string ConnectionStringName {get; set;}
     public string RootNamespace { get; set; }
     public string DataServiceName { get; set; }
     public string ProceduresClassName { get; set; }
@@ -19,10 +20,11 @@ public class DataLayerGeneration : IDisposable
 
     public DataLayerGeneration()
     {
-        DataServiceName = "DataService";
+        DataServiceName = "AppDataService";
         RootNamespace = "inercya.Entities";
         ProceduresClassName = "StoredProcedures";
 		EntityNameToEntityViewTransform = TextTransform.None;
+		ConnectionStringName = "AppConnectionString";
     }
 
 	private  DbProviderFactory _factory;

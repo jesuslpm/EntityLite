@@ -300,7 +300,7 @@ namespace inercya.EntityLite
             Initialize();
         }
 
-        protected virtual void Initialize()
+        private void Initialize()
         {
             this.EntityNameToEntityViewTransform = TextTransform.None;
             this.commandBuilder = new CommandBuilder(this);
@@ -309,15 +309,17 @@ namespace inercya.EntityLite
             this.InitialMillisecondsRetryDelay = 20;
         }
 
-        public DataService(string connectionStringName) : this()
+        public DataService(string connectionStringName)
         {
             this.ConnectionStringName = connectionStringName;
+            Initialize();
         }
 
-        public DataService(string connectionString, string providerName) :this()
+        public DataService(string connectionString, string providerName)
         {
             this._connectionString = connectionString;
             this._providerName = providerName;
+            Initialize();
         }
 
 
@@ -467,12 +469,12 @@ namespace inercya.EntityLite
             });
 		}
 
-        protected internal virtual int Update(object entity)
+        protected internal int Update(object entity)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity));
         }
 
-        public int Update(object entity, params string[] fieldsToUpdate)
+        protected internal int Update(object entity, params string[] fieldsToUpdate)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
@@ -500,7 +502,7 @@ namespace inercya.EntityLite
             return q.FirstOrDefault();
         }
 
-        protected virtual int Update(object entity, List<string> sortedFields)
+        protected internal virtual int Update(object entity, List<string> sortedFields)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -539,7 +541,7 @@ namespace inercya.EntityLite
             return affectedRecords;
         }
 
-        protected List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)
+        protected internal List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();

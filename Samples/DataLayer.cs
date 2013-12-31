@@ -42,7 +42,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -141,7 +141,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -275,7 +275,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -380,7 +380,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -520,7 +520,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -639,7 +639,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -725,7 +725,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -827,7 +827,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -918,7 +918,7 @@ namespace Samples.Entities
 		{
 		}
 
-		public new DataService DataService  
+		public new NorthwindDataService  DataService  
 		{
 			get { return (NorthwindDataService) base.DataService; }
 			set { base.DataService = value; }
@@ -943,19 +943,28 @@ namespace Samples.Entities
 {
 	public partial class NorthwindDataService : DataService
 	{
+		partial void OnCreated();
+
+		private void Init()
+		{
+			EntityNameToEntityViewTransform = TextTransform.None;
+			EntityLiteProvider.DefaultSchema = "dbo";
+			OnCreated();
+		}
+
         public NorthwindDataService() : base("Northwind")
         {
-			EntityNameToEntityViewTransform = TextTransform.None;
+			Init();
         }
 
         public NorthwindDataService(string connectionStringName) : base(connectionStringName)
         {
-			EntityNameToEntityViewTransform = TextTransform.None;
+			Init();
         }
 
         public NorthwindDataService(string connectionString, string providerName) : base(connectionString, providerName)
         {
-			EntityNameToEntityViewTransform = TextTransform.None;
+			Init();
         }
 
 		private Samples.Entities.CategoryRepository _CategoryRepository;
