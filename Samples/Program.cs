@@ -23,14 +23,14 @@ namespace Samples
             //TestOracleSeq();
             //ToPascalTests();
             //RaiseProductPrices();
-            //InsertUpdateDeleteProduct();
+            InsertUpdateDeleteProduct();
             //ShowPagedProducts();
             //ShowSomeProducts();
             //ShowQuesoCabralesOrders();
             //ShowLondonAndewFullerSubtree();
             //HandCraftedSql();
             //ShowProductSales();
-            RaiseProductPrices2();
+            //RaiseProductPrices2();
         }
 
         private static void RaiseProductPrices2()
@@ -370,6 +370,8 @@ namespace Samples
                 p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
 
                 Console.WriteLine("CategoryName:" + p.CategoryName);
+
+                p = ds.ProductRepository.Get(Projection.BaseTable, p.ProductId);
 
                 ds.ProductRepository.Delete(p.ProductId);
 

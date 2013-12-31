@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite</id>
-    <version>1.0.9-Beta</version>
+    <version>1.0.10-Beta</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López (i-nercya intelligent software)</authors>
     <owners></owners>
@@ -22,7 +22,7 @@
     <copyright>Copyright 2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="EntityLite.Core" version="[1.0.9-Beta]" />
+        <dependency id="EntityLite.Core" version="[1.0.10-Beta]" />
       </group>
     </dependencies>
     <references></references>

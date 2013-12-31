@@ -19,8 +19,8 @@ namespace inercya.EntityLite
         void Delete(object entity);
         Type EntityType { get; }
 
-		object Get(Projection projection, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
-		object Get(string projectionName, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
+		object Get(Projection projection, object entityId, FetchMode fetchMode);
+		object Get(string projectionName, object entityId, FetchMode fetchMode);
         object Get(Projection projection, object entityId, string[] fields);
         object Get(string projectionName, object entityId, string[] fields);
 
@@ -36,8 +36,8 @@ namespace inercya.EntityLite
         new IQueryLite<TEntity> Query(Projection projection);
         new IQueryLite<TEntity> Query(string projectionName);
 
-		new TEntity Get(Projection projection, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
-		new TEntity Get(string projectionName, object entityId, FetchMode fetchMode = FetchMode.UseIdentityMap);
+		new TEntity Get(Projection projection, object entityId, FetchMode fetchMode);
+		new TEntity Get(string projectionName, object entityId, FetchMode fetchMode);
         new TEntity Get(Projection projection, object entityId, string[] fields);
         new TEntity Get(string projectionName, object entityId, string[] fields);
     }

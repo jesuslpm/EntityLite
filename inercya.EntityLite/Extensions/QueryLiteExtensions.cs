@@ -518,6 +518,8 @@ namespace inercya.EntityLite
         /// <returns></returns>
         public static IQueryLite<TEntity> Fields<TEntity>(this IQueryLite<TEntity> query, FieldsOption options, params string[] fields)
         {
+            if (fields == null || fields.Length == 0) return query;
+
             var metadata = typeof(TEntity).GetEntityMetadata();
 
             var invalidField = fields.FirstOrDefault(x => {

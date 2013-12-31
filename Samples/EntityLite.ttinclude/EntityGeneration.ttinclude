@@ -199,9 +199,19 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 	if (primaryKeyField != null)
     {
 #>
+		public <#= entity.EntityName #> Get(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).Get(projectionName, <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode.UseIdentityMap);
+		}
+
 		public <#= entity.EntityName #> Get(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).Get(projectionName, <#=primaryKeyField.PropertyName.ToParameterName() #>, fetchMode);
+		}
+
+		public <#= entity.EntityName #> Get(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).Get(projection, <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode.UseIdentityMap);
 		}
 
 		public <#= entity.EntityName #> Get(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
