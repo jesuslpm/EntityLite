@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="Builders\AbstractQueryBuilder.cs" />
     <Compile Include="Builders\TemplatedQueryBuilder.cs" />
+    <Compile Include="CommandLite.cs" />
     <Compile Include="ConnectionOpenedEventArgs.cs" />
     <Compile Include="CurrentLanguageService.cs" />
     <Compile Include="ErrorOcurredEventArgs.cs" />

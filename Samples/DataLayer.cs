@@ -733,13 +733,17 @@ namespace Samples.Entities
 
 		public void RaiseProductPrices(Decimal? rate)
 		{
-			using (var proc = Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix))
-			{
-				this.DataService.OpenConnection();
-				if (this.DataService.IsActiveTransaction) proc.Transaction = this.DataService.Transaction;
-				proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "rate"].Value = rate == null ? (object) DBNull.Value : rate.Value;
-				proc.ExecuteNonQuery();
-			}
+            var executor = new StoredProcedureExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () =>
+                {
+                    var proc =  Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);
+					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "rate"].Value = rate == null ? (object) DBNull.Value : rate.Value;
+                    return proc;
+                }
+            };
+
+			executor.ExecuteNonQuery();
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>The Code Project</title>
@@ -79,7 +79,7 @@ License:     <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache Li
         </li>
         <li>
             <strong>Fullfill application query needs</strong>. Using EntityLite you can base your queries on a table, a view or a table valued function, then add filter and order. Stored procedures are also supported. That covers most of your query needs.
-            At a last resort you can also hand craft you sql and load your entities using EntityLite
+            The rest of your query needs are covered by highly flexible and dynamic runtime T4 template based queries.  
         </li>
         <li><strong>Levereage database power</strong>. Relational database servers have a great processing power and features that you can take advantage of by using views, functions and stored procedures</li>
         <li><strong>Support multiple database systems</strong>. EntityLite works, out of the box, with SQL Server, Oracle, Postgre SQL, MySQL and SQLite. But it can be easily extended to others RDMS's as well.</li>
@@ -120,9 +120,7 @@ License:     <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache Li
     <p>  
         Instead of abstracting the database and mostly considering it as an object graph persistence store, 
         EntityLite embraces the relational model, providing litle abstraction, and looking at it as what's it really is:
-        a relational database. 
-        EntityLite doesn't claim to solve the impedance mismatch problem. Instead, 
-        it has relational impedance on its input and relational impedance on its output.
+        a relational database.
     </p>
     <p>
         If an entity maps to a table, its entity views should accomplish the following rules regarding the primary key:
@@ -132,7 +130,7 @@ License:     <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache Li
         </ul>
     </p>
     <p>
-        In EntityLite, views that map to entities are called entity views . They must follow a specific naming convention. An entity view name must start 
+        In EntityLite, views that map to entities are called entity views. They must follow a specific naming convention. An entity view name must start 
         with the entity name, followed by an underscore and ended with a projection name. For example <code>Product_Detailed</code> is an entity
         view of <code>Product</code> entity and <code>Detailed</code> is the projection name. 
     </p>
@@ -590,6 +588,125 @@ public partial class EmployeeRepository
     }
 }
 </pre>
+    EntityLite provides a highly dynamic and flexible way to perform queries based on runtime T4 templates. This is
+    implemented by the <code>TemplatedQueryLite</code> class. To understand how it works lets start with the following
+    entity view that returns all product sales by quarter. 
+
+<pre lang="sql">
+CREATE VIEW [dbo].[ProductSale_Quarter]
+AS
+	SELECT
+		P.CategoryID, C.CategoryName, P.ProductID, P.ProductName,
+		DATEPART(year, O.OrderDate) AS [Year],
+		DATEPART(quarter, O.OrderDate) AS [Quarter],
+		SUM(OD.Quantity * OD.UnitPrice * (1 - OD.Discount)) AS Sales
+	FROM
+		
+		dbo.Products P
+		LEFT OUTER JOIN dbo.Categories C
+			ON P.CategoryID = C.CategoryID
+		LEFT OUTER JOIN 
+		(
+			dbo.Orders O
+			INNER JOIN dbo.OrderDetails OD
+				ON O.OrderID = OD.OrderID
+		) ON P.ProductID = OD.ProductID
+	GROUP BY
+		P.CategoryID, C.CategoryName, P.ProductID, P.ProductName,
+		DATEPART(year, O.OrderDate),
+		DATEPART(quarter, O.OrderDate)
+GO
+</pre>
+    <p>
+        The following query:
+     </p>
+<pre lang="sql">
+SELECT CategoryName, ProductName, Year, Quarter, Sales
+FROM dbo.ProductSale_Quarter
+WHERE 
+	ProductID IN (1, 2)
+	AND Year = 1997
+ORDER BY
+	CategoryName, ProductName, Year, Quarter
+</pre>
+    <p>Returns the following result set</p>
+
+    <table>
+        <thead>
+            <tr><th>CategoryName</th><th>ProductName</th><th>Year</th><th>Quarter</th><th>Sales</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>1</td><td>705.60</td></tr>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>2</td><td>878.40</td></tr>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>3</td><td>1174.50</td></tr>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>4</td><td>2128.50</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>1</td><td>2435.80</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>2</td><td>228.00</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>3</td><td>2061.50</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>4</td><td>2313.25</td></tr>
+        </tbody>
+    </table>
+
+    <p>Now you neeed show these results on a screen with the following requirements:</p>
+
+    <ol>
+        <li>The user must be able to choose the sales for all employees or for a specific employee</li>
+        <li>The user must be able to filter by year</li>
+        <li>The user must be able to get the sales groupped category or by product</li>
+        <li>You must implement query pagination</li>
+        <li>The user must be able to sort the result by any showed field</li>
+    </ol>
+
+    <p>
+    Requirements 2, 4 and 5 can be easily accomplished using a <code>QueryLite</code> object based on 
+    <code>ProductSale_Quarter</code> entity view. But for requirement 1 you need an inline
+    table valued function because <code>EmployeeId</code> column is not in <code>ProductSale_Quarter</code>
+    view. The problem arise with the requirement number 3, you would need two inline table 
+    valued functions: one that groups by product and another that groups by category. But your
+    database might not support table valued functions. This is where <code>TemplatedQueryLite</code>
+    comes into play, when table valued functions are not supported or you need dynamic sql
+    generation.
+
+    To create the <code>TemplatedQueryLite</code> the first step is to add a Runtime Text Template item 
+    to your project named <code>SalesQuertyTemplate.tt</code> with the following content:
+    </p>
+
+    <pre>
+<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+SELECT
+	P.CategoryID, C.CategoryName,
+<# if (Grouping == "Product") { #>
+	P.ProductID, P.ProductName,
+<# } else { #>
+	NULL AS ProductID, NULL AS ProductName,
+<# } #>
+	DATEPART(year, O.OrderDate) AS [Year],
+	DATEPART(quarter, O.OrderDate) AS [Quarter],
+	SUM(OD.Quantity * OD.UnitPrice * (1 - OD.Discount)) AS Sales
+FROM
+	dbo.Products P
+	LEFT OUTER JOIN dbo.Categories C
+		ON P.CategoryID = C.CategoryID
+	LEFT OUTER JOIN 
+	(
+		dbo.Orders O
+		INNER JOIN dbo.OrderDetails OD
+			ON O.OrderID = OD.OrderID
+	) ON P.ProductID = OD.ProductID
+<# if (EmployeeId.HasValue) { #>
+WHERE
+	O.EmployeeID = $(EmployeeId)
+<# } #>
+GROUP BY
+	P.CategoryID, C.CategoryName, 
+<# if (Grouping == "Product") { #>
+	P.ProductID, P.ProductName,
+<# } #>
+	DATEPART(year, O.OrderDate),
+	DATEPART(quarter, O.OrderDate)
+
+    </pre>
     <p>
         EntityLite extends <code>IDataReader</code> with <code>ToEnumerable()</code> and
         <code>ToList()</code> methods. This is usefull in cases where making the query using <code>QueryLite</code>,

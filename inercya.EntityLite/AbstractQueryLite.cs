@@ -110,13 +110,11 @@ namespace inercya.EntityLite
 
         public int GetCount()
         {
-			return this.DataService.ExecuteCommand(GetCountCommand, (createCmd) => 
-			{
-				using (var cmd = createCmd())
-				{
-					return Convert.ToInt32(cmd.ExecuteScalar());
-				}
-			});
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetCountCommand
+            };
+            return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
         protected AbstractQueryLite()
@@ -142,13 +140,21 @@ namespace inercya.EntityLite
 
 		public virtual IEnumerable<TEntity> ToEnumerable()
 		{
-			return this.DataService.ToEnumerable<TEntity>(GetSelectCommand);
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetSelectCommand
+            };
+            return cmd.ToEnumerable<TEntity>();
 		}
 
 		public virtual IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex)
 		{
-			return this.DataService.ToEnumerable<TEntity>(() => GetSelectCommand(fromIndex, toIndex));
-		}
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => GetSelectCommand(fromIndex, toIndex)
+            };
+            return cmd.ToEnumerable<TEntity>();
+        }
 
 		public TEntity FirstOrDefault()
 		{

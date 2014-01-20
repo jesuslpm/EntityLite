@@ -7,14 +7,14 @@ using System.Data.Common;
 namespace inercya.EntityLite
 {
 
-	public interface ICommandExecutionLogger
+	public interface IProfilerLite
 	{
 		void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMicroSeconds);
 	}
 
-	public static class CommandExecutionLogger
+	public static class ProfilerLite
 	{
-		public static ICommandExecutionLogger Current { get; set; }
+		public static IProfilerLite Current { get; set; }
 
 		public static void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMicroSeconds)
 		{

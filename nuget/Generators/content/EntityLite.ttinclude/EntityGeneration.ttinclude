@@ -102,10 +102,21 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 
 		<#= procedure.MemberVisibility.ToString().ToLower() #> <#= returnTypeName #> <#= procedure.ProcedureName.ToPascalNamingConvention() #>(<#= parametersDefinition #>)
 		{
-			using (var proc = <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix))
-			{
-				this.DataService.OpenConnection();
-				if (this.DataService.IsActiveTransaction) proc.Transaction = this.DataService.Transaction;
+<#+
+	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output && x.Direction != ParameterDirection.ReturnValue))
+	{
+		Type paramType = DataLayerGeneration.GetTypeFromDbType(p.DbType);
+		string paramTypeName = paramType.Name;
+		string nullableParamTypeName = paramTypeName + (paramType.IsValueType ? "?" : string.Empty);
+		string argumentName = p.SourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+#>
+			<#= nullableParamTypeName #> <#= argumentName #>Param = <#= argumentName #>; 
+<#+	} #>
+            var executor = new StoredProcedureExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () =>
+                {
+                    var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);
 <#+
 	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Input) == ParameterDirection.Input))
 	{ 
@@ -115,30 +126,39 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 			sourceColumn = sourceColumn.Substring(1);
 		}
 		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+		if ((p.Direction & ParameterDirection.Output) == ParameterDirection.Output) argumentName += "Param";
 #>
-				proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
 <#+
 	}
-	if (procedure.ResultSetKind == ProcedureResultSetKind.SingleRow	|| procedure.ResultSetKind == ProcedureResultSetKind.MultipleRows)
+#>
+                    return proc;
+                }
+            };
+
+<#+
+	if (procedure.ResultSetKind == ProcedureResultSetKind.SingleRow)
 	{	
 #>
-				IList<<#= entity.EntityName #>> list = null;
-                using (var reader = proc.ExecuteReader())
-                {
-                    list = reader.ToList<<#= entity.EntityName #>>();
-                }
+			var result = executor.FirstOrDefault<<#= entity.EntityName #>>();				
 <#+
+	}
+	else if (procedure.ResultSetKind == ProcedureResultSetKind.MultipleRows)
+	{
+#>			
+			var result = executor.ToList<<#= entity.EntityName #>>();	
+<#+	
 	}
 	else if (procedure.ResultSetKind == ProcedureResultSetKind.Scalar)
 	{
 #>
-				object result = proc.ExecuteScalar();	
+			object result = executor.ExecuteScalar();	
 <#+
 	}
 	else
 	{
 #>
-				proc.ExecuteNonQuery();
+			executor.ExecuteNonQuery();
 <#+
 	}
 	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output && x.Direction != ParameterDirection.ReturnValue))
@@ -147,30 +167,28 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 		string paramTypeName = paramType.Name;
 		string nullableParamTypeName = paramTypeName + (paramType.IsValueType ? "?" : string.Empty);
 #>
-				<#= p.SourceColumn #> = proc.Parameters["<#= p.ParameterName #>"].Value == DBNull.Value ? (<#= nullableParamTypeName #>) null : (<#= nullableParamTypeName #>) Convert.ChangeType(proc.Parameters["<#= p.ParameterName #>"].Value, typeof(<#= paramTypeName #>)); 
+			<#= p.SourceColumn #> = (<#= nullableParamTypeName #>) executor.OutputParameterValues["<#= p.SourceColumn #>"]; 
 <#+
 	}				
 	switch (procedure.ResultSetKind)
 	{	
 		case ProcedureResultSetKind.MultipleRows:
 #>
-				return list;
+			return result;
 <#+
 		break;
 		case ProcedureResultSetKind.SingleRow:
 #>
-				return list.FirstOrDefault();
+			return result;
 <#+
 		break;
-		case ProcedureResultSetKind.Scalar:
-						
+		case ProcedureResultSetKind.Scalar:				
 #>
-				return (result == DBNull.Value || result == null) ? default(<#= procedure.ScalarReturnType.ActualName() #>) : (<#= procedure.ScalarReturnType.ActualName() #>) Convert.ChangeType(result, typeof(<#= procedure.ScalarReturnType.UndelyingType().Name #>));
+			return (result == DBNull.Value || result == null) ? default(<#= procedure.ScalarReturnType.ActualName() #>) : (<#= procedure.ScalarReturnType.ActualName() #>) Convert.ChangeType(result, typeof(<#= procedure.ScalarReturnType.UndelyingType().Name #>));
 <#+
 		break;
 	}
 #>
-			}
 		}
 <#+
 }

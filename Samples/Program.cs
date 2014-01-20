@@ -183,7 +183,7 @@ namespace Samples
         {
             using (var ds = new Entities.NorthwindDataService("Northwind"))
             {
-                ds.ProductRepository.RaiseProductPrices(0.10m);
+                //ds.ProductRepository.RaiseProductPrices(0.10m);
             }
         }
 
