@@ -1,4 +1,20 @@
-﻿using inercya.EntityLite;
+﻿/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+using inercya.EntityLite;
 using inercya.EntityLite.Extensions;
 using System;
 using System.Collections.Generic;
@@ -16,14 +32,15 @@ namespace Samples
     {
         static void Main(string[] args)
         {
+            //var idTypeCode = Type.GetTypeCode(typeof(Guid));
             //UpdateCategories();
-            //Localization();
+            Localization();
             //ShowOrderDetails();
             //ToUnderscoreTest();
             //TestOracleSeq();
             //ToPascalTests();
             //RaiseProductPrices();
-            InsertUpdateDeleteProduct();
+            //InsertUpdateDeleteProduct();
             //ShowPagedProducts();
             //ShowSomeProducts();
             //ShowQuesoCabralesOrders();
@@ -31,6 +48,25 @@ namespace Samples
             //HandCraftedSql();
             //ShowProductSales();
             //RaiseProductPrices2();
+
+            //InsertUpdateItems();
+
+        }
+
+        static void InsertUpdateItems()
+        {
+            using (var ds = new NorthwindDataService())
+            {
+                var item = new Item {
+                    Value = "Item 1"
+                };
+                ds.ItemRepository.Save(item);
+
+                item.Value = "Item 2";
+                ds.ItemRepository.Save(item);
+
+                //ds.ItemRepository.Delete(item.ItemGuid);
+            }
         }
 
         private static void RaiseProductPrices2()
@@ -41,7 +77,7 @@ namespace Samples
             }
         }
 
-        private static void ToPascalTests()
+        private static void NamingConventionTests()
         {
             Console.WriteLine("DetailedOrderLines".ToPascalNamingConvention());
             Console.WriteLine("detailed Order lines".ToPascalNamingConvention());

@@ -1,4 +1,21 @@
 ﻿
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+
 
 using System;
 using System.Linq;
@@ -1021,6 +1038,82 @@ namespace Samples.Entities
 		public const string Sales = "Sales";
 	}
 
+	[Serializable]
+	[DataContract]
+	[SqlEntity(BaseTableName="Items")]
+	public partial class Item
+	{
+		[DataMember]
+		[SqlField(DbType.Guid, 16, IsKey=true, ColumnName ="ItemGuid", BaseColumnName ="ItemGuid", BaseTableName = "Items" )]
+		public Guid ItemGuid { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.AnsiString, 50, ColumnName ="Value", BaseColumnName ="Value", BaseTableName = "Items" )]
+		public String Value { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="CreatedDate", BaseColumnName ="CreatedDate", BaseTableName = "Items" )]
+		public DateTime? CreatedDate { get; set; }
+
+
+	}
+
+	public partial class ItemRepository : Repository<Item> 
+	{
+		public ItemRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public Item Get(string projectionName, System.Guid itemGuid)
+		{
+			return ((IRepository<Item>)this).Get(projectionName, itemGuid, FetchMode.UseIdentityMap);
+		}
+
+		public Item Get(string projectionName, System.Guid itemGuid, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Item>)this).Get(projectionName, itemGuid, fetchMode);
+		}
+
+		public Item Get(Projection projection, System.Guid itemGuid)
+		{
+			return ((IRepository<Item>)this).Get(projection, itemGuid, FetchMode.UseIdentityMap);
+		}
+
+		public Item Get(Projection projection, System.Guid itemGuid, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Item>)this).Get(projection, itemGuid, fetchMode);
+		}
+
+		public Item Get(string projectionName, System.Guid itemGuid, params string[] fields)
+		{
+			return ((IRepository<Item>)this).Get(projectionName, itemGuid, fields);
+		}
+
+		public Item Get(Projection projection, System.Guid itemGuid, params string[] fields)
+		{
+			return ((IRepository<Item>)this).Get(projection, itemGuid, fields);
+		}
+
+		public void Delete(System.Guid itemGuid)
+		{
+			var entity = new Item { ItemGuid = itemGuid };
+			this.Delete(entity);
+		}
+	}
+
+	public static partial class ItemFields
+	{
+		public const string ItemGuid = "ItemGuid";
+		public const string Value = "Value";
+		public const string CreatedDate = "CreatedDate";
+	}
+
 }
 
 namespace Samples.Entities
@@ -1165,6 +1258,19 @@ namespace Samples.Entities
 					_ProductSaleRepository = new Samples.Entities.ProductSaleRepository(this);
 				}
 				return _ProductSaleRepository;
+			}
+		}
+
+		private Samples.Entities.ItemRepository _ItemRepository;
+		public Samples.Entities.ItemRepository ItemRepository
+		{
+			get 
+			{
+				if ( _ItemRepository == null)
+				{
+					_ItemRepository = new Samples.Entities.ItemRepository(this);
+				}
+				return _ItemRepository;
 			}
 		}
 	}

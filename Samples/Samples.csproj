@@ -107,23 +107,24 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DataLayer.tt</DependentUpon>
     </Compile>
+    <Compile Include="DataService.cs" />
     <Compile Include="Entities\Employee.cs" />
     <Compile Include="Entities\Product.cs" />
     <Compile Include="Entities\ProductSaleRepository.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RaiseProductPricesTemplate.cs">
+    <Compile Include="Entities\Templates\RaiseProductPricesTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>RaiseProductPricesTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="RaiseProductPricesTemplate.partial.cs" />
-    <Compile Include="SalesQueryTemplate.cs">
+    <Compile Include="Entities\Templates\RaiseProductPricesTemplate.partial.cs" />
+    <Compile Include="Entities\Templates\SalesQueryTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SalesQueryTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="SalesQueryTemplate.partial.cs" />
+    <Compile Include="Entities\Templates\SalesQueryTemplate.partial.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -149,11 +150,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="RaiseProductPricesTemplate.tt">
+    <None Include="Entities\Templates\RaiseProductPricesTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>RaiseProductPricesTemplate.cs</LastGenOutput>
     </None>
-    <None Include="SalesQueryTemplate.tt">
+    <None Include="Entities\Templates\SalesQueryTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SalesQueryTemplate.cs</LastGenOutput>
     </None>

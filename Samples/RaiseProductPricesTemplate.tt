@@ -1,8 +1,0 @@
-﻿<#@ template language="C#" #>
-<#@ assembly name="System.Core" #>
-
-UPDATE <#= SchemaPrefix #>Products
-SET UnitPrice = UnitPrice * (1 + $(Rate))
-<# if (CategoryId.HasValue) { #>
-WHERE CategoryId = $(CategoryId)
-<# } #>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using inercya.EntityLite;
+using Samples.Entities.Templates;
 
 namespace Samples.Entities
 {

@@ -8,7 +8,7 @@ namespace Samples.Entities
 {
     public partial class EmployeeRepository 
     {
-        public IQueryLite<Employee> CreateGetEmployeeSubtreeQuery(int employeeId)
+        public IQueryLite<Employee> GetEmployeeSubtreeQuery(int employeeId)
         {
             return new FunctionQueryLite<Employee>(this.DataService, "dbo.GetEmployeeSubTree", employeeId);
         }

@@ -107,6 +107,7 @@
     <Compile Include="AbstractQueryLite.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Builders\FunctionQueryBuilder.cs" />
+    <Compile Include="License.cs" />
     <Compile Include="TemplatedCommand.cs" />
     <Compile Include="TemplatedQueryLite.cs" />
     <Compile Include="IdentityMapLite.cs" />

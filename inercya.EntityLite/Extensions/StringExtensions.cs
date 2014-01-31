@@ -1,4 +1,20 @@
-﻿using System;
+﻿/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +27,7 @@ namespace inercya.EntityLite.Extensions
         public static string ToPascalNamingConvention(this string str)
         {
             StringBuilder sb = new StringBuilder(str.Length);
-            bool isPreviousCharLowerCase = false;
+            bool isPreviousLower = false;
             bool isNewWord = true;
             for (int i = 0; i < str.Length; i++)
             {
@@ -23,7 +39,9 @@ namespace inercya.EntityLite.Extensions
                 }
                 bool isUpper = char.IsUpper(c);
                 bool isLower = char.IsLower(c);
-                if (isPreviousCharLowerCase && isUpper)
+                bool isNextLower = i < str.Length -1 &&  char.IsLower(str[i+1]);
+
+                if ( isUpper && (isPreviousLower || isNextLower))
                 {
                     isNewWord = true;
                 }
@@ -36,7 +54,7 @@ namespace inercya.EntityLite.Extensions
                 {
                     if (isUpper) c = char.ToLower(c);
                 }
-                isPreviousCharLowerCase = isLower;
+                isPreviousLower = isLower;
                 sb.Append(c);
             }
             return sb.ToString();

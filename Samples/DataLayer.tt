@@ -91,6 +91,11 @@ To generate the datalayer for MySQL you need  to:
 			new EntitySetting 
 			{
 				EntityName = "ProductSale"  
+			},
+			new EntitySetting 
+			{
+				EntityName = "Item" ,
+				BaseTableName = "Items"
 			}
 		},
 		ProcedureSettings = new List<ProcedureSetting>

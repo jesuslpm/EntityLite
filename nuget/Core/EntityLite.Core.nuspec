@@ -2,10 +2,11 @@
 <package >
   <metadata>
     <id>EntityLite.Core</id>
-    <version>1.0.11-Beta</version>
+    <version>1.0.12-Beta</version>
     <title>i-nercya EntityLite Core</title>
-    <authors>Jesús López (i-nercya intelligent software)</authors>
-    <owners></owners>
+    <authors>Jesús López</authors>
+    <owners>i-nercya intelligent software</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>  
     <description>
       A lightweight, database first, micro ORM
     </description>
@@ -18,7 +19,6 @@
     <projectUrl>https://nuget.org/packages/EntityLite.Core</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
     <copyright>Copyright  2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
@@ -31,7 +31,7 @@
       <frameworkAssembly assemblyName="System.Data" />
       <frameworkAssembly assemblyName="System.Runtime.Serialization"  />
     </frameworkAssemblies>
-    <tags>Micro ORM</tags>
+    <tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
   </metadata>
   <files>
     <file src="lib\" target="lib" />
