@@ -82,6 +82,23 @@ namespace inercya.EntityLite
             });
         }
 
+        public IDataReader ExecuteReader()
+        {
+            return this.ExecuteCommand(getCommand =>
+            {
+                DbCommand cmd = null;
+                try
+                {
+                    cmd = getCommand();
+                    return cmd.ExecuteReader();
+                }
+                finally
+                {
+                    if (DisposeCommand && cmd != null) cmd.Dispose();
+                }
+            });
+        }
+
         protected abstract void SetOutPutParameters(DbCommand command);
 
         public T FirstOrDefault<T>() where T : class, new()

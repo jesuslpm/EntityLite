@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite</id>
-    <version>1.0.12-Beta</version>
+    <version>1.0.18-Beta</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
@@ -17,12 +17,12 @@
     </summary>
     <language>en-US</language>
     <projectUrl>https://nuget.org/packages/EntityLite.Generators</projectUrl>
-    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <iconUrl>http://www.i-nercya.com/EntityLite.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <copyright>Copyright 2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="EntityLite.Core" version="[1.0.12-Beta]" />
+        <dependency id="EntityLite.Core" version="[1.0.18-Beta]" />
       </group>
     </dependencies>
     <references></references>

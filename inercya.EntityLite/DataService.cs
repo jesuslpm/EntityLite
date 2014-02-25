@@ -98,7 +98,8 @@ namespace inercya.EntityLite
             }
         }
 
-		
+        public bool IsAutomaticAuditDateFieldsEnabled { get; set; }
+        public bool IsAutomaticAuditUserFieldsEnabled { get; set; }
 
         internal void NotifyErrorOcurred(Exception ex, bool willRetry)
         {
@@ -323,6 +324,8 @@ namespace inercya.EntityLite
             this.SpecialFieldNames = new SpecialFieldNames();
             this.MaxRetries = 2;
             this.InitialMillisecondsRetryDelay = 20;
+            this.IsAutomaticAuditDateFieldsEnabled = true;
+            this.IsAutomaticAuditUserFieldsEnabled = true;
         }
 
         public DataService(string connectionStringName)
@@ -409,6 +412,10 @@ namespace inercya.EntityLite
                 {
                     setter(entity, DateTimeOffset.Now);
                 }
+                else if (type == typeof(string))
+                {
+                    setter(entity, DateTimeOffset.Now.ToString("O"));
+                }
                 else
                 {
                     throw new NotSupportedException("The field \"" + fieldName + "\" is of an unsuported type " + type.Name);
@@ -441,10 +448,16 @@ namespace inercya.EntityLite
 		    Type entityType = entity.GetType();
             var setters = entityType.GetPropertySetters();
 
-            SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity);
-            SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
-            SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity);
-            SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+            if (IsAutomaticAuditDateFieldsEnabled)
+            {
+                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity);
+                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+            }
+            if (IsAutomaticAuditUserFieldsEnabled)
+            {
+                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity);
+                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+            }
 
             EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
 
@@ -538,9 +551,15 @@ namespace inercya.EntityLite
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
-               
-            SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
-            SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+
+            if (IsAutomaticAuditUserFieldsEnabled)
+            {
+                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+            }
+            if (IsAutomaticAuditDateFieldsEnabled)
+            {
+                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+            }
 
             var cmd = new CommandExecutor(this, false)
             {
