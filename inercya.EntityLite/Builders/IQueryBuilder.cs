@@ -27,6 +27,6 @@ namespace inercya.EntityLite.Builders
         string GetSelectQuery(DbCommand selectCommand, ref int paramIndex);
         string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex);
         string GetCountQuery(DbCommand selectCommand, ref int paramIndex);
-        IQueryLite QueryLite { get; set; }
+        IQueryLite QueryLite { get; }
     }
 }

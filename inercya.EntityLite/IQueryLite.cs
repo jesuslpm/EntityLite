@@ -37,7 +37,7 @@ namespace inercya.EntityLite
         int GetCount();
         Type EntityType { get; set; }
         IList<string> FieldList { get; set; }
-        Func<IQueryBuilder> CreateQueryBuilder { get; set; }
+        IQueryBuilder QueryBuilder { get; set; }
         DataService DataService { get; set; }
     }
 

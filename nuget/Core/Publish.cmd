@@ -1,3 +1,3 @@
 %~dp0..\NuGet.exe Update -self
-%~dp0..\NuGet.exe Push EntityLite.Core.1.0.18-Beta.nupkg
+%~dp0..\NuGet.exe Push EntityLite.Core.1.0.21.nupkg
 pause

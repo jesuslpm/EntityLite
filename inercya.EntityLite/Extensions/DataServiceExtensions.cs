@@ -23,14 +23,14 @@ namespace inercya.EntityLite.Extensions
 {
 	public static class DataServiceExtensions
 	{
-		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataAccess, string projectionName) where TEntity : class, new()
+		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataService, string projectionName) where TEntity : class, new()
 		{
-			return new QueryLite<TEntity>(projectionName, dataAccess);
+			return new QueryLite<TEntity>(projectionName, dataService);
 		}
 
-		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataAccess, Projection projection) where TEntity : class, new()
+		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataService, Projection projection) where TEntity : class, new()
 		{
-			return new QueryLite<TEntity>(projection, dataAccess);
+			return new QueryLite<TEntity>(projection, dataService);
 		}
 
 
@@ -41,17 +41,17 @@ namespace inercya.EntityLite.Extensions
 			return typeof(QueryLite<>).MakeGenericType(entityType).CreateDynamicActivator();
 		}
 
-		public static IQueryLite CreateQueryLite(this DataService dataAccess, Type entityType, string projectionName)
+		public static IQueryLite CreateQueryLite(this DataService dataService, Type entityType, string projectionName)
 		{
 			IProjectedQueryLite queryLite = (IProjectedQueryLite)queryLiteFactoriesCache.GetItem(entityType)();
 			queryLite.ProjectionName = projectionName;
-			queryLite.DataService = dataAccess;
+			queryLite.DataService = dataService;
 			return queryLite;
 		}
 
-		public static IQueryLite CreateQueryLite(this DataService dataAccess, Type entityType, Projection projection)
+		public static IQueryLite CreateQueryLite(this DataService dataService, Type entityType, Projection projection)
 		{
-			return dataAccess.CreateQueryLite(entityType, projection.GetProjectionName());
+			return dataService.CreateQueryLite(entityType, projection.GetProjectionName());
 		}
 	}
 }

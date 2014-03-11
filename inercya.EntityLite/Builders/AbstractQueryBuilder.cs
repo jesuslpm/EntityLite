@@ -31,7 +31,12 @@ namespace inercya.EntityLite.Builders
     public abstract class AbstractQueryBuilder : IQueryBuilder
     {
 
-        public virtual IQueryLite QueryLite { get; set; }
+        protected AbstractQueryBuilder(IQueryLite queryLite)
+        {
+            this.QueryLite = queryLite;
+        }
+
+        public IQueryLite QueryLite { get; private set; }
 
 		public void SetOptions(StringBuilder commandText)
 		{
@@ -216,7 +221,7 @@ namespace inercya.EntityLite.Builders
             }
 
             IEnumerable values = condition.FieldValue as IEnumerable;
-            IQueryBuilder queryBuilder = condition.SubQuery == null ? null : condition.SubQuery.CreateQueryBuilder();
+            IQueryBuilder queryBuilder = condition.SubQuery == null ? null : condition.SubQuery.QueryBuilder;
             if (condition.Operator == OperatorLite.In || condition.Operator == OperatorLite.NotIn)
             {
                 if (values == null && queryBuilder == null) throw new ArgumentException("The value for In and NotIn operators must be enumerable or a query builder", "expression");

@@ -26,21 +26,18 @@ namespace inercya.EntityLite.Builders
     public class ProjectedQueryBuilder : AbstractQueryBuilder
     {
 
-        public ProjectedQueryBuilder()
+        public ProjectedQueryBuilder(IQueryLite queryLite) : base(queryLite)
         {
         }
 
-        public ProjectedQueryBuilder(IQueryLite queryLite, string projectionName)
+
+        public string ProjectionName
         {
-            if (queryLite == null) throw new ArgumentNullException("queryLite");
-            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException("projectionName");
-            this.QueryLite = queryLite;
-            this.ProjectionName = projectionName;
+            get
+            {
+                return ((IProjectedQueryLite)this.QueryLite).ProjectionName;
+            }
         }
-
-
-        public string ProjectionName { get; set; }
-       
  
         public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
         {

@@ -30,7 +30,7 @@ namespace inercya.EntityLite
         public TemplatedQueryLite()
             : base()
         {
-			this.CreateQueryBuilder = () => new TemplatedQueryBuilder(this);
+            this.QueryBuilder = new TemplatedQueryBuilder(this);
         }
 
 

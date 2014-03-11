@@ -42,19 +42,9 @@ namespace inercya.EntityLite
         public DataService DataService { get { return _dataService; } set { _dataService = value; } }
 
         [NonSerialized]
-        Func<IQueryBuilder> _createQueryBuilder;
+        private IQueryBuilder _queryBuilder;
+        public IQueryBuilder QueryBuilder { get { return _queryBuilder; } set { _queryBuilder = value; } }
 
-        public Func<IQueryBuilder> CreateQueryBuilder { get { return _createQueryBuilder; } set { _createQueryBuilder = value; } }
-
-
-        private IQueryBuilder GetQueryBuilder()
-        {
-            if (CreateQueryBuilder == null)
-            {
-                throw new InvalidOperationException("CreateQueryBuilder function must be set");
-            }
-            return CreateQueryBuilder();
-        }
 
 		protected abstract IEnumerable NonGenericToEnumerable();
 
@@ -100,7 +90,7 @@ namespace inercya.EntityLite
         {
             DbCommand selectCommand = this.DataService.Connection.CreateCommand();
             int paramIndex = 0;
-            selectCommand.CommandText = GetQueryBuilder().GetSelectQuery(selectCommand, ref paramIndex);
+            selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex);
             return selectCommand;
         }
 
@@ -108,7 +98,7 @@ namespace inercya.EntityLite
         {
             DbCommand selectCommand = this.DataService.Connection.CreateCommand();
             int paramIndex = 0;
-            selectCommand.CommandText = GetQueryBuilder().GetSelectQuery(selectCommand, ref paramIndex, fromIndex, toIndex);
+            selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex, fromIndex, toIndex);
             return selectCommand;
         }
 
@@ -116,12 +106,9 @@ namespace inercya.EntityLite
         {
             DbCommand selectCommand = this.DataService.Connection.CreateCommand();
             int paramIndex = 0;
-            selectCommand.CommandText =GetQueryBuilder().GetCountQuery(selectCommand, ref paramIndex);
+            selectCommand.CommandText =QueryBuilder.GetCountQuery(selectCommand, ref paramIndex);
             return selectCommand;
         }
-
-
-
 
 
         public int GetCount()

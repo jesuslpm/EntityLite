@@ -45,8 +45,7 @@ namespace inercya.EntityLite
 
         public QueryLite() : base()
         {
-            this.CreateQueryBuilder = () => new ProjectedQueryBuilder(this, this.ProjectionName);
-              
+            this.QueryBuilder =  new ProjectedQueryBuilder(this);           
         }
         public string ProjectionName { get; set; }
 

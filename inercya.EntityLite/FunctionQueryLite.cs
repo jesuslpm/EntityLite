@@ -29,7 +29,7 @@ namespace inercya.EntityLite
         public FunctionQueryLite()
             : base()
         {
-			this.CreateQueryBuilder = () => new FunctionQueryBuilder(this, this.FunctionName, this.ParameterValues);
+			this.QueryBuilder =  new FunctionQueryBuilder(this);
         }
 
 

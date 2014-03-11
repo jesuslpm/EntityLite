@@ -32,42 +32,23 @@ namespace Samples
     {
         static void Main(string[] args)
         {
-            //var idTypeCode = Type.GetTypeCode(typeof(Guid));
-            //UpdateCategories();
+
+            UpdateCategories();
             Localization();
-            //ShowOrderDetails();
-            //ToUnderscoreTest();
-            //TestOracleSeq();
-            //ToPascalTests();
-            //RaiseProductPrices();
-            //InsertUpdateDeleteProduct();
-            //ShowPagedProducts();
-            //ShowSomeProducts();
-            //ShowQuesoCabralesOrders();
-            //ShowLondonAndewFullerSubtree();
-            //HandCraftedSql();
-            //ShowProductSales();
-            //RaiseProductPrices2();
+            ShowOrderDetails();
+            RaiseProductPrices();
+            InsertUpdateDeleteProduct();
+            ShowPagedProducts();
+            ShowSomeProducts();
+            ShowQuesoCabralesOrders();
+            ShowLondonAndewFullerSubtree();
+            HandCraftedSql();
+            ShowProductSales();
+            RaiseProductPrices2();
 
-            //InsertUpdateItems();
 
         }
 
-        static void InsertUpdateItems()
-        {
-            using (var ds = new NorthwindDataService())
-            {
-                var item = new Item {
-                    Value = "Item 1"
-                };
-                ds.ItemRepository.Save(item);
-
-                item.Value = "Item 2";
-                ds.ItemRepository.Save(item);
-
-                //ds.ItemRepository.Delete(item.ItemGuid);
-            }
-        }
 
         private static void RaiseProductPrices2()
         {
@@ -376,44 +357,38 @@ namespace Samples
 
         static void InsertUpdateDeleteProduct()
         {
-            using (var ds = new Entities.NorthwindDataService("Northwind"))
-            {
-                //ds.DefaultSchemaName = "NORTHWIND";
-                ds.BeginTransaction();
-                var p = new Entities.Product
-                {
-                    CategoryId = 2,
-                    ProductName = "New Product",
-                    QuantityPerUnit = "2",
-                    ReorderLevel = 50,
-                    SupplierId = 2,
-                    UnitPrice = 10,
-                    UnitsInStock = 1,
-                    UnitsOnOrder = 0
+using (var ds = new Entities.NorthwindDataService("Northwind"))
+{
+    ds.BeginTransaction();
+    var p = new Entities.Product
+    {
+        CategoryId = 2,
+        ProductName = "New Product",
+        QuantityPerUnit = "2",
+        ReorderLevel = 50,
+        SupplierId = 2,
+        UnitPrice = 10,
+        UnitsInStock = 1,
+        UnitsOnOrder = 0
                   
-                };
+    };
+    // inserts the new product
+    ds.ProductRepository.Save(p);
+    Console.WriteLine("Inserted product id:" + p.ProductId);
 
-                // inserts the new product
-                ds.ProductRepository.Save(p);
+    p.ProductName = "Another Name";
+    // updates the product
+    ds.ProductRepository.Save(p);
 
-                Console.WriteLine("Inserted product id:" + p.ProductId);
+    // Retrieves the product from the database and shows the product category name
+    p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
+    Console.WriteLine("CategoryName:" + p.CategoryName);
 
-                p.ProductName = "Another Name";
+    // deletes the product
+    ds.ProductRepository.Delete(p.ProductId);
 
-
-                // updates the product
-                ds.ProductRepository.Save(p);
-
-                p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
-
-                Console.WriteLine("CategoryName:" + p.CategoryName);
-
-                p = ds.ProductRepository.Get(Projection.BaseTable, p.ProductId);
-
-                ds.ProductRepository.Delete(p.ProductId);
-
-                ds.Commit();
-            }
-        }
+    ds.Commit();
+}
+}
     }
 }
