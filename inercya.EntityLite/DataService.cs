@@ -263,7 +263,7 @@ namespace inercya.EntityLite
             get { return this.Transaction != null && this.Transaction.Connection != null; }
         }
 
-        public void Commit()
+        public virtual void Commit()
         {
 			try
 			{
@@ -289,7 +289,7 @@ namespace inercya.EntityLite
 			}
         }
 
-        public void Rollback()
+        public virtual void Rollback()
         {
 			try
 			{

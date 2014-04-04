@@ -200,7 +200,7 @@ namespace Samples
         {
             using (var ds = new Entities.NorthwindDataService("Northwind"))
             {
-                //ds.ProductRepository.RaiseProductPrices(0.10m);
+                ds.ProductRepository.RaiseProductPrices(0.10m);
             }
         }
 
@@ -319,6 +319,7 @@ namespace Samples
             }
         }
 
+
         static void HandCraftedSql()
         {
             string handCraftedSqlString = "SELECT ShipperID, CompanyName FROM dbo.Shippers";
@@ -357,38 +358,38 @@ namespace Samples
 
         static void InsertUpdateDeleteProduct()
         {
-using (var ds = new Entities.NorthwindDataService("Northwind"))
-{
-    ds.BeginTransaction();
-    var p = new Entities.Product
-    {
-        CategoryId = 2,
-        ProductName = "New Product",
-        QuantityPerUnit = "2",
-        ReorderLevel = 50,
-        SupplierId = 2,
-        UnitPrice = 10,
-        UnitsInStock = 1,
-        UnitsOnOrder = 0
+            using (var ds = new Entities.NorthwindDataService("Northwind"))
+            {
+                ds.BeginTransaction();
+                var p = new Entities.Product
+                {
+                    CategoryId = 2,
+                    ProductName = "New Product",
+                    QuantityPerUnit = "2",
+                    ReorderLevel = 50,
+                    SupplierId = 2,
+                    UnitPrice = 10,
+                    UnitsInStock = 1,
+                    UnitsOnOrder = 0
                   
-    };
-    // inserts the new product
-    ds.ProductRepository.Save(p);
-    Console.WriteLine("Inserted product id:" + p.ProductId);
+                };
+                // inserts the new product
+                ds.ProductRepository.Save(p);
+                Console.WriteLine("Inserted product id:" + p.ProductId);
 
-    p.ProductName = "Another Name";
-    // updates the product
-    ds.ProductRepository.Save(p);
+                p.ProductName = "Another Name";
+                // updates the product
+                ds.ProductRepository.Save(p);
 
-    // Retrieves the product from the database and shows the product category name
-    p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
-    Console.WriteLine("CategoryName:" + p.CategoryName);
+                // Retrieves the product from the database and shows the product category name
+                p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
+                Console.WriteLine("CategoryName:" + p.CategoryName);
 
-    // deletes the product
-    ds.ProductRepository.Delete(p.ProductId);
+                // deletes the product
+                ds.ProductRepository.Delete(p.ProductId);
 
-    ds.Commit();
-}
-}
+                ds.Commit();
+            }
+        }
     }
 }
