@@ -32,27 +32,28 @@ namespace Samples
     {
         static void Main(string[] args)
         {
-
-            UpdateCategories();
-            Localization();
+            
+            QueryByPrimaryKey();
+            ShowSomeProducts();
             ShowOrderDetails();
+            ShowQuesoCabralesOrders();
+            ShowPagedProducts();
+            ShowLondonAndewFullerSubtree();
+            SearchOrderDetails();
+            ShowProductSales();
             RaiseProductPrices();
             InsertUpdateDeleteProduct();
-            ShowPagedProducts();
-            ShowSomeProducts();
-            ShowQuesoCabralesOrders();
-            ShowLondonAndewFullerSubtree();
-            HandCraftedSql();
-            ShowProductSales();
             RaiseProductPrices2();
-            SearchOrderDetails();
-
-
+            HandCraftedSql();
+            Localization();
+            Console.WriteLine("Press enter to exit...");
+            Console.ReadLine();
         }
 
         private static void SearchOrderDetails()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nSearchOrderDetails\n");
+            using (var ds = new NorthwindDataService())
             {
                 var criteria = new OrderDetailSearchCriteria
                 {
@@ -77,9 +78,11 @@ namespace Samples
 
         private static void RaiseProductPrices2()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nRaiseProductPrices2\n");
+            using (var ds = new NorthwindDataService())
             {
                 ds.ProductRepository.RaiseProductPrices(1, 0.10m);
+                Console.WriteLine("Product prices raised");
             }
         }
 
@@ -101,37 +104,44 @@ namespace Samples
 
         static void CreateServeralQueries()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nCreateServeralQueries\n");
+            using (var ds = new NorthwindDataService())
             {
                 // this query is based on the dbo.Categories table
                 IQueryLite<Category> query1 = ds.CategoryRepository.Query(Projection.BaseTable);
+                Console.WriteLine("Query created");
 
                 // this query is based on the dbo.Product_Detailed view
                 IQueryLite<Product> query2 = ds.ProductRepository.Query(Projection.Detailed);
+                Console.WriteLine("Query created");
 
                 // this query is based on the dbo.ProductSale_Quarter view
                 IQueryLite<ProductSale> query3 = ds.ProductSaleRepository.Query("Quarter");
+                Console.WriteLine("Query created");
             }
         }
 
         static void QueryByPrimaryKey()
         {
+            Console.WriteLine("\nQueryByPrimaryKey\n");
             // "Norhtwind" is the application configuration file connection string name
-            using (var ds = new NorthwindDataService("Northwind"))
+            using (var ds = new NorthwindDataService())
             {
                 // reaads a category from the database by CategoryId
                 // SELECT * FROM dbo.Categories WHERE CategoryId = @P0
                 Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1);
+                Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
 
                 // Loads the product with ProductId = 2 from the database
                 // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = @P0
                 Product p = ds.ProductRepository.Get(Projection.Detailed, 2, ProductFields.CategoryName, ProductFields.ProductName);
+                Console.WriteLine("{0}, {1}", p.CategoryName, p.ProductName);
             }
         }
 
         static void SubFilter()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            using (var ds = new NorthwindDataService())
             {
 
                 var subFilter = new FilterLite<Product>()
@@ -149,7 +159,8 @@ namespace Samples
 
         static void ShowSomeProducts()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nShowSomeProducts\n");
+            using (var ds = new NorthwindDataService())
             {
                IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
                    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
@@ -168,50 +179,47 @@ namespace Samples
 
         static void Localization()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nLocalization\n");
+            using (var ds = new NorthwindDataService())
             {
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+
+                // the filter must work, it shoud use WHERE CategoryNameLang1 = 'Beverages', because Lang1 is the current language;
+                // CategoryName is a magic field, it doesn't exist in the database, its is replaced by CategoryNameLang1 or CategoryNameLang2 
+                // depending on the current culture
                 var c1 = ds.CategoryRepository.Query(Projection.BaseTable)
                             .Where(CategoryFields.CategoryName, "Beverages")
                             .FirstOrDefault();
 
-                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-                Console.WriteLine("CategoryId: {0}, CategoryName: {1}", c1.CategoryId, c1.CategoryName);
-                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
-                Console.WriteLine("CategoryId: {0}, CategoryName: {1}", c1.CategoryId, c1.CategoryName);
+                
+                // CategoryName is a magic field, it doesn't exist in the database, it returns either CategoryNameLang1 or CategoryNameLang2
+                // depending on the current culture.
+                // It should show: Beverages, Beverages, Bebidas
+                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
 
+                // changing the current culture should change the ouptput
+                // it should show: Bebidas, Beverages, Bebidas
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
-                var c2 = ds.CategoryRepository.Query(Projection.BaseTable)
+                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
+
+                // it shoud use WHERE CategoryNameLang2 = 'Bebidas' because Lang2 is the current language
+                c1 = ds.CategoryRepository.Query(Projection.BaseTable)
                             .Where(CategoryFields.CategoryName, "Bebidas")
                             .FirstOrDefault();
 
+                // it should show: Bebidas, Beverages, Bebidas
+                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
+
+                // changing the current culture should change the ouptput
+                // it should show: Beverages, Beverages, Bebidas
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-                Console.WriteLine("CategoryId: {0}, CategoryName: {1}", c1.CategoryId, c1.CategoryName);
-                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
-                Console.WriteLine("CategoryId: {0}, CategoryName: {1}", c1.CategoryId, c1.CategoryName);
+                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
             }
         }
 
-        static void UpdateCategories()
-        {
-            try
-            {
-                using (var ds = new NorthwindDataService("Northwind"))
-                {
-                    var c1 = ds.CategoryRepository.Get(Projection.BaseTable, 1, FetchMode.DirectDatabaseAccess);
-                    var c2 = ds.CategoryRepository.Get(Projection.BaseTable, 1, FetchMode.DirectDatabaseAccess);
-
-                    //c1.CategoryNameLang1 = "Beverages";
-                    ds.CategoryRepository.Save(c1);
-                    ds.CategoryRepository.Save(c2);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-
-        }
 
         static byte[] GetSalt()
         {
@@ -223,15 +231,18 @@ namespace Samples
 
         static void RaiseProductPrices()
         {
-            using (var ds = new Entities.NorthwindDataService("Northwind"))
+            Console.WriteLine("\nRaiseProductPrices\n");
+            using (var ds = new Entities.NorthwindDataService())
             {
                 ds.ProductRepository.RaiseProductPrices(0.10m);
+                Console.WriteLine("Product prices raised");
             }
         }
 
         static void ShowPagedProducts()
         {
-            using (var ds = new Entities.NorthwindDataService("Northwind"))
+            Console.WriteLine("\nShowPagedProducts\n");
+            using (var ds = new Entities.NorthwindDataService())
             {
                 const int PageSize = 10;
                 var query = ds.ProductRepository.Query(Projection.Detailed)
@@ -258,22 +269,17 @@ namespace Samples
 
         static void ShowOrderDetails()
         {
-            for (int i = 0; i < 1000; i++)
+            using (var ds = new Entities.NorthwindDataService())
             {
-                using (var ds = new Entities.NorthwindDataService("Northwind"))
+
+                var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
+                    .Where(OrderDetailFields.OrderId, 10248)
+                    .ToEnumerable();
+
+                foreach (var od in orderDetails)
                 {
 
-                    var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
-                        //.Where(OrderDetailFields.OrderId, 10248)
-                        .ToEnumerable();
-
-                    foreach (var od in orderDetails)
-                    {
-                        var categoryName = od.CategoryName;
-                        var productNmae = od.ProductName;
-                        var quantity = od.Quantity;
-                        var subtotal = od.SubTotal;
-                    }
+                    Console.WriteLine("{0}, {1}, {2}, {3}", od.CategoryName, od.ProductName, od.Quantity, od.SubTotal);
                 }
             }
         }
@@ -284,21 +290,11 @@ namespace Samples
             return rfc.GetBytes(64);
         }
 
-        //static Func<IDataReader, DataRow, DbType> GetDbTypeFunc(string providerName, DbProviderFactory factory)
-        //{
-        //    if (providerName == "Npgsql")
-        //    {
-        //        Type datareaderType = Type.GetType("Npgsql.NpgsqlDataReader, " + factory.GetType().Assembly.FullName);
-        //        MethodInfo getFieldDbTypeMehtodInfo = datareaderType.GetMethod("GetFieldDbType");
-        //        Delegate.CreateDelegate()
-        //        // GetFieldDbType;
-        //    }
-        //}
-
 
         static void ShowQuesoCabralesOrders()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nShowQuesoCabralesOrders\n");
+            using (var ds = new NorthwindDataService())
             {
                 IQueryLite<OrderDetail> orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
                     .Fields(FieldsOption.None, OrderDetailFields.OrderId)
@@ -325,7 +321,8 @@ namespace Samples
 
         static void ShowLondonAndewFullerSubtree()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nShowLondonAndewFullerSubtree\n");
+            using (var ds = new NorthwindDataService())
             {
                 // Andrew Fuller EmployeeId is 2
                 // SELECT FirstName, LastName
@@ -347,8 +344,9 @@ namespace Samples
 
         static void HandCraftedSql()
         {
+            Console.WriteLine("\nHandCraftedSql\n");
             string handCraftedSqlString = "SELECT ShipperID, CompanyName FROM dbo.Shippers";
-            using (var ds = new NorthwindDataService("Northwind"))
+            using (var ds = new NorthwindDataService())
             {
                 using (var cmd = ds.Connection.CreateCommand())
                 {
@@ -365,7 +363,8 @@ namespace Samples
 
         static void ShowProductSales()
         {
-            using (var ds = new NorthwindDataService("Northwind"))
+            Console.WriteLine("\nShowProductSales\n");
+            using (var ds = new NorthwindDataService())
             {
                 var salesQuery = ds.ProductSaleRepository
                     .TemplatedQuery("Product", 2)
@@ -383,7 +382,8 @@ namespace Samples
 
         static void InsertUpdateDeleteProduct()
         {
-            using (var ds = new Entities.NorthwindDataService("Northwind"))
+            Console.WriteLine("\nInsertUpdateDeleteProduct\n");
+            using (var ds = new Entities.NorthwindDataService())
             {
                 ds.BeginTransaction();
                 var p = new Entities.Product
@@ -405,6 +405,7 @@ namespace Samples
                 p.ProductName = "Another Name";
                 // updates the product
                 ds.ProductRepository.Save(p);
+                Console.WriteLine("Product name changed");
 
                 // Retrieves the product from the database and shows the product category name
                 p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
@@ -412,6 +413,7 @@ namespace Samples
 
                 // deletes the product
                 ds.ProductRepository.Delete(p.ProductId);
+                Console.WriteLine("Product deleted");
 
                 ds.Commit();
             }

@@ -25,7 +25,7 @@ namespace Samples.Entities.Templates
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("SELECT\r\n\tP.CategoryID, C.CategoryName,\r\n");
+            this.Write("SELECT\r\n\tP.CategoryID, C.CategoryNameLang1, C.CategoryNameLang2,\r\n");
             
             #line 5 "C:\Projects\EntityLite\Samples\Entities\Templates\SalesQueryTemplate.tt"
  if (Grouping == "Product") { 
@@ -73,7 +73,7 @@ FROM
             
             #line default
             #line hidden
-            this.Write("GROUP BY\r\n\tP.CategoryID, C.CategoryName, \r\n");
+            this.Write("GROUP BY\r\n\tP.CategoryID, C.CategoryNameLang1, C.CategoryNameLang2,\r\n");
             
             #line 29 "C:\Projects\EntityLite\Samples\Entities\Templates\SalesQueryTemplate.tt"
  if (Grouping == "Product") { 

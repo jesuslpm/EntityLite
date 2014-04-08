@@ -1,7 +1,7 @@
 ﻿<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 SELECT
-	P.CategoryID, C.CategoryName,
+	P.CategoryID, C.CategoryNameLang1, C.CategoryNameLang2,
 <# if (Grouping == "Product") { #>
 	P.ProductID, P.ProductName,
 <# } else { #>
@@ -25,7 +25,7 @@ WHERE
 	O.EmployeeID = $(EmployeeId)
 <# } #>
 GROUP BY
-	P.CategoryID, C.CategoryName, 
+	P.CategoryID, C.CategoryNameLang1, C.CategoryNameLang2,
 <# if (Grouping == "Product") { #>
 	P.ProductID, P.ProductName,
 <# } #>

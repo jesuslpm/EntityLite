@@ -21,8 +21,8 @@ namespace Samples.Entities
 		public Int32 CategoryId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryName", BaseColumnName ="CategoryName", BaseTableName = "Categories" )]
-		public String CategoryName { get; set; }
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1", BaseColumnName ="CategoryNameLang1", BaseTableName = "Categories" )]
+		public String CategoryNameLang1 { get; set; }
 
 		[DataMember]
 		[SqlField(DbType.String, 2147483647, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]
@@ -32,6 +32,18 @@ namespace Samples.Entities
 		[SqlField(DbType.Binary, 2147483647, ColumnName ="Picture", BaseColumnName ="Picture", BaseTableName = "Categories" )]
 		public Byte[] Picture { get; set; }
 
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2", BaseColumnName ="CategoryNameLang2", BaseTableName = "Categories" )]
+		public String CategoryNameLang2 { get; set; }
+
+		[LocalizedField]
+		public String CategoryName 
+		{ 
+			get
+			{
+				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
+			} 
+		}
 
 	}
 
@@ -87,9 +99,11 @@ namespace Samples.Entities
 	public static partial class CategoryFields
 	{
 		public const string CategoryId = "CategoryId";
-		public const string CategoryName = "CategoryName";
+		public const string CategoryNameLang1 = "CategoryNameLang1";
 		public const string Description = "Description";
 		public const string Picture = "Picture";
+		public const string CategoryNameLang2 = "CategoryNameLang2";
+		public const string CategoryName = "CategoryName";
 	}
 
 	[Serializable]
@@ -397,8 +411,12 @@ namespace Samples.Entities
 		public String ProductName { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
-		public String CategoryName { get; set; }
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
+		public String CategoryNameLang1 { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
+		public String CategoryNameLang2 { get; set; }
 
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]
@@ -444,6 +462,14 @@ namespace Samples.Entities
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder" )]
 		public Int16? UnitsOnOrder { get; set; }
 
+		[LocalizedField]
+		public String CategoryName 
+		{ 
+			get
+			{
+				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
+			} 
+		}
 
 	}
 
@@ -506,7 +532,8 @@ namespace Samples.Entities
 		public const string Discount = "Discount";
 		public const string SubTotal = "SubTotal";
 		public const string ProductName = "ProductName";
-		public const string CategoryName = "CategoryName";
+		public const string CategoryNameLang1 = "CategoryNameLang1";
+		public const string CategoryNameLang2 = "CategoryNameLang2";
 		public const string OrderDate = "OrderDate";
 		public const string CustomerId = "CustomerId";
 		public const string CustomerName = "CustomerName";
@@ -518,6 +545,7 @@ namespace Samples.Entities
 		public const string Phone = "Phone";
 		public const string UnitsInStock = "UnitsInStock";
 		public const string UnitsOnOrder = "UnitsOnOrder";
+		public const string CategoryName = "CategoryName";
 	}
 
 	[Serializable]
@@ -727,13 +755,25 @@ namespace Samples.Entities
 		public Boolean Discontinued { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
-		public String CategoryName { get; set; }
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
+		public String CategoryNameLang1 { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
+		public String CategoryNameLang2 { get; set; }
 
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="SupplierName" )]
 		public String SupplierName { get; set; }
 
+		[LocalizedField]
+		public String CategoryName 
+		{ 
+			get
+			{
+				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
+			} 
+		}
 
 	}
 
@@ -813,8 +853,10 @@ namespace Samples.Entities
 		public const string UnitsOnOrder = "UnitsOnOrder";
 		public const string ReorderLevel = "ReorderLevel";
 		public const string Discontinued = "Discontinued";
-		public const string CategoryName = "CategoryName";
+		public const string CategoryNameLang1 = "CategoryNameLang1";
+		public const string CategoryNameLang2 = "CategoryNameLang2";
 		public const string SupplierName = "SupplierName";
+		public const string CategoryName = "CategoryName";
 	}
 
 	[Serializable]
@@ -1024,8 +1066,12 @@ namespace Samples.Entities
 		public Int32? CategoryId { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
-		public String CategoryName { get; set; }
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
+		public String CategoryNameLang1 { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
+		public String CategoryNameLang2 { get; set; }
 
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID" )]
@@ -1047,6 +1093,14 @@ namespace Samples.Entities
 		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]
 		public Decimal? Sales { get; set; }
 
+		[LocalizedField]
+		public String CategoryName 
+		{ 
+			get
+			{
+				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
+			} 
+		}
 
 	}
 
@@ -1067,12 +1121,14 @@ namespace Samples.Entities
 	public static partial class ProductSaleFields
 	{
 		public const string CategoryId = "CategoryId";
-		public const string CategoryName = "CategoryName";
+		public const string CategoryNameLang1 = "CategoryNameLang1";
+		public const string CategoryNameLang2 = "CategoryNameLang2";
 		public const string ProductId = "ProductId";
 		public const string ProductName = "ProductName";
 		public const string Year = "Year";
 		public const string Quarter = "Quarter";
 		public const string Sales = "Sales";
+		public const string CategoryName = "CategoryName";
 	}
 
 	[Serializable]

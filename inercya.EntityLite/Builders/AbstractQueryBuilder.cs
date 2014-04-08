@@ -433,8 +433,13 @@ namespace inercya.EntityLite.Builders
 
 				if (string.IsNullOrEmpty(fieldName))
 				{
-					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + CurrentLanguageService.CurrentLanguageCode);
+                    throw new InvalidOperationException("Cannot sort by localized property " + sortDescriptor.FieldName + " because no field name has been found for the current language: " + CurrentLanguageService.CurrentLanguageCode);
 				}
+
+                if (!entityMetadata.Properties.TryGetValue(fieldName, out propertyMetadata) || propertyMetadata.SqlField == null || string.IsNullOrEmpty(propertyMetadata.SqlField.ColumnName))
+                {
+                    throw new InvalidOperationException("Cannot sort by localized property " + sortDescriptor.FieldName + " because no field name has been found for the property: " + fieldName);
+                }
 			}
             string columnName = propertyMetadata.SqlField.ColumnName;
             commandText.Append(this.QueryLite.DataService.EntityLiteProvider.StartQuote).Append(columnName).Append(this.QueryLite.DataService.EntityLiteProvider.EndQuote).Append(sortDescriptor.SortOrder == SortOrder.Descending ? " DESC" : string.Empty);
