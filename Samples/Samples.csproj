@@ -109,6 +109,7 @@
     </Compile>
     <Compile Include="DataService.cs" />
     <Compile Include="Entities\Employee.cs" />
+    <Compile Include="Entities\OrderDetail.cs" />
     <Compile Include="Entities\Product.cs" />
     <Compile Include="Entities\ProductSaleRepository.cs" />
     <Compile Include="Program.cs" />

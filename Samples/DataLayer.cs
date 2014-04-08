@@ -400,6 +400,50 @@ namespace Samples.Entities
 		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]
 		public String CategoryName { get; set; }
 
+		[DataMember]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]
+		public DateTime? OrderDate { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID" )]
+		public String CustomerId { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 40, ColumnName ="CustomerName" )]
+		public String CustomerName { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 60, ColumnName ="Address" )]
+		public String Address { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="City" )]
+		public String City { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="Region" )]
+		public String Region { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode" )]
+		public String PostalCode { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="Country" )]
+		public String Country { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 24, ColumnName ="Phone" )]
+		public String Phone { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock" )]
+		public Int16? UnitsInStock { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder" )]
+		public Int16? UnitsOnOrder { get; set; }
+
 
 	}
 
@@ -463,6 +507,17 @@ namespace Samples.Entities
 		public const string SubTotal = "SubTotal";
 		public const string ProductName = "ProductName";
 		public const string CategoryName = "CategoryName";
+		public const string OrderDate = "OrderDate";
+		public const string CustomerId = "CustomerId";
+		public const string CustomerName = "CustomerName";
+		public const string Address = "Address";
+		public const string City = "City";
+		public const string Region = "Region";
+		public const string PostalCode = "PostalCode";
+		public const string Country = "Country";
+		public const string Phone = "Phone";
+		public const string UnitsInStock = "UnitsInStock";
+		public const string UnitsOnOrder = "UnitsOnOrder";
 	}
 
 	[Serializable]

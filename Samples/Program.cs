@@ -45,8 +45,33 @@ namespace Samples
             HandCraftedSql();
             ShowProductSales();
             RaiseProductPrices2();
+            SearchOrderDetails();
 
 
+        }
+
+        private static void SearchOrderDetails()
+        {
+            using (var ds = new NorthwindDataService("Northwind"))
+            {
+                var criteria = new OrderDetailSearchCriteria
+                {
+                    ProductName = "C",
+                    CustomerId = "AROUT"
+                };
+
+                var orderDetails = ds.OrderDetailRepository.SearchQuery(criteria)
+                    .Fields(OrderDetailFields.OrderId, OrderDetailFields.OrderDate, OrderDetailFields.ProductName, OrderDetailFields.SubTotal)
+                    .OrderByDesc(OrderDetailFields.OrderDate)
+                    .OrderBy(OrderDetailFields.ProductName)
+                    .ToList(0, 9);
+
+                foreach(var od in orderDetails)
+                {
+                    Console.WriteLine("{0}, {1},  {2}, {3}", od.OrderId, od.OrderDate, od.ProductName, od.SubTotal);
+                }
+                    
+            }
         }
 
 
