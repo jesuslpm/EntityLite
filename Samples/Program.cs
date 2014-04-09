@@ -32,7 +32,7 @@ namespace Samples
     {
         static void Main(string[] args)
         {
-            
+
             QueryByPrimaryKey();
             ShowSomeProducts();
             ShowOrderDetails();
@@ -46,9 +46,26 @@ namespace Samples
             RaiseProductPrices2();
             HandCraftedSql();
             Localization();
+
+            //EmployeeSubTree_RefCursor();
             Console.WriteLine("Press enter to exit...");
             Console.ReadLine();
         }
+
+        //private static void EmployeeSubTree_RefCursor()
+        //{
+        //    using (var ds = new NorthwindDataService())
+        //    {
+        //        object cSubTree;
+        //        ds.EmployeeRepository.EmployeeSubtree(2, out cSubTree);
+        //        IDataReader reader = ((dynamic)cSubTree).GetDataReader();
+                
+        //        foreach(var employee in reader.ToList<Employee>())
+        //        {
+        //            Console.WriteLine("{0}, {1}", employee.FirstName, employee.LastName);
+        //        }
+        //    }
+        //}
 
         private static void SearchOrderDetails()
         {
@@ -67,11 +84,11 @@ namespace Samples
                     .OrderBy(OrderDetailFields.ProductName)
                     .ToList(0, 9);
 
-                foreach(var od in orderDetails)
+                foreach (var od in orderDetails)
                 {
                     Console.WriteLine("{0}, {1},  {2}, {3}", od.OrderId, od.OrderDate, od.ProductName, od.SubTotal);
                 }
-                    
+
             }
         }
 
@@ -145,7 +162,7 @@ namespace Samples
             {
 
                 var subFilter = new FilterLite<Product>()
-                            .Where(ProductFields.SupplierId, 1) 
+                            .Where(ProductFields.SupplierId, 1)
                             .Or(ProductFields.SupplierId, OperatorLite.IsNull);
 
                 // SELECT * FROM dbo.Products WHERE CategoryId = 1 AND (SupplierId = 1 OR SupplierId = 2)
@@ -162,13 +179,13 @@ namespace Samples
             Console.WriteLine("\nShowSomeProducts\n");
             using (var ds = new NorthwindDataService())
             {
-               IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
-                   .Fields(ProductFields.CategoryName, ProductFields.ProductName)
-                   .Where(ProductFields.Discontinued, false)
-                   .And(ProductFields.SupplierId, OperatorLite.In, new int[] {2, 3})
-                   .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
-                   .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
-                   .ToEnumerable();
+                IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
+                    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+                    .Where(ProductFields.Discontinued, false)
+                    .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
+                    .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
+                    .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+                    .ToEnumerable();
 
                 foreach (Product p in products)
                 {
@@ -191,7 +208,7 @@ namespace Samples
                             .Where(CategoryFields.CategoryName, "Beverages")
                             .FirstOrDefault();
 
-                
+
                 // CategoryName is a magic field, it doesn't exist in the database, it returns either CategoryNameLang1 or CategoryNameLang2
                 // depending on the current culture.
                 // It should show: Beverages, Beverages, Bebidas
@@ -311,9 +328,9 @@ namespace Samples
                     .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
                     .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
 
-                foreach(var order in orderQuery.ToEnumerable())
+                foreach (var order in orderQuery.ToEnumerable())
                 {
-                    Console.WriteLine("OrderId {0}, OrderDate {1}, CustomerId {2}", 
+                    Console.WriteLine("OrderId {0}, OrderDate {1}, CustomerId {2}",
                         order.OrderId, order.OrderDate, order.CustomerId);
                 }
             }
@@ -334,7 +351,7 @@ namespace Samples
                     .Where(EmployeeFields.City, "London")
                     .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
 
-                foreach(var emp in query.ToEnumerable())
+                foreach (var emp in query.ToEnumerable())
                 {
                     Console.WriteLine("FirstName: {0}, LastName: {1}", emp.FirstName, emp.LastName);
                 }
@@ -372,9 +389,9 @@ namespace Samples
                     .OrderBy(ProductSaleFields.CategoryName, ProductSaleFields.ProductName)
                     .OrderBy(ProductSaleFields.Year, ProductSaleFields.Quarter);
 
-                foreach(var s in salesQuery.ToEnumerable(0, 9))
+                foreach (var s in salesQuery.ToEnumerable(0, 9))
                 {
-                    Console.WriteLine("{0}, {1}, {2}, {3}, {4}", 
+                    Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
                         s.CategoryName, s.ProductName, s.Year, s.Quarter, s.Sales);
                 }
             }
@@ -396,7 +413,7 @@ namespace Samples
                     UnitPrice = 10,
                     UnitsInStock = 1,
                     UnitsOnOrder = 0
-                  
+
                 };
                 // inserts the new product
                 ds.ProductRepository.Save(p);

@@ -5752,3 +5752,17 @@ AS
 		LEFT OUTER JOIN Categories C
 			ON P.category_id = C.category_id;
 /
+CREATE OR REPLACE PROCEDURE employee_subtree(
+  p_employee_id IN INTEGER,
+  c_subtree OUT SYS_REFCURSOR
+)
+IS
+BEGIN
+  OPEN c_subtree FOR
+  SELECT 
+    employee_id, reports_to, first_name, last_name 
+  FROM 
+    employees
+  CONNECT BY PRIOR employee_id = reports_to
+  START WITH employee_id = p_employee_id;
+END;

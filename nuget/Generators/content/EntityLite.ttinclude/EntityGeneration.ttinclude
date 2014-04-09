@@ -140,10 +140,20 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 		Type paramType = DataLayerGeneration.GetTypeFromDbType(p.DbType);
 		string paramTypeName = paramType.Name;
 		string nullableParamTypeName = paramTypeName + (paramType.IsValueType ? "?" : string.Empty);
-		string argumentName = p.SourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+		string sourceColumn = p.ParameterName;
+		if (sourceColumn[0] == '@' || sourceColumn[0] == ':')
+		{
+			sourceColumn = sourceColumn.Substring(1);
+		}
+		p.SourceColumn = sourceColumn;
+		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+		if ((p.Direction & ParameterDirection.Input) ==  ParameterDirection.Input) 
+		{
 #>
 			<#= nullableParamTypeName #> <#= argumentName #>Param = <#= argumentName #>; 
-<#+	} #>
+<#+	
+		}
+	} #>
             var executor = new StoredProcedureExecutor(this.DataService, true)
             {
                 GetCommandFunc = () =>
@@ -157,6 +167,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 		{
 			sourceColumn = sourceColumn.Substring(1);
 		}
+		p.SourceColumn = sourceColumn;
 		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
 		if ((p.Direction & ParameterDirection.Output) == ParameterDirection.Output) argumentName += "Param";
 #>
@@ -199,7 +210,7 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 		string paramTypeName = paramType.Name;
 		string nullableParamTypeName = paramTypeName + (paramType.IsValueType ? "?" : string.Empty);
 #>
-			<#= p.SourceColumn #> = (<#= nullableParamTypeName #>) executor.OutputParameterValues["<#= p.SourceColumn #>"]; 
+			<#= p.SourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword() #> = (<#= nullableParamTypeName #>) executor.OutputParameterValues["<#= p.SourceColumn #>"]; 
 <#+
 	}				
 	switch (procedure.ResultSetKind)

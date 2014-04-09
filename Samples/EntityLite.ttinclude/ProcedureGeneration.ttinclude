@@ -34,6 +34,7 @@ namespace <#= generation.RootNamespace #>
 			cmd.CommandType = CommandType.StoredProcedure;
 			IDbDataParameter p = null;
 <#+
+        bool isFirstRefCursor= true;
 		foreach(IDbDataParameter p in proc.Parameters)
 		{
 			string sourceColumn = p.ParameterName;
@@ -41,12 +42,34 @@ namespace <#= generation.RootNamespace #>
 			{
 				sourceColumn = sourceColumn.Substring(1);
 			}
+            var oracleDbTypeProp = p.GetType().GetProperty("OracleDbType");
+            bool isRefCursor = oracleDbTypeProp != null && oracleDbTypeProp.GetValue(p, null).ToString() == "RefCursor";
+            if (isFirstRefCursor && isRefCursor)
+            {
+                    isFirstRefCursor = false;
+ #>
+
+            Type paramType = p.GetType();
+            var oracleDbTypeProperty = paramType.GetProperty("OracleDbType");
+            var refCursorValue = Enum.Parse(oracleDbTypeProperty.PropertyType, "RefCursor");
+<#+         
+            }  
 #>
 
 			p = cmd.CreateParameter();
 			p.ParameterName = parameterPrefix + "<#= sourceColumn #>";
+<#+ 
+            if (isRefCursor)
+            {
+#>
+            oracleDbTypeProperty.SetValue(p, refCursorValue, null);
+<#+         } 
+            else {
+#>
 			p.DbType = DbType.<#= p.DbType.ToString() #>;
-			p.Direction = ParameterDirection.<#= p.Direction.ToString() #>;
+<#+         
+            } #>
+            p.Direction = ParameterDirection.<#= p.Direction.ToString() #>;
 <#+
 			if (p.Size != 0) 
 			{

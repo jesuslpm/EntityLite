@@ -7,17 +7,17 @@ using System.Text;
 
 namespace Samples.Entities
 {
-public partial class ProductSaleRepository
-{
-
-    public IQueryLite<ProductSale> TemplatedQuery(string grouping, int? employeeId)
+    public partial class ProductSaleRepository
     {
-        var template = new SalesQueryTemplate
+
+        public IQueryLite<ProductSale> TemplatedQuery(string grouping, int? employeeId)
         {
-            EmployeeId = employeeId,
-            Grouping = grouping
-        };
-        return new TemplatedQueryLite<ProductSale>(this.DataService, template);
+            var template = new SalesQueryTemplate
+            {
+                EmployeeId = employeeId,
+                Grouping = grouping
+            };
+            return new TemplatedQueryLite<ProductSale>(this.DataService, template);
+        }
     }
-}
 }

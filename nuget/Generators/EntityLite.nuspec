@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite</id>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
@@ -11,6 +11,7 @@
       A lightweight, database first, micro ORM
     </description>
     <releaseNotes>
+      Support for ORACLE Ref Cursors
     </releaseNotes>
     <summary>
       The EntityLite code generators and core library
@@ -22,7 +23,7 @@
     <copyright>Copyright 2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="EntityLite.Core" version="[1.1.1]" />
+        <dependency id="EntityLite.Core" version="[1.2.0]" />
       </group>
     </dependencies>
     <references></references>

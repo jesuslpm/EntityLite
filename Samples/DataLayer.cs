@@ -1382,14 +1382,14 @@ namespace Samples.Entities
 			p = cmd.CreateParameter();
 			p.ParameterName = parameterPrefix + "RETURN_VALUE";
 			p.DbType = DbType.Int32;
-			p.Direction = ParameterDirection.ReturnValue;
+            p.Direction = ParameterDirection.ReturnValue;
 			p.SourceColumn = "RETURN_VALUE";
 			cmd.Parameters.Add(p);
 
 			p = cmd.CreateParameter();
 			p.ParameterName = parameterPrefix + "rate";
 			p.DbType = DbType.Decimal;
-			p.Direction = ParameterDirection.Input;
+            p.Direction = ParameterDirection.Input;
 			p.Precision = 5;
 			p.Scale = 4;
 			p.SourceColumn = "rate";
