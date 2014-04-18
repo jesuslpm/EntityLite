@@ -214,7 +214,7 @@ namespace inercya.EntityLite.Builders
 					*/
 
 				// dejamos la propiedad en su valor predeterminado.
-				Debug.WriteLine(string.Format("la propiedad {0} no es nulable, pero el campo sí, entidad {1}", pi.Name, pi.DeclaringType.Name));
+				// Debug.WriteLine(string.Format("la propiedad {0} no es nulable, pero el campo sí, entidad {1}", pi.Name, pi.DeclaringType.Name));
 			}
 		}
 

@@ -71,7 +71,7 @@
     <OutputPath>bin\InercyaDebug\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>EntityLite.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -169,7 +169,7 @@
     <Compile Include="TextTransform.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EntityLite.pfx" />
+    <None Include="EntityLite.snk" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

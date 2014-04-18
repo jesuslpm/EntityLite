@@ -88,10 +88,12 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite">
+    <Reference Include="System.Data.SQLite, Version=1.0.89.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\System.Data.SQLite.1.0.89.0\lib\net40\System.Data.SQLite.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data.SQLite.Linq">
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.89.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\System.Data.SQLite.1.0.89.0\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
@@ -138,15 +140,15 @@
     <None Include="EntityLite.ttinclude\DataLayerGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\DataServiceGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\EntityGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
     <None Include="EntityLite.ttinclude\EntitySetting.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldGeneration.ttinclude" />
-    <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldMetadata.ttinclude" />
-    <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
     <None Include="EntityLite.ttinclude\MemberVisibility.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureSetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
     <None Include="Northwind.db3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
