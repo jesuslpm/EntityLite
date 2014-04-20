@@ -100,6 +100,10 @@
     <Compile Include="CurrentLanguageService.cs" />
     <Compile Include="ErrorOcurredEventArgs.cs" />
     <Compile Include="Extensions\CurrentLanguageServiceExtensions.cs" />
+    <Compile Include="Extensions\PivotColumn.cs" />
+    <Compile Include="Extensions\PivotDef.cs" />
+    <Compile Include="Extensions\PivotExtensions.cs" />
+    <Compile Include="Extensions\Record.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="FetchMode.cs" />
     <Compile Include="Extensions\FieldsOption.cs" />
@@ -170,7 +174,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="EntityLite.snk" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

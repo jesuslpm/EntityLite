@@ -24,6 +24,7 @@ using inercya.EntityLite.Extensions;
 using NLog;
 using System.Diagnostics;
 using inercya.EntityLite.Builders;
+using System.Data;
 
 namespace inercya.EntityLite
 {
@@ -126,6 +127,25 @@ namespace inercya.EntityLite
             this.Sort = new List<SortDescriptor>();
 			this.Options = new List<string>();
             this.FieldList = new List<string>();
+        }
+
+        public DataTable Pivot(params PivotColumn[] pivotColumns)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetSelectCommand
+            };
+            using (var reader = cmd.ExecuteReader())
+            {
+                PivotDef pivotDef = new PivotDef
+                {
+                    GroupByFields = this.Sort
+                                .Where(x => !pivotColumns.Any( p => p.PivotColumnName == x.FieldName || p.ValueColumnName == x.FieldName))
+                                .Select( x => x.FieldName).ToArray(),
+                    PivotColumns = pivotColumns
+                };
+                return reader.Pivot(pivotDef);
+            }
         }
     }
 

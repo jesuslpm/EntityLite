@@ -21,6 +21,7 @@ using System.Text;
 using System.Collections;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Templates;
+using System.Data;
 
 namespace inercya.EntityLite
 {
@@ -39,6 +40,7 @@ namespace inercya.EntityLite
         IList<string> FieldList { get; set; }
         IQueryBuilder QueryBuilder { get; set; }
         DataService DataService { get; set; }
+        DataTable Pivot(params Extensions.PivotColumn[] pivotColumns);
     }
 
     public interface IQueryLite<TEntity> : IQueryLite

@@ -46,10 +46,23 @@ namespace Samples
             RaiseProductPrices2();
             HandCraftedSql();
             Localization();
+            Pivot();
 
             //EmployeeSubTree_RefCursor();
             Console.WriteLine("Press enter to exit...");
             Console.ReadLine();
+        }
+
+        private static void Pivot()
+        {
+            using (var ds = new NorthwindDataService())
+            {
+                DataTable pivotedSales = ds.ProductSaleRepository.Query("Quarter")
+                    .OrderBy(ProductSaleFields.CategoryId, ProductSaleFields.CategoryNameLang1, ProductSaleFields.CategoryNameLang2)
+                    .OrderBy(ProductSaleFields.ProductId, ProductSaleFields.ProductName)
+                    .OrderBy(ProductSaleFields.Year, ProductSaleFields.Quarter)
+                    .Pivot(new PivotColumn(ProductSaleFields.Quarter, ProductSaleFields.Sales, x => "Q" + x.ToString()));
+            }
         }
 
         //private static void EmployeeSubTree_RefCursor()
