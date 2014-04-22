@@ -25,6 +25,9 @@ using System.Data;
 using System.Reflection;
 using System.Data.Common;
 using System.Threading;
+using System.Data.SqlClient;
+using System.Configuration;
+using System.Diagnostics;
 
 namespace Samples
 {
@@ -46,22 +49,32 @@ namespace Samples
             RaiseProductPrices2();
             HandCraftedSql();
             Localization();
-            Pivot();
 
-            //EmployeeSubTree_RefCursor();
-            Console.WriteLine("Press enter to exit...");
-            Console.ReadLine();
+            Pivot();
+           
         }
+
+
 
         private static void Pivot()
         {
+
             using (var ds = new NorthwindDataService())
             {
-                DataTable pivotedSales = ds.ProductSaleRepository.Query("Quarter")
-                    .OrderBy(ProductSaleFields.CategoryId, ProductSaleFields.CategoryNameLang1, ProductSaleFields.CategoryNameLang2)
-                    .OrderBy(ProductSaleFields.ProductId, ProductSaleFields.ProductName)
-                    .OrderBy(ProductSaleFields.Year, ProductSaleFields.Quarter)
-                    .Pivot(new PivotColumn(ProductSaleFields.Quarter, ProductSaleFields.Sales, x => "Q" + x.ToString()));
+
+                DataTable pivotedSales = ds.ProductSaleRepository.Query("Year")
+                    .OrderBy(ProductSaleFields.ProductName)
+                    .Pivot(
+                        (c1, c2) =>
+                        {
+                            int yearComp = ((int)c1.PivotColumnValue).CompareTo(c2.PivotColumnValue);
+                            if (yearComp != 0) return yearComp;
+                            return c1.PivotColumnIndex.CompareTo(c2.PivotColumnIndex);
+                        },
+                        new PivotColumn(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
+                        new PivotColumn(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
+                    );
+
             }
         }
 

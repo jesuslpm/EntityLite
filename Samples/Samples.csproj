@@ -87,6 +87,7 @@
       <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\policy.2.0.Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite, Version=1.0.89.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -214,7 +215,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY "$(ProjectDir)EntityLite.ttinclude\*.ttinclude" "$(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude\" /Y</PostBuildEvent>
+    <PostBuildEvent>REM COPY "$(ProjectDir)EntityLite.ttinclude\*.ttinclude" "$(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

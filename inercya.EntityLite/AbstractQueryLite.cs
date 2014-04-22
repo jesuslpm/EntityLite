@@ -129,22 +129,32 @@ namespace inercya.EntityLite
             this.FieldList = new List<string>();
         }
 
-        public DataTable Pivot(params PivotColumn[] pivotColumns)
+        public DataTable Pivot(params Extensions.PivotColumn[] pivotColumns)
+        {
+            return Pivot(PivotExtensions.DefaultPivotedColumnComparison, pivotColumns);
+        }
+
+        public DataTable Pivot(Comparison<Extensions.PivotedColumn> pivotedColumnComparison, params PivotColumn[] pivotColumns)
         {
             var cmd = new CommandExecutor(this.DataService, true)
             {
                 GetCommandFunc = GetSelectCommand
             };
+
+            var properties = this.EntityType.GetEntityMetadata().Properties;
+
+            IEnumerable<string> groupByPropertyNames = this.Sort
+                                .Where(x => !pivotColumns.Any(p => p.PivotColumnName == x.FieldName || p.ValueColumnName == x.FieldName))
+                                .Select(x => x.FieldName);
+
             using (var reader = cmd.ExecuteReader())
             {
                 PivotDef pivotDef = new PivotDef
                 {
-                    GroupByFields = this.Sort
-                                .Where(x => !pivotColumns.Any( p => p.PivotColumnName == x.FieldName || p.ValueColumnName == x.FieldName))
-                                .Select( x => x.FieldName).ToArray(),
+                    GroupByFields = groupByPropertyNames.ToArray(),
                     PivotColumns = pivotColumns
                 };
-                return reader.Pivot(pivotDef);
+                return reader.Pivot(pivotDef, pivotedColumnComparison);
             }
         }
     }

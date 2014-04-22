@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using inercya.EntityLite.Collections;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -180,6 +181,11 @@ namespace inercya.EntityLite.Extensions
             {
                 sortedFields.EnsureField(metadata, primaryKeyPropertyName);
             }
+        }
+
+        public static IDataReader ToDataReader<T>(this IEnumerable<T> collection) where T:class
+        {
+            return new CollectionDataReader<T>(collection);
         }
 	}
 }

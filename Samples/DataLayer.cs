@@ -1093,6 +1093,10 @@ namespace Samples.Entities
 		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]
 		public Decimal? Sales { get; set; }
 
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="OrderCount" )]
+		public Int32? OrderCount { get; set; }
+
 		[LocalizedField]
 		public String CategoryName 
 		{ 
@@ -1128,6 +1132,7 @@ namespace Samples.Entities
 		public const string Year = "Year";
 		public const string Quarter = "Quarter";
 		public const string Sales = "Sales";
+		public const string OrderCount = "OrderCount";
 		public const string CategoryName = "CategoryName";
 	}
 
