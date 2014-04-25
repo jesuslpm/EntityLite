@@ -28,7 +28,7 @@ using System.Collections;
 
 namespace inercya.EntityLite.Builders
 {
-    public abstract class AbstractQueryBuilder : IQueryBuilder
+    public abstract class AbstractQueryBuilder : IQueryBuilder 
     {
 
         protected AbstractQueryBuilder(IQueryLite queryLite)

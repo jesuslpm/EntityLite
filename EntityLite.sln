@@ -60,6 +60,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Performance2.psess = Performance2.psess
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite.SqliteProfiler", "SqliteLogger\inercya.EntityLite.SqliteProfiler.csproj", "{E585F6D5-06B3-421E-9600-281A04FF88D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +86,12 @@ Global
 		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|x86.ActiveCfg = Release|x86
 		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|x86.Build.0 = Release|x86
+		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

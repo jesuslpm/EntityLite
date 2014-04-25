@@ -25,18 +25,18 @@ namespace inercya.EntityLite
 
 	public interface IProfilerLite
 	{
-		void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMicroSeconds);
+		void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMilliseconds);
 	}
 
 	public static class ProfilerLite
 	{
 		public static IProfilerLite Current { get; set; }
 
-		public static void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMicroSeconds)
+        public static void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMilliseconds)
 		{
 			if (Current != null)
 			{
-				Current.LogCommandExecution(command, dataService, executionTimeInMicroSeconds);
+                Current.LogCommandExecution(command, dataService, executionTimeInMilliseconds);
 			}
 		}
 	}

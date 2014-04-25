@@ -33,25 +33,44 @@ namespace Samples
 {
     class Program
     {
+
+        static NorthwindDataService ds;
+        static inercya.EntityLite.SqliteProfiler.Profiler profiler;
         static void Main(string[] args)
         {
+            profiler = new inercya.EntityLite.SqliteProfiler.Profiler();
+            ProfilerLite.Current = profiler;
+            profiler.StartProfiling();
+            using (ds =  new NorthwindDataService())
+            {
+                QueryByPrimaryKey();
+                ShowSomeProducts();
+                ShowOrderDetails();
+                ShowQuesoCabralesOrders();
+                ShowPagedProducts();
+                ShowLondonAndewFullerSubtree();
+                SearchOrderDetails();
+                ShowProductSales();
+                RaiseProductPrices();
+                InsertUpdateDeleteProduct();
+                RaiseProductPrices2();
+                HandCraftedSql();
+                Localization();
 
-            QueryByPrimaryKey();
-            ShowSomeProducts();
-            ShowOrderDetails();
-            ShowQuesoCabralesOrders();
-            ShowPagedProducts();
-            ShowLondonAndewFullerSubtree();
-            SearchOrderDetails();
-            ShowProductSales();
-            RaiseProductPrices();
-            InsertUpdateDeleteProduct();
-            RaiseProductPrices2();
-            HandCraftedSql();
-            Localization();
-
-            Pivot();
+                Pivot();
+            }
+            profiler.StopProfiling();
+            Console.WriteLine("Press enter to exit ...");
+            Console.ReadLine();
            
+        }
+
+        private static NorthwindDataService CreateDataService()
+        {
+            var ds = new NorthwindDataService();
+            
+            inercya.EntityLite.ProfilerLite.Current = new inercya.EntityLite.SqliteProfiler.Profiler();
+            return ds;
         }
 
 
@@ -59,23 +78,19 @@ namespace Samples
         private static void Pivot()
         {
 
-            using (var ds = new NorthwindDataService())
-            {
+            DataTable pivotedSales = ds.ProductSaleRepository.Query("Year")
+                .OrderBy(ProductSaleFields.ProductName)
+                .Pivot(
+                    (c1, c2) =>
+                    {
+                        int yearComp = ((int)c1.PivotColumnValue).CompareTo(c2.PivotColumnValue);
+                        if (yearComp != 0) return yearComp;
+                        return c1.PivotColumnIndex.CompareTo(c2.PivotColumnIndex);
+                    },
+                    new PivotColumn(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
+                    new PivotColumn(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
+                );
 
-                DataTable pivotedSales = ds.ProductSaleRepository.Query("Year")
-                    .OrderBy(ProductSaleFields.ProductName)
-                    .Pivot(
-                        (c1, c2) =>
-                        {
-                            int yearComp = ((int)c1.PivotColumnValue).CompareTo(c2.PivotColumnValue);
-                            if (yearComp != 0) return yearComp;
-                            return c1.PivotColumnIndex.CompareTo(c2.PivotColumnIndex);
-                        },
-                        new PivotColumn(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
-                        new PivotColumn(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
-                    );
-
-            }
         }
 
         //private static void EmployeeSubTree_RefCursor()
@@ -96,25 +111,21 @@ namespace Samples
         private static void SearchOrderDetails()
         {
             Console.WriteLine("\nSearchOrderDetails\n");
-            using (var ds = new NorthwindDataService())
+            var criteria = new OrderDetailSearchCriteria
             {
-                var criteria = new OrderDetailSearchCriteria
-                {
-                    ProductName = "C",
-                    CustomerId = "AROUT"
-                };
+                ProductName = "C",
+                CustomerId = "AROUT"
+            };
 
-                var orderDetails = ds.OrderDetailRepository.SearchQuery(criteria)
-                    .Fields(OrderDetailFields.OrderId, OrderDetailFields.OrderDate, OrderDetailFields.ProductName, OrderDetailFields.SubTotal)
-                    .OrderByDesc(OrderDetailFields.OrderDate)
-                    .OrderBy(OrderDetailFields.ProductName)
-                    .ToList(0, 9);
+            var orderDetails = ds.OrderDetailRepository.SearchQuery(criteria)
+                .Fields(OrderDetailFields.OrderId, OrderDetailFields.OrderDate, OrderDetailFields.ProductName, OrderDetailFields.SubTotal)
+                .OrderByDesc(OrderDetailFields.OrderDate)
+                .OrderBy(OrderDetailFields.ProductName)
+                .ToList(0, 9);
 
-                foreach (var od in orderDetails)
-                {
-                    Console.WriteLine("{0}, {1},  {2}, {3}", od.OrderId, od.OrderDate, od.ProductName, od.SubTotal);
-                }
-
+            foreach (var od in orderDetails)
+            {
+                Console.WriteLine("{0}, {1},  {2}, {3}", od.OrderId, od.OrderDate, od.ProductName, od.SubTotal);
             }
         }
 
@@ -122,11 +133,8 @@ namespace Samples
         private static void RaiseProductPrices2()
         {
             Console.WriteLine("\nRaiseProductPrices2\n");
-            using (var ds = new NorthwindDataService())
-            {
-                ds.ProductRepository.RaiseProductPrices(1, 0.10m);
-                Console.WriteLine("Product prices raised");
-            }
+            ds.ProductRepository.RaiseProductPrices(1, 0.10m);
+            Console.WriteLine("Product prices raised");
         }
 
         private static void NamingConventionTests()
@@ -148,8 +156,7 @@ namespace Samples
         static void CreateServeralQueries()
         {
             Console.WriteLine("\nCreateServeralQueries\n");
-            using (var ds = new NorthwindDataService())
-            {
+
                 // this query is based on the dbo.Categories table
                 IQueryLite<Category> query1 = ds.CategoryRepository.Query(Projection.BaseTable);
                 Console.WriteLine("Query created");
@@ -161,7 +168,6 @@ namespace Samples
                 // this query is based on the dbo.ProductSale_Quarter view
                 IQueryLite<ProductSale> query3 = ds.ProductSaleRepository.Query("Quarter");
                 Console.WriteLine("Query created");
-            }
         }
 
         static void QueryByPrimaryKey()

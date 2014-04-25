@@ -108,7 +108,35 @@ namespace inercya.EntityLite
 
         public IEnumerable<T> ToEnumerable<T>() where T : class, new()
         {
-            return this.ExecuteCommand(ToEnumerableImplementation<T>);
+            DbCommand command = null;
+            try
+            {
+                int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
+                
+                Func<IDataReader> func = () =>
+                {
+                    command = GetConfiguredCommand();
+                    return command.ExecuteReader();
+                };
+                var watch = Stopwatch.StartNew();
+                var reader = func.ExecuteWithRetries(
+                        maxRetries, DataService.InitialMillisecondsRetryDelay,
+                        (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
+                using (reader)
+                {
+                    var factory = reader.GetFactory(typeof(T));
+                    while (reader.Read())
+                    {
+                        yield return (T)factory(reader);
+                    }
+                }
+                SetOutPutParameters(command);
+                ProfilerLite.LogCommandExecution(command, DataService, watch.ElapsedMilliseconds);
+            }
+            finally
+            {
+                if (DisposeCommand && command != null) command.Dispose();
+            }
         }
 
         public IList<T> ToList<T>() where T : class, new()
@@ -117,60 +145,40 @@ namespace inercya.EntityLite
         }
 
 
+        private DbCommand GetConfiguredCommand()
+        {
+            this.DataService.OpenConnection();
+            var command = GetCommand();
+            command.Connection = DataService.Connection;
+            if (DataService.IsActiveTransaction)
+            {
+                command.Transaction = DataService.Transaction;
+            }
+            return command;
+        }
+
         private T ExecuteCommand<T>(Func<Func<DbCommand>, T> executeCommandFunc)
         {
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                var watch = new Stopwatch();
+                
                 DbCommand command = null;
                 Func<T> func = () =>
                 {
-                    DataService.OpenConnection();
-                    return executeCommandFunc(() =>
-                    {
-                        command = GetCommand();
-                        command.Connection = DataService.Connection;
-                        if (DataService.IsActiveTransaction)
-                        {
-                            command.Transaction = DataService.Transaction;
-                        }
-                        return command;
-                    });
+                    return executeCommandFunc(() => command = GetConfiguredCommand());
                 };
+                var watch = Stopwatch.StartNew();
                 var result = func.ExecuteWithRetries(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
                         (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
-                ProfilerLite.LogCommandExecution(command, DataService, (long)(1e6 * watch.Elapsed.Ticks / Stopwatch.Frequency));
+                ProfilerLite.LogCommandExecution(command, DataService, watch.ElapsedMilliseconds);
                 return result;
             }
             catch (Exception ex)
             {
                 Log.ErrorException("Couldn't execute command", ex);
                 throw;
-            }
-        }
-
-
-        private IEnumerable<T> ToEnumerableImplementation<T>(Func<DbCommand> getCommand)
-        {
-            DbCommand cmd = null;
-            try
-            {
-                cmd = getCommand();
-                using (var reader = cmd.ExecuteReader())
-                {
-                    var factory = reader.GetFactory(typeof(T));
-                    while (reader.Read())
-                    {
-                        yield return (T)factory(reader);
-                    }
-                }
-                SetOutPutParameters(cmd);
-            }
-            finally
-            {
-                if (DisposeCommand && cmd != null) cmd.Dispose();
             }
         }
     }
@@ -191,7 +199,6 @@ namespace inercya.EntityLite
             if (GetCommandFunc == null) return null;
             else return GetCommandFunc();
         }
-
 
 
         protected override void SetOutPutParameters(DbCommand command)

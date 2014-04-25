@@ -26,32 +26,26 @@ namespace inercya.EntityLite.Builders
     public class FunctionQueryBuilder : AbstractQueryBuilder
     {
 
-		public FunctionQueryBuilder(IQueryLite queryLite) : base(queryLite)
+        public new ITableValuedFunctionQueryLite QueryLite
+        {
+            get
+            {
+                return (ITableValuedFunctionQueryLite)base.QueryLite;
+            }
+        }
+
+        public FunctionQueryBuilder(ITableValuedFunctionQueryLite queryLite)
+            : base(queryLite)
 		{
 		}
 
-        public string FunctionName
-        {
-            get
-            {
-                return ((ITableValuedFunctionQueryLite)this.QueryLite).FunctionName;
-            }
-        }
-
-        public object[] ParameterValues
-        {
-            get
-            {
-                return ((ITableValuedFunctionQueryLite)this.QueryLite).ParameterValues;
-            }
-        }
 
         public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
         {
             var sb = new StringBuilder();
-            sb.Append(" ").Append(this.FunctionName).Append("(");
+            sb.Append(" ").Append(this.QueryLite.FunctionName).Append("(");
             bool first = true;
-            foreach (object parameterValue in this.ParameterValues)
+            foreach (object parameterValue in this.QueryLite.ParameterValues)
             {
                 if (first) first = false;
                 else sb.Append(", ");

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>EntityLite.Core</id>
+    <version>1.3.0</version>
+    <title>i-nercya EntityLite Core</title>
+    <authors>Jesús López</authors>
+    <owners>Jesús López</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://nuget.org/packages/EntityLite.Core</projectUrl>
+    <iconUrl>http://www.i-nercya.com/EntityLite.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A lightweight, database first, micro ORM</description>
+    <summary>The EntityLite core assembly</summary>
+    <releaseNotes>Implementing client side dynamic Pivot</releaseNotes>
+    <copyright>Copyright  2013</copyright>
+    <language>en-US</language>
+    <tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework3.5-Client">
+        <dependency id="NLog" version="[2.1.0]" />
+        <dependency id="Microsoft.SqlServer.Types" version="[10.50.1600.1]" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Data" targetFramework="" />
+      <frameworkAssembly assemblyName="System.Runtime.Serialization" targetFramework="" />
+    </frameworkAssemblies>
+  </metadata>
+</package>
