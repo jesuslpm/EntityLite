@@ -208,10 +208,6 @@
       <Project>{b74df500-8654-40d1-a50c-7262a2095b1e}</Project>
       <Name>inercya.EntityLite</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SqliteLogger\inercya.EntityLite.SqliteProfiler.csproj">
-      <Project>{e585f6d5-06b3-421e-9600-281a04ff88d1}</Project>
-      <Name>inercya.EntityLite.SqliteProfiler</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

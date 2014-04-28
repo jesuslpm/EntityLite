@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite", "inercya.EntityLite\inercya.EntityLite.csproj", "{B74DF500-8654-40D1-A50C-7262A2095B1E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A632C4A4-E33E-4C29-A084-CA91A0C0E494}"
@@ -52,8 +54,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeProject", "CodeProject"
 		CodeProject\EntityLite.htm = CodeProject\EntityLite.htm
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite.SqliteProfiler", "SqliteLogger\inercya.EntityLite.SqliteProfiler.csproj", "{E585F6D5-06B3-421E-9600-281A04FF88D1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,12 +78,6 @@ Global
 		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|x86.ActiveCfg = Release|x86
 		{263706E0-73DF-4987-8FE4-07DACAB63CCE}.Release|x86.Build.0 = Release|x86
-		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E585F6D5-06B3-421E-9600-281A04FF88D1}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

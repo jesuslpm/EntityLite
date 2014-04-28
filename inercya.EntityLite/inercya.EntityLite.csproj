@@ -91,11 +91,14 @@
     <Reference Include="System.XML" />
     <Reference Include="System.Data" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="SqliteProfiler\CreateDatabaseObjects.sql" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Builders\AbstractQueryBuilder.cs" />
     <Compile Include="Builders\TemplatedQueryBuilder.cs" />
     <Compile Include="Collections\CollectionDataReader.cs" />
+    <Compile Include="Collections\SafeQueue.cs" />
     <Compile Include="CommandLite.cs" />
     <Compile Include="ConnectionOpenedEventArgs.cs" />
     <Compile Include="CurrentLanguageService.cs" />
@@ -114,6 +117,18 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Builders\FunctionQueryBuilder.cs" />
     <Compile Include="License.cs" />
+    <Compile Include="SqliteProfiler\DataLayer.cs">
+      <DependentUpon>DataLayer.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="SqliteProfiler\Profiler.cs" />
+    <Compile Include="SqliteProfiler\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="SqliteProfiler\SqliteProfilerDataService.cs" />
     <Compile Include="TemplatedCommand.cs" />
     <Compile Include="TemplatedQueryLite.cs" />
     <Compile Include="IdentityMapLite.cs" />
@@ -183,9 +198,32 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="SqliteProfiler\DataLayer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DataLayer.cs</LastGenOutput>
+    </None>
+    <None Include="SqliteProfiler\EntityLite.ttinclude\DataLayerGeneration.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\DataServiceGeneration.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\EntityGeneration.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\EntityLite.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\EntitySetting.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\FieldGeneration.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\FieldMetadata.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\MemberVisibility.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\ProcedureSetting.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\Sequence.ttinclude" />
+    <None Include="SqliteProfiler\EntityLiteProfile.db" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SqliteProfiler\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

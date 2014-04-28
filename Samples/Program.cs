@@ -29,6 +29,7 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
 using inercya.EntityLite.SqliteProfiler;
+using inercya.EntityLite.Collections;
 
 namespace Samples
 {
@@ -40,117 +41,36 @@ namespace Samples
 
         static void Main(string[] args)
         {
-            for (int i =0; i < 100; i++) TestQueue();
-            //profiler = new inercya.EntityLite.SqliteProfiler.Profiler();
-            //ProfilerLite.Current = profiler;
-            //profiler.StartProfiling();
-            //using (ds =  new NorthwindDataService())
-            //{
-            //    QueryByPrimaryKey();
-            //    ShowSomeProducts();
-            //    ShowOrderDetails();
-            //    ShowQuesoCabralesOrders();
-            //    ShowPagedProducts();
-            //    ShowLondonAndewFullerSubtree();
-            //    SearchOrderDetails();
-            //    ShowProductSales();
-            //    RaiseProductPrices();
-            //    InsertUpdateDeleteProduct();
-            //    RaiseProductPrices2();
-            //    HandCraftedSql();
-            //    Localization();
+            //for (int i =0; i < 100; i++) TestQueue();
+            profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
+                AppDomain.CurrentDomain.BaseDirectory, 
+                ProfileFileFrecuency.Daily
+            );
+            ProfilerLite.Current = profiler;
+            profiler.StartProfiling();
+            using (ds = new NorthwindDataService())
+            {
+                QueryByPrimaryKey();
+                ShowSomeProducts();
+                ShowOrderDetails();
+                ShowQuesoCabralesOrders();
+                ShowPagedProducts();
+                ShowLondonAndewFullerSubtree();
+                SearchOrderDetails();
+                ShowProductSales();
+                RaiseProductPrices();
+                InsertUpdateDeleteProduct();
+                RaiseProductPrices2();
+                HandCraftedSql();
+                Localization();
 
-            //    Pivot();
-            //}
-            //profiler.StopProfiling();
-            //Console.WriteLine("Press enter to exit ...");
-            //Console.ReadLine();
+                Pivot();
+            }
+            profiler.StopProfiling();
+            Console.WriteLine("Press enter to exit ...");
+            Console.ReadLine();
            
         }
-
-        static volatile bool isRunning = true;
-
-        static void TestQueue()
-        {
-            
-            Thread[] threads = new Thread[8];
-            var queue = new SafeQueue<int>();
-            var signal = new AutoResetEvent(false);
-
-            HashSet<int> integers = new HashSet<int>();
-
-            isRunning = true;
-
-            Thread queueReader = new Thread(new ThreadStart ( delegate 
-            {
-                while (true)
-                {
-                    signal.WaitOne();
-                    int n;
-                    int count = 0;
-                    while (queue.Dequeue(out n))
-                    {
-                        integers.Add(n);
-                        count++;
-                    }
-                    //Console.WriteLine(count);
-                    if (!isRunning) return;
-                }
-            }));
-
-            queueReader.Start();
-
-            Action<int> enqueue = (s) =>
-            {
-                for (int x = 0; x < 100000; x++)
-                {
-                    queue.Enqueue(s + x);
-                    signal.Set();
-                    if (x % 100 == 0) Thread.Yield();
-                }
-            };
-
-            int start = 0;
-            for (int i = 0; i < 8; i++)
-            {
-                
-                threads[i] = new Thread(new ParameterizedThreadStart((state) => enqueue((int)state)));
-                threads[i].Start(start);
-                start += 100000;
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                threads[i].Join();
-            }
-            Thread.Yield();
-            isRunning = false;
-            signal.Set();
-            
-            queueReader.Join();
-
-            bool failed = false;
-            for (int i = 0; i < 800000; i++)
-            {
-                if (!integers.Contains(i))
-                {
-                    //Console.WriteLine("{0} failed", i);
-                    failed = true;
-                }
-            }
-            if (failed) Console.WriteLine("Test failed");
-            //else Console.WriteLine("Test passed");
-            //Console.ReadLine();
-        }
-
-        private static NorthwindDataService CreateDataService()
-        {
-            var ds = new NorthwindDataService();
-            
-            inercya.EntityLite.ProfilerLite.Current = new inercya.EntityLite.SqliteProfiler.Profiler();
-            return ds;
-        }
-
 
 
         private static void Pivot()
@@ -544,6 +464,79 @@ namespace Samples
 
                 ds.Commit();
             }
+        }
+
+        static volatile bool isRunning = true;
+
+        static void TestQueue()
+        {
+
+            Thread[] threads = new Thread[8];
+            var queue = new SafeQueue<int>();
+            var signal = new AutoResetEvent(false);
+
+            HashSet<int> integers = new HashSet<int>();
+
+            isRunning = true;
+
+            Thread queueReader = new Thread(new ThreadStart(delegate
+            {
+                while (true)
+                {
+                    signal.WaitOne();
+                    int n;
+                    int count = 0;
+                    while (queue.Dequeue(out n))
+                    {
+                        integers.Add(n);
+                        count++;
+                    }
+                    //Console.WriteLine(count);
+                    if (!isRunning) return;
+                }
+            }));
+
+            queueReader.Start();
+
+            Action<int> enqueue = (s) =>
+            {
+                for (int x = 0; x < 100000; x++)
+                {
+                    queue.Enqueue(s + x);
+                    signal.Set();
+                    if (x % 100 == 0) Thread.Yield();
+                }
+            };
+
+            int start = 0;
+            for (int i = 0; i < 8; i++)
+            {
+
+                threads[i] = new Thread(new ParameterizedThreadStart((state) => enqueue((int)state)));
+                threads[i].Start(start);
+                start += 100000;
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                threads[i].Join();
+            }
+            Thread.Yield();
+            isRunning = false;
+            signal.Set();
+
+            queueReader.Join();
+
+            bool failed = false;
+            for (int i = 0; i < 800000; i++)
+            {
+                if (!integers.Contains(i))
+                {
+                    //Console.WriteLine("{0} failed", i);
+                    failed = true;
+                }
+            }
+            if (failed) Console.WriteLine("Test failed");
         }
     }
 }
