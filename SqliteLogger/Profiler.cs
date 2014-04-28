@@ -85,46 +85,20 @@ namespace inercya.EntityLite.SqliteProfiler
                 while (true)
                 {
                     signal.WaitOne();
-                    if (!IsRunning)
-                    {
-                        if (dataService != null)
-                        {
-                            dataService.Dispose();
-                            return;
-                        }
-                    }
-                    if (dataService == null)
-                    {
-                        dataService = SqliteLoggerDataService.Create();
-                    }
-                    else if (dataService.FileName != SqliteLoggerDataService.GetFileName())
-                    {
-                        try
-                        {
-                            dataService.Dispose();
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorException("Error disposing data service", ex);
-                        }
-                        dataService = SqliteLoggerDataService.Create();
-                    }
-                    LogItem item = null;
+                    dataService = EnsureDataService(dataService);
                     try
                     {
-                        dataService.BeginTransaction();
-                        int itemCount = 0;
-                        while (logItems.Dequeue(out item))
-                        {
-                            dataService.LogCommandExecution(item, false);
-                            itemCount++;
-                        }
-                        dataService.Commit();
-                        Debug.WriteLine(itemCount + " items in queue");
+                        ProcessLogItems(dataService);
                     }
                     catch (Exception ex)
                     {
                         log.ErrorException("Error Profiling", ex);
+                    }
+                    if (!IsRunning)
+                    {
+                        TryDisposeDataService(dataService);
+                        dataService = null;
+                        return;
                     }
                 }
             }
@@ -135,7 +109,56 @@ namespace inercya.EntityLite.SqliteProfiler
             finally
             {
                 this.IsRunning = false;
+                TryDisposeDataService(dataService);
+                dataService = null;
             }
+        }
+
+        private void ProcessLogItems(SqliteLoggerDataService dataService)
+        {
+            LogItem item = null;
+            while (!logItems.IsEmpty)
+            {
+                dataService.BeginTransaction();
+                int itemCount = 0;
+                while (logItems.Dequeue(out item))
+                {
+                    dataService.LogCommandExecution(item, false);
+                    itemCount++;
+                }
+                dataService.Commit();
+                //Debug.WriteLine(itemCount + " items in queue");
+            }
+        }
+
+        private static void TryDisposeDataService(SqliteLoggerDataService dataService)
+        {
+            if (dataService != null)
+            {
+                try
+                {
+                    dataService.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException("Error disposing data service", ex);
+                }
+                dataService = null;
+            }
+        }
+
+        private static SqliteLoggerDataService EnsureDataService(SqliteLoggerDataService dataService)
+        {
+            if (dataService == null)
+            {
+                dataService = SqliteLoggerDataService.Create();
+            }
+            else if (dataService.FileName != SqliteLoggerDataService.GetFileName())
+            {
+                TryDisposeDataService(dataService);
+                dataService = SqliteLoggerDataService.Create();
+            }
+            return dataService;
         }
 
         string GetParamsAsString(DbCommand command)

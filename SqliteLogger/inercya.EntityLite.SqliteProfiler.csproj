@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LockFreeQueue.cs" />
     <Compile Include="Profiler.cs" />
     <Compile Include="DataLayer.cs">
       <AutoGen>True</AutoGen>

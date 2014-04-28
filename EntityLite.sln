@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite", "inercya.EntityLite\inercya.EntityLite.csproj", "{B74DF500-8654-40D1-A50C-7262A2095B1E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A632C4A4-E33E-4C29-A084-CA91A0C0E494}"
@@ -52,12 +50,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeProject", "CodeProject", "{F926993D-D441-4457-9A74-E1BC8A746B52}"
 	ProjectSection(SolutionItems) = preProject
 		CodeProject\EntityLite.htm = CodeProject\EntityLite.htm
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{491DCD1F-9FD9-4ED8-8607-DE675765912E}"
-	ProjectSection(SolutionItems) = preProject
-		Performance1.psess = Performance1.psess
-		Performance2.psess = Performance2.psess
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite.SqliteProfiler", "SqliteLogger\inercya.EntityLite.SqliteProfiler.csproj", "{E585F6D5-06B3-421E-9600-281A04FF88D1}"
