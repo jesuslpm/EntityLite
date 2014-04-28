@@ -146,6 +146,9 @@
     <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureSetting.ttinclude" />
     <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Northwind.db3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

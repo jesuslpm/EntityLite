@@ -42,61 +42,30 @@ namespace inercya.EntityLite
         }
 
         protected abstract DbCommand GetCommand();
-       
 
         public int ExecuteNonQuery()
         {
-            return this.ExecuteCommand(getCommand =>
+            return this.ExecuteCommand( cmd =>
             {
-                DbCommand cmd = null;
-                try
-                {
-                    cmd = getCommand();
-                    var returnValue = cmd.ExecuteNonQuery();
-                    SetOutPutParameters(cmd);
-                    return returnValue;
-                }
-                finally
-                {
-                    if (DisposeCommand && cmd != null) cmd.Dispose();
-                }
+                var returnValue = cmd.ExecuteNonQuery();
+                SetOutPutParameters(cmd);
+                return returnValue;
             });
         }
 
         public object ExecuteScalar()
         {
-            return this.ExecuteCommand(getCommand =>
+            return this.ExecuteCommand(cmd =>
             {
-                DbCommand cmd = null;
-                try
-                {
-                    cmd = getCommand();
-                    var returnValue = cmd.ExecuteScalar();
-                    SetOutPutParameters(cmd);
-                    return returnValue;
-                }
-                finally
-                {
-                    if (DisposeCommand && cmd != null) cmd.Dispose();
-                }
+                var returnValue = cmd.ExecuteScalar();
+                SetOutPutParameters(cmd);
+                return returnValue;
             });
         }
 
         public IDataReader ExecuteReader()
         {
-            return this.ExecuteCommand(getCommand =>
-            {
-                DbCommand cmd = null;
-                try
-                {
-                    cmd = getCommand();
-                    return cmd.ExecuteReader();
-                }
-                finally
-                {
-                    if (DisposeCommand && cmd != null) cmd.Dispose();
-                }
-            });
+            return this.ExecuteCommand(cmd => cmd.ExecuteReader());
         }
 
         protected abstract void SetOutPutParameters(DbCommand command);
@@ -112,16 +81,13 @@ namespace inercya.EntityLite
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                
-                Func<IDataReader> func = () =>
-                {
-                    command = GetConfiguredCommand();
-                    return command.ExecuteReader();
-                };
+                command = GetConfiguredCommand();
+                Func<IDataReader> func = () => command.ExecuteReader();
                 var watch = Stopwatch.StartNew();
                 var reader = func.ExecuteWithRetries(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
                         (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
+
                 using (reader)
                 {
                     var factory = reader.GetFactory(typeof(T));
@@ -157,16 +123,16 @@ namespace inercya.EntityLite
             return command;
         }
 
-        private T ExecuteCommand<T>(Func<Func<DbCommand>, T> executeCommandFunc)
+        private T ExecuteCommand<T>(Func<DbCommand, T> executeCommandFunc)
         {
+            DbCommand command = null;
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                
-                DbCommand command = null;
+                command = GetConfiguredCommand();
                 Func<T> func = () =>
                 {
-                    return executeCommandFunc(() => command = GetConfiguredCommand());
+                    return executeCommandFunc(command);
                 };
                 var watch = Stopwatch.StartNew();
                 var result = func.ExecuteWithRetries(
@@ -179,6 +145,10 @@ namespace inercya.EntityLite
             {
                 Log.ErrorException("Couldn't execute command", ex);
                 throw;
+            }
+            finally
+            {
+                if (command != null && DisposeCommand) command.Dispose();
             }
         }
     }

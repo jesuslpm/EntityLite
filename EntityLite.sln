@@ -50,8 +50,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "Ent
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeProject", "CodeProject", "{F926993D-D441-4457-9A74-E1BC8A746B52}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite", "EntityLite", "{BCEE35A4-CA5B-489E-B1BE-E3AD44F04C81}"
 	ProjectSection(SolutionItems) = preProject
-		CodeProject\EntityLite.htm = CodeProject\EntityLite.htm
+		CodeProject\EntityLite\EntityLite.htm = CodeProject\EntityLite\EntityLite.htm
 	EndProjectSection
 EndProject
 Global
@@ -87,5 +89,6 @@ Global
 		{0493F652-14B1-45DD-A168-A4686ACBB9D8} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
 		{03CAC007-291D-420D-8E8C-CC9FA92BFEB5} = {0493F652-14B1-45DD-A168-A4686ACBB9D8}
 		{345D112F-72B2-49C2-907B-40F219FA928C} = {03CAC007-291D-420D-8E8C-CC9FA92BFEB5}
+		{BCEE35A4-CA5B-489E-B1BE-E3AD44F04C81} = {F926993D-D441-4457-9A74-E1BC8A746B52}
 	EndGlobalSection
 EndGlobal

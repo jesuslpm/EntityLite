@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite</id>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
@@ -11,7 +11,7 @@
       A lightweight, database first, micro ORM
     </description>
     <releaseNotes>
-      Implementing Query Profiling into a SQLite database
+      Fixing a bug in SqliteProfier
     </releaseNotes>
     <summary>
       The EntityLite code generators and core library
@@ -23,7 +23,7 @@
     <copyright>Copyright 2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="EntityLite.Core" version="[1.4.0]" />
+        <dependency id="EntityLite.Core" version="[1.4.1]" />
       </group>
     </dependencies>
     <references></references>

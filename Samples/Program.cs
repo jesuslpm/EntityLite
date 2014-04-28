@@ -63,6 +63,7 @@ namespace Samples
                 RaiseProductPrices2();
                 HandCraftedSql();
                 Localization();
+                WillFail();
 
                 Pivot();
             }
@@ -70,6 +71,27 @@ namespace Samples
             Console.WriteLine("Press enter to exit ...");
             Console.ReadLine();
            
+        }
+
+        private static void WillFail()
+        {
+            try
+            {
+                var od = new OrderDetail
+                {
+
+                    OrderId = 1,
+                    ProductId = 11,
+                    UnitPrice = 14,
+                    Quantity = 12
+
+                };
+                ds.OrderDetailRepository.Save(od);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
 

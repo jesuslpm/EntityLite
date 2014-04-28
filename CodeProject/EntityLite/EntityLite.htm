@@ -1,0 +1,1223 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>The Code Project</title>
+    <style>
+        BODY, P, TD {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 10pt;
+        }
+
+        H2, H3, H4, H5 {
+            color: #ff9900;
+            font-weight: bold;
+        }
+
+        H2 {
+            font-size: 13pt;
+        }
+
+        H3 {
+            font-size: 12pt;
+        }
+
+        H4 {
+            font-size: 10pt;
+            color: black;
+        }
+
+        PRE {
+            BACKGROUND-COLOR: #FBEDBB;
+            FONT-FAMILY: "Courier New", Courier, mono;
+            WHITE-SPACE: pre;
+        }
+
+        CODE {
+            COLOR: #990000;
+            FONT-FAMILY: "Courier New", Courier, mono;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="http://www.codeproject.com/App_Themes/Std/CodeProject.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+    <!--------------------------------------------------------------------------->
+    <!-------------------------------     STEP 1      --------------------------->
+    <!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       i-nercya EntityLite: A Lightweight, Database First, Micro ORM
+Author:      JesusLopez
+Email:       jesuslpm@hotmail.com
+Language:    C# 3.0, SQL
+Platform:    Windows
+Technology:  ADO.NET
+Level:       Intermediate
+Description: This article introduces you to EntityLite and explains how to use it
+Section      Database
+SubSection   ADO.NET
+License:     <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</a>
+</pre>
+    <img src="EntityLite.png" alt="EntityLite">
+    <ul class=download>
+        <li><a href="https://github.com/jesuslpm/EntityLite/archive/master.zip">Download source</a></li>
+    </ul>
+    <h2>Introduction</h2>
+
+    <p><a href="http://www.i-nercya.com">i-nercya</a> EntityLite is an open source, lightweight, database first, Micro ORM written in c# for use in c# applications that access relational databases.</p>
+
+    <p>EntityLite has been designed to accomplish the following objectives:</p>
+
+    <ul>
+        <li><strong>Simplicity</strong>. The core has only about 2,600 lines of code and has a maintainability index of 85.</li>
+        <li>
+            <strong>Easy of use and understand</strong>. EntityLite provides T4 templates to generate an easy to use data layer.
+            Queries are easy to write using the fluent interface provided by EntityLite
+        </li>
+        <li>
+            <strong>High performance</strong>. The processing time spent to generate SQL statements isn't noticeable.
+            EntityLite uses DynamicMethod to generate, at runtime, high performance methods to load entities from datareaders.
+        </li>
+        <li>
+            <strong>Fulfill application query needs</strong>. Using EntityLite you can base your queries on a table, a view or a table valued function, then add a filter and order. Stored procedures are also supported. That covers most of your query needs.
+            The rest of your query needs are covered by highly flexible and dynamic runtime T4 template based queries.  
+        </li>
+        <li><strong>Leverage database power</strong>. Relational database servers have great processing power and features that you can take advantage of by using views, functions and stored procedures</li>
+        <li><strong>Support multiple database systems</strong>. EntityLite works, out of the box, with SQL Server, Oracle, Postgre-SQL, MySQL and SQLite. But it can be easily extended to others RDMS's as well.</li>
+    </ul>
+
+    <h2>Background</h2>
+
+    <p>
+        Back in year 2009 when Entity Framework was young we started using it, but soon we felt the need of a simpler, better performaning ORM.
+        So I started working on EntityLite, ORMLite was its name, I changed it recently because there is others micro ORM's with that name.
+        EntityLite has evolved a lot since then, and now I decided to publish it as open source project.
+    </p>
+    <p>
+        Yes, there are several full ORM's like Entity Framework, NHibernate and LLBLGen Pro, and several micro ORM's such as PetaPoco, Massive and Dapper.
+        So EntityLite is just another micro ORM. But I hope you like it and love it as much as me.
+    </p>
+    <p>
+        Although EntityLite seems like a brand new micro ORM, it has been in production several years. All applications we have 
+        developed use it. 
+    </p>
+
+    <h2>Entities, Tables and Views</h2>
+    <p>
+        In EntityLite, entities are POCO objects that map to database tables and views. You can see an entity as a denormalized projection
+        or view of the database.
+        An entity can map to zero or one table, and zero or more views. Of course, an entity must map, at least, to one table or view.
+        If an entity maps to a table, the entity is updatable, you can use that entity to insert, update and delete rows on that table.
+        If an entity doesn't map to any table, the entity is read only, you can query it, but you cannot save it to the database.
+        For example the entity <code>Product</code> maps to  table <code>Products</code> and view <code>Product_Detailed</code>. That means
+        you can insert, update and delete products. 
+        That also means you can query for products based on either <code>Products</code> table or <code>Product_Detailed</code> view.
+    </p>
+
+    <p>
+        Entities are simple. They don't have complex properties nor collection properties. Relations are implemented as foreign keys.
+        Entity properties map to table columns and view columns. there is one property for each distinct column of the mapping table and views.
+     </p>
+    <p>  
+        Instead of abstracting the database and considering it as an object graph persistence store, 
+        EntityLite embraces the relational model, providing little abstraction, and looking at it as what's it really is:
+        a relational database.
+    </p>
+    <p>
+        If an entity maps to a table, its entity views should accomplish the following rules regarding the primary key:
+        <ul>
+            <li>The primary key of the base table should be present in the entity view</li>
+            <li>The entity view should not return more than one row with the same value of the primary key</li>
+        </ul>
+    </p>
+    <p>
+        In EntityLite, views that map to entities are called entity views. They must follow a specific naming convention. An entity view name must start 
+        with the entity name, followed by an underscore and ended with a projection name. For example <code>Product_Detailed</code> is an entity
+        view of <code>Product</code> entity and <code>Detailed</code> is the projection name. 
+    </p>
+
+    <p>
+        EntityLite encourages the use of entity views. They help you to build your read model, they provide different ways to query for your entity and they allow you to load different sets of properties.
+        For example an employee of Northwind needs to review the product catalog and you want to display the product catalog on a grid. 
+        You can query the <code>Products</code> table, but this is not enough because the employee wants to see the category name and the supplier name of the product.
+        To solve this problem you create the <code>Product_Detailed</code> entity view that includes these columns:
+    </p>
+    <pre lang="SQL">
+CREATE VIEW [dbo].[Product_Detailed]
+AS
+SELECT
+    P.ProductID, P.ProductName, P.SupplierID, P.CategoryID, P.QuantityPerUnit, P.UnitPrice,
+    P.UnitsInStock, P.UnitsOnOrder, P.ReorderLevel, P.Discontinued,
+    C.CategoryName, S.CompanyName AS SupplierName
+FROM
+    [dbo].[Products] P
+    LEFT OUTER JOIN [dbo].[Categories] C
+        ON P.CategoryID = C.CategoryID
+    LEFT OUTER JOIN [dbo].Suppliers S
+        ON P.SupplierID = S.SupplierID
+    </pre>
+
+    <p>
+        Similary, when you show orders (just the headers) on a grid you may want to display the order total, 
+        the number of order details, and the name of the customer and the name of the shipper. To do that you
+        create the following two views. The first view is just a helper view, the second one is an entity view.
+    </p>
+
+    <pre lang="SQL">
+CREATE VIEW [dbo].[OrderDetailsSummary]
+WITH SCHEMABINDING
+AS
+    SELECT
+        OD.OrderID, SUM(OD.Quantity * OD.UnitPrice * (1 - OD.Discount)) AS OrderTotal, COUNT_BIG(*) AS LineCount
+    FROM
+        [dbo].[OrderDetails] OD
+    GROUP BY
+        OD.OrderID
+    </pre>
+
+    <p>
+        To make the above view more efficient you can index it:
+    </p>
+    <pre lang="SQL">
+CREATE UNIQUE CLUSTERED INDEX [UK_OrderDetailsSummary_OrderID] 
+ON [dbo].[OrderDetailsSummary]([OrderID])
+    </pre>
+
+    <p>And here you have the entity view:</p>
+    <pre lang="SQL">
+CREATE VIEW [dbo].[Order_Extended]
+AS
+SELECT 
+    O.OrderID, O.CustomerID, O.EmployeeID, O.OrderDate, O.RequiredDate, O.ShippedDate, O.ShipVia, 
+    O.Freight, O.ShipName, O.ShipAddress, O.ShipCity, O.ShipRegion, O.ShipPostalCode, O.ShipCountry,
+    C.CompanyName AS CustomerCompanyName,
+    E.FirstName AS EmployeeFirstName, E.LastName AS EmployeeLastName,
+    S.CompanyName AS ShipperCompanyName,
+    OS.OrderTotal, OS.LineCount
+FROM
+    [dbo].[Orders] O
+    LEFT OUTER JOIN dbo.Customers C
+        ON O.CustomerID = C.CustomerID
+    LEFT OUTER JOIN dbo.Employees E
+        ON O.EmployeeID = E.EmployeeID
+    LEFT OUTER JOIN dbo.Shippers S
+        ON O.ShipVia = S.ShipperID
+    LEFT OUTER JOIN  dbo.OrderDetailsSummary OS WITH (NOEXPAND)
+        ON O.OrderID = OS.OrderID
+    </pre>
+
+    <p>
+        During the development process, you might be tempted to do the following: you create an entity view, when you need another column
+        you modify the view, and then, every time you need more columns you add them to the view. At the end, you
+        have  "The Universal View". Don't be confused, this is a monster, 12 or more table joins, 
+        inefficient and a difficult to maintain view. Please don't do that, you can create as many views per entity as you
+        want, so create another view for the new use case. Don't use a view in a use case when that view access tables that the 
+        use case doesn't need, just create another view.
+    </p>
+
+    <p>
+        Views have an advantage over application generated code, DBA's have an opportunity to optimize them. 
+        Experienced database developers can also optimize views. 
+        They can rewrite them to make them more efficient, include query hints and other tricks that are
+        impossible with application generated code.
+    </p>
+
+    <p>
+        There are view designers for most of database servers, and if you are a beginner on SQL, use them. 
+        They can help you to create the views. However view designers don't support all SQL language features, 
+        you can create all possible views by writing SQL code, but you can't using designers.   
+    </p>
+
+    <img src="ViewDesigner.png" alt="View designer" />
+    
+    <h2>The EntityLite Nuget Package</h2>
+    <p>
+        To include EntityLite in your project you need to install EntityLite Nuget package. It includes the T4 code generator
+        and the core library (The EntityLite.Core Nuget package). Just type the following in the Package Manager Console to install the latest pre-release version:
+    </p>
+    <pre>
+PM>Install-Package EntityLite -Pre
+    </pre>
+    <p>
+        To install the latest stable version type the following:
+    </p>
+    <pre>
+PM>Install-Package EntityLite
+    </pre>
+    <p>
+    When you install the EntityLite Nuget package the following is added to your project:
+    </p>
+    <ul>
+        <li>A reference to <code>inercya.EntityLite.dll</code>. This is the core library. It requires .NET 3.5 or later</li>
+        <li>A folder named <code>EntityLite.ttinclude</code>. This folder includes several T4 include files</li>
+        <li>The <code>DataLayer.tt</code> T4 template. 
+        This is where you define the entities you want to generate and several properties to access the database and
+        control the code generation process.
+        </li>
+    </ul>
+    <p>
+        You might want to create a library class project to put your data layer in, and a UI project that references the library class
+        project. Then the UI project must reference the EntityLite.Core assembly:
+    </p>
+<pre>
+PM>Install-Package EntityLite.Core
+</pre>
+    <h2>Attaching The Sample Database</h2>
+    <p>
+        Before generating the data layer you need a database. EntityLite is a database first micro ORM after all. 
+        The sample code includes a SQL Server 2012 database that
+        you need to attach. It also includes <code>AttachDb.SQL</code> script. Execute the script from Visual Studio 
+        or SQL Sever Management Studio on a local SQL Server 2012 LocalDb or regular instance to attach the database. 
+        Change the <code>Northind.mdf</code> database file path as appropriate.
+        You can also attach the database to a remote SQL Server 2012 instance. In that case you need to copy the database files (*.mdf and *.ldf)
+        to the remote machine, and change the connection string to point to the remote SQL Server 2012 instance.
+    </p>
+<pre lang="SQL">
+CREATE DATABASE Northwind
+ON (FILENAME = 'C:\Projects\EntityLite\Samples\Northwind.mdf') 
+FOR ATTACH;
+</pre>
+
+    <h2>Generating The Data Layer</h2>
+    <p>
+        To generate the data layer you need to modify the <code>DataLayer.tt</code>&nbsp;file. 
+        Change the connection string and include the entities and procedures you want.
+    </p>
+    <p>
+        Below you have a <code>DataLayer.tt</code> sample. It uses <code>SqlClient</code> to connect
+        to the Northwind database on the SQL Server LocaDb default instance. Generated classes are placed
+        on the <code>Samples.Entities</code> namespace. It generates a data service class
+        named "NorthwindDataService", several entities and a method for easily calling the 
+        <code>RaiseProductPrices</code> stored procedure.
+    </p>
+<pre>
+&lt;#@ include file ="EntityLite.ttinclude\EntityLite.ttinclude" #&gt;
+&lt;#
+var generation = new DataLayerGeneration
+{
+    ProviderName = "System.Data.SqlClient",
+    ConnectionString = @"Data Source=(LocalDb)\V11.0;Initial Catalog=Northwind",
+    DefaultSchema = "dbo",
+    RootNamespace = "Samples.Entities",
+    DataServiceName = "NorthwindDataService",
+    EntitySettings = new List&lt;EntitySetting&gt;
+    {
+        new EntitySetting 
+        {
+            BaseTableName = "Products",
+            EntityName = "Product"  
+        },
+        new EntitySetting 
+        {
+            BaseTableName = "Categories",
+            EntityName = "Category"  
+        },
+        /* ....................... */
+        new EntitySetting 
+        {
+            BaseTableName = "Orders",
+            EntityName = "Order"  
+        }
+    },
+    ProcedureSettings = new List&lt;ProcedureSetting&gt;
+    {
+        new ProcedureSetting 
+        {
+            ProcedureName = "RaiseProductPrices",
+            ResultSetKind = ProcedureResultSetKind.None,
+            RelatedEntityName = "Product"
+        }
+    }
+};
+Render(generation);
+#&gt;
+    </pre>
+    <p>
+        If everything is OK, when you save the <code>DataLayer.tt</code> file or right click on it and select <em>Run Custom Tool</em>,
+        the <code>DataLayer.cs</code> file is generated.
+    </p>
+
+    <p>The following image shows you the generated data layer:</p>
+
+    <img src="DataLayer.png" alt="Generated Data Layer" />   
+
+    <p>As you can see there are three classes for each entity:</p>
+    <ul>
+        <li>The POCO class that represents the entity. For example <code>Category</code></li>
+        <li>The Repository class. For example <code>CategoryRepository</code>, which allows you to query, save and delete Categories</li>
+        <li>The Fields class. For example <code>CategoryFields</code> which has a constant string field for each Category property.</li>
+    </ul>
+
+    <p>
+        The <code>NorthwindDataService</code> generated class is the entry point to the data layer. 
+        It manages the connection to the database as well as transactions. It allows you to perform
+        all supported data access operations. To make this easier, <code>NorthwindDataService</code> has one 
+        property for each repository class.
+    </p>
+
+    <h3>Things That Might Go Wrong Generating The Data Layer</h3>
+
+    <p>There are a few things that might go wrong generating the data layer. Typically:</p>
+    <ul>
+        <li>
+            The ADO.NET provider you are using is not properly registered.
+            The assemblies must be in the Global Assembly Cache
+            and the provider must be registered in the DbProviderFactories section of Machine.config
+        </li>
+        <li>
+            The ADO.NET provider you are using works on 64 bits but it doesn't on 32 bits.
+            You need the provider to work on 32 bits because Visual Studio runs on 32 bits
+        </li>
+        <li>
+            You have problems connecting to the database. The connection string might be wrong or
+            you might not have permissions to connect.
+        </li>
+        <li>Typos in database objects (tables and stored procedures)</li>
+        <li>
+            Some Views and stored procedures might be invalid.
+            For example you dropped or renamed a table column, but forgot to update a view that references it
+        </li>
+    </ul>
+
+    <h2>Querying</h2>
+
+    <p>There are several ways in EntityLite to perform queries:</p>
+    <ul>
+        <li>Getting an entity by the primary key. This is done by using the <code>Repository.Get</code> method </li>
+        <li>Create a query based on a table or view and then add ordering and filtering. You can do it by using the <code>Repository.Query</code> method. </li>
+        <li>Create a query based on a table valued funtion and then add ordering and filtering. The <code>FunctionQueryLite</code> class is used for this. </li>
+        <li>Create a query based on a T4 runtime template and then add ordering and filtering. This is performed by using the <code>TemplatedQueryLite</code> class </li>
+        <li>Execute an stored procedure that returns a result set. You can call the stored procedures <code>Repository</code> auto-generated methods</li>
+        <li>Execute a query built from a T4 runtime template that returns a result set. The <code>TemplatedCommand</code> class is used in this case.</li>
+    </ul>
+
+    <h2>Getting An Entity By The Primery Key</h2>
+    <p>
+        To get an entity by the primary key you use <code>Get</code> 
+        method of the repository. The Get method has the projection as the first parameter, 
+        it can be either one of the <code>inercya.EntityLite.Projection</code>
+        enumeration values (standard projections) or the projection name.
+    </p> 
+
+    <p>The following code snippet illustrates the use of <code>Get</code> method </p>
+
+    <pre>
+// "Norhtwind" is the application configuration file connection string name
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    // reaads a category from the database by CategoryId
+    // SELECT * FROM dbo.Categories WHERE CategoryId = 1
+    Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1);
+    // Loads the product with ProductId = 2 from the database
+    // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = 2
+    Product p = ds.ProductRepository.Get(Projection.Detailed, 2, ProductFields.CategoryName, ProductFields.ProductName);
+}
+    </pre>  
+
+    <h2>The QueryLite object</h2>
+    <p>
+        To query entities based on base tables and entity views, you use <code>Query</code>
+        method of the repository. This method returns a <code>QueryLite</code> object  
+        and has the projection as the first parameter, it can be either one of the <code>inercya.EntityLite.Projection</code>
+        enumeration values (standard projections) or the projection name.     
+    </p> 
+
+    <p>          
+       On the following example you can see how to create <code>QueryLite</code> objects using different projections:
+    </p>
+ 
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    // this query is based on the dbo.Categories table
+    IQueryLite&lt;Category&gt; query1 = ds.CategoryRepository.Query(Projection.BaseTable);
+
+    // this query is based on the dbo.Product_Detailed view
+    IQueryLite&lt;Product&gt; query2 = ds.ProductRepository.Query(Projection.Detailed);
+
+    // this query is based on the dbo.ProductSale_Quarter view
+    IQueryLite&lt;ProductSale&gt; query3 = ds.ProductSaleRepository.Query("Quarter");
+}
+</pre>
+    <p>
+        You can specify the columns to retrieve from the entity base table or entity view using 
+        the <code>Fields</code> extension method. If you don't, all columns are retrieved.
+        You can also filter and order. 
+        To filter you use <code>Where</code>, <code>And</code> and <code>Or</code> extension methods.
+        To order you use <code>OrderBy</code> and <code>OrderByDesc</code> extension methods.
+        To execute the query you call <code>ToEnumerable()</code>,&nbsp;<code>ToList()</code>, 
+        or <code>FirstOrDefault()</code> methods.
+        The following code snippet shows you an example:
+    </p>
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    IEnumerable&lt;Product&gt; products = ds.ProductRepository.Query(Projection.Detailed)
+        .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+        .Where(ProductFields.Discontinued, false) // equals is the default operator
+        .And(ProductFields.SupplierId, OperatorLite.In, new int[] {2, 3}) // the value for OperatorLite.In is an enumerable
+        .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
+        .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+        .ToEnumerable();
+
+    foreach (Product p in products)
+    {
+        Console.WriteLine("CategoryName: {0}, ProductName: {1}", p.CategoryName, p.ProductName);
+    }
+}
+</pre>
+    <p>
+    Parentheses are implemented by subfilters. For example:       
+    </p>
+    <pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    var subFilter = new FilterLite&lt;product&gt;()
+                .Where(ProductFields.SupplierId, 1) 
+                .Or(ProductFields.SupplierId, OperatorLite.IsNull);
+
+    // SELECT * FROM dbo.Products WHERE CategoryId = 1 AND (SupplierId = 1 OR SupplierId IS NULL)
+    IList&lt;Product&gt; products = ds.ProductRepository.Query(Projection.BaseTable)
+                    .Where(ProductFields.CategoryId, 1)
+                    .And(subFilter)
+                    .ToList();
+}
+    </pre>
+
+    <p>
+    To perform query pagination, <code>ToList()</code>&nbsp;and <code>ToEnumerable()</code> methods have 
+    an overload that includes <code>fromRowIndex</code> and <code>toRowIndex</code> arguments, both
+    starting at zero. These methods use specific database features such as <code>LIMT OFFET</code> for MySQL, 
+    SQLite and Postgre-SQL. <code>ROW_NUMBER()</code> is used for SQL Server, and <code>rownum</code> for Oracle.
+     </p>
+    <p>The following code snipped shows the product list in a paged way:</p>
+<pre lang="cs">
+using (var ds = new Entities.NorthwindDataService("Northwind"))
+{
+    const int PageSize = 10;
+    var query = ds.ProductRepository.Query(Projection.Detailed)
+        .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+        .OrderBy(ProductFields.CategoryName, ProductFields.ProductName);
+
+    // SELECT COUNT(*) FROM ....
+    var productCount = query.GetCount();
+
+    var fromRowIndex = 0;
+    var toRowIndex = PageSize - 1;
+    while (fromRowIndex &lt; productCount)
+    {
+        foreach (var product in query.ToEnumerable(fromRowIndex, toRowIndex))
+        {
+            Console.WriteLine("{0}\t{1}", product.CategoryName, product.ProductName);
+        }
+        Console.WriteLine("Press enter to view the next product page ...");
+        Console.ReadLine();
+        fromRowIndex = toRowIndex + 1;
+        toRowIndex += PageSize;
+    }
+}
+    </pre>
+
+    <p>EntityLite has partial support for subqueries.
+    You can pass a <code>QueryLite</code>&nbsp; object as the value argument for <code>OperatorLite.In</code>
+    and <code>OperatorLite.NotIn</code>&nbsp;operators as shown on the following example:
+    </p>
+    <pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    IQueryLite&lt;OrderDetail&gt; orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
+        .Fields(OrderDetailFields.OrderId)
+        .Where(OrderDetailFields.ProductId, 11);
+
+    // SELECT OrderId, OrderDate, CustomerId
+    // FROM dbo.Orders
+    // WHERE OrderId IN (
+    //       SELECT OrderId
+    //       FROM dbo.OrderDetails
+    //       WHERE ProductId = 11
+    //    )
+    IQueryLite&lt;Order&gt; orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
+        .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
+        .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+
+    foreach(var order in orderQuery.ToEnumerable())
+    {
+        Console.WriteLine("OrderId {0}, OrderDate {1}, CustomerId {2}", 
+            order.OrderId, order.OrderDate, order.CustomerId);
+    }
+}
+    </pre>
+
+    <h2>Table Valued Functions</h2>
+
+    <p>
+        EntityLite supports SQL Server table valued functions. To use them you create a
+        <code>FunctionLite</code>&nbsp; object. <code>FunctionLite</code> implements
+        <code>IQueryLite</code> interface, therefore you can specify columns and 
+        add filtering and ordering as usual. Query pagination is also available.
+    </p>
+    <p>
+        Given the following inline table valued function that returns
+        a employee subtree by using a recursive CTE:
+    </p>
+<pre lang="SQL">
+CREATE FUNCTION GetEmployeeSubTree(@EmployeeId int)
+RETURNS TABLE
+AS
+RETURN
+WITH H
+AS
+(
+	SELECT E.EmployeeID, E.LastName, E.FirstName,  E.ReportsTo, E.City
+	FROM
+		[dbo].[Employees] E
+	WHERE
+		E.EmployeeID = @EmployeeId
+	UNION ALL
+	SELECT E.EmployeeID, E.LastName, E.FirstName,  E.ReportsTo, E.City
+	FROM
+		[dbo].[Employees] E
+		INNER JOIN H ON E.ReportsTo = H.EmployeeID
+)
+SELECT * FROM H
+</pre>
+    <p>
+        You can get all employees from London that report directly or indirectly to Mr. Andrew Fuller
+        using the following code snippet:
+    </p>
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    // Andrew Fuller EmployeeId is 2
+    // SELECT FirstName, LastName
+    // FROM GetEmployeeSubTree(2)
+    // WHERE City = 'London'
+    // ORDER BY FirstName, LastName
+    IQueryLite&lt;Employee&gt; query = new FunctionQueryLite&lt;Employee&gt;(ds, "dbo.GetEmployeeSubTree", 2)
+        .Fields(EmployeeFields.FirstName, EmployeeFields.LastName)
+        .Where(EmployeeFields.City, "London")
+        .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
+
+    foreach(var emp in query.ToEnumerable())
+    {
+        Console.WriteLine("FirstName: {0}, LastName: {1}", emp.FirstName, emp.LastName);
+    }
+}
+</pre>
+    <p>
+        You might want to include the <code>FunctionQueryLite</code> object creation in
+        the <code>EmployeeRepository</code> class for homogenising and reusing purposes.
+        It is easy to do because all generated classes are partial. Here you have an example:
+    </p>
+<pre lang="cs">
+public partial class EmployeeRepository 
+{
+    public IQueryLite&lt;Employee&gt; EmployeeSubtreeQuery(int employeeId)
+    {
+        return new FunctionQueryLite&lt;Employee&gt;(this.DataService, "dbo.GetEmployeeSubTree", employeeId);
+    }
+}
+</pre>
+
+    <h2>Template-Based Queries</h2>
+<p>
+    EntityLite provides a highly dynamic and flexible way to perform queries based on runtime text templates. 
+    For a brief introduction to runtime text templates please see 
+    <a href="http://odetocode.com/blogs/scott/archive/2011/01/04/preprocessed-t4-templates.aspx">Preprocessed T4 Templates</a>
+</p>
+<p>  
+    Template-based queries are implemented by the <code>TemplatedQueryLite</code> class. To understand how it works lets start with the following
+    entity view that returns all product sales by quarter.
+</p>
+
+<pre lang="SQL">
+CREATE VIEW [dbo].[ProductSale_Quarter]
+AS
+	SELECT
+		P.CategoryID, C.CategoryName, P.ProductID, P.ProductName,
+		DATEPART(year, O.OrderDate) AS [Year],
+		DATEPART(quarter, O.OrderDate) AS [Quarter],
+		SUM(OD.Quantity * OD.UnitPrice * (1 - OD.Discount)) AS Sales
+	FROM
+		
+		dbo.Products P
+		LEFT OUTER JOIN dbo.Categories C
+			ON P.CategoryID = C.CategoryID
+		LEFT OUTER JOIN 
+		(
+			dbo.Orders O
+			INNER JOIN dbo.OrderDetails OD
+				ON O.OrderID = OD.OrderID
+		) ON P.ProductID = OD.ProductID
+	GROUP BY
+		P.CategoryID, C.CategoryName, P.ProductID, P.ProductName,
+		DATEPART(year, O.OrderDate),
+		DATEPART(quarter, O.OrderDate)
+GO
+</pre>
+    <p>
+        The following query:
+     </p>
+<pre lang="SQL">
+SELECT CategoryName, ProductName, Year, Quarter, Sales
+FROM dbo.ProductSale_Quarter
+WHERE 
+	ProductID IN (1, 2)
+	AND Year = 1997
+ORDER BY
+	CategoryName, ProductName, Year, Quarter
+</pre>
+    <p>Returns the following result set</p>
+
+    <table>
+        <thead>
+            <tr><th>CategoryName</th><th>ProductName</th><th>Year</th><th>Quarter</th><th>Sales</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>1</td><td>705.60</td></tr>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>2</td><td>878.40</td></tr>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>3</td><td>1174.50</td></tr>
+            <tr><td>Beverages</td><td>Chai</td><td>1997</td><td>4</td><td>2128.50</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>1</td><td>2435.80</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>2</td><td>228.00</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>3</td><td>2061.50</td></tr>
+            <tr><td>Beverages</td><td>Chang</td><td>1997</td><td>4</td><td>2313.25</td></tr>
+        </tbody>
+    </table>
+
+    <p>Now, imagine you need to show these results on a screen and accomplish the following requirements:</p>
+
+    <ol>
+        <li>The user must be able to view all employees sales or the sales done by a specific employee</li>
+        <li>The user must be able to filter by year</li>
+        <li>The user must be able to get the sales grouped category or by product</li>
+        <li>You must implement query pagination</li>
+        <li>The user must be able to sort the result by any showed field</li>
+    </ol>
+
+    <p>
+    Requirements 2, 4 and 5 can be easily accomplished using a <code>QueryLite</code> object based on 
+    <code>ProductSale_Quarter</code> entity view. But for requirement 1 you need an inline
+    table valued function because <code>EmployeeId</code> column is not in <code>ProductSale_Quarter</code>
+    view. To accomplish the requirement number 3, you would need two inline table 
+    valued functions: one that groups by product and another that groups by category. The problem is that
+    your database might not support table valued functions and there should be a better way than
+    using two table valued functions (in more extreme cases you might need more table valued functions). 
+    This is where <code>TemplatedQueryLite</code> comes into play.
+    </p>
+    
+    <p>        
+    <code>TemplatedQueryLite</code> can do what inline table valued functions can and 
+    much more, but it is a bit more complex to use.
+   <code>TemplatedQueryLite</code> is great when you need dynamic SQL generation  or you cannot
+    build the query using a <code>QueryLite</code> object based on a table or view.
+    </p>
+
+    <p>
+    To create a runtime template-based query to accomplish the above requirements, 
+    the first step is creating the query template. Add a new <em>Runtime Text Template</em> item 
+    (Preprocesed Text Template item in VS 2010) item to your project named 
+    <code>SalesQuertyTemplate.tt</code> with the following content:
+    </p>
+
+    <pre>
+<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+SELECT
+	P.CategoryID, C.CategoryName,
+<# if (Grouping == "Product") { #>
+	P.ProductID, P.ProductName,
+<# } else { #>
+	NULL AS ProductID, NULL AS ProductName,
+<# } #>
+	DATEPART(year, O.OrderDate) AS [Year],
+	DATEPART(quarter, O.OrderDate) AS [Quarter],
+	SUM(OD.Quantity * OD.UnitPrice * (1 - OD.Discount)) AS Sales
+FROM
+	dbo.Products P
+	LEFT OUTER JOIN dbo.Categories C
+		ON P.CategoryID = C.CategoryID
+	LEFT OUTER JOIN 
+	(
+		dbo.Orders O
+		INNER JOIN dbo.OrderDetails OD
+			ON O.OrderID = OD.OrderID
+	) ON P.ProductID = OD.ProductID
+<# if (EmployeeId.HasValue) { #>
+WHERE
+	O.EmployeeID = $(EmployeeId)
+<# } #>
+GROUP BY
+	P.CategoryID, C.CategoryName, 
+<# if (Grouping == "Product") { #>
+	P.ProductID, P.ProductName,
+<# } #>
+	DATEPART(year, O.OrderDate),
+	DATEPART(quarter, O.OrderDate)
+
+    </pre>
+<p>
+    Note that <code>SalesQuertyTemplate.tt</code> is similar to <code>ProductSale_Quarter</code> view. 
+    But <code>SalesQuertyTemplate.tt</code> uses <code>Grouping</code> and <code>EmployeeId</code> template properties
+    to dynamically build the SQL statement to accomplish requirements 1 and 3. 
+    <code>EmployeeId</code> is also a query parameter. EntityLite uses
+    a special notation for query templates parameters. Parameters are enclosed by parentheses and preceded by $ symbol, 
+    <code>$(EmployeeId)</code> on the sample. This special notation is replaced at runtime by the right parameter 
+    notation used by the current ADO.NET provider.
+</p>
+<p>
+    The query template must produce just one single and complete <code>SELECT</code> statement. For dynamic, multi-statement, 
+    not-only-select queries you can use <code>TemplatedCommand</code> objects.
+</p>
+
+<p>
+    The second step is to extend the <code>SalesQueryTemplate</code> partial class which is generated 
+    from <code>SalesQuertyTemplate.tt</code> runtime template. The query template class 
+    must implement <code>ISqlTemplate</code> interface and define the template properties. Template properties
+    that act as query parameters must be decorated with <code>DbParameter</code> attribute. For example, you can
+    extend the <code>SalesQueryTemplate</code> class adding a file named <code>SalesQueryTemplate.partial.cs</code> 
+    with the following content (namespaces removed for simplicity):
+</p>
+<pre lang="cs">
+public partial class SalesQueryTemplate : ISqlTemplate
+{
+    public string Grouping { get; set; }
+
+    [DbParameter(DbType= DbType.Int32)]
+    public int? EmployeeId { get; set; }
+}
+</pre>
+
+<p>
+    The third step is to extend the repository class with a method that creates and returns a <code>TemplatedQueryLite</code> object.
+     For example:
+</p>
+
+<pre lang="cs">
+public partial class ProductSaleRepository
+{
+    public IQueryLite&lt;ProductSale&gt; TemplatedQuery(string grouping, int? employeeId)
+    {
+        var template = new SalesQueryTemplate
+        {
+            EmployeeId = employeeId,
+            Grouping = grouping
+        };
+        return new TemplatedQueryLite&lt;ProductSale&gt;(this.DataService, template);
+    }
+}
+</pre>
+
+<p>
+    <code>TemplatedQueryLite</code> implements <code>IQueryLite</code>, therefore you can add filter and order as usual.
+    You can also perform query pagination easily. The following example shows you the first 10 Andrew Fuller sales in 
+    1997 grouped by product and ordered by category, product, year and quarter.
+</p>
+<pre lang="cs">
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    var salesQuery = ds.ProductSaleRepository
+        .TemplatedQuery("Product", 2)
+        .Where(ProductSaleFields.Year, 1997)
+        .OrderBy(ProductSaleFields.CategoryName, ProductSaleFields.ProductName)
+        .OrderBy(ProductSaleFields.Year, ProductSaleFields.Quarter);
+    foreach(var s in salesQuery.ToEnumerable(0, 9))
+    {
+        Console.WriteLine("{0}, {1}, {2}, {3}, {4}", 
+            s.CategoryName, s.ProductName, s.Year, s.Quarter, s.Sales);
+    }
+}
+</pre>
+
+
+
+<!--
+    <p>
+        EntityLite extends <code>IDataReader</code> with <code>ToEnumerable()</code> and
+        <code>ToList()</code> methods. This is usefull in cases where making the query using <code>QueryLite</code>,
+       <code>FunctionQueryLite</code> or stored procedures is not possible or inconvenient, 
+       and you decide to hand craft the SQL string. The following code snippet is an usage example:
+    </p>
+<pre lang="cs">
+string handCraftedSqlString = "SELECT ShipperID, CompanyName FROM dbo.Shippers";
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    using (var cmd = ds.Connection.CreateCommand())
+    {
+        cmd.CommandText = handCraftedSqlString;
+        ds.OpenConnection();
+        IEnumerable&lt;Shipper&gt; shippers = cmd.ExecuteReader().ToEnumerable&lt;Shipper&gt;();
+        // Note: the data reader is disposed automatically when the for each loop ends.
+        foreach (var shipper in shippers)
+        {
+            Console.WriteLine("ShipperId: {0}, CompanyName: {1}", shipper.ShipperId, shipper.CompanyName);
+        }
+    }
+}
+</pre>
+-->
+
+<!--
+<h2>SQL Server HierarchyId and Spatial Types</h2>
+
+<p>
+    EntityLite supports HierarchyId, Geometry and Geography SQL Server data types. 
+    Columns of these types map to properties of type 
+    <code>SqlHierarchyId</code>, <code>SqlGeometry</code> and
+    <code>SqlGeography</code>.
+
+    EntityLite have the following operators that you can include in query filters:
+</p>
+<ul>
+    <li><code>OperatorLite.HierarchyLevelEquals</code></li>
+    <li><code>OperatorLite.IsChildOf</code></li>
+    <li><code>OperatorLite.IsDescendantOf</code></li>
+    <li><code>OperatorLite.STDistanceLess</code></li>
+    <li><code>OperatorLite.STDistanceLessOrEquals</code></li>
+    <li><code>OperatorLite.STEquals</code></li>
+    <li><code>OperatorLite.STIntersects</code></li>
+</ul>
+-->
+
+    <h2>Stored Procedures</h2>
+
+    <p>
+        EntityLite supports stored procedures for SQL Server, Oracle, MySQL and Postgre-SQL. The following stored
+        procedure is included in the sample code:
+    </p>
+
+<pre lang="SQL">
+CREATE PROCEDURE [dbo].[RaiseProductPrices] @rate numeric(5,4)
+AS
+	UPDATE dbo.Products
+	SET UnitPrice = UnitPrice * (1 + @rate);
+</pre>
+
+    <p>
+        To generate a method for a stored procedure, you include a <code>StoredProcedureSetting</code> object 
+        in <code>DataLayer.tt</code> file. The method is placed in the <code>RelatedEntity</code> repository
+        class. In the sample <code>DataLayer.tt</code>, <code>ProcedureName</code>
+        is "RaiseProductPrices" and <code>RelatedEntity</code> is "Product", therefore a method named
+        <code>RaiseProductPrices</code> is generated in the <code>ProductRepository</code> class. The
+        following is the signature of the method:
+    </p> 
+ <pre lang="cs">
+public void RaiseProductPrices(Decimal? rate)
+</pre>       
+    <p>    
+        The method return type is determined by the <code>ResultSetKind</code> property of the <code>StoredProcedureSetting</code>
+        object. It can be one of the following values:
+    </p>
+    <ul>
+        <li><code>ProcedureResultSetKind.None</code>. The procedure returns no result set. The method return type is void</li>
+        <li><code>ProcedureResultSetKind.Scalar</code>. The result set contains only one row with only one column.
+        The method return type is the value of the <code>ScalarReturnType</code> property of the <code>StoredProcedureSetting</code> object 
+        </li>
+        <li><code>ProcedureResultSetKind.SingleRow</code>. The result set contains only one row with multiple columns. 
+        The method return type is the related entity POCO class.
+        </li>
+        <li><code>ProcedureResultSetKind.MultipleRows</code>. The result set contains multiple rows with multiple columns.
+        The method returns a list of related entities.
+        </li>
+    </ul>
+
+    <p>Multiple result sets are not supported.</p>
+
+    <p>
+        The generated method has an argument for each stored procedure parameter. IN/OUT parameters are 
+        declared as <code>ref</code> arguments.  
+    </p>
+
+    <p>
+        Calling a stored procedure is as easy as calling a method. For example:
+    </p>
+
+    <pre>
+using (var ds = new NorthwindDataService("Northwind"))
+{
+    ds.ProductRepository.RaiseProductPrices(0.10m);
+}
+    </pre>
+
+    <!--<h2>A Word About Stored Procedures Use</h2>
+    <p>
+        Some people love stored procedures and use them for everything. Some other people hate them and never use them.
+        I think stored procedures have its place, but you shouldn't use them for everything.
+        Why to use a stored procedure if you can do the same thing easier using <code>QueryLite</code>
+        or <code>FunctionQueryLite</code>?. On the other side I think stored procedures are great for set based modifications.
+        IMHO you should use stored procedures when you need to insert, update or delete more than a few rows. It doesn't worth
+        to create a stored procedure for insert, update or delete a single row.
+    </p>-->
+
+    <h2>Template-Based Commands</h2>
+
+    <p>
+        EntityLite provides a highly dynamic and flexible way to execute multi-statement SQL commands based on runtime T4 templates.
+        This is implemented by the <code>TemplatedCommand</code> class. Template-based commands are similar to template-based queries.
+        But template-based commands can contain not-only-select statements, they can contain any number of valid SQL statements.
+        The down side is that <code>TemplatedCommand</code> doesn't implement <code>IQueryLite</code>, therefore you cannot
+        add additional filter and ordering, and query pagination is not as easy.
+    </p>
+
+    <p>
+        Template-based commands are intended mainly for executing multi-statement SQL commands that perform set based modifications.
+        You can use them, for example, to execute Transact-SQL batches and PL/SQL anonymous blocks. 
+        They are a dynamic client side alternative to stored procedures. If you are using a database server that doesn't support stored
+        procedures, don't worry, you can do the same thing using template-based commands. If you have a stored procedure that uses
+        server side dynamic SQL, template-based commands might be a better alternative.
+    </p>
+
+    <p>
+        The following is the content of <code>RaiseProductPricesTemplate.tt</code> sample file 
+        which is a <em>Runtime Text Template</em> in Visual Studio terminology, and a command template
+        in EntityLite terminology.
+    </p>
+
+<pre>
+&lt;#@ template language="C#" #&gt;
+&lt;#@ assembly name="System.Core" #&gt;
+
+UPDATE &lt;#= SchemaPrefix #&gt;Products
+SET UnitPrice = UnitPrice * (1 + $(Rate))
+&lt;# if (CategoryId.HasValue) { #&gt;
+WHERE CategoryId = $(CategoryId)
+&lt;# } #&gt;
+</pre>
+
+    <p>The generated command template <code>RaiseProductPricesTemplate</code> partial class must be extended the same way query templates must.
+    It must implement the <code>ISqlTemplate</code> interface and define template properties. Template properties that act as command parameters
+    must be decorated with <code>DbParameter</code> attribute.
+    </p>
+
+<pre lang="cs">
+public partial class RaiseProductPricesTemplate : ISqlTemplate
+{
+    public string DefaultSchema { get; set; }
+    public string SchemaPrefix
+    {
+        get { return string.IsNullOrEmpty(DefaultSchema) ? string.Empty : DefaultSchema + "."; }
+    }
+
+    [DbParameter(DbType= DbType.Int32)]
+    public int? CategoryId { get; set; }
+
+    [DbParameter(DbType = DbType.Decimal, Precision=5, Scale=4)]
+    public decimal Rate { get; set; }
+}
+</pre>
+
+    <p>
+        The repository class <code>ProductRepository</code> should be extended with a method 
+        that executes the template-based command as follows:
+    </p>
+
+<pre lang="cs">
+public partial class ProductRepository
+{
+    public int RaiseProductPrices(int? categoryId, decimal rate)
+    {
+        var template = new RaiseProductPricesTemplate
+        {
+            CategoryId = categoryId,
+            DefaultSchema = this.DataService.EntityLiteProvider.DefaultSchema,
+            Rate = rate
+        };
+        var cmd = new TemplatedCommand(this.DataService, template);
+        return cmd.ExecuteNonQuery();
+    }
+}
+</pre>
+
+    <p><code>TemplatedCommand</code> objects have the following methods to execute them:</p>
+    <ul>
+        <li><code>ExecuteNonQuery()</code></li>
+        <li><code>ExecuteScalar()</code></li>
+        <li><code>FirstOrDefault&lt;T&gt;()</code></li>
+        <li><code>ToEnumerable&lt;T&gt;()</code></li>
+        <li><code>ToList&lt;T&gt;()</code></li>
+        <li><code>ExecuteReader()</code></li>
+    </ul>
+
+    <p>
+    Template-based commands support output parameters. To include an output parameter you need to add a property to the
+    command template partial class with the same name as the parameter. 
+        The property must be decorated with the <code>DbParamter</code> attribute
+    specifying Direction.Output or Direction.InputOutput. You can get the output parameter value by reading the property of the
+    command template after command execution.
+     </p>
+
+<h2>Writing To The Database</h2>
+
+<p>
+    Each <code>Repository</code> class has strongly typed methods to insert, update and delete table rows on the database.
+    These methods are the following:
+</p>
+<ul>
+    <li><code>Insert(EntityType entity)</code>. Inserts a new row to the entity base table. If the table has
+    an auto-generated primary key column, such as an auto-increment or identity column,  or an ORACLE sequence driven column, 
+    EntityLite sets the corresponding entity property upon insertion. In ORACLE, the sequence must be named as follows: <code>COLUMNNAME_SEQ</code>.
+    <code>Guid</code> columns are also considered auto-generated.
+    </li>
+    <li><code>Update(EntityType entity)</code>. Updates the corresponding row on the entity base table. 
+    This method has an additional overload where you can specify the columns you want to update.</li>
+    <li><code>Save(EntityType entity)</code>. Saves the entity. It is a convenient method that inserts the row if it's new 
+    or updates it if it's not. It only works if the table has an auto-generated primary key column. The row is considered new if the
+    property mapped to the auto-generated column is equals to zero.</li>
+    <li><code>Delete(EntityType entity)</code>. Deletes the corresponding row on the entity base table. 
+    This method has an overload with the primary key as the argument instead of the entity.</li>
+</ul>    
+
+   <p>The following piece of code shows you an example that inserts, updates and deletes a product:</p>
+<pre lang="cs">
+using (var ds = new Entities.NorthwindDataService("Northwind"))
+{
+    ds.BeginTransaction();
+    var p = new Entities.Product
+    {
+        CategoryId = 2,
+        ProductName = "New Product",
+        QuantityPerUnit = "2",
+        ReorderLevel = 50,
+        SupplierId = 2,
+        UnitPrice = 10,
+        UnitsInStock = 1,
+        UnitsOnOrder = 0
+                  
+    };
+    // inserts the new product
+    ds.ProductRepository.Save(p);
+    Console.WriteLine("Inserted product id:" + p.ProductId);
+    p.ProductName = "Another Name";
+    // updates the product
+    ds.ProductRepository.Save(p);
+    // Retrieves the product from the database and shows the product category name
+    p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
+    Console.WriteLine("CategoryName:" + p.CategoryName);
+    // deletes the product
+    ds.ProductRepository.Delete(p.ProductId);
+    ds.Commit();
+}
+</pre>
+
+<p>
+    These modification methods are virtual, so you can change the insert, update or delete default behaviour
+    for a specific entity. If you want to change the behaviour for all entities globally you can override these methods
+    on the DataService class. 
+</p>
+
+<p>
+    EntityLite supports transactions. For that purpose,  the <code>DataService</code> class has the <code>BeginTransaction()</code>,
+    <code>Commit()</code> and <code>Rollback()</code> methods. Nested transaction are also supported, you can call <code>BeginTransaction()</code>
+    several times without calling <code>Commit()</code> or <code>Rollback()</code>. If you call <code>BeginTransaction</code> three times
+    you must call <code>Commit</code> three times to actually commit the transaction. If you call <code>Rollback</code> the transaction
+    is rolled back no matter how many times you called <code>BeginTransaction()</code> before.
+    </p>
+
+<h2>Performance</h2>
+<p>EntityLite is very fast, as fast as its micro ORM brothers. 
+Frans Bouma (the LLBLGen Pro creator) wrote  <a href="http://weblogs.asp.net/fbouma/archive/2014/02/11/fetch-performance-of-various-net-orm-data-access-frameworks-part-2.aspx">this blog post</a>
+a while ago comparing the fetch performance of serveral ORM's. It doesn't include EntityLite because EntityLite is new and therefore few people use it currently.
+But <a href="https://github.com/jesuslpm/RawDataAccessBencher">I forked</a>  the github repository where the benchmark code is and included EntityLite in the 
+    benchmark. The results are <a href="https://github.com/FransBouma/RawDataAccessBencher/pull/13">here</a>
+</p>
+
+
+<h2>Other Features</h2>
+
+    <p>
+        I think this article is long enough and would like to thank you for reading up to this point. However I don't want
+        to finish it without enumerating some other features EntityLite has:
+    </p>
+
+    <ul>
+        <li><strong>Optimistic concurrency</strong> on update. Just add an integer column named <code>EntityRowVersion</code> to your table to enable it.</li>
+        <li><strong>Automatic audit fields</strong>. CreatedDate, ModifiedDate, ModifiedBy and CreatedBy columns are managed automatically by EntityLite.
+    Audit field names can be changed through DataService.SpecialFieldNames property. You must set DataService.CurrentUserId to
+    allow EntityLite to set ModifiedBy and CreatedBy columns.
+</li>
+        <li><strong>Localization</strong>. EntityLite supports two way to implement localization.
+    The most simple is to have columns named MyColumn_Lang1, MyColumn_Lang2, etc. When You access MyEntity.MyColumn, EntityLite
+    picks the right one based on thread current culture. This also works on filters.
+</li>
+        <li><strong>Automatic query retry</strong>. EntityLite automatically retries failed queries.</li>
+        <li><strong>Error logging</strong> to <a href="http://nlog-project.org/">NLog</a> </li>
+        <li><strong>Query Profiling</strong>. Just implement <code>IProfilerLite</code> interface and set <code>ProfilerLite.Current</code> property
+        . I'm going to publish on Nuget an implementation that logs query execution into a SQLite database</li>
+        <li><strong>Naming conventions</strong>. EntityLite transforms column names to Pascal naming convention property names. 
+        For example, a table column named PRODUCT_PRICE will map to a property named ProductPrice.</li>
+    </ul>
+
+<!--
+        <h2>DataLayerGeneration Reference</h2>
+    
+    <p>The <code>DataLayerGeneration</code> object has the following properties:</p>
+    <ul>
+        <li><code>ProviderName</code>. The ADO.NET provider invariant name. EntityLite supports several ADO.NET providers. 
+        It must be properly registered on your machine.</li>
+        <li><code>ConnectionString</code>. The connection string to connect to the database and to retrieve metadata information.</li>
+        <li><code>DefaultSchema</code>. The default database schema. When no schema is specified for an entity,
+    the entitity is associated to the default database schema to locate tables and views.
+</li>
+        <li><code>RootNamespace</code>. The namespace where the generated classes are placed.</li>
+        <li><code>DataServiceName</code>. The name of the generated data service class. More on that later.</li>
+        <li><code>EntitySettings</code>. A list of <code>EntitySetting</code> objects</li>
+        <li><code>ProcedureSettings</code>. A list of <code>ProcedureSetting</code> objects</li>
+    </ul>
+
+    <p>An entity is generated for each <code>EntitySetting</code> object in <code>EntitySettings</code> list. <code>EntitySetting</code> 
+    objects have the following properties:</p>
+
+    <ul>
+       <li><code>BaseTableName</code>. The database table that the entity maps to. If specified, the entity is updatable. If not specified
+        the entity is readonly. If not specified at least one entity view must exist.</li>
+        <li><code>Schema</code>.The database schema where the base table and entity views are located. If not specified, DefaultSchema is taken.
+        Entity classes in the default schema are generated on the RootNamespace. Entity classes in other schemas a generated in a child
+        namespace of RootNamespace. The child namespace name is the Schema name.
+        </li>
+        <li><code>EntityName</code>. The name of the generated class for the entity.</li>
+        <li><code>ReadOnlyFields</code>. A comma separated list of read only fields. Theses fields will not be included in INSERT nor UPDATE SQL statements.
+        This may be usefull to prevent overwriting table columns that are calculated inside DML triggers. For example you might want
+        to calculate the <code>MaterializedPath</code> column of a table that represents a tree by using triggers.
+        </li>
+        <li><code>FieldGeneration</code>. Can be one of the following values:
+            <ul>
+                <li><code>FieldGeneration.ForBaseTableAndViews</code>
+                Entity properties are generated from base table and entity view columns. This is the default value.</li>
+                <li><code>FieldGeneration.ForBaseTable</code>Entity properties are generated from base table columns.</li>
+                <li><code>FieldGeneration.ForViews</code>Entity properties are generated from entity view columns</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p>
+        A method is generated for each <code>ProcedureSetting</code> object  in <code>ProcedureSettings</code> list. 
+        <code>ProcedureSetting</code> objects have the following properties:
+        <ul>
+            <li><code>ProcedureName</code>. The name of the procedure</li>
+            <li><code>ProcedureSchema</code>. The database schema where the procedure is located</li>
+            <li><code>ResultSetKind</code>. One of the follwing values:
+                <ul>
+                    <li><code>ProcedureResultSetKind.None</code>. The procedure retuns no result set.</li>
+                    <li><code>ProcedureResultSetKind.Scalar</code>. The result set contains only one row with only one column</li>
+                    <li><code>ProcedureResultSetKind.SingleRow</code>. The result set contains only one row with multiple columns</li>
+                    <li><code>ProcedureResultSetKind.MultipleRows</code>. The result set contains multiple rows with multiple columns</li>
+                </ul>
+            </li>
+            <li><code>ScalarReturnType</code>. If you specified <code>ProcedureResultSetKind.Scalar</code> 
+            you must specify the type of the returned value</li>
+            <li><code>RelatedEntityName</code>. The procedure must be associated with an entity. 
+            This is the name of such entity. 
+            The method generated for the procedure will be included in the entity repository class.</li>
+            <li><code>MemberVisibility</code>. Specifies the generated method visibility. I can be one of the following values:
+            <ul>
+                <li>
+
+                </li>
+            </ul>
+            </li>
+        </ul>
+    </p>
+-->
+
+</body>
+
+</html>
