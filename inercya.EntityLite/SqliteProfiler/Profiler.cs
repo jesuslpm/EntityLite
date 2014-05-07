@@ -9,6 +9,7 @@ using System.Globalization;
 using inercya.EntityLite.SqliteProfiler.Entities;
 using System.IO;
 using inercya.EntityLite.Collections;
+using inercya.EntityLite.Extensions;
 
 namespace inercya.EntityLite.SqliteProfiler
 {
@@ -109,7 +110,7 @@ namespace inercya.EntityLite.SqliteProfiler
             {
                 CommandText = command.CommandText,
                 ExecutionTime = executionTimeInMilliseconds,
-                Params = GetParamsAsString(command)
+                Params = command.GetParamsAsString()
             };
             logItems.Enqueue(item);
             signal.Set();
@@ -236,48 +237,6 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
-        string GetParamsAsString(DbCommand command)
-        {
-            StringBuilder builder = new StringBuilder();
-            bool firstTime = true;
 
-            foreach (DbParameter p in command.Parameters)
-            {
-                if (p.Value != null)
-                {
-                    if (firstTime)
-                    {
-                        firstTime = false;
-                    }
-                    else
-                    {
-                        builder.Append(", ");
-                    }
-                    string paramValueAsString = null;
-                    if (Convert.IsDBNull(p.Value))
-                    {
-                        paramValueAsString = "NULL";
-                    }
-                    else
-                    {
-                        IConvertible convertible = p.Value as IConvertible;
-                        if (convertible != null)
-                        {
-                            paramValueAsString = convertible.ToString(CultureInfo.InvariantCulture);
-                        }
-                        else if (p.Value is byte[])
-                        {
-                            paramValueAsString = "0x" + BitConverter.ToString((byte[])p.Value, 0).Replace("-", string.Empty);
-                        }
-                        else
-                        {
-                            paramValueAsString = p.Value.ToString();
-                        }
-                    }
-                    builder.Append(p.ParameterName).Append(" = ").Append(paramValueAsString);
-                }
-            }
-            return builder.ToString();
-        }
     }
 }

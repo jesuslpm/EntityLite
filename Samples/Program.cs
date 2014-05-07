@@ -64,6 +64,7 @@ namespace Samples
                 HandCraftedSql();
                 Localization();
                 WillFail();
+                BuggyShowQuesoCabralesOrders();
 
                 Pivot();
             }
@@ -193,100 +194,89 @@ namespace Samples
         static void QueryByPrimaryKey()
         {
             Console.WriteLine("\nQueryByPrimaryKey\n");
-            // "Norhtwind" is the application configuration file connection string name
-            using (var ds = new NorthwindDataService())
-            {
-                // reaads a category from the database by CategoryId
-                // SELECT * FROM dbo.Categories WHERE CategoryId = @P0
-                Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1);
-                Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
 
-                // Loads the product with ProductId = 2 from the database
-                // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = @P0
-                Product p = ds.ProductRepository.Get(Projection.Detailed, 2, ProductFields.CategoryName, ProductFields.ProductName);
-                Console.WriteLine("{0}, {1}", p.CategoryName, p.ProductName);
-            }
+            // reaads a category from the database by CategoryId
+            // SELECT * FROM dbo.Categories WHERE CategoryId = @P0
+            Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1);
+            Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
+
+            // Loads the product with ProductId = 2 from the database
+            // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = @P0
+            Product p = ds.ProductRepository.Get(Projection.Detailed, 2, ProductFields.CategoryName, ProductFields.ProductName);
+            Console.WriteLine("{0}, {1}", p.CategoryName, p.ProductName);
         }
 
         static void SubFilter()
         {
-            using (var ds = new NorthwindDataService())
-            {
 
-                var subFilter = new FilterLite<Product>()
-                            .Where(ProductFields.SupplierId, 1)
-                            .Or(ProductFields.SupplierId, OperatorLite.IsNull);
+            var subFilter = new FilterLite<Product>()
+                        .Where(ProductFields.SupplierId, 1)
+                        .Or(ProductFields.SupplierId, OperatorLite.IsNull);
 
-                // SELECT * FROM dbo.Products WHERE CategoryId = 1 AND (SupplierId = 1 OR SupplierId = 2)
-                IList<Product> products = ds.ProductRepository.Query(Projection.BaseTable)
-                                .Where(ProductFields.CategoryId, 1)
-                                .And(subFilter)
-                                .ToList();
+            // SELECT * FROM dbo.Products WHERE CategoryId = 1 AND (SupplierId = 1 OR SupplierId = 2)
+            IList<Product> products = ds.ProductRepository.Query(Projection.BaseTable)
+                            .Where(ProductFields.CategoryId, 1)
+                            .And(subFilter)
+                            .ToList();
 
-            }
         }
 
         static void ShowSomeProducts()
         {
             Console.WriteLine("\nShowSomeProducts\n");
-            using (var ds = new NorthwindDataService())
-            {
-                IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
-                    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
-                    .Where(ProductFields.Discontinued, false)
-                    .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
-                    .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
-                    .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
-                    .ToEnumerable();
+            IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
+                .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+                .Where(ProductFields.Discontinued, false)
+                .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
+                .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
+                .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+                .ToEnumerable();
 
-                foreach (Product p in products)
-                {
-                    Console.WriteLine("CategoryName: {0}, ProductName: {1}", p.CategoryName, p.ProductName);
-                }
+            foreach (Product p in products)
+            {
+                Console.WriteLine("CategoryName: {0}, ProductName: {1}", p.CategoryName, p.ProductName);
             }
         }
 
         static void Localization()
         {
             Console.WriteLine("\nLocalization\n");
-            using (var ds = new NorthwindDataService())
-            {
-                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
-                // the filter must work, it shoud use WHERE CategoryNameLang1 = 'Beverages', because Lang1 is the current language;
-                // CategoryName is a magic field, it doesn't exist in the database, its is replaced by CategoryNameLang1 or CategoryNameLang2 
-                // depending on the current culture
-                var c1 = ds.CategoryRepository.Query(Projection.BaseTable)
-                            .Where(CategoryFields.CategoryName, "Beverages")
-                            .FirstOrDefault();
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
-
-                // CategoryName is a magic field, it doesn't exist in the database, it returns either CategoryNameLang1 or CategoryNameLang2
-                // depending on the current culture.
-                // It should show: Beverages, Beverages, Bebidas
-                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
-
-                // changing the current culture should change the ouptput
-                // it should show: Bebidas, Beverages, Bebidas
-                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
-                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+            // the filter must work, it shoud use WHERE CategoryNameLang1 = 'Beverages', because Lang1 is the current language;
+            // CategoryName is a magic field, it doesn't exist in the database, its is replaced by CategoryNameLang1 or CategoryNameLang2 
+            // depending on the current culture
+            var c1 = ds.CategoryRepository.Query(Projection.BaseTable)
+                        .Where(CategoryFields.CategoryName, "Beverages")
+                        .FirstOrDefault();
 
 
-                // it shoud use WHERE CategoryNameLang2 = 'Bebidas' because Lang2 is the current language
-                c1 = ds.CategoryRepository.Query(Projection.BaseTable)
-                            .Where(CategoryFields.CategoryName, "Bebidas")
-                            .FirstOrDefault();
+            // CategoryName is a magic field, it doesn't exist in the database, it returns either CategoryNameLang1 or CategoryNameLang2
+            // depending on the current culture.
+            // It should show: Beverages, Beverages, Bebidas
+            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
 
-                // it should show: Bebidas, Beverages, Bebidas
-                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+            // changing the current culture should change the ouptput
+            // it should show: Bebidas, Beverages, Bebidas
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
+            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
 
 
-                // changing the current culture should change the ouptput
-                // it should show: Beverages, Beverages, Bebidas
-                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-                Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+            // it shoud use WHERE CategoryNameLang2 = 'Bebidas' because Lang2 is the current language
+            c1 = ds.CategoryRepository.Query(Projection.BaseTable)
+                        .Where(CategoryFields.CategoryName, "Bebidas")
+                        .FirstOrDefault();
 
-            }
+            // it should show: Bebidas, Beverages, Bebidas
+            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
+
+            // changing the current culture should change the ouptput
+            // it should show: Beverages, Beverages, Bebidas
+            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
         }
 
 
@@ -301,55 +291,45 @@ namespace Samples
         static void RaiseProductPrices()
         {
             Console.WriteLine("\nRaiseProductPrices\n");
-            using (var ds = new Entities.NorthwindDataService())
-            {
-                ds.ProductRepository.RaiseProductPrices(0.10m);
-                Console.WriteLine("Product prices raised");
-            }
+            ds.ProductRepository.RaiseProductPrices(0.10m);
+            Console.WriteLine("Product prices raised");
         }
 
         static void ShowPagedProducts()
         {
             Console.WriteLine("\nShowPagedProducts\n");
-            using (var ds = new Entities.NorthwindDataService())
+            const int PageSize = 10;
+            var query = ds.ProductRepository.Query(Projection.Detailed)
+                .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+                .OrderBy(ProductFields.CategoryName, ProductFields.ProductName);
+
+            var productCount = query.GetCount();
+
+            var fromRowIndex = 0;
+            var toRowIndex = PageSize - 1;
+            while (fromRowIndex < productCount)
             {
-                const int PageSize = 10;
-                var query = ds.ProductRepository.Query(Projection.Detailed)
-                    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
-                    .OrderBy(ProductFields.CategoryName, ProductFields.ProductName);
-
-                var productCount = query.GetCount();
-
-                var fromRowIndex = 0;
-                var toRowIndex = PageSize - 1;
-                while (fromRowIndex < productCount)
+                foreach (var product in query.ToEnumerable(fromRowIndex, toRowIndex))
                 {
-                    foreach (var product in query.ToEnumerable(fromRowIndex, toRowIndex))
-                    {
-                        Console.WriteLine("{0}\t{1}", product.CategoryName, product.ProductName);
-                    }
-                    Console.WriteLine("Press enter to view the next product page ...");
-                    Console.ReadLine();
-                    fromRowIndex = toRowIndex + 1;
-                    toRowIndex += PageSize;
+                    Console.WriteLine("{0}\t{1}", product.CategoryName, product.ProductName);
                 }
+                Console.WriteLine("Press enter to view the next product page ...");
+                Console.ReadLine();
+                fromRowIndex = toRowIndex + 1;
+                toRowIndex += PageSize;
             }
         }
 
         static void ShowOrderDetails()
         {
-            using (var ds = new Entities.NorthwindDataService())
+            var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
+                .Where(OrderDetailFields.OrderId, 10248)
+                .ToEnumerable();
+
+            foreach (var od in orderDetails)
             {
 
-                var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
-                    .Where(OrderDetailFields.OrderId, 10248)
-                    .ToEnumerable();
-
-                foreach (var od in orderDetails)
-                {
-
-                    Console.WriteLine("{0}, {1}, {2}, {3}", od.CategoryName, od.ProductName, od.Quantity, od.SubTotal);
-                }
+                Console.WriteLine("{0}, {1}, {2}, {3}", od.CategoryName, od.ProductName, od.Quantity, od.SubTotal);
             }
         }
 
@@ -363,10 +343,38 @@ namespace Samples
         static void ShowQuesoCabralesOrders()
         {
             Console.WriteLine("\nShowQuesoCabralesOrders\n");
-            using (var ds = new NorthwindDataService())
+
+            IQueryLite<OrderDetail> orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Fields(FieldsOption.None, OrderDetailFields.OrderId)
+                .Where(OrderDetailFields.ProductId, 11);
+
+            // SELECT OrderId, OrderDate, CustomerId
+            // FROM dbo.Orders
+            // WHERE OrderId IN (
+            //       SELECT OrderId
+            //       FROM dbo.OrderDetails
+            //       WHERE ProductId = 11
+            //    )
+            IQueryLite<Order> orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
+                .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
+                .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+
+            foreach (var order in orderQuery.ToEnumerable())
             {
+                Console.WriteLine("OrderId {0}, OrderDate {1}, CustomerId {2}",
+                    order.OrderId, order.OrderDate, order.CustomerId);
+            }
+        }
+
+        static void BuggyShowQuesoCabralesOrders()
+        {
+            Console.WriteLine("\nBuggyShowQuesoCabralesOrders\n");
+
+            try
+            {
+
                 IQueryLite<OrderDetail> orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
-                    .Fields(FieldsOption.None, OrderDetailFields.OrderId)
+                    .Fields(OrderDetailFields.OrderId)
                     .Where(OrderDetailFields.ProductId, 11);
 
                 // SELECT OrderId, OrderDate, CustomerId
@@ -386,27 +394,29 @@ namespace Samples
                         order.OrderId, order.OrderDate, order.CustomerId);
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         static void ShowLondonAndewFullerSubtree()
         {
             Console.WriteLine("\nShowLondonAndewFullerSubtree\n");
-            using (var ds = new NorthwindDataService())
-            {
-                // Andrew Fuller EmployeeId is 2
-                // SELECT FirstName, LastName
-                // FROM GetEmployeeSubTree(2)
-                // WHERE City = 'London'
-                // ORDER BY FirstName, LastName
-                IQueryLite<Employee> query = new FunctionQueryLite<Employee>(ds, "dbo.GetEmployeeSubTree", 2)
-                    .Fields(EmployeeFields.FirstName, EmployeeFields.LastName)
-                    .Where(EmployeeFields.City, "London")
-                    .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
 
-                foreach (var emp in query.ToEnumerable())
-                {
-                    Console.WriteLine("FirstName: {0}, LastName: {1}", emp.FirstName, emp.LastName);
-                }
+            // Andrew Fuller EmployeeId is 2
+            // SELECT FirstName, LastName
+            // FROM GetEmployeeSubTree(2)
+            // WHERE City = 'London'
+            // ORDER BY FirstName, LastName
+            IQueryLite<Employee> query = new FunctionQueryLite<Employee>(ds, "dbo.GetEmployeeSubTree", 2)
+                .Fields(EmployeeFields.FirstName, EmployeeFields.LastName)
+                .Where(EmployeeFields.City, "London")
+                .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
+
+            foreach (var emp in query.ToEnumerable())
+            {
+                Console.WriteLine("FirstName: {0}, LastName: {1}", emp.FirstName, emp.LastName);
             }
         }
 
@@ -415,17 +425,15 @@ namespace Samples
         {
             Console.WriteLine("\nHandCraftedSql\n");
             string handCraftedSqlString = "SELECT ShipperID, CompanyName FROM dbo.Shippers";
-            using (var ds = new NorthwindDataService())
+
+            using (var cmd = ds.Connection.CreateCommand())
             {
-                using (var cmd = ds.Connection.CreateCommand())
+                cmd.CommandText = handCraftedSqlString;
+                ds.OpenConnection();
+                IEnumerable<Shipper> shippers = cmd.ExecuteReader().ToEnumerable<Shipper>();
+                foreach (var shipper in shippers)
                 {
-                    cmd.CommandText = handCraftedSqlString;
-                    ds.OpenConnection();
-                    IEnumerable<Shipper> shippers = cmd.ExecuteReader().ToEnumerable<Shipper>();
-                    foreach (var shipper in shippers)
-                    {
-                        Console.WriteLine("ShipperId: {0}, CompanyName: {1}", shipper.ShipperId, shipper.CompanyName);
-                    }
+                    Console.WriteLine("ShipperId: {0}, CompanyName: {1}", shipper.ShipperId, shipper.CompanyName);
                 }
             }
         }
@@ -433,59 +441,55 @@ namespace Samples
         static void ShowProductSales()
         {
             Console.WriteLine("\nShowProductSales\n");
-            using (var ds = new NorthwindDataService())
-            {
-                var salesQuery = ds.ProductSaleRepository
-                    .TemplatedQuery("Product", 2)
-                    .Where(ProductSaleFields.Year, 1997)
-                    .OrderBy(ProductSaleFields.CategoryName, ProductSaleFields.ProductName)
-                    .OrderBy(ProductSaleFields.Year, ProductSaleFields.Quarter);
 
-                foreach (var s in salesQuery.ToEnumerable(0, 9))
-                {
-                    Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
-                        s.CategoryName, s.ProductName, s.Year, s.Quarter, s.Sales);
-                }
+            var salesQuery = ds.ProductSaleRepository
+                .TemplatedQuery("Product", 2)
+                .Where(ProductSaleFields.Year, 1997)
+                .OrderBy(ProductSaleFields.CategoryName, ProductSaleFields.ProductName)
+                .OrderBy(ProductSaleFields.Year, ProductSaleFields.Quarter);
+
+            foreach (var s in salesQuery.ToEnumerable(0, 9))
+            {
+                Console.WriteLine("{0}, {1}, {2}, {3}, {4}",
+                    s.CategoryName, s.ProductName, s.Year, s.Quarter, s.Sales);
             }
         }
 
         static void InsertUpdateDeleteProduct()
         {
             Console.WriteLine("\nInsertUpdateDeleteProduct\n");
-            using (var ds = new Entities.NorthwindDataService())
+
+            ds.BeginTransaction();
+            var p = new Entities.Product
             {
-                ds.BeginTransaction();
-                var p = new Entities.Product
-                {
-                    CategoryId = 2,
-                    ProductName = "New Product",
-                    QuantityPerUnit = "2",
-                    ReorderLevel = 50,
-                    SupplierId = 2,
-                    UnitPrice = 10,
-                    UnitsInStock = 1,
-                    UnitsOnOrder = 0
+                CategoryId = 2,
+                ProductName = "New Product",
+                QuantityPerUnit = "2",
+                ReorderLevel = 50,
+                SupplierId = 2,
+                UnitPrice = 10,
+                UnitsInStock = 1,
+                UnitsOnOrder = 0
 
-                };
-                // inserts the new product
-                ds.ProductRepository.Save(p);
-                Console.WriteLine("Inserted product id:" + p.ProductId);
+            };
+            // inserts the new product
+            ds.ProductRepository.Save(p);
+            Console.WriteLine("Inserted product id:" + p.ProductId);
 
-                p.ProductName = "Another Name";
-                // updates the product
-                ds.ProductRepository.Save(p);
-                Console.WriteLine("Product name changed");
+            p.ProductName = "Another Name";
+            // updates the product
+            ds.ProductRepository.Save(p);
+            Console.WriteLine("Product name changed");
 
-                // Retrieves the product from the database and shows the product category name
-                p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
-                Console.WriteLine("CategoryName:" + p.CategoryName);
+            // Retrieves the product from the database and shows the product category name
+            p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
+            Console.WriteLine("CategoryName:" + p.CategoryName);
 
-                // deletes the product
-                ds.ProductRepository.Delete(p.ProductId);
-                Console.WriteLine("Product deleted");
+            // deletes the product
+            ds.ProductRepository.Delete(p.ProductId);
+            Console.WriteLine("Product deleted");
 
-                ds.Commit();
-            }
+            ds.Commit();
         }
 
         static volatile bool isRunning = true;

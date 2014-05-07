@@ -34,11 +34,14 @@ namespace inercya.EntityLite
         public readonly DataService DataService;
         public readonly bool DisposeCommand;
 
+        public int CommandTimeout { get; set; }
+
         protected AbstractCommand(DataService dataService, bool disposeCommand)
         {
             if (dataService == null) throw new ArgumentNullException("dataService");
             this.DataService = dataService;
             this.DisposeCommand = disposeCommand;
+            this.CommandTimeout = -1;
         }
 
         protected abstract DbCommand GetCommand();
@@ -80,24 +83,89 @@ namespace inercya.EntityLite
             DbCommand command = null;
             try
             {
-                int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = GetConfiguredCommand();
-                Func<IDataReader> func = () => command.ExecuteReader();
-                var watch = Stopwatch.StartNew();
-                var reader = func.ExecuteWithRetries(
-                        maxRetries, DataService.InitialMillisecondsRetryDelay,
-                        (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
-
+                Stopwatch watch;
+                IDataReader reader = null;
+                try
+                {
+                    int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
+                    command = GetConfiguredCommand();
+                    Func<IDataReader> func = () => command.ExecuteReader();
+                    watch = Stopwatch.StartNew();
+                    reader = func.ExecuteWithRetries(
+                            maxRetries, DataService.InitialMillisecondsRetryDelay,
+                            (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
+                }
+                catch (Exception ex)
+                {
+                    if (command == null)
+                    {
+                        Log.ErrorException("Couldn't get data reader from command", ex);
+                    }
+                    else
+                    {
+                        Log.ErrorException(string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()), ex);
+                    }
+                    throw;
+                }
                 using (reader)
                 {
-                    var factory = reader.GetFactory(typeof(T));
-                    while (reader.Read())
+                    Func<IDataReader, object> factory = null;
+                    try
                     {
-                        yield return (T)factory(reader);
+                        factory = reader.GetFactory(typeof(T));
+                    }
+                    catch (Exception ex)
+                    {
+                        if (command == null)
+                        {
+                            Log.ErrorException(string.Format("Couldn't materialize data reader beacuse GetFactory({0}) failed", typeof(T).Name), ex);
+                        }
+                        else
+                        {
+                            Log.ErrorException(string.Format("Couldn't materialize data reader beacuse GetFactory({0}) failed\r\n{1}\r\n{2}", typeof(T).Name, command.CommandText, command.GetParamsAsString()), ex);
+                        }
+                        throw;
+                    }
+                    while (true)
+                    {
+                        T entity;
+                        try
+                        {
+                            if (reader.Read()) entity = (T)factory(reader);
+                            else break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (command == null)
+                            {
+                                Log.ErrorException(string.Format("Couldn't materialize entity from data reader", typeof(T).Name), ex);
+                            }
+                            else
+                            {
+                                Log.ErrorException(string.Format("Couldn't materialize entity from data reader\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()), ex);
+                            }
+                            throw;
+                        }
+                        yield return entity;
                     }
                 }
-                SetOutPutParameters(command);
-                ProfilerLite.LogCommandExecution(command, DataService, watch.ElapsedMilliseconds);
+                try
+                {
+                    SetOutPutParameters(command);
+                    ProfilerLite.LogCommandExecution(command, DataService, watch.ElapsedMilliseconds);
+                }
+                catch (Exception ex)
+                {
+                    if (command == null)
+                    {
+                        Log.ErrorException(string.Format("Error ocurred executing ToEnumerable", typeof(T).Name), ex);
+                    }
+                    else
+                    {
+                        Log.ErrorException(string.Format("Couldn't materialize entity from data reader\r\n{0}\r\n{1}", typeof(T), command.CommandText, command.GetParamsAsString()), ex);
+                    }
+                    throw;
+                }
             }
             finally
             {
@@ -116,6 +184,8 @@ namespace inercya.EntityLite
             this.DataService.OpenConnection();
             var command = GetCommand();
             command.Connection = DataService.Connection;
+            if (this.CommandTimeout >= 0) command.CommandTimeout = this.CommandTimeout;
+            else if (this.DataService.CommandTimeout >= 0) command.CommandTimeout = this.DataService.CommandTimeout;
             if (DataService.IsActiveTransaction)
             {
                 command.Transaction = DataService.Transaction;
@@ -143,7 +213,14 @@ namespace inercya.EntityLite
             }
             catch (Exception ex)
             {
-                Log.ErrorException("Couldn't execute command", ex);
+                if (command == null)
+                {
+                    Log.ErrorException("Couldn't execute command", ex);
+                }
+                else
+                {
+                    Log.ErrorException(string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()), ex);
+                }
                 throw;
             }
             finally

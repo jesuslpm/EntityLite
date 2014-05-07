@@ -17,7 +17,10 @@ namespace Samples.Entities
                 DefaultSchema = this.DataService.EntityLiteProvider.DefaultSchema,
                 Rate = rate
             };
-            var cmd = new TemplatedCommand(this.DataService, template);
+            var cmd = new TemplatedCommand(this.DataService, template)
+            {
+                CommandTimeout = 10
+            };
             return cmd.ExecuteNonQuery();
         }
     }

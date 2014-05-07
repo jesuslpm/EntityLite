@@ -46,6 +46,9 @@ namespace inercya.EntityLite
 		public SpecialFieldNames SpecialFieldNames { get; set; }
 
         private IEntityLiteProvider _entityLiteProvider;
+
+        public int CommandTimeout { get; set; }
+
         public IEntityLiteProvider EntityLiteProvider
         {
             get
@@ -326,6 +329,7 @@ namespace inercya.EntityLite
             this.InitialMillisecondsRetryDelay = 20;
             this.IsAutomaticAuditDateFieldsEnabled = true;
             this.IsAutomaticAuditUserFieldsEnabled = true;
+            this.CommandTimeout = -1;
         }
 
         public DataService(string connectionStringName)

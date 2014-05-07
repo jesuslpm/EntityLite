@@ -104,7 +104,8 @@ To generate the datalayer for MySQL you need  to:
 			{
 				ProcedureName = "RaiseProductPrices",
 				ResultSetKind = ProcedureResultSetKind.None,
-				RelatedEntityName = "Product"
+				RelatedEntityName = "Product",
+                CommandTimeout = 10
 			}
             //new ProcedureSetting 
 			//{

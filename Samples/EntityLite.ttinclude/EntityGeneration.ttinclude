@@ -156,6 +156,9 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 	} #>
             var executor = new StoredProcedureExecutor(this.DataService, true)
             {
+<#+ if (procedure.CommandTimeout >= 0) { #>
+                CommandTimeout = <#=procedure.CommandTimeout #>,
+<#+ } #>
                 GetCommandFunc = () =>
                 {
                     var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);

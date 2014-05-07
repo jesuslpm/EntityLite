@@ -46,6 +46,8 @@ namespace inercya.EntityLite
         private IQueryBuilder _queryBuilder;
         public IQueryBuilder QueryBuilder { get { return _queryBuilder; } set { _queryBuilder = value; } }
 
+        public int CommandTimeout { get; set; }
+
 
 		protected abstract IEnumerable NonGenericToEnumerable();
 
@@ -116,7 +118,8 @@ namespace inercya.EntityLite
         {
             var cmd = new CommandExecutor(this.DataService, true)
             {
-                GetCommandFunc = GetCountCommand
+                GetCommandFunc = GetCountCommand,
+                CommandTimeout = this.CommandTimeout
             };
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
@@ -127,6 +130,7 @@ namespace inercya.EntityLite
             this.Sort = new List<SortDescriptor>();
 			this.Options = new List<string>();
             this.FieldList = new List<string>();
+            this.CommandTimeout = -1;
         }
 
         public DataTable Pivot(params Extensions.PivotColumn[] pivotColumns)
@@ -138,7 +142,8 @@ namespace inercya.EntityLite
         {
             var cmd = new CommandExecutor(this.DataService, true)
             {
-                GetCommandFunc = GetSelectCommand
+                GetCommandFunc = GetSelectCommand,
+                CommandTimeout = this.CommandTimeout
             };
 
             var properties = this.EntityType.GetEntityMetadata().Properties;
@@ -175,7 +180,8 @@ namespace inercya.EntityLite
 		{
             var cmd = new CommandExecutor(this.DataService, true)
             {
-                GetCommandFunc = GetSelectCommand
+                GetCommandFunc = GetSelectCommand,
+                CommandTimeout = this.CommandTimeout
             };
             return cmd.ToEnumerable<TEntity>();
 		}
@@ -184,7 +190,8 @@ namespace inercya.EntityLite
 		{
             var cmd = new CommandExecutor(this.DataService, true)
             {
-                GetCommandFunc = () => GetSelectCommand(fromIndex, toIndex)
+                GetCommandFunc = () => GetSelectCommand(fromIndex, toIndex),
+                CommandTimeout = this.CommandTimeout
             };
             return cmd.ToEnumerable<TEntity>();
         }

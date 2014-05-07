@@ -42,6 +42,8 @@ namespace inercya.EntityLite
         DataService DataService { get; set; }
         DataTable Pivot(params Extensions.PivotColumn[] pivotColumns);
         DataTable Pivot(Comparison<Extensions.PivotedColumn> pivotedColumnComparison, params Extensions.PivotColumn[] pivotColumns);
+        int CommandTimeout { get; set; }
+  
     }
 
     public interface IQueryLite<TEntity> : IQueryLite

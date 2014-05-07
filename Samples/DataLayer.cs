@@ -829,6 +829,7 @@ namespace Samples.Entities
 		{
             var executor = new StoredProcedureExecutor(this.DataService, true)
             {
+                CommandTimeout = 10,
                 GetCommandFunc = () =>
                 {
                     var proc =  Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);

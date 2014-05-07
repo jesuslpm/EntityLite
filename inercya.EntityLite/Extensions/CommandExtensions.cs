@@ -21,6 +21,7 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -43,6 +44,51 @@ namespace inercya.EntityLite.Extensions
 			return (IDbDataParameter)addWithValueMethod.Invoke(parameters, new object[] { parameterName, parameterValue });
 
 		}
+
+        public static string GetParamsAsString(this DbCommand command)
+        {
+            if (command == null) throw new ArgumentNullException("command");
+            StringBuilder builder = new StringBuilder();
+            bool firstTime = true;
+
+            foreach (DbParameter p in command.Parameters)
+            {
+                if (p.Value != null)
+                {
+                    if (firstTime)
+                    {
+                        firstTime = false;
+                    }
+                    else
+                    {
+                        builder.Append(", ");
+                    }
+                    string paramValueAsString = null;
+                    if (Convert.IsDBNull(p.Value))
+                    {
+                        paramValueAsString = "NULL";
+                    }
+                    else
+                    {
+                        IConvertible convertible = p.Value as IConvertible;
+                        if (convertible != null)
+                        {
+                            paramValueAsString = convertible.ToString(CultureInfo.InvariantCulture);
+                        }
+                        else if (p.Value is byte[])
+                        {
+                            paramValueAsString = "0x" + BitConverter.ToString((byte[])p.Value, 0).Replace("-", string.Empty);
+                        }
+                        else
+                        {
+                            paramValueAsString = p.Value.ToString();
+                        }
+                    }
+                    builder.Append(p.ParameterName).Append(" = ").Append(paramValueAsString);
+                }
+            }
+            return builder.ToString();
+        }
 
 	}
 }

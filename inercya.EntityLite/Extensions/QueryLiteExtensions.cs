@@ -584,5 +584,11 @@ namespace inercya.EntityLite
         {
             return query.Fields(FieldsOption.IncludeBoth, fields);
         }
+
+        public static IQueryLite<TEntity> WithTimeout<TEntity>(this IQueryLite<TEntity> query, int timeout)
+        {
+            query.CommandTimeout = timeout;
+            return query;
+        }
 	}
 }

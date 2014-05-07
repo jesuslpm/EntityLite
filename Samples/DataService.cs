@@ -14,6 +14,11 @@ namespace Samples.Entities
             public static extern int UuidCreateSequential(out Guid guid);
         }
 
+        partial void OnCreated()
+        {
+            this.CommandTimeout = 40;
+        }
+
         protected override Guid NewGuid()
         {
             Guid guid;
