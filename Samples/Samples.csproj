@@ -140,6 +140,18 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DataLayer.cs</LastGenOutput>
     </None>
+    <None Include="EntityLite.ttinclude\DataLayerGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\DataServiceGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\EntityGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
+    <None Include="EntityLite.ttinclude\EntitySetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\FieldGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\FieldMetadata.ttinclude" />
+    <None Include="EntityLite.ttinclude\MemberVisibility.ttinclude" />
+    <None Include="EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
+    <None Include="EntityLite.ttinclude\ProcedureSetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -206,9 +218,7 @@
       <Name>inercya.EntityLite</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="EntityLite.ttinclude\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>REM COPY "$(ProjectDir)EntityLite.ttinclude\*.ttinclude" "$(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude\" /Y</PostBuildEvent>
