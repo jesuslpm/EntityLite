@@ -65,6 +65,12 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common.Logging">
+      <HintPath>..\packages\Common.Logging.2.2.0\lib\net40\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Core">
+      <HintPath>..\packages\Common.Logging.Core.2.2.0\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
@@ -134,18 +140,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DataLayer.cs</LastGenOutput>
     </None>
-    <None Include="EntityLite.ttinclude\DataLayerGeneration.ttinclude" />
-    <None Include="EntityLite.ttinclude\DataServiceGeneration.ttinclude" />
-    <None Include="EntityLite.ttinclude\EntityGeneration.ttinclude" />
-    <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
-    <None Include="EntityLite.ttinclude\EntitySetting.ttinclude" />
-    <None Include="EntityLite.ttinclude\FieldGeneration.ttinclude" />
-    <None Include="EntityLite.ttinclude\FieldMetadata.ttinclude" />
-    <None Include="EntityLite.ttinclude\MemberVisibility.ttinclude" />
-    <None Include="EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
-    <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
-    <None Include="EntityLite.ttinclude\ProcedureSetting.ttinclude" />
-    <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -211,6 +205,9 @@
       <Project>{b74df500-8654-40d1-a50c-7262a2095b1e}</Project>
       <Name>inercya.EntityLite</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EntityLite.ttinclude\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

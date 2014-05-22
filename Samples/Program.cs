@@ -98,7 +98,6 @@ namespace Samples
 
         private static void Pivot()
         {
-
             DataTable pivotedSales = ds.ProductSaleRepository.Query("Year")
                 .OrderBy(ProductSaleFields.ProductName)
                 .Pivot(
@@ -111,7 +110,6 @@ namespace Samples
                     new PivotColumn(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
                     new PivotColumn(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
                 );
-
         }
 
         //private static void EmployeeSubTree_RefCursor()

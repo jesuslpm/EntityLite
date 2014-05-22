@@ -72,7 +72,7 @@ namespace inercya.EntityLite
 
         IList IQueryLite.ToList(int fromIndex, int toIndex)
         {
-            return NonGenericToList();
+            return NonGenericToList(fromIndex, toIndex);
         }
 
         protected abstract IList NonGenericToList(int fromIndex, int toIndex);

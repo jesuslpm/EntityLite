@@ -23,6 +23,8 @@ public class ProcedureSetting
 
     public MemberVisibility MemberVisibility { get; set; }
 
+    public int CommandTimeout { get; set; }
+
     public string GetFullProcedureName()
     {
         if (string.IsNullOrEmpty(ProcedureName)) return string.Empty;
@@ -55,6 +57,7 @@ public class ProcedureSetting
 
     public ProcedureSetting()
     {
+        this.CommandTimeout = -1;
     }
 
     public string GetReturnTypeName(string entityName)

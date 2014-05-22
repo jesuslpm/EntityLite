@@ -8,12 +8,14 @@
 		DefaultSchema = "dbo",
 		RootNamespace = "Samples.Entities",
 		DataServiceName = "NorhtwindDataService",
+        // you should include a connection string with this name in the configuration file
+        ConnectionStringName= "Northwind",
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 
 			{
-				BaseTableName = "Products",
-				EntityName = "Product"  
+                EntityName = "Product", 
+				BaseTableName = "Products"
 			}
 		},
 		ProcedureSettings = new List<ProcedureSetting>

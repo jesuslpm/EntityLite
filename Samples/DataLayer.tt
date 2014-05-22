@@ -34,7 +34,7 @@ To generate the datalayer for MySQL you need  to:
 		//DefaultSchema = null,
 
 		//ProviderName = "MySql.Data.MySqlClient",
-		//ConnectionString = @"server=SQL;uid=root;pwd=XXXXXX;database=Northwind",
+		//ConnectionString = @"server=SQL;uid=root;pwd=SSss33..;database=Northwind",
 		//DefaultSchema = "Northwind",
 
 		//ProviderName = "Npgsql",
@@ -91,12 +91,13 @@ To generate the datalayer for MySQL you need  to:
 			new EntitySetting 
 			{
 				EntityName = "ProductSale"  
-			},
-			new EntitySetting 
-			{
-				EntityName = "Item" ,
-				BaseTableName = "Items"
 			}
+            //,
+			//new EntitySetting 
+			//{
+				//EntityName = "Item" ,
+				//BaseTableName = "Items"
+			//}
 		},
 		ProcedureSettings = new List<ProcedureSetting>
 		{

@@ -55,6 +55,10 @@ namespace inercya.EntityLite
             {
                 if (_entityLiteProvider == null)
                 {
+                    if (string.IsNullOrEmpty(this.ProviderName))
+                    {
+                        throw new InvalidOperationException("The ProviderName property of the data service has not been set. Please check that the connection string \"" + this.ConnectionStringName + "\"  exists in the configuration file and it includes the attribute ProviderName");
+                    }
                     Func<DataService, IEntityLiteProvider> factory = null;
                     if (!EntityLiteProviderFactories.TryGetValue(this.ProviderName, out factory))
                     {
@@ -193,6 +197,10 @@ namespace inercya.EntityLite
             {
                 if (_dbProviderFactory == null)
                 {
+                    if (string.IsNullOrEmpty(this.ProviderName))
+                    {
+                        throw new InvalidOperationException("The ProviderName property of the data service has not been set. Please check that the connection string \"" + this.ConnectionStringName + "\" in the configuration file exists and includes the attribute ProviderName");
+                    }
                     _dbProviderFactory = providerFactoriesCache.GetItem(this.ProviderName);
                 }
                 return _dbProviderFactory;
@@ -206,12 +214,13 @@ namespace inercya.EntityLite
             {
                 if (_connection == null)
                 {
+                    if (string.IsNullOrEmpty(this.ConnectionString))
+                    {
+                        throw new InvalidOperationException("The ConnectionString property of the data service has not been set. Please check that the connection string \"" + this.ConnectionStringName + "\"  exists in the configuration file");
+                    }
                     _connection = DbProviderFactory.CreateConnection();
                     _connection.StateChange += new StateChangeEventHandler(_connection_StateChange);
-                    if (!string.IsNullOrEmpty(this.ConnectionString))
-                    {
-                        _connection.ConnectionString = this.ConnectionString;
-                    }
+                    _connection.ConnectionString = this.ConnectionString;
                 }
                 return _connection;
             }
@@ -334,12 +343,24 @@ namespace inercya.EntityLite
 
         public DataService(string connectionStringName)
         {
+            if (string.IsNullOrEmpty(connectionStringName))
+            {
+                throw new ArgumentNullException("connectionStringName");
+            }
             this.ConnectionStringName = connectionStringName;
             Initialize();
         }
 
         public DataService(string connectionString, string providerName)
         {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentNullException("connectionString");
+            }
+            if (string.IsNullOrEmpty(providerName))
+            {
+                throw new ArgumentNullException("providerName");
+            }
             this._connectionString = connectionString;
             this._providerName = providerName;
             Initialize();
