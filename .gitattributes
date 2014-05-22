@@ -1,3 +1,4 @@
-* text eol=crlf
+* text=auto
 *.tt text eol=crlf
 *.ttinclude text eol=crlf
+*.cs text eol=crlf
