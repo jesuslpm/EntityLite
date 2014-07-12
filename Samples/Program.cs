@@ -105,10 +105,10 @@ namespace Samples
                     {
                         int yearComp = ((int)c1.PivotColumnValue).CompareTo(c2.PivotColumnValue);
                         if (yearComp != 0) return yearComp;
-                        return c1.PivotColumnIndex.CompareTo(c2.PivotColumnIndex);
+                        return c1.PivotTransformIndex.CompareTo(c2.PivotTransformIndex);
                     },
-                    new PivotColumn(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
-                    new PivotColumn(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
+                    new PivotTransform(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
+                    new PivotTransform(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
                 );
         }
 

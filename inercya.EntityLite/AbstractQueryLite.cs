@@ -133,12 +133,12 @@ namespace inercya.EntityLite
             this.CommandTimeout = -1;
         }
 
-        public DataTable Pivot(params Extensions.PivotColumn[] pivotColumns)
+        public DataTable Pivot(params PivotTransform[] pivotTransforms)
         {
-            return Pivot(PivotExtensions.DefaultPivotedColumnComparison, pivotColumns);
+            return Pivot(PivotExtensions.DefaultPivotedColumnComparison, pivotTransforms);
         }
 
-        public DataTable Pivot(Comparison<Extensions.PivotedColumn> pivotedColumnComparison, params PivotColumn[] pivotColumns)
+        public DataTable Pivot(Comparison<PivotedColumn> pivotedColumnComparison, params PivotTransform[] pivotTransforms)
         {
             var cmd = new CommandExecutor(this.DataService, true)
             {
@@ -148,16 +148,16 @@ namespace inercya.EntityLite
 
             var properties = this.EntityType.GetEntityMetadata().Properties;
 
-            IEnumerable<string> groupByPropertyNames = this.Sort
-                                .Where(x => !pivotColumns.Any(p => p.PivotColumnName == x.FieldName || p.ValueColumnName == x.FieldName))
+            IEnumerable<string> unpivotedPropertyNames = this.Sort
+                                .Where(x => !pivotTransforms.Any(p => p.PivotColumnName == x.FieldName || p.ValueColumnName == x.FieldName))
                                 .Select(x => x.FieldName);
 
             using (var reader = cmd.ExecuteReader())
             {
                 PivotDef pivotDef = new PivotDef
                 {
-                    GroupByFields = groupByPropertyNames.ToArray(),
-                    PivotColumns = pivotColumns
+                    UnpivotedColumnNames = unpivotedPropertyNames.ToArray(),
+                    PivotTransforms = pivotTransforms
                 };
                 return reader.Pivot(pivotDef, pivotedColumnComparison);
             }

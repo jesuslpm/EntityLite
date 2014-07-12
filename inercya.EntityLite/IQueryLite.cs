@@ -40,8 +40,8 @@ namespace inercya.EntityLite
         IList<string> FieldList { get; set; }
         IQueryBuilder QueryBuilder { get; set; }
         DataService DataService { get; set; }
-        DataTable Pivot(params Extensions.PivotColumn[] pivotColumns);
-        DataTable Pivot(Comparison<Extensions.PivotedColumn> pivotedColumnComparison, params Extensions.PivotColumn[] pivotColumns);
+        DataTable Pivot(params PivotTransform[] pivotTransforms);
+        DataTable Pivot(Comparison<PivotedColumn> pivotedColumnComparison, params PivotTransform[] pivotTransforms);
         int CommandTimeout { get; set; }
   
     }

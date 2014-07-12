@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>EntityLite.Core</id>
-    <version>1.5.1</version>
+    <version>1.6.0</version>
     <title>i-nercya EntityLite Core</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
@@ -11,7 +11,8 @@
       A lightweight, database first, micro ORM
     </description>
     <releaseNotes>
-      Fix a minor bug and improve some error messages.
+      see http://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M
+      for an introduction to EntityLite
     </releaseNotes>
     <summary>
       The EntityLite core assembly

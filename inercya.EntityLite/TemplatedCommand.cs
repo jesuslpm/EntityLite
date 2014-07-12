@@ -27,7 +27,6 @@ namespace inercya.EntityLite
 {
     public class TemplatedCommand : AbstractCommand
     {
-        public readonly DataService DataService;
         public readonly ISqlTemplate Template;
 
         public TemplatedCommand(DataService dataService, ISqlTemplate template) : base(dataService, true)
@@ -35,7 +34,6 @@ namespace inercya.EntityLite
             if (dataService == null) throw new ArgumentNullException("dataService");
             if (template == null) throw new ArgumentNullException("template");
             this.Template = template;
-            this.DataService = dataService;
         }
 
         protected override  DbCommand GetCommand()

@@ -105,10 +105,10 @@
     <Compile Include="CurrentLanguageService.cs" />
     <Compile Include="ErrorOcurredEventArgs.cs" />
     <Compile Include="Extensions\CurrentLanguageServiceExtensions.cs" />
-    <Compile Include="Extensions\PivotColumn.cs" />
-    <Compile Include="Extensions\PivotDef.cs" />
+    <Compile Include="PivotDef.cs" />
     <Compile Include="Extensions\PivotExtensions.cs" />
-    <Compile Include="Extensions\PrivotedColumn.cs" />
+    <Compile Include="PivotTransform.cs" />
+    <Compile Include="PrivotedColumn.cs" />
     <Compile Include="Extensions\Record.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="FetchMode.cs" />

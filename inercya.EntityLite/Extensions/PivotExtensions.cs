@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using inercya.EntityLite;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -13,22 +14,21 @@ namespace inercya.EntityLite.Extensions
             if (reader == null) throw new ArgumentNullException("reader");
             if (pivotDef == null) throw new ArgumentNullException("pivotDef");
             if (pivotedColumnComparison == null) throw new ArgumentNullException("pivotedColumnComparison");
-            if (pivotDef.GroupByFields == null) throw new ArgumentException("GroupByFields must not be null");
-            if (pivotDef.PivotColumns == null) throw new ArgumentException("PivotColumns must not be null");
-            if (pivotDef.PivotColumns.Any(x => x == null)) throw new ArgumentException("All PivotColums mut be not null");
+            if (pivotDef.UnpivotedColumnNames == null) throw new ArgumentException("UnpivotedColumns must not be null");
+            if (pivotDef.PivotTransforms == null) throw new ArgumentException("PivotColumns must not be null");
+            if (pivotDef.PivotTransforms.Any(x => x == null)) throw new ArgumentException("All PivotColums mut be not null");
             var builder = new SimplePivotBuilder(pivotDef, reader, pivotedColumnComparison);
             return builder.Build();
         }
 
         public static DataTable Pivot(this IDataReader reader, PivotDef pivotDef)
         {
-            var builder = new SimplePivotBuilder(pivotDef, reader, DefaultPivotedColumnComparison);
-            return builder.Build();
+            return Pivot(reader, pivotDef, DefaultPivotedColumnComparison);
         }  
 
         internal static int DefaultPivotedColumnComparison(PivotedColumn c1, PivotedColumn c2)
         {
-            int indexComparisonResult = c1.PivotColumnIndex.CompareTo(c2.PivotColumnIndex);
+            int indexComparisonResult = c1.PivotTransformIndex.CompareTo(c2.PivotTransformIndex);
             if (indexComparisonResult != 0) return indexComparisonResult;
             var isC1Null = c1.PivotColumnValue == null || c1.PivotColumnValue == DBNull.Value;
             var isC2Null = c2.PivotColumnValue == null || c2.PivotColumnValue == DBNull.Value;
@@ -76,9 +76,9 @@ namespace inercya.EntityLite.Extensions
             {
                 if (CurrentKey == null)
                 {
-                    CurrentKey = new Record(this.PivotDef.GroupByFields.Length);
+                    CurrentKey = new Record(this.PivotDef.UnpivotedColumnNames.Length);
                 }
-                for (int i = 0; i < this.PivotDef.GroupByFields.Length; i++)
+                for (int i = 0; i < this.PivotDef.UnpivotedColumnNames.Length; i++)
                 {
                     this.CurrentKey[i] = Reader[this.KeyFieldsMappings[i]];
                 }
@@ -121,16 +121,16 @@ namespace inercya.EntityLite.Extensions
                         pascalReaderFields[fieldName.ToPascalNamingConvention()] = i;
                     }
                 }
-                this.KeyFieldsMappings = new int[this.PivotDef.GroupByFields.Length];
-                for (int i = 0; i < this.PivotDef.GroupByFields.Length; i++)
+                this.KeyFieldsMappings = new int[this.PivotDef.UnpivotedColumnNames.Length];
+                for (int i = 0; i < this.PivotDef.UnpivotedColumnNames.Length; i++)
                 {
-                    this.KeyFieldsMappings[i] = GetFieldIndex(this.PivotDef.GroupByFields[i]);
+                    this.KeyFieldsMappings[i] = GetFieldIndex(this.PivotDef.UnpivotedColumnNames[i]);
                 }
-                this.PivotColumnsMappings = new int[this.PivotDef.PivotColumns.Length];
-                this.ValueColumnsMappings = new int[this.PivotDef.PivotColumns.Length];
-                for (int i = 0; i < this.PivotDef.PivotColumns.Length; i++)
+                this.PivotColumnsMappings = new int[this.PivotDef.PivotTransforms.Length];
+                this.ValueColumnsMappings = new int[this.PivotDef.PivotTransforms.Length];
+                for (int i = 0; i < this.PivotDef.PivotTransforms.Length; i++)
                 {
-                    var pivotColumn = this.PivotDef.PivotColumns[i];
+                    var pivotColumn = this.PivotDef.PivotTransforms[i];
                     this.PivotColumnsMappings[i] = GetFieldIndex(pivotColumn.PivotColumnName);
                     this.ValueColumnsMappings[i] = GetFieldIndex(pivotColumn.ValueColumnName);
                 }
@@ -145,7 +145,7 @@ namespace inercya.EntityLite.Extensions
 
                 TargetTable = new DataTable();
                 TargetTable.BeginLoadData();
-                AddGroupByFieldsColumsToDataTable();
+                AddUnpivotedColumnsColumsToDataTable();
 
                 while (Reader.Read())
                 {
@@ -165,7 +165,7 @@ namespace inercya.EntityLite.Extensions
             private void ReorderColumns()
             {
                 this.PivotedColumns.Sort(this.PivotedColumnComparison);
-                int ordinalBase = this.PivotDef.GroupByFields.Length;
+                int ordinalBase = this.PivotDef.UnpivotedColumnNames.Length;
                 for (int i = 0; i < this.PivotedColumns.Count; i++)
                 {
                     var pivotedColumn = this.PivotedColumns[i];
@@ -175,11 +175,11 @@ namespace inercya.EntityLite.Extensions
 
             private void SetColumnValues()
             {
-                for (int i = 0; i < this.PivotDef.PivotColumns.Length; i++)
+                for (int i = 0; i < this.PivotDef.PivotTransforms.Length; i++)
                 {
-                    var pivotColumn = this.PivotDef.PivotColumns[i];
+                    var pivotColumn = this.PivotDef.PivotTransforms[i];
                     object pivotColumnValue = Reader[this.PivotColumnsMappings[i]];
-                    string targetColumnName = pivotColumn.GetTargetColumnName(pivotColumnValue);
+                    string targetColumnName = pivotColumn.GetPivotedColumnName(pivotColumnValue);
                     DataColumn targetColumn = this.TargetTable.Columns[targetColumnName];
                     if (targetColumn == null)
                     {
@@ -205,11 +205,11 @@ namespace inercya.EntityLite.Extensions
                 }
             }
 
-            private void AddGroupByFieldsColumsToDataTable()
+            private void AddUnpivotedColumnsColumsToDataTable()
             {
-                for (int i = 0; i < this.PivotDef.GroupByFields.Length; i++)
+                for (int i = 0; i < this.PivotDef.UnpivotedColumnNames.Length; i++)
                 {
-                    string keyField = this.PivotDef.GroupByFields[i];
+                    string keyField = this.PivotDef.UnpivotedColumnNames[i];
                     TargetTable.Columns.Add(keyField, Reader.GetFieldType(this.KeyFieldsMappings[i]));
                 }
             }
