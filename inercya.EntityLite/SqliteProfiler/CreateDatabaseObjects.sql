@@ -3,10 +3,10 @@
 	StatementId INTEGER PRIMARY KEY AUTOINCREMENT,
 	CommandTextHash INTEGER NOT NULL,
 	CommandText TEXT NOT NULL,
-	MaxTime INTEGER NOT NULL,
-	MinTime INTEGER NOT NULL,
-	TotalTime INTEGER NOT NULL,
-	SampleTime INTEGER NOT NULL,
+	MaxTime REAL NOT NULL,
+	MinTime REAL NOT NULL,
+	TotalTime REAL NOT NULL,
+	SampleTime REAL NOT NULL,
 	ExecutionCount INTEGER NOT NULL,
 	MaxTimeParams TEXT NOT NULL,
 	MinTimeParams TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE Executions
 	ExecutionId INTEGER PRIMARY KEY AUTOINCREMENT,
 	StatementId INTEGER NOT NULL,
 	ExecutionDate DATETIME NOT NULL,
-	ExecutionTime INTEGER NOT NULL
+	ExecutionTime REAL NOT NULL
 );
 
 CREATE VIEW Statement_Basic 

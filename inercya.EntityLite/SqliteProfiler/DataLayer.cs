@@ -28,20 +28,20 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		public String CommandText { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="MaxTime", BaseColumnName ="MaxTime", BaseTableName = "Statements" )]
-		public Int64 MaxTime { get; set; }
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MaxTime", BaseColumnName ="MaxTime", BaseTableName = "Statements" )]
+		public Double MaxTime { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="MinTime", BaseColumnName ="MinTime", BaseTableName = "Statements" )]
-		public Int64 MinTime { get; set; }
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MinTime", BaseColumnName ="MinTime", BaseTableName = "Statements" )]
+		public Double MinTime { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="TotalTime", BaseColumnName ="TotalTime", BaseTableName = "Statements" )]
-		public Int64 TotalTime { get; set; }
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="TotalTime", BaseColumnName ="TotalTime", BaseTableName = "Statements" )]
+		public Double TotalTime { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="SampleTime", BaseColumnName ="SampleTime", BaseTableName = "Statements" )]
-		public Int64 SampleTime { get; set; }
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="SampleTime", BaseColumnName ="SampleTime", BaseTableName = "Statements" )]
+		public Double SampleTime { get; set; }
 
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="ExecutionCount", BaseColumnName ="ExecutionCount", BaseTableName = "Statements" )]
@@ -149,8 +149,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		public DateTime ExecutionDate { get; set; }
 
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="ExecutionTime", BaseColumnName ="ExecutionTime", BaseTableName = "Executions" )]
-		public Int64 ExecutionTime { get; set; }
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="ExecutionTime", BaseColumnName ="ExecutionTime", BaseTableName = "Executions" )]
+		public Double ExecutionTime { get; set; }
 
 
 	}

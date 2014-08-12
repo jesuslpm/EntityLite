@@ -60,37 +60,37 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
                 statement.CommandText = item.CommandText;
                 statement.CommandTextHash = commandTextHash;
                 statement.ExecutionCount = 1;
-                statement.MaxTime = item.ExecutionTime;
+                statement.MaxTime = item.ExecutionTime.TotalMilliseconds;
                 statement.MaxTimeParams = parametersAsString;
-                statement.MinTime = item.ExecutionTime;
+                statement.MinTime = item.ExecutionTime.TotalMilliseconds;
                 statement.MinTimeParams = parametersAsString;
                 statement.SampleParams = parametersAsString;
-                statement.SampleTime = item.ExecutionTime;
-                statement.TotalTime = item.ExecutionTime;
+                statement.SampleTime = item.ExecutionTime.TotalMilliseconds;
+                statement.TotalTime = item.ExecutionTime.TotalMilliseconds;
                 this.Insert(statement);
             }
             else
             {
                 statement.ExecutionCount += 1;
-                statement.TotalTime += item.ExecutionTime;
+                statement.TotalTime += item.ExecutionTime.TotalMilliseconds;
 
 
-                if (item.ExecutionTime > statement.MaxTime)
+                if (item.ExecutionTime.TotalMilliseconds > statement.MaxTime)
                 {
-                    statement.MaxTime = item.ExecutionTime;
+                    statement.MaxTime = item.ExecutionTime.TotalMilliseconds;
                     statement.MaxTimeParams = parametersAsString;
                 }
-                if (item.ExecutionTime < statement.MinTime)
+                if (item.ExecutionTime.TotalMilliseconds < statement.MinTime)
                 {
-                    statement.MinTime = item.ExecutionTime;
+                    statement.MinTime = item.ExecutionTime.TotalMilliseconds;
                     statement.MinTimeParams = parametersAsString;
                 }
 
                 double avgTime = statement.TotalTime / statement.ExecutionCount;
 
-                if (Math.Abs(avgTime - item.ExecutionTime) < Math.Abs(avgTime - statement.SampleTime))
+                if (Math.Abs(avgTime - item.ExecutionTime.TotalMilliseconds) < Math.Abs(avgTime - statement.SampleTime))
                 {
-                    statement.SampleTime = item.ExecutionTime;
+                    statement.SampleTime = item.ExecutionTime.TotalMilliseconds;
                     statement.SampleParams = parametersAsString;
                 }
 
@@ -101,7 +101,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
             {
                 var exec = new Execution();
                 exec.ExecutionDate = DateTime.Now;
-                exec.ExecutionTime = item.ExecutionTime;
+                exec.ExecutionTime = item.ExecutionTime.TotalMilliseconds;
                 exec.StatementId = statement.StatementId;
                 this.Insert(exec);
             }

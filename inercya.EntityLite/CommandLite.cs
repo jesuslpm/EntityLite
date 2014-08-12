@@ -152,7 +152,7 @@ namespace inercya.EntityLite
                 try
                 {
                     SetOutPutParameters(command);
-                    ProfilerLite.LogCommandExecution(command, DataService, watch.ElapsedMilliseconds);
+                    ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
                 }
                 catch (Exception ex)
                 {
@@ -208,7 +208,7 @@ namespace inercya.EntityLite
                 var result = func.ExecuteWithRetries(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
                         (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
-                ProfilerLite.LogCommandExecution(command, DataService, watch.ElapsedMilliseconds);
+                ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
                 return result;
             }
             catch (Exception ex)

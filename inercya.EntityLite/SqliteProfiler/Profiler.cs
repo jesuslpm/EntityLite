@@ -16,7 +16,7 @@ namespace inercya.EntityLite.SqliteProfiler
     public class LogItem
     {
         public string CommandText;
-        public long ExecutionTime;
+        public TimeSpan ExecutionTime;
         public string Params;
     }
 
@@ -103,13 +103,13 @@ namespace inercya.EntityLite.SqliteProfiler
         }
 
 
-        public void LogCommandExecution(DbCommand command, DataService dataService, long executionTimeInMilliseconds)
+        public void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
         {
             if (!IsRunning || dataService is SqliteProfilerDataService) return;
             var item = new LogItem
             {
                 CommandText = command.CommandText,
-                ExecutionTime = executionTimeInMilliseconds,
+                ExecutionTime = executionTime,
                 Params = command.GetParamsAsString()
             };
             logItems.Enqueue(item);
