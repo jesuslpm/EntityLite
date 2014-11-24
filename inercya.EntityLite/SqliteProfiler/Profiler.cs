@@ -137,7 +137,7 @@ namespace inercya.EntityLite.SqliteProfiler
             {
                 while (true)
                 {
-                    signal.WaitOne();
+                   signal.WaitOne();
                     dataService = EnsureDataServiceAndDeleteOldFiles(dataService);
                     try
                     {

@@ -24,7 +24,7 @@
     <copyright>Copyright 2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="EntityLite.Core" version="[1.6.0]" />
+        <dependency id="EntityLite.Core" version="[1.7.0]" />
       </group>
     </dependencies>
     <references></references>
