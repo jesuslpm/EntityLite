@@ -105,11 +105,11 @@ namespace inercya.EntityLite
 			return metadataCache.GetItem(entityType);
 		}
 
-        public string GetFullTableName(string defaultSchemaName)
+        public string GetFullTableName(string defaultSchemaName, string startQuote, string endQuote)
         {
             if (string.IsNullOrEmpty(this.BaseTableName)) return null;
             string schemaName = string.IsNullOrEmpty(this.SchemaName) ? defaultSchemaName : this.SchemaName;
-            return string.IsNullOrEmpty(schemaName) ? this.BaseTableName : schemaName + "." + this.BaseTableName;
+            return string.IsNullOrEmpty(schemaName) ? startQuote + this.BaseTableName  + endQuote: startQuote + schemaName + endQuote + "." + startQuote + this.BaseTableName + endQuote;
         }
 
         public string GetFullSequenceName(string defaultSchemaName)

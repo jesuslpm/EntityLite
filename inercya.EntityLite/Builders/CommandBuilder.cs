@@ -122,7 +122,7 @@ namespace inercya.EntityLite.Builders
                 throw new InvalidOperationException("cannot generate update command for entity " + entityType.Name + " because it does not have a primary key");
             }
 
-            string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema);
+            string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
 
             IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
             DbCommand cmd = DataService.Connection.CreateCommand();
@@ -136,8 +136,8 @@ namespace inercya.EntityLite.Builders
                 if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
                 SqlFieldAttribute field = propMetadata.SqlField;
                 if (!field.IsKey
-                    && !string.Equals(field.BaseColumnName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(field.BaseColumnName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
                     )
                 {
                     if (firstTime)
@@ -152,12 +152,14 @@ namespace inercya.EntityLite.Builders
                     if (string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
                     {
                         hasEntityRowVersionField = true;
-                        commandText.Append(propMetadata.SqlField.BaseColumnName).Append(" = ").Append(propMetadata.SqlField.BaseColumnName).Append(" + 1");
+                        commandText.Append(this.DataService.EntityLiteProvider.StartQuote + propMetadata.SqlField.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" = ")
+                            .Append(this.DataService.EntityLiteProvider.StartQuote + propMetadata.SqlField.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" + 1");
                     }
                     else
                     {
                         string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
-                        commandText.Append(field.BaseColumnName).Append(" = ").Append(parameterName);
+                        commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote)
+                            .Append(" = ").Append(parameterName);
                         IDbDataParameter param = CreateParameter(propMetadata, propertyName);
                         object fieldValue = getters[propertyName](entity);
                         SetValueToCommandParameter(entity, getters, propertyName, param);
@@ -186,7 +188,8 @@ namespace inercya.EntityLite.Builders
                     {
                         commandText.Append("\n    AND ");
                     }
-                    commandText.Append(field.BaseColumnName).Append(" = ").Append(parameterName);
+                    commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote)
+                        .Append(" = ").Append(parameterName);
 
                     IDbDataParameter parameter = CreateParameter(property, whereField);
                     PropertyGetter getter;
@@ -198,7 +201,31 @@ namespace inercya.EntityLite.Builders
                     cmd.Parameters.Add(parameter);
                 }
             }
-
+            firstTime = true;
+            commandText.Append("\n    AND (");
+            foreach (var propertyName in fieldsToUpdate)
+            {
+                PropertyMetadata propMetadata = null;
+                if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
+                SqlFieldAttribute field = propMetadata.SqlField;
+                if (!field.IsKey
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    )
+                {
+                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
+                    string fieldName = this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote;
+                    commandText.Append("\n        ");
+                    if (firstTime) firstTime = false;
+                    else commandText.Append("OR ");
+                    commandText.Append(fieldName).Append(" <> ").Append(parameterName)
+                        .Append(" OR ").Append(fieldName).Append(" IS NULL AND ").Append(parameterName).Append(" IS NOT NULL")
+                        .Append(" OR ").Append(fieldName).Append(" IS NOT NULL AND ").Append(parameterName).Append(" IS NULL");
+                }
+                
+            }
+            commandText.Append("\n    )");
             cmd.CommandText = commandText.ToString();
             return cmd;
         }
@@ -226,7 +253,7 @@ namespace inercya.EntityLite.Builders
         {
             var entityType = entity.GetType();
             var entityMetadata = entityType.GetEntityMetadata();
-            string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema);
+            string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
             IPropertyGetterDictionary getters = entityType.GetPropertyGetters();
 
             StringBuilder valuesText = new StringBuilder();
@@ -249,7 +276,7 @@ namespace inercya.EntityLite.Builders
                 }
                 if (!string.Equals(propertyName, entityMetadata.SequenceFieldName, StringComparison.InvariantCultureIgnoreCase) || DataService.EntityLiteProvider.SequenceVariable != null)
                 {
-                    commandText.Append(field.BaseColumnName);
+                    commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote);
                 }
                 if (string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -373,7 +400,7 @@ namespace inercya.EntityLite.Builders
 				IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
 				DbCommand cmd = DataService.Connection.CreateCommand();
 				StringBuilder commandText = new StringBuilder();
-                string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema);
+                string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
 				commandText.Append("\nDELETE FROM ").Append(fullTableName);
 				bool firstTime = true;
 				foreach (string fieldName in entityMetadata.PrimaryKeyPropertyNames)
@@ -390,7 +417,7 @@ namespace inercya.EntityLite.Builders
 					{
 						commandText.Append("\n    AND ");
 					}
-					commandText.Append(field.BaseColumnName).Append(" = ").Append(parameterName);
+					commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" = ").Append(parameterName);
 
 					IDbDataParameter param = CreateParameter(property, fieldName);
 					SetValueToCommandParameter(entity, getters, fieldName, param);

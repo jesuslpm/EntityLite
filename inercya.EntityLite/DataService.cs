@@ -419,10 +419,20 @@ namespace inercya.EntityLite
             return affectedRecords > 0;
 		}
 
-        private void SetAuditDate(string fieldName, object entity)
+        private bool SetAuditDate(string fieldName, object entity, out object previousValue)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             var entityType = entity.GetType();
+            var getters = PropertyHelper.GetPropertyGetters(entityType);
+            PropertyGetter getter;
+            if (getters.TryGetValue(fieldName, out getter))
+            {
+                previousValue = getter(entity);
+            }
+            else
+            {
+                previousValue = null;
+            }
             var metadata = EntityMetadata.GetEntityMetadata(entityType);
             var setters = PropertyHelper.GetPropertySetters(entityType);
             PropertySetter setter = null;
@@ -445,20 +455,34 @@ namespace inercya.EntityLite
                 {
                     throw new NotSupportedException("The field \"" + fieldName + "\" is of an unsuported type " + type.Name);
                 }
+                return true;
             }
+            return false;
         }
 
-        private void SetAuditUser(string fieldName, object entity)
+        private bool SetAuditUser(string fieldName, object entity, out object previousValue)
         {
             if (entity == null) throw new ArgumentNullException("entity");
-            if (this.CurrentUserId == null) return;
             var entityType = entity.GetType();
+            var getters = PropertyHelper.GetPropertyGetters(entityType);
+            PropertyGetter getter;
+            if (getters.TryGetValue(fieldName, out getter))
+            {
+                previousValue = getter(fieldName);
+            }
+            else
+            {
+                previousValue = null;
+            }
+            if (this.CurrentUserId == null) return false;
             var setters = PropertyHelper.GetPropertySetters(entityType);
             PropertySetter setter = null;
             if (!string.IsNullOrEmpty(fieldName) && setters.TryGetValue(fieldName, out setter))
             {
                 setter(entity, this.CurrentUserId);
+                return true;
             }
+            return false;
         }
 
         protected internal virtual Guid NewGuid()
@@ -472,16 +496,17 @@ namespace inercya.EntityLite
 
 		    Type entityType = entity.GetType();
             var setters = entityType.GetPropertySetters();
+            object previousValue = null;
 
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity);
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, out previousValue);
+                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, out previousValue);
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity);
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, out previousValue);
+                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, out previousValue);
             }
 
             EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
@@ -576,41 +601,54 @@ namespace inercya.EntityLite
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
+            bool isModifiedBySet = false;
+            bool isModifiedDateSet = false;
+            object previousModifiedBy = null;
+            object previousModifiedDate = null;
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity);
+                isModifiedBySet = SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, out previousModifiedBy);
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity);
+                isModifiedDateSet = SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, out previousModifiedDate);
             }
-
             var cmd = new CommandExecutor(this, false)
             {
                 GetCommandFunc = () => this.commandBuilder.GetUpdateCommand(entity, sortedFields)
             };
-
-
             var affectedRecords = cmd.ExecuteNonQuery();
-
             var identity = entity.TryGetId();
             if (identity != null) IdentityMap.Remove(entityType, identity);
             bool hasEntityRowVersion = metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName);
             object freshEntity = hasEntityRowVersion ?  GeByPrimaryKeyIncludingJustPkAndRowVersionFields(entityType, entity) : null;
-            if (freshEntity != null)
+            try
             {
-                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName));
-            }
-            if (affectedRecords == 0)
-            {
-                if (hasEntityRowVersion && freshEntity != null)
+                if (affectedRecords == 0)
                 {
-                    throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified since it was read");
+                    if (isModifiedBySet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy);
+                    if (isModifiedDateSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate);
+
+                    if (!hasEntityRowVersion) freshEntity = GeByPrimaryKeyIncludingJustPkAndRowVersionFields(entityType, entity);
+                    if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
+                    if (hasEntityRowVersion && freshEntity != null &&
+                        !object.Equals(entity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName), 
+                        freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName)))
+                    {
+                        throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
+                    }
+                    else
+                    {
+                        return 0;
+                    }
                 }
-                else
+            }
+            finally
+            {
+                if (freshEntity != null && hasEntityRowVersion)
                 {
-                    throw new RowNotFoundException("Attempt to update an inexistent row");
+                    entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName));
                 }
             }
             return affectedRecords;

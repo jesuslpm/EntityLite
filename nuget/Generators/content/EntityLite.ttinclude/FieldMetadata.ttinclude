@@ -32,14 +32,12 @@ public class FieldMetadata
     public int ColumnSize { get; set; }
     public bool IsLocalizedField { get; set; }
 	public string SequenceName { get; set;}
-    public string FullTableName
+
+    public string FullTableName(string quotePrefix, string quoteSufix)
     {
-        get
-        {
-            if (string.IsNullOrEmpty(BaseTableName)) return null;
-            if (!string.IsNullOrEmpty(BaseSchemaName)) return BaseSchemaName + "." + BaseTableName;
-            return BaseTableName;
-        }
+        if ( string.IsNullOrEmpty(BaseTableName)) return null;
+        if (!string.IsNullOrEmpty(BaseSchemaName)) return quotePrefix + BaseSchemaName + quoteSufix + "." + quotePrefix + BaseTableName + quoteSufix;
+        return quotePrefix + BaseTableName + quoteSufix;
     }
 }
 #>

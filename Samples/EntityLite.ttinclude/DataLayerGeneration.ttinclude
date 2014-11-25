@@ -518,7 +518,7 @@ public class DataLayerGeneration : IDisposable
         var fullTableName = entity.GetFullTableName(DefaultSchema, CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix);
         return GetFieldsMetadata(entity).Where(x => x.IsKey 
             && ! string.IsNullOrEmpty(entity.BaseTableName)
-            && string.Equals(fullTableName, x.FullTableName, StringComparison.InvariantCultureIgnoreCase) ).ToList(); 
+            && string.Equals(fullTableName, x.FullTableName(CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix), StringComparison.InvariantCultureIgnoreCase) ).ToList(); 
 
     }
 

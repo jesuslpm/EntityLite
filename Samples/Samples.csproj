@@ -71,10 +71,6 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\packages\Common.Logging.Core.2.2.0\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="inercya.EntityLite, Version=1.7.0.0, Culture=neutral, PublicKeyToken=8ba7eec58c815de9, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityLite.Core.1.7.0\lib\net35-client\inercya.EntityLite.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
@@ -216,7 +212,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.csproj">
+      <Project>{b74df500-8654-40d1-a50c-7262a2095b1e}</Project>
+      <Name>inercya.EntityLite</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>REM COPY "$(ProjectDir)EntityLite.ttinclude\*.ttinclude" "$(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude\" /Y</PostBuildEvent>

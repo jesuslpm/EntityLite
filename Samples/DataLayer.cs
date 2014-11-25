@@ -59,6 +59,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Category Get(string projectionName, System.Int32 categoryId)
+		{
+			return ((IRepository<Category>)this).Get(projectionName, categoryId, FetchMode.UseIdentityMap);
+		}
+
+		public Category Get(string projectionName, System.Int32 categoryId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Category>)this).Get(projectionName, categoryId, fetchMode);
+		}
+
+		public Category Get(Projection projection, System.Int32 categoryId)
+		{
+			return ((IRepository<Category>)this).Get(projection, categoryId, FetchMode.UseIdentityMap);
+		}
+
+		public Category Get(Projection projection, System.Int32 categoryId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Category>)this).Get(projection, categoryId, fetchMode);
+		}
+
+		public Category Get(string projectionName, System.Int32 categoryId, params string[] fields)
+		{
+			return ((IRepository<Category>)this).Get(projectionName, categoryId, fields);
+		}
+
+		public Category Get(Projection projection, System.Int32 categoryId, params string[] fields)
+		{
+			return ((IRepository<Category>)this).Get(projection, categoryId, fields);
+		}
+
+		public void Delete(System.Int32 categoryId)
+		{
+			var entity = new Category { CategoryId = categoryId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class CategoryFields
@@ -135,6 +170,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Customer Get(string projectionName, System.String customerId)
+		{
+			return ((IRepository<Customer>)this).Get(projectionName, customerId, FetchMode.UseIdentityMap);
+		}
+
+		public Customer Get(string projectionName, System.String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Customer>)this).Get(projectionName, customerId, fetchMode);
+		}
+
+		public Customer Get(Projection projection, System.String customerId)
+		{
+			return ((IRepository<Customer>)this).Get(projection, customerId, FetchMode.UseIdentityMap);
+		}
+
+		public Customer Get(Projection projection, System.String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Customer>)this).Get(projection, customerId, fetchMode);
+		}
+
+		public Customer Get(string projectionName, System.String customerId, params string[] fields)
+		{
+			return ((IRepository<Customer>)this).Get(projectionName, customerId, fields);
+		}
+
+		public Customer Get(Projection projection, System.String customerId, params string[] fields)
+		{
+			return ((IRepository<Customer>)this).Get(projection, customerId, fields);
+		}
+
+		public void Delete(System.String customerId)
+		{
+			var entity = new Customer { CustomerId = customerId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class CustomerFields
@@ -244,6 +314,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Employee Get(string projectionName, System.Int32 employeeId)
+		{
+			return ((IRepository<Employee>)this).Get(projectionName, employeeId, FetchMode.UseIdentityMap);
+		}
+
+		public Employee Get(string projectionName, System.Int32 employeeId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Employee>)this).Get(projectionName, employeeId, fetchMode);
+		}
+
+		public Employee Get(Projection projection, System.Int32 employeeId)
+		{
+			return ((IRepository<Employee>)this).Get(projection, employeeId, FetchMode.UseIdentityMap);
+		}
+
+		public Employee Get(Projection projection, System.Int32 employeeId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Employee>)this).Get(projection, employeeId, fetchMode);
+		}
+
+		public Employee Get(string projectionName, System.Int32 employeeId, params string[] fields)
+		{
+			return ((IRepository<Employee>)this).Get(projectionName, employeeId, fields);
+		}
+
+		public Employee Get(Projection projection, System.Int32 employeeId, params string[] fields)
+		{
+			return ((IRepository<Employee>)this).Get(projection, employeeId, fields);
+		}
+
+		public void Delete(System.Int32 employeeId)
+		{
+			var entity = new Employee { EmployeeId = employeeId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class EmployeeFields
@@ -380,6 +485,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public OrderDetail Get(string projectionName, System.Int32 orderDetailId)
+		{
+			return ((IRepository<OrderDetail>)this).Get(projectionName, orderDetailId, FetchMode.UseIdentityMap);
+		}
+
+		public OrderDetail Get(string projectionName, System.Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<OrderDetail>)this).Get(projectionName, orderDetailId, fetchMode);
+		}
+
+		public OrderDetail Get(Projection projection, System.Int32 orderDetailId)
+		{
+			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, FetchMode.UseIdentityMap);
+		}
+
+		public OrderDetail Get(Projection projection, System.Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, fetchMode);
+		}
+
+		public OrderDetail Get(string projectionName, System.Int32 orderDetailId, params string[] fields)
+		{
+			return ((IRepository<OrderDetail>)this).Get(projectionName, orderDetailId, fields);
+		}
+
+		public OrderDetail Get(Projection projection, System.Int32 orderDetailId, params string[] fields)
+		{
+			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, fields);
+		}
+
+		public void Delete(System.Int32 orderDetailId)
+		{
+			var entity = new OrderDetail { OrderDetailId = orderDetailId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class OrderDetailFields
@@ -508,6 +648,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Order Get(string projectionName, System.Int32 orderId)
+		{
+			return ((IRepository<Order>)this).Get(projectionName, orderId, FetchMode.UseIdentityMap);
+		}
+
+		public Order Get(string projectionName, System.Int32 orderId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Order>)this).Get(projectionName, orderId, fetchMode);
+		}
+
+		public Order Get(Projection projection, System.Int32 orderId)
+		{
+			return ((IRepository<Order>)this).Get(projection, orderId, FetchMode.UseIdentityMap);
+		}
+
+		public Order Get(Projection projection, System.Int32 orderId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Order>)this).Get(projection, orderId, fetchMode);
+		}
+
+		public Order Get(string projectionName, System.Int32 orderId, params string[] fields)
+		{
+			return ((IRepository<Order>)this).Get(projectionName, orderId, fields);
+		}
+
+		public Order Get(Projection projection, System.Int32 orderId, params string[] fields)
+		{
+			return ((IRepository<Order>)this).Get(projection, orderId, fields);
+		}
+
+		public void Delete(System.Int32 orderId)
+		{
+			var entity = new Order { OrderId = orderId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class OrderFields
@@ -614,6 +789,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Product Get(string projectionName, System.Int32 productId)
+		{
+			return ((IRepository<Product>)this).Get(projectionName, productId, FetchMode.UseIdentityMap);
+		}
+
+		public Product Get(string projectionName, System.Int32 productId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Product>)this).Get(projectionName, productId, fetchMode);
+		}
+
+		public Product Get(Projection projection, System.Int32 productId)
+		{
+			return ((IRepository<Product>)this).Get(projection, productId, FetchMode.UseIdentityMap);
+		}
+
+		public Product Get(Projection projection, System.Int32 productId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Product>)this).Get(projection, productId, fetchMode);
+		}
+
+		public Product Get(string projectionName, System.Int32 productId, params string[] fields)
+		{
+			return ((IRepository<Product>)this).Get(projectionName, productId, fields);
+		}
+
+		public Product Get(Projection projection, System.Int32 productId, params string[] fields)
+		{
+			return ((IRepository<Product>)this).Get(projection, productId, fields);
+		}
+
+		public void Delete(System.Int32 productId)
+		{
+			var entity = new Product { ProductId = productId };
+			this.Delete(entity);
+		}
 
 		public void RaiseProductPrices(Decimal? rate)
 		{
@@ -682,6 +892,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Shipper Get(string projectionName, System.Int32 shipperId)
+		{
+			return ((IRepository<Shipper>)this).Get(projectionName, shipperId, FetchMode.UseIdentityMap);
+		}
+
+		public Shipper Get(string projectionName, System.Int32 shipperId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Shipper>)this).Get(projectionName, shipperId, fetchMode);
+		}
+
+		public Shipper Get(Projection projection, System.Int32 shipperId)
+		{
+			return ((IRepository<Shipper>)this).Get(projection, shipperId, FetchMode.UseIdentityMap);
+		}
+
+		public Shipper Get(Projection projection, System.Int32 shipperId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Shipper>)this).Get(projection, shipperId, fetchMode);
+		}
+
+		public Shipper Get(string projectionName, System.Int32 shipperId, params string[] fields)
+		{
+			return ((IRepository<Shipper>)this).Get(projectionName, shipperId, fields);
+		}
+
+		public Shipper Get(Projection projection, System.Int32 shipperId, params string[] fields)
+		{
+			return ((IRepository<Shipper>)this).Get(projection, shipperId, fields);
+		}
+
+		public void Delete(System.Int32 shipperId)
+		{
+			var entity = new Shipper { ShipperId = shipperId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class ShipperFields
@@ -759,6 +1004,41 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
+		public Supplier Get(string projectionName, System.Int32 supplierId)
+		{
+			return ((IRepository<Supplier>)this).Get(projectionName, supplierId, FetchMode.UseIdentityMap);
+		}
+
+		public Supplier Get(string projectionName, System.Int32 supplierId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Supplier>)this).Get(projectionName, supplierId, fetchMode);
+		}
+
+		public Supplier Get(Projection projection, System.Int32 supplierId)
+		{
+			return ((IRepository<Supplier>)this).Get(projection, supplierId, FetchMode.UseIdentityMap);
+		}
+
+		public Supplier Get(Projection projection, System.Int32 supplierId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Supplier>)this).Get(projection, supplierId, fetchMode);
+		}
+
+		public Supplier Get(string projectionName, System.Int32 supplierId, params string[] fields)
+		{
+			return ((IRepository<Supplier>)this).Get(projectionName, supplierId, fields);
+		}
+
+		public Supplier Get(Projection projection, System.Int32 supplierId, params string[] fields)
+		{
+			return ((IRepository<Supplier>)this).Get(projection, supplierId, fields);
+		}
+
+		public void Delete(System.Int32 supplierId)
+		{
+			var entity = new Supplier { SupplierId = supplierId };
+			this.Delete(entity);
+		}
 	}
 
 	public static partial class SupplierFields
