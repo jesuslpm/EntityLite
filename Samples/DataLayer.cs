@@ -1057,6 +1057,148 @@ namespace Samples.Entities
 		public const string HomePage = "HomePage";
 	}
 
+[Serializable]
+[DataContract]
+[SqlEntity(BaseTableName="my_table")]
+public partial class MyEntity
+{
+	[DataMember]
+	[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, SequenceName = "my_table_entity_id_seq", ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]
+	public Int32 EntityId { get; set; }
+
+	[DataMember]
+	[SqlField(DbType.AnsiString, 50, ColumnName ="my_value", BaseColumnName ="my_value", BaseTableName = "my_table" )]
+	public String MyValue { get; set; }
+
+
+}
+
+	public partial class MyEntityRepository : Repository<MyEntity> 
+	{
+		public MyEntityRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public MyEntity Get(string projectionName, System.Int32 entityId)
+		{
+			return ((IRepository<MyEntity>)this).Get(projectionName, entityId, FetchMode.UseIdentityMap);
+		}
+
+		public MyEntity Get(string projectionName, System.Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<MyEntity>)this).Get(projectionName, entityId, fetchMode);
+		}
+
+		public MyEntity Get(Projection projection, System.Int32 entityId)
+		{
+			return ((IRepository<MyEntity>)this).Get(projection, entityId, FetchMode.UseIdentityMap);
+		}
+
+		public MyEntity Get(Projection projection, System.Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<MyEntity>)this).Get(projection, entityId, fetchMode);
+		}
+
+		public MyEntity Get(string projectionName, System.Int32 entityId, params string[] fields)
+		{
+			return ((IRepository<MyEntity>)this).Get(projectionName, entityId, fields);
+		}
+
+		public MyEntity Get(Projection projection, System.Int32 entityId, params string[] fields)
+		{
+			return ((IRepository<MyEntity>)this).Get(projection, entityId, fields);
+		}
+
+		public void Delete(System.Int32 entityId)
+		{
+			var entity = new MyEntity { EntityId = entityId };
+			this.Delete(entity);
+		}
+	}
+
+	public static partial class MyEntityFields
+	{
+		public const string EntityId = "EntityId";
+		public const string MyValue = "MyValue";
+	}
+
+	[Serializable]
+	[DataContract]
+	[SqlEntity(BaseTableName="T")]
+	public partial class T
+	{
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, SequenceName = "id_seq", ColumnName ="id", BaseColumnName ="id", BaseTableName = "T" )]
+		public Int32 Id { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.AnsiString, 10, ColumnName ="value", BaseColumnName ="value", BaseTableName = "T" )]
+		public String Value { get; set; }
+
+
+	}
+
+	public partial class TRepository : Repository<T> 
+	{
+		public TRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public T Get(string projectionName, System.Int32 id)
+		{
+			return ((IRepository<T>)this).Get(projectionName, id, FetchMode.UseIdentityMap);
+		}
+
+		public T Get(string projectionName, System.Int32 id, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<T>)this).Get(projectionName, id, fetchMode);
+		}
+
+		public T Get(Projection projection, System.Int32 id)
+		{
+			return ((IRepository<T>)this).Get(projection, id, FetchMode.UseIdentityMap);
+		}
+
+		public T Get(Projection projection, System.Int32 id, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<T>)this).Get(projection, id, fetchMode);
+		}
+
+		public T Get(string projectionName, System.Int32 id, params string[] fields)
+		{
+			return ((IRepository<T>)this).Get(projectionName, id, fields);
+		}
+
+		public T Get(Projection projection, System.Int32 id, params string[] fields)
+		{
+			return ((IRepository<T>)this).Get(projection, id, fields);
+		}
+
+		public void Delete(System.Int32 id)
+		{
+			var entity = new T { Id = id };
+			this.Delete(entity);
+		}
+	}
+
+	public static partial class TFields
+	{
+		public const string Id = "Id";
+		public const string Value = "Value";
+	}
+
 	[Serializable]
 	[DataContract]
 	[SqlEntity()]
@@ -1268,6 +1410,32 @@ namespace Samples.Entities
 					_SupplierRepository = new Samples.Entities.SupplierRepository(this);
 				}
 				return _SupplierRepository;
+			}
+		}
+
+		private Samples.Entities.MyEntityRepository _MyEntityRepository;
+		public Samples.Entities.MyEntityRepository MyEntityRepository
+		{
+			get 
+			{
+				if ( _MyEntityRepository == null)
+				{
+					_MyEntityRepository = new Samples.Entities.MyEntityRepository(this);
+				}
+				return _MyEntityRepository;
+			}
+		}
+
+		private Samples.Entities.TRepository _TRepository;
+		public Samples.Entities.TRepository TRepository
+		{
+			get 
+			{
+				if ( _TRepository == null)
+				{
+					_TRepository = new Samples.Entities.TRepository(this);
+				}
+				return _TRepository;
 			}
 		}
 

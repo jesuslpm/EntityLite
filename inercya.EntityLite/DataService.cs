@@ -94,13 +94,36 @@ namespace inercya.EntityLite
             {
                 if (value != this.ConnectionStringName)
                 {
-                    _connectionStringName = value;
-                    _connectionString = null;
-                    _providerName = null;
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[value];
+                        if (settings == null)
+                        {
+                            throw new ArgumentException("The connection string \"" + value + "\" doesn't exist in the configuration file");
+                        }
+                        if (string.IsNullOrEmpty(settings.ProviderName))
+                        {
+                            throw new ArgumentException("Invalid connection string \"" + value + "\" in configuration file. The providerName attribute is missing or empty");
+                        }
+                        if (string.IsNullOrEmpty(settings.ConnectionString))
+                        {
+                            throw new ArgumentException("Invalid connection string \"" + value + "\" in configuration file. The connectionString attribute is missing or empty");
+                        }
+                        _connectionStringName = value;
+                        _connectionString = settings.ConnectionString;
+                        _providerName = settings.ProviderName;
+                    }
+                    else
+                    {
+                        _connectionStringName = value;
+                        _connectionString = null;
+                        _providerName = null;
+                    }
                     _dbProviderFactory = null;
                     _entityLiteProvider = null;
                     _connection = null;
                     _transaction = null;
+                    this.TransactionCount = 0;
                 }
             }
         }
@@ -347,6 +370,7 @@ namespace inercya.EntityLite
             {
                 throw new ArgumentNullException("connectionStringName");
             }
+            
             this.ConnectionStringName = connectionStringName;
             Initialize();
         }

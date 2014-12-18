@@ -90,8 +90,20 @@ To generate the datalayer for MySQL you need  to:
 			},
 			new EntitySetting 
 			{
+				BaseTableName = "my_table",
+				EntityName = "MyEntity"
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "T",
+				EntityName = "T" ,
+				SequenceName = "id_seq"
+			},
+			new EntitySetting 
+			{
 				EntityName = "ProductSale"  
-			}
+			},
+
             //,
 			//new EntitySetting 
 			//{

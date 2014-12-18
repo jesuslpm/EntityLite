@@ -44,34 +44,47 @@ namespace Samples
             //for (int i =0; i < 100; i++) TestQueue();
             profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
                 AppDomain.CurrentDomain.BaseDirectory, 
-                ProfileFileFrecuency.Daily
+                ProfileFileFrecuency.Daily,
+                true
             );
             ProfilerLite.Current = profiler;
             profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
-                QueryByPrimaryKey();
-                ShowSomeProducts();
-                ShowOrderDetails();
-                ShowQuesoCabralesOrders();
-                ShowPagedProducts();
-                ShowLondonAndewFullerSubtree();
-                SearchOrderDetails();
-                ShowProductSales();
-                RaiseProductPrices();
-                InsertUpdateDeleteProduct();
-                RaiseProductPrices2();
-                HandCraftedSql();
-                Localization();
-                WillFail();
-                BuggyShowQuesoCabralesOrders();
+                SequenceTest();
+                //QueryByPrimaryKey();
+                //ShowSomeProducts();
+                //ShowOrderDetails();
+                //ShowQuesoCabralesOrders();
+                //ShowPagedProducts();
+                //ShowLondonAndewFullerSubtree();
+                //SearchOrderDetails();
+                //ShowProductSales();
+                //RaiseProductPrices();
+                //InsertUpdateDeleteProduct();
+                //RaiseProductPrices2();
+                //HandCraftedSql();
+                //Localization();
+                //WillFail();
+                //BuggyShowQuesoCabralesOrders();
 
-                Pivot();
+                //Pivot();
             }
             profiler.StopProfiling();
             Console.WriteLine("Press enter to exit ...");
             Console.ReadLine();
            
+        }
+
+        private static void SequenceTest()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                var e = new MyEntity { MyValue = "hola secuencias" };
+                ds.MyEntityRepository.Save(e);
+                Console.WriteLine(e.EntityId);
+            }
+
         }
 
         private static void WillFail()
