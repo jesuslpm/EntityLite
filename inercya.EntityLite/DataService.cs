@@ -39,6 +39,8 @@ namespace inercya.EntityLite
 
         public static readonly IDictionary<string, Func<DataService, IEntityLiteProvider>> EntityLiteProviderFactories = new Dictionary<string, Func<DataService, IEntityLiteProvider>>();
 
+        private static readonly CacheLite<string, ConnectionStringSettings> connectionStrings = new CacheLite<string, ConnectionStringSettings>((name) => ConfigurationManager.ConnectionStrings[name]);
+
         public object CurrentUserId { get; set; }
 
 		public int MaxRetries { get; protected set; }
@@ -74,7 +76,7 @@ namespace inercya.EntityLite
 
 		private CommandBuilder commandBuilder;
 
-		private Logger Log = NLog.LogManager.GetLogger(typeof(DataService).FullName);
+		private static readonly Logger Log = NLog.LogManager.GetCurrentClassLogger();
 
         private string _connectionStringName;
         public string ConnectionStringName
@@ -96,7 +98,7 @@ namespace inercya.EntityLite
                 {
                     if (!string.IsNullOrEmpty(value))
                     {
-                        ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings[value];
+                        ConnectionStringSettings settings = connectionStrings.GetItem(value);
                         if (settings == null)
                         {
                             throw new ArgumentException("The connection string \"" + value + "\" doesn't exist in the configuration file");
@@ -148,7 +150,7 @@ namespace inercya.EntityLite
             {
                 if (string.IsNullOrEmpty(_connectionString))
                 {
-                    var connectionStringSetting = ConfigurationManager.ConnectionStrings[ConnectionStringName];
+                    var connectionStringSetting = connectionStrings.GetItem(ConnectionStringName);
                     if (connectionStringSetting != null)
                     {
                         _connectionString = connectionStringSetting.ConnectionString;

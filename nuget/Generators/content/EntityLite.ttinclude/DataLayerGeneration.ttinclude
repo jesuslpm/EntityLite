@@ -353,11 +353,27 @@ public class DataLayerGeneration : IDisposable
 				{
 					var pkfieldMetadata = primaryKey[0];
 					string schemaName = GetSchemaName(entity);
-					string fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					string fullSequenceName = null;
+					if (!string.IsNullOrEmpty(entity.SequenceName))
+					{
+						fullSequenceName = string.IsNullOrEmpty(schemaName) ? entity.SequenceName : schemaName + "." + entity.SequenceName;
+					}
+					else if (ProviderName == "Oracle.DataAccess.Client")
+					{
+						fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					}
+					else
+					{
+						fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					}
 					Sequence seq = null;
 					if (Sequences.TryGetValue(fullSequenceName, out seq))
 					{
 						pkfieldMetadata.SequenceName = seq.SequenceName;
+					}
+					else if (!string.IsNullOrEmpty(entity.SequenceName))
+					{
+						throw new ArgumentException("The sequence " + fullSequenceName + " doesn't exist in the database");
 					}
 				}
             }
@@ -570,22 +586,37 @@ public class DataLayerGeneration : IDisposable
 
 	private void LoadSequences()
 	{
+		string commandText = null;
 		if (ProviderName == "Oracle.DataAccess.Client")
+		{
+			commandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
+		}
+		else if (ProviderName == "System.Data.SqlClient")
+		{
+			commandText = @"
+SELECT 
+	sh.name AS SEQUENCE_SCHEMA, seq.name AS  SEQUENCE_NAME
+FROM 
+	sys.sequences seq 
+	INNER JOIN sys.schemas sh on seq.schema_id = sh.schema_id";
+		}
+		if (commandText != null)
 		{
 			using (var cn = OpenConnection())
 			using (var cmd = cn.CreateCommand())
 			{
-				cmd.CommandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
+				cmd.CommandText = commandText;
 				using (var reader = cmd.ExecuteReader())
 				{
 					Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
 				}
 			}
 		}
-		else
+		else 
 		{
 			Sequences = new Dictionary<string, Sequence>();
 		}
+
 	}
   
   private Dictionary<string, Sequence> Sequences;

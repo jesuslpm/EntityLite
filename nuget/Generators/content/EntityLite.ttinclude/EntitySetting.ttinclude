@@ -20,6 +20,7 @@ public class EntitySetting
     public string Schema { get; set; }
     public string ReadOnlyFields { get; set; }
     public string EntityName { get; set; }
+	public string SequenceName { get; set;}
 
     public int EntityTypeId { get; internal set; }
 

@@ -47,11 +47,12 @@ namespace Samples
                 ProfileFileFrecuency.Daily,
                 true
             );
-            ProfilerLite.Current = profiler;
-            profiler.StartProfiling();
+            //ProfilerLite.Current = profiler;
+            //profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
-                SequenceTest();
+                SingleTest(50000, InsertSingleItemEntityLite);
+                //SequenceTest();
                 //QueryByPrimaryKey();
                 //ShowSomeProducts();
                 //ShowOrderDetails();
@@ -70,17 +71,74 @@ namespace Samples
 
                 //Pivot();
             }
-            profiler.StopProfiling();
-            Console.WriteLine("Press enter to exit ...");
-            Console.ReadLine();
+            //profiler.StopProfiling();
+            //Console.WriteLine("Press enter to exit ...");
+            //Console.ReadLine();
            
+        }
+
+        static void InsertMultipleItems(int itemCount)
+        {
+            ds.BeginTransaction();
+            for (int i = 1; i < itemCount; i++)
+            {
+                var item = new Entities.Item
+                {
+                    Field1 = "Field 1." + i.ToString(),
+                    Field2 = "Field 2." + i.ToString(),
+                    Field3 = "Field 3." + i.ToString(),
+                    Field4 = "Field 4." + i.ToString()
+                };
+                ds.ItemRepository.Insert(item);
+            }
+            ds.Commit();
+        }
+
+        static void InsertSingleItemEntityLite(int i)
+        {
+            using (var ds = new NorthwindDataService())
+            {
+                var item = new Entities.Item
+                {
+                    Field1 = "Field 1." + i.ToString(),
+                    Field2 = "Field 2." + i.ToString(),
+                    Field3 = "Field 3." + i.ToString(),
+                    Field4 = "Field 4." + i.ToString()
+                };
+                ds.ItemRepository.Insert(item);
+            }
+        }
+
+        static void MultipleTest(int itemCount, Action<int> testAction)
+        {
+
+            Console.WriteLine(testAction.Method.Name);
+            testAction(2); // warm up
+            ds.ItemRepository.Truncate();
+            var watch = Stopwatch.StartNew();
+            testAction(itemCount);
+            watch.Stop();
+            Console.WriteLine((int)watch.Elapsed.TotalMilliseconds);
+        }
+
+        static void SingleTest(int itemCount, Action<int> testAction)
+        {
+            ds.ItemRepository.Truncate();
+            Console.WriteLine(testAction.Method.Name);
+            var watch = Stopwatch.StartNew();
+            for (int i = 0; i < itemCount; i++)
+            {
+                testAction(i);
+            }
+            watch.Stop();
+            Console.WriteLine((int)watch.Elapsed.TotalMilliseconds);
         }
 
         private static void SequenceTest()
         {
             for (int i = 0; i < 20; i++)
             {
-                var e = new MyEntity { MyValue = "hola secuencias" };
+                var e = new MyEntity { Value = "hola secuencias" };
                 ds.MyEntityRepository.Save(e);
                 Console.WriteLine(e.EntityId);
             }

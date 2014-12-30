@@ -31,7 +31,7 @@ namespace inercya.EntityLite.Builders
 
 	public class CommandBuilder : IDisposable
 	{
-		private Logger Log = NLog.LogManager.GetLogger(typeof(DataService).FullName);
+		private static Logger Log = NLog.LogManager.GetCurrentClassLogger();
 
 		public readonly DataService DataService;
 
@@ -254,18 +254,26 @@ namespace inercya.EntityLite.Builders
             var entityMetadata = entityType.GetEntityMetadata();
             string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
             IPropertyGetterDictionary getters = entityType.GetPropertyGetters();
+            var entityRowVersionFieldName = DataService.SpecialFieldNames.EntityRowVersionFieldName;
 
             StringBuilder valuesText = new StringBuilder();
             commandText.Append("\nINSERT INTO  ").Append(fullTableName);
             bool firstTime = true;
-            foreach (var kv in entityMetadata.UpdatableProperties.Where( x => DataService.EntityLiteProvider.SequenceVariable != null || !string.Equals(x.Key, entityMetadata.SequenceFieldName, StringComparison.InvariantCultureIgnoreCase)))
+            var sequenceVariable = DataService.EntityLiteProvider.SequenceVariable;
+            var startQuote = this.DataService.EntityLiteProvider.StartQuote;
+            var parameters = cmd.Parameters;
+            var endQuote = this.DataService.EntityLiteProvider.EndQuote;
+            var parameterPrefix = this.DataService.EntityLiteProvider.ParameterPrefix;
+            foreach (var kv in entityMetadata.UpdatableProperties)
             {
                 SqlFieldAttribute field = kv.Value.SqlField;
+                //en PostgeSQL se manejan las secuencias de otra manera, como un autonumérico.
+                if (field.SequenceName != null && sequenceVariable == null) continue; 
                 string propertyName = kv.Key;
                 if (firstTime)
                 {
                     commandText.Append("(");
-                    valuesText.Append("\nVALUES(");
+                    valuesText.Append("\nVALUES (");
                     firstTime = false;
                 }
                 else
@@ -273,25 +281,22 @@ namespace inercya.EntityLite.Builders
                     commandText.Append(", ");
                     valuesText.Append(", ");
                 }
-                if (!string.Equals(propertyName, entityMetadata.SequenceFieldName, StringComparison.InvariantCultureIgnoreCase) || DataService.EntityLiteProvider.SequenceVariable != null)
-                {
-                    commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote);
-                }
-                if (string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
+                commandText.Append(startQuote).Append(field.BaseColumnName).Append(endQuote);
+                
+                if (propertyName == entityRowVersionFieldName)
                 {
                     valuesText.Append("1");
                 }
-                else if (string.Equals(propertyName, entityMetadata.SequenceFieldName, StringComparison.InvariantCultureIgnoreCase))
+                else if (field.SequenceName != null)
                 {
                     valuesText.Append(DataService.EntityLiteProvider.SequenceVariable);
                 }
                 else
                 {
-                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
-                    valuesText.Append(parameterName);
+                    valuesText.Append(parameterPrefix).Append(propertyName);
                     IDbDataParameter param = CreateParameter(kv.Value, propertyName);
                     SetValueToCommandParameter(entity, getters, propertyName, param);
-                    cmd.Parameters.Add(param);
+                    parameters.Add(param);
                 }
             }
             commandText.Append(")");
@@ -351,10 +356,11 @@ namespace inercya.EntityLite.Builders
 			IDbDataParameter parameter = DataService.DbProviderFactory.CreateParameter();
 			parameter.ParameterName = parameterName;
 			Type propertyType = property.PropertyInfo.PropertyType.UndelyingType();
-			if (propertyType.FullName.StartsWith("Microsoft.SqlServer.Types.Sql"))
+            
+			if (typeof(System.Data.SqlTypes.INullable).IsAssignableFrom(propertyType))
 			{
 				parameter.DbType = DbType.String;
-				if (propertyType.Name.StartsWith("SqlHierarchyId"))
+				if (propertyType == typeof(Microsoft.SqlServer.Types.SqlHierarchyId))
 				{
 					parameter.Size = 4000;
 				}

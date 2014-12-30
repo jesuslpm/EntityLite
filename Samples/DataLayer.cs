@@ -1057,21 +1057,21 @@ namespace Samples.Entities
 		public const string HomePage = "HomePage";
 	}
 
-[Serializable]
-[DataContract]
-[SqlEntity(BaseTableName="my_table")]
-public partial class MyEntity
-{
-	[DataMember]
-	[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, SequenceName = "my_table_entity_id_seq", ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]
-	public Int32 EntityId { get; set; }
+	[Serializable]
+	[DataContract]
+	[SqlEntity(BaseTableName="my_table")]
+	public partial class MyEntity
+	{
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]
+		public Int32 EntityId { get; set; }
 
-	[DataMember]
-	[SqlField(DbType.AnsiString, 50, ColumnName ="my_value", BaseColumnName ="my_value", BaseTableName = "my_table" )]
-	public String MyValue { get; set; }
+		[DataMember]
+		[SqlField(DbType.String, 128, ColumnName ="value", BaseColumnName ="value", BaseTableName = "my_table" )]
+		public String Value { get; set; }
 
 
-}
+	}
 
 	public partial class MyEntityRepository : Repository<MyEntity> 
 	{
@@ -1125,77 +1125,6 @@ public partial class MyEntity
 	public static partial class MyEntityFields
 	{
 		public const string EntityId = "EntityId";
-		public const string MyValue = "MyValue";
-	}
-
-	[Serializable]
-	[DataContract]
-	[SqlEntity(BaseTableName="T")]
-	public partial class T
-	{
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, SequenceName = "id_seq", ColumnName ="id", BaseColumnName ="id", BaseTableName = "T" )]
-		public Int32 Id { get; set; }
-
-		[DataMember]
-		[SqlField(DbType.AnsiString, 10, ColumnName ="value", BaseColumnName ="value", BaseTableName = "T" )]
-		public String Value { get; set; }
-
-
-	}
-
-	public partial class TRepository : Repository<T> 
-	{
-		public TRepository(DataService DataService) : base(DataService)
-		{
-		}
-
-		public new NorthwindDataService  DataService  
-		{
-			get { return (NorthwindDataService) base.DataService; }
-			set { base.DataService = value; }
-		}
-
-		public T Get(string projectionName, System.Int32 id)
-		{
-			return ((IRepository<T>)this).Get(projectionName, id, FetchMode.UseIdentityMap);
-		}
-
-		public T Get(string projectionName, System.Int32 id, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<T>)this).Get(projectionName, id, fetchMode);
-		}
-
-		public T Get(Projection projection, System.Int32 id)
-		{
-			return ((IRepository<T>)this).Get(projection, id, FetchMode.UseIdentityMap);
-		}
-
-		public T Get(Projection projection, System.Int32 id, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<T>)this).Get(projection, id, fetchMode);
-		}
-
-		public T Get(string projectionName, System.Int32 id, params string[] fields)
-		{
-			return ((IRepository<T>)this).Get(projectionName, id, fields);
-		}
-
-		public T Get(Projection projection, System.Int32 id, params string[] fields)
-		{
-			return ((IRepository<T>)this).Get(projection, id, fields);
-		}
-
-		public void Delete(System.Int32 id)
-		{
-			var entity = new T { Id = id };
-			this.Delete(entity);
-		}
-	}
-
-	public static partial class TFields
-	{
-		public const string Id = "Id";
 		public const string Value = "Value";
 	}
 
@@ -1277,6 +1206,92 @@ public partial class MyEntity
 		public const string Sales = "Sales";
 		public const string OrderCount = "OrderCount";
 		public const string CategoryName = "CategoryName";
+	}
+
+	[Serializable]
+	[DataContract]
+	[SqlEntity(BaseTableName="Items")]
+	public partial class Item
+	{
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ItemId", BaseColumnName ="ItemId", BaseTableName = "Items" )]
+		public Int32 ItemId { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 50, ColumnName ="Field1", BaseColumnName ="Field1", BaseTableName = "Items" )]
+		public String Field1 { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 50, ColumnName ="Field2", BaseColumnName ="Field2", BaseTableName = "Items" )]
+		public String Field2 { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 50, ColumnName ="Field3", BaseColumnName ="Field3", BaseTableName = "Items" )]
+		public String Field3 { get; set; }
+
+		[DataMember]
+		[SqlField(DbType.String, 50, ColumnName ="Field4", BaseColumnName ="Field4", BaseTableName = "Items" )]
+		public String Field4 { get; set; }
+
+
+	}
+
+	public partial class ItemRepository : Repository<Item> 
+	{
+		public ItemRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public Item Get(string projectionName, System.Int32 itemId)
+		{
+			return ((IRepository<Item>)this).Get(projectionName, itemId, FetchMode.UseIdentityMap);
+		}
+
+		public Item Get(string projectionName, System.Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Item>)this).Get(projectionName, itemId, fetchMode);
+		}
+
+		public Item Get(Projection projection, System.Int32 itemId)
+		{
+			return ((IRepository<Item>)this).Get(projection, itemId, FetchMode.UseIdentityMap);
+		}
+
+		public Item Get(Projection projection, System.Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Item>)this).Get(projection, itemId, fetchMode);
+		}
+
+		public Item Get(string projectionName, System.Int32 itemId, params string[] fields)
+		{
+			return ((IRepository<Item>)this).Get(projectionName, itemId, fields);
+		}
+
+		public Item Get(Projection projection, System.Int32 itemId, params string[] fields)
+		{
+			return ((IRepository<Item>)this).Get(projection, itemId, fields);
+		}
+
+		public void Delete(System.Int32 itemId)
+		{
+			var entity = new Item { ItemId = itemId };
+			this.Delete(entity);
+		}
+	}
+
+	public static partial class ItemFields
+	{
+		public const string ItemId = "ItemId";
+		public const string Field1 = "Field1";
+		public const string Field2 = "Field2";
+		public const string Field3 = "Field3";
+		public const string Field4 = "Field4";
 	}
 
 }
@@ -1426,19 +1441,6 @@ namespace Samples.Entities
 			}
 		}
 
-		private Samples.Entities.TRepository _TRepository;
-		public Samples.Entities.TRepository TRepository
-		{
-			get 
-			{
-				if ( _TRepository == null)
-				{
-					_TRepository = new Samples.Entities.TRepository(this);
-				}
-				return _TRepository;
-			}
-		}
-
 		private Samples.Entities.ProductSaleRepository _ProductSaleRepository;
 		public Samples.Entities.ProductSaleRepository ProductSaleRepository
 		{
@@ -1449,6 +1451,19 @@ namespace Samples.Entities
 					_ProductSaleRepository = new Samples.Entities.ProductSaleRepository(this);
 				}
 				return _ProductSaleRepository;
+			}
+		}
+
+		private Samples.Entities.ItemRepository _ItemRepository;
+		public Samples.Entities.ItemRepository ItemRepository
+		{
+			get 
+			{
+				if ( _ItemRepository == null)
+				{
+					_ItemRepository = new Samples.Entities.ItemRepository(this);
+				}
+				return _ItemRepository;
 			}
 		}
 	}
