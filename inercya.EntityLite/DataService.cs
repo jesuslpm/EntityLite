@@ -431,10 +431,11 @@ namespace inercya.EntityLite
 		protected internal virtual bool Delete(object entity)
 		{
 			if (entity == null) throw new ArgumentNullException("entity");
+            Type entityType = entity.GetType();
 
             var cmd = new CommandExecutor(this, false)
             {
-                GetCommandFunc = () => this.commandBuilder.GetDeleteCommand(entity)
+                GetCommandFunc = () => this.commandBuilder.GetDeleteCommand(entity, EntityMetadata.GetEntityMetadata(entityType))
             };
             var affectedRecords = cmd.ExecuteNonQuery();
 
@@ -445,11 +446,15 @@ namespace inercya.EntityLite
 
         private bool SetAuditDate(string fieldName, object entity, out object previousValue)
         {
+            Type entityType = entity.GetType();
+            return SetAuditDate(fieldName, entity, EntityMetadata.GetEntityMetadata(entityType), out previousValue);
+        }
+
+        private bool SetAuditDate(string fieldName, object entity, EntityMetadata metadata, out object previousValue)
+        {
             if (entity == null) throw new ArgumentNullException("entity");
-            var entityType = entity.GetType();
-            var getters = PropertyHelper.GetPropertyGetters(entityType);
             PropertyGetter getter;
-            if (getters.TryGetValue(fieldName, out getter))
+            if (metadata.Getters.TryGetValue(fieldName, out getter))
             {
                 previousValue = getter(entity);
             }
@@ -457,10 +462,8 @@ namespace inercya.EntityLite
             {
                 previousValue = null;
             }
-            var metadata = EntityMetadata.GetEntityMetadata(entityType);
-            var setters = PropertyHelper.GetPropertySetters(entityType);
             PropertySetter setter = null;
-            if (!string.IsNullOrEmpty(fieldName) && setters.TryGetValue(fieldName, out setter))
+            if (!string.IsNullOrEmpty(fieldName) && metadata.Setters.TryGetValue(fieldName, out setter))
             {
                 Type type = metadata.Properties[fieldName].PropertyInfo.PropertyType;
                 if (type == typeof(DateTime) || type == typeof(DateTime?))
@@ -486,9 +489,15 @@ namespace inercya.EntityLite
 
         private bool SetAuditUser(string fieldName, object entity, out object previousValue)
         {
+            Type entityType = entity.GetType();
+            return SetAuditUser(fieldName, entity, EntityMetadata.GetEntityMetadata(entityType), out previousValue);
+        }
+
+        private bool SetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata, out object previousValue)
+        {
             if (entity == null) throw new ArgumentNullException("entity");
-            var entityType = entity.GetType();
-            var getters = PropertyHelper.GetPropertyGetters(entityType);
+            var entityType = entityMetadata.EntityType;
+            var getters = entityMetadata.Getters;
             PropertyGetter getter;
             if (getters.TryGetValue(fieldName, out getter))
             {
@@ -514,32 +523,35 @@ namespace inercya.EntityLite
             return Guid.NewGuid();
         }
 
-		protected internal virtual void Insert(object entity)
+        protected internal virtual void Insert(object entity)
+        {
+            if (entity == null) throw new ArgumentNullException("entity");
+            Type entityType = entity.GetType();
+            Insert(entity, EntityMetadata.GetEntityMetadata(entityType));
+        }
+
+		protected internal virtual void Insert(object entity, EntityMetadata entityMetadata)
 		{
 		    if (entity == null) throw new ArgumentNullException("entity");
 
-		    Type entityType = entity.GetType();
-            var setters = entityType.GetPropertySetters();
             object previousValue = null;
 
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, out previousValue);
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, out previousValue);
+                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata, out previousValue);
+                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata, out previousValue);
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, out previousValue);
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, out previousValue);
+                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata, out previousValue);
+                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata, out previousValue);
             }
-
-            EntityMetadata entityMetadata = entity.GetType().GetEntityMetadata();
 
             DbCommand cmd = null;
 
             var cmdExecutor = new CommandExecutor(this, false)
             {
-                GetCommandFunc = () => cmd = this.commandBuilder.GetInsertCommand(entity)
+                GetCommandFunc = () => cmd = this.commandBuilder.GetInsertCommand(entity, entityMetadata)
             };
 
             object autogeneratedFieldValue = null;
@@ -565,7 +577,7 @@ namespace inercya.EntityLite
                     var autogeneratedFieldParam = dbcmd.Parameters.Cast<IDataParameter>().FirstOrDefault(x => x.Direction == ParameterDirection.Output);
                     if (autogeneratedFieldParam == null)
                     {
-                        throw new InvalidOperationException(string.Format("There is no output parameter in insert command for autogenerated field {0}.{1},", entityType.Name, autogeneratedFieldName));
+                        throw new InvalidOperationException(string.Format("There is no output parameter in insert command for autogenerated field {0}.{1},", entityMetadata.EntityType.Name, autogeneratedFieldName));
                     }
                     autogeneratedFieldValue = autogeneratedFieldParam.Value;
                 };
@@ -576,14 +588,13 @@ namespace inercya.EntityLite
                 autogeneratedFieldValue = cmdExecutor.ExecuteScalar();
             }
             Type autogeneratedFieldType = autogeneratedFieldValue.GetType();
-            Type propertyType = entityMetadata.Properties[autogeneratedFieldName].PropertyInfo.PropertyType.UndelyingType();
-            if (autogeneratedFieldType == propertyType)
+            if (autogeneratedFieldType == entityMetadata.PrimaryKeyType)
             {
-                setters[autogeneratedFieldName](entity, autogeneratedFieldValue);
+                entityMetadata.Setters[autogeneratedFieldName](entity, autogeneratedFieldValue);
             }
             else
             {
-                setters[autogeneratedFieldName](entity, Convert.ChangeType(autogeneratedFieldValue, propertyType));
+                entityMetadata.Setters[autogeneratedFieldName](entity, Convert.ChangeType(autogeneratedFieldValue, entityMetadata.PrimaryKeyType));
             }
 		}
 
@@ -640,7 +651,7 @@ namespace inercya.EntityLite
             }
             var cmd = new CommandExecutor(this, false)
             {
-                GetCommandFunc = () => this.commandBuilder.GetUpdateCommand(entity, sortedFields)
+                GetCommandFunc = () => this.commandBuilder.GetUpdateCommand(entity, sortedFields, metadata)
             };
             var affectedRecords = cmd.ExecuteNonQuery();
             var identity = entity.TryGetId();

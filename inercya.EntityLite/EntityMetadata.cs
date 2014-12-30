@@ -25,6 +25,12 @@ namespace inercya.EntityLite
 {
     public class EntityMetadata
     {
+        public Type EntityType { get; private set; }
+
+        public IPropertyGetterDictionary Getters { get; private set; }
+
+        public IPropertySetterDictionary Setters { get; private set; }
+
         public string BaseTableName { get; set; }
         
         public string SchemaName { get; set; }
@@ -69,27 +75,13 @@ namespace inercya.EntityLite
 			get { return _updatableProperties; }
 		}
 
-        public string PrimaryKeyPropertyName
-        {
-            get
-            {
-                if (this.PrimaryKeyPropertyNames.Count == 1)
-                {
-                    return this.PrimaryKeyPropertyNames.FirstOrDefault();
-                }
-                return null;
-            }
-        }
 
-        public bool IsPrimaryKeyGuid
-        {
-            get
-            {
-                var primaryKeyName = PrimaryKeyPropertyName;
-                if (primaryKeyName == null) return false;
-                return this.Properties[primaryKeyName].PropertyInfo.PropertyType == typeof(Guid);
-            }
-        }
+        public string PrimaryKeyPropertyName { get; private set; }
+
+
+        public bool IsPrimaryKeyGuid { get; private set; }
+
+        public Type PrimaryKeyType { get; private set; }
 
         public EntityMetadata()
         {
@@ -121,11 +113,19 @@ namespace inercya.EntityLite
 
 		private static EntityMetadata CreateEntityMetadata(Type entityType)
 		{
+            
+
 			object[] attributes = entityType.GetCustomAttributes(typeof(SqlEntityAttribute), false);
 			if (attributes.Length == 0) return null;
+            EntityMetadata entityMetadata = new EntityMetadata()
+            {
+                EntityType = entityType,
+                Getters = PropertyHelper.GetPropertyGetters(entityType),
+                Setters = PropertyHelper.GetPropertySetters(entityType)
+            };
 			SqlEntityAttribute sqlMetadata = (SqlEntityAttribute)attributes[0];
 
-			EntityMetadata entityMetadata = new EntityMetadata();
+			
 			entityMetadata.BaseTableName = sqlMetadata.BaseTableName;
 			entityMetadata.SchemaName = sqlMetadata.SchemaName;
 
@@ -199,6 +199,17 @@ namespace inercya.EntityLite
 					propertyMetadata.IsLocalizedFiled = true;
 				}
 			}
+
+            if (entityMetadata.PrimaryKeyPropertyNames.Count == 1)
+            {
+                entityMetadata.PrimaryKeyPropertyName = entityMetadata.PrimaryKeyPropertyNames.FirstOrDefault();
+            }
+
+            if (entityMetadata.PrimaryKeyPropertyName != null)
+            {
+                entityMetadata.PrimaryKeyType = entityMetadata.Properties[entityMetadata.PrimaryKeyPropertyName].PropertyInfo.PropertyType;
+                entityMetadata.IsPrimaryKeyGuid = entityMetadata.PrimaryKeyType == typeof(Guid);
+            }
 			return entityMetadata;
 		}
     }

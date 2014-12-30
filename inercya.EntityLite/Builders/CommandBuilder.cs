@@ -47,7 +47,7 @@ namespace inercya.EntityLite.Builders
         private Dictionary<Type, DbCommand> deleteCommandCache = new Dictionary<Type, DbCommand>();
 
 
-        public DbCommand GetUpdateCommand(object entity, IEnumerable<string> fieldsToUpdate)
+        public DbCommand GetUpdateCommand(object entity, IEnumerable<string> fieldsToUpdate, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -55,7 +55,7 @@ namespace inercya.EntityLite.Builders
             DbCommand command;
             if (updateCommandCache.TryGetValue(entityType, fieldsKey, out command))
             {
-                SetParameterValuesFromObject(command, entity);
+                SetParameterValuesFromObject(command, entity, entityMetadata);
             }
             else
             {
@@ -65,38 +65,37 @@ namespace inercya.EntityLite.Builders
             return command;
         }
 
-		public  DbCommand GetInsertCommand(object entity)
+		public  DbCommand GetInsertCommand(object entity, EntityMetadata entityMetadata)
 		{
-			Type entityType = entity.GetType();
+			Type entityType = entityMetadata.EntityType;
 			DbCommand command;
 			if (insertCommandCache.TryGetValue(entityType, out command))
 			{
-				SetParameterValuesFromObject(command, entity);
+				SetParameterValuesFromObject(command, entity, entityMetadata);
 			}
 			else
             {
 				command = GenerateInsertCommand(entity);
                 insertCommandCache.Add(entityType, command);
 			}
-            var metadata = entityType.GetEntityMetadata();
-            if (metadata.IsPrimaryKeyGuid)
+            if (entityMetadata.IsPrimaryKeyGuid)
             {
-                Guid primaryKeyValue = (Guid)entity.GetPropertyValue(metadata.PrimaryKeyPropertyName);
+                Guid primaryKeyValue = (Guid)entity.GetPropertyValue(entityMetadata.PrimaryKeyPropertyName);
                 if (primaryKeyValue == Guid.Empty)
                 {
-                    command.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + metadata.PrimaryKeyPropertyName].Value = this.DataService.NewGuid();
+                    command.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + entityMetadata.PrimaryKeyPropertyName].Value = this.DataService.NewGuid();
                 }
             }
 			return command;
 		}
 
-        public DbCommand GetDeleteCommand(object entity)
+        public DbCommand GetDeleteCommand(object entity, EntityMetadata entityMetadata)
         {
             Type entityType = entity.GetType();
             DbCommand command;
             if (deleteCommandCache.TryGetValue(entityType, out command))
             {
-                SetParameterValuesFromObject(command, entity);
+                SetParameterValuesFromObject(command, entity, entityMetadata);
             }
             else
             {
@@ -330,12 +329,14 @@ namespace inercya.EntityLite.Builders
 
 
 
-		private void SetParameterValuesFromObject(DbCommand command, object obj)
+		private void SetParameterValuesFromObject(DbCommand command, object obj, EntityMetadata entityMetadata)
 		{
-			Type type = obj.GetType();
-			IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(type);
-			foreach (DbParameter param in command.Parameters)
+			IPropertyGetterDictionary getters = entityMetadata.Getters;
+            var parameters = command.Parameters;
+            var count = parameters.Count;
+			for (int i = 0; i < count; i++)
 			{
+                var param = parameters[i];
 				if ((param.Direction & ParameterDirection.Input) == ParameterDirection.Input)
 				{
 					SetValueToCommandParameter(obj, getters, param.SourceColumn, param);

@@ -63,6 +63,48 @@ namespace inercya.EntityLite
     {
 		public DataService DataService { get;  set; }
 
+
+        private static EntityMetadata _entityMetadata;
+
+        public static EntityMetadata EntityMetadata 
+        {
+            get
+            {
+                if (_entityMetadata == null)
+                {
+                    _entityMetadata = EntityMetadata.GetEntityMetadata(typeof(TEntity));
+                }
+                return _entityMetadata;
+            }
+        }
+
+        private static IPropertyGetterDictionary _getters;
+        public static IPropertyGetterDictionary Getters
+        {
+            get 
+            {
+                if (_getters == null)
+                {
+                    _getters = PropertyHelper.GetPropertyGetters(typeof(TEntity));
+                }
+                return _getters;
+            }
+        }
+
+        private static IPropertySetterDictionary _setters;
+        public static IPropertySetterDictionary Setters
+        {
+            get
+            {
+                if (_setters == null)
+                {
+                    _setters = PropertyHelper.GetPropertySetters(typeof(TEntity));
+                }
+                return _setters;
+            }
+        }
+
+
         public Repository(DataService dataService)
         {
             this.DataService = dataService;
@@ -129,7 +171,7 @@ namespace inercya.EntityLite
 
         public virtual void Insert(TEntity entity)
         {
-            this.DataService.Insert(entity);
+            this.DataService.Insert(entity, EntityMetadata);
         }
 
         public void Update(TEntity entity)
