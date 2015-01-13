@@ -1,0 +1,30 @@
+﻿<#@ include file ="EntityLite.ttinclude\EntityLite.ttinclude" #>
+<#
+	var generation = new DataLayerGeneration
+	{
+		ProviderName = "System.Data.SqlClient",
+		// Please, change the connection string. This is the connection string used at design time
+		// to generate de data layer
+		ConnectionString = @"Data Source=(local);Integrated Security=SSPI;Initial Catalog=Northwind",
+		DefaultSchema = "dbo",
+		RootNamespace = "Samples.Entities",
+		DataServiceName = "NorhtwindDataService",
+        // you should include a connection string with this name in the configuration file
+		// this is the connection that will be used at runtime
+        ConnectionStringName= "Northwind",
+		EntitySettings = new List<EntitySetting>
+		{
+			new EntitySetting 
+			{
+                EntityName = "Product", 
+				BaseTableName = "Products"
+			}
+		},
+		ProcedureSettings = new List<ProcedureSetting>
+		{
+		
+		}
+	};
+	// Uncomment this line to generate the data layer
+	// Render(generation);
+#>

@@ -446,12 +446,6 @@ namespace inercya.EntityLite
             return affectedRecords > 0;
 		}
 
-        private bool SetAuditDate(string fieldName, object entity, out object previousValue)
-        {
-            Type entityType = entity.GetType();
-            return SetAuditDate(fieldName, entity, EntityMetadata.GetEntityMetadata(entityType), out previousValue);
-        }
-
         private bool SetAuditDate(string fieldName, object entity, EntityMetadata metadata, out object previousValue)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -489,12 +483,6 @@ namespace inercya.EntityLite
             return false;
         }
 
-        private bool SetAuditUser(string fieldName, object entity, out object previousValue)
-        {
-            Type entityType = entity.GetType();
-            return SetAuditUser(fieldName, entity, EntityMetadata.GetEntityMetadata(entityType), out previousValue);
-        }
-
         private bool SetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata, out object previousValue)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -503,7 +491,7 @@ namespace inercya.EntityLite
             PropertyGetter getter;
             if (getters.TryGetValue(fieldName, out getter))
             {
-                previousValue = getter(fieldName);
+                previousValue = getter(entity);
             }
             else
             {
@@ -645,11 +633,11 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                isModifiedBySet = SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, out previousModifiedBy);
+                isModifiedBySet = SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata, out previousModifiedBy);
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                isModifiedDateSet = SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, out previousModifiedDate);
+                isModifiedDateSet = SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata, out previousModifiedDate);
             }
             var cmd = new CommandExecutor(this, false)
             {

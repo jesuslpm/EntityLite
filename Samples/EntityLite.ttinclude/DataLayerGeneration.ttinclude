@@ -603,12 +603,28 @@ FROM
 		if (commandText != null)
 		{
 			using (var cn = OpenConnection())
-			using (var cmd = cn.CreateCommand())
 			{
-				cmd.CommandText = commandText;
-				using (var reader = cmd.ExecuteReader())
+				var areSequencesSupported = true;
+				int version = 0;
+				if (ProviderName == "System.Data.SqlClient") {
+					version = int.Parse(cn.ServerVersion.Split('.')[0]);
+					if (version < 11) areSequencesSupported = false;
+				}
+
+				if (areSequencesSupported)
 				{
-					Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
+					using (var cmd = cn.CreateCommand())
+					{
+						cmd.CommandText = commandText;
+						using (var reader = cmd.ExecuteReader()) 
+						{
+							Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
+						}
+					}
+				}
+				else
+				{
+					Sequences = new Dictionary<string, Sequence>();
 				}
 			}
 		}
