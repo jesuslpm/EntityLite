@@ -27,6 +27,7 @@ public class DataLayerGeneration : IDisposable
 	public string DefaultSchema { get; set;}
     public bool GenerateEntityTypeId { get; set; }
 	public TextTransform EntityNameToEntityViewTransform {get; set;}
+	public bool ImplementINotifyPropertyChanged {get; set;}
 
     public List<EntitySetting> EntitySettings { get; set; }
     public List<ProcedureSetting> ProcedureSettings { get; set; }
@@ -64,6 +65,19 @@ public class DataLayerGeneration : IDisposable
         cn.Open();
         return cn;
     }
+
+	private DbCommandBuilder _commandBuilder;
+	public DbCommandBuilder CommandBuilder
+	{
+		get
+		{
+			if (_commandBuilder == null)
+			{
+				_commandBuilder = Factory.CreateCommandBuilder();
+			}
+			return _commandBuilder;
+		}
+	}
 
 
 	public static Type GetTypeFromDbType(DbType dbType)
@@ -340,11 +354,27 @@ public class DataLayerGeneration : IDisposable
 				{
 					var pkfieldMetadata = primaryKey[0];
 					string schemaName = GetSchemaName(entity);
-					string fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					string fullSequenceName = null;
+					if (!string.IsNullOrEmpty(entity.SequenceName))
+					{
+						fullSequenceName = string.IsNullOrEmpty(schemaName) ? entity.SequenceName : schemaName + "." + entity.SequenceName;
+					}
+					else if (ProviderName == "Oracle.DataAccess.Client")
+					{
+						fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					}
+					else
+					{
+						fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName) + "_SEQ";
+					}
 					Sequence seq = null;
 					if (Sequences.TryGetValue(fullSequenceName, out seq))
 					{
 						pkfieldMetadata.SequenceName = seq.SequenceName;
+					}
+					else if (!string.IsNullOrEmpty(entity.SequenceName))
+					{
+						throw new ArgumentException("The sequence " + fullSequenceName + " doesn't exist in the database");
 					}
 				}
             }
@@ -406,6 +436,7 @@ public class DataLayerGeneration : IDisposable
         }
     }
 
+
     private DataTable GetSchemaUnion(EntitySetting entitySetting, DbConnection cn)
     {
         DataTable schemaUnion = null;
@@ -413,7 +444,7 @@ public class DataLayerGeneration : IDisposable
         DataTable baseTableSchema = null;
         if (!string.IsNullOrEmpty(entitySetting.BaseTableName))
         {
-            baseTableSchema = GetSchema(entitySetting.GetFullTableName(DefaultSchema), cn);
+            baseTableSchema = GetSchema(entitySetting.GetFullTableName(DefaultSchema, CommandBuilder.QuotePrefix, CommandBuilder.QuoteSuffix), cn);
             if ((entitySetting.FieldGeneration & FieldGeneration.ForBaseTable) == FieldGeneration.ForBaseTable)
             {
                 schemaUnion = baseTableSchema.Copy();
@@ -501,10 +532,10 @@ public class DataLayerGeneration : IDisposable
     public List<FieldMetadata> GetPrimaryKey(EntitySetting entity)
     {
 
-        var fullTableName = entity.GetFullTableName(DefaultSchema);
+        var fullTableName = entity.GetFullTableName(DefaultSchema, CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix);
         return GetFieldsMetadata(entity).Where(x => x.IsKey 
             && ! string.IsNullOrEmpty(entity.BaseTableName)
-            && string.Equals(fullTableName, x.FullTableName, StringComparison.InvariantCultureIgnoreCase) ).ToList(); 
+            && string.Equals(fullTableName, x.FullTableName(CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix), StringComparison.InvariantCultureIgnoreCase) ).ToList(); 
 
     }
 
@@ -556,22 +587,53 @@ public class DataLayerGeneration : IDisposable
 
 	private void LoadSequences()
 	{
+		string commandText = null;
 		if (ProviderName == "Oracle.DataAccess.Client")
 		{
+			commandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
+		}
+		else if (ProviderName == "System.Data.SqlClient")
+		{
+			commandText = @"
+SELECT 
+	sh.name AS SEQUENCE_SCHEMA, seq.name AS  SEQUENCE_NAME
+FROM 
+	sys.sequences seq 
+	INNER JOIN sys.schemas sh on seq.schema_id = sh.schema_id";
+		}
+		if (commandText != null)
+		{
 			using (var cn = OpenConnection())
-			using (var cmd = cn.CreateCommand())
 			{
-				cmd.CommandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
-				using (var reader = cmd.ExecuteReader())
+				var areSequencesSupported = true;
+				int version = 0;
+				if (ProviderName == "System.Data.SqlClient") {
+					version = int.Parse(cn.ServerVersion.Split('.')[0]);
+					if (version < 11) areSequencesSupported = false;
+				}
+
+				if (areSequencesSupported)
 				{
-					Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
+					using (var cmd = cn.CreateCommand())
+					{
+						cmd.CommandText = commandText;
+						using (var reader = cmd.ExecuteReader()) 
+						{
+							Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
+						}
+					}
+				}
+				else
+				{
+					Sequences = new Dictionary<string, Sequence>();
 				}
 			}
 		}
-		else
+		else 
 		{
 			Sequences = new Dictionary<string, Sequence>();
 		}
+
 	}
   
   private Dictionary<string, Sequence> Sequences;

@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 using inercya.EntityLite;	
 using inercya.EntityLite.Extensions;		
 
@@ -14,27 +15,83 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Categories")]
-	public partial class Category
+	public partial class Category : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _categoryId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Categories" )]
-		public Int32 CategoryId { get; set; }
+		public Int32 CategoryId 
+		{ 
+		    get { return _categoryId; } 
+			set 
+			{
+			    _categoryId = value;
+				NotifyPropertyChange("CategoryId");
+			}
+        }
 
+		private String _categoryNameLang1;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1", BaseColumnName ="CategoryNameLang1", BaseTableName = "Categories" )]
-		public String CategoryNameLang1 { get; set; }
+		public String CategoryNameLang1 
+		{ 
+		    get { return _categoryNameLang1; } 
+			set 
+			{
+			    _categoryNameLang1 = value;
+				NotifyPropertyChange("CategoryNameLang1");
+			}
+        }
 
+		private String _description;
 		[DataMember]
 		[SqlField(DbType.String, 2147483647, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]
-		public String Description { get; set; }
+		public String Description 
+		{ 
+		    get { return _description; } 
+			set 
+			{
+			    _description = value;
+				NotifyPropertyChange("Description");
+			}
+        }
 
+		private Byte[] _picture;
 		[DataMember]
 		[SqlField(DbType.Binary, 2147483647, ColumnName ="Picture", BaseColumnName ="Picture", BaseTableName = "Categories" )]
-		public Byte[] Picture { get; set; }
+		public Byte[] Picture 
+		{ 
+		    get { return _picture; } 
+			set 
+			{
+			    _picture = value;
+				NotifyPropertyChange("Picture");
+			}
+        }
 
+		private String _categoryNameLang2;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2", BaseColumnName ="CategoryNameLang2", BaseTableName = "Categories" )]
-		public String CategoryNameLang2 { get; set; }
+		public String CategoryNameLang2 
+		{ 
+		    get { return _categoryNameLang2; } 
+			set 
+			{
+			    _categoryNameLang2 = value;
+				NotifyPropertyChange("CategoryNameLang2");
+			}
+        }
 
 		[LocalizedField]
 		public String CategoryName 
@@ -89,10 +146,10 @@ namespace Samples.Entities
 			return ((IRepository<Category>)this).Get(projection, categoryId, fields);
 		}
 
-		public void Delete(System.Int32 categoryId)
+		public bool Delete(System.Int32 categoryId)
 		{
 			var entity = new Category { CategoryId = categoryId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -109,51 +166,161 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Customers")]
-	public partial class Customer
+	public partial class Customer : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private String _customerId;
 		[DataMember]
 		[SqlField(DbType.StringFixedLength, 5, IsKey=true, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Customers" )]
-		public String CustomerId { get; set; }
+		public String CustomerId 
+		{ 
+		    get { return _customerId; } 
+			set 
+			{
+			    _customerId = value;
+				NotifyPropertyChange("CustomerId");
+			}
+        }
 
+		private String _companyName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Customers" )]
-		public String CompanyName { get; set; }
+		public String CompanyName 
+		{ 
+		    get { return _companyName; } 
+			set 
+			{
+			    _companyName = value;
+				NotifyPropertyChange("CompanyName");
+			}
+        }
 
+		private String _contactName;
 		[DataMember]
 		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Customers" )]
-		public String ContactName { get; set; }
+		public String ContactName 
+		{ 
+		    get { return _contactName; } 
+			set 
+			{
+			    _contactName = value;
+				NotifyPropertyChange("ContactName");
+			}
+        }
 
+		private String _contactTitle;
 		[DataMember]
 		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Customers" )]
-		public String ContactTitle { get; set; }
+		public String ContactTitle 
+		{ 
+		    get { return _contactTitle; } 
+			set 
+			{
+			    _contactTitle = value;
+				NotifyPropertyChange("ContactTitle");
+			}
+        }
 
+		private String _address;
 		[DataMember]
 		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Customers" )]
-		public String Address { get; set; }
+		public String Address 
+		{ 
+		    get { return _address; } 
+			set 
+			{
+			    _address = value;
+				NotifyPropertyChange("Address");
+			}
+        }
 
+		private String _city;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Customers" )]
-		public String City { get; set; }
+		public String City 
+		{ 
+		    get { return _city; } 
+			set 
+			{
+			    _city = value;
+				NotifyPropertyChange("City");
+			}
+        }
 
+		private String _region;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Customers" )]
-		public String Region { get; set; }
+		public String Region 
+		{ 
+		    get { return _region; } 
+			set 
+			{
+			    _region = value;
+				NotifyPropertyChange("Region");
+			}
+        }
 
+		private String _postalCode;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Customers" )]
-		public String PostalCode { get; set; }
+		public String PostalCode 
+		{ 
+		    get { return _postalCode; } 
+			set 
+			{
+			    _postalCode = value;
+				NotifyPropertyChange("PostalCode");
+			}
+        }
 
+		private String _country;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Customers" )]
-		public String Country { get; set; }
+		public String Country 
+		{ 
+		    get { return _country; } 
+			set 
+			{
+			    _country = value;
+				NotifyPropertyChange("Country");
+			}
+        }
 
+		private String _phone;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Customers" )]
-		public String Phone { get; set; }
+		public String Phone 
+		{ 
+		    get { return _phone; } 
+			set 
+			{
+			    _phone = value;
+				NotifyPropertyChange("Phone");
+			}
+        }
 
+		private String _fax;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Customers" )]
-		public String Fax { get; set; }
+		public String Fax 
+		{ 
+		    get { return _fax; } 
+			set 
+			{
+			    _fax = value;
+				NotifyPropertyChange("Fax");
+			}
+        }
 
 
 	}
@@ -200,10 +367,10 @@ namespace Samples.Entities
 			return ((IRepository<Customer>)this).Get(projection, customerId, fields);
 		}
 
-		public void Delete(System.String customerId)
+		public bool Delete(System.String customerId)
 		{
 			var entity = new Customer { CustomerId = customerId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -225,79 +392,252 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Employees")]
-	public partial class Employee
+	public partial class Employee : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _employeeId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Employees" )]
-		public Int32 EmployeeId { get; set; }
+		public Int32 EmployeeId 
+		{ 
+		    get { return _employeeId; } 
+			set 
+			{
+			    _employeeId = value;
+				NotifyPropertyChange("EmployeeId");
+			}
+        }
 
+		private String _lastName;
 		[DataMember]
 		[SqlField(DbType.String, 20, ColumnName ="LastName", BaseColumnName ="LastName", BaseTableName = "Employees" )]
-		public String LastName { get; set; }
+		public String LastName 
+		{ 
+		    get { return _lastName; } 
+			set 
+			{
+			    _lastName = value;
+				NotifyPropertyChange("LastName");
+			}
+        }
 
+		private String _firstName;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="FirstName", BaseColumnName ="FirstName", BaseTableName = "Employees" )]
-		public String FirstName { get; set; }
+		public String FirstName 
+		{ 
+		    get { return _firstName; } 
+			set 
+			{
+			    _firstName = value;
+				NotifyPropertyChange("FirstName");
+			}
+        }
 
+		private String _title;
 		[DataMember]
 		[SqlField(DbType.String, 30, ColumnName ="Title", BaseColumnName ="Title", BaseTableName = "Employees" )]
-		public String Title { get; set; }
+		public String Title 
+		{ 
+		    get { return _title; } 
+			set 
+			{
+			    _title = value;
+				NotifyPropertyChange("Title");
+			}
+        }
 
+		private String _titleOfCourtesy;
 		[DataMember]
 		[SqlField(DbType.String, 25, ColumnName ="TitleOfCourtesy", BaseColumnName ="TitleOfCourtesy", BaseTableName = "Employees" )]
-		public String TitleOfCourtesy { get; set; }
+		public String TitleOfCourtesy 
+		{ 
+		    get { return _titleOfCourtesy; } 
+			set 
+			{
+			    _titleOfCourtesy = value;
+				NotifyPropertyChange("TitleOfCourtesy");
+			}
+        }
 
+		private DateTime? _birthDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="BirthDate", BaseColumnName ="BirthDate", BaseTableName = "Employees" )]
-		public DateTime? BirthDate { get; set; }
+		public DateTime? BirthDate 
+		{ 
+		    get { return _birthDate; } 
+			set 
+			{
+			    _birthDate = value;
+				NotifyPropertyChange("BirthDate");
+			}
+        }
 
+		private DateTime? _hireDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="HireDate", BaseColumnName ="HireDate", BaseTableName = "Employees" )]
-		public DateTime? HireDate { get; set; }
+		public DateTime? HireDate 
+		{ 
+		    get { return _hireDate; } 
+			set 
+			{
+			    _hireDate = value;
+				NotifyPropertyChange("HireDate");
+			}
+        }
 
+		private String _address;
 		[DataMember]
 		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Employees" )]
-		public String Address { get; set; }
+		public String Address 
+		{ 
+		    get { return _address; } 
+			set 
+			{
+			    _address = value;
+				NotifyPropertyChange("Address");
+			}
+        }
 
+		private String _city;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Employees" )]
-		public String City { get; set; }
+		public String City 
+		{ 
+		    get { return _city; } 
+			set 
+			{
+			    _city = value;
+				NotifyPropertyChange("City");
+			}
+        }
 
+		private String _region;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Employees" )]
-		public String Region { get; set; }
+		public String Region 
+		{ 
+		    get { return _region; } 
+			set 
+			{
+			    _region = value;
+				NotifyPropertyChange("Region");
+			}
+        }
 
+		private String _postalCode;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Employees" )]
-		public String PostalCode { get; set; }
+		public String PostalCode 
+		{ 
+		    get { return _postalCode; } 
+			set 
+			{
+			    _postalCode = value;
+				NotifyPropertyChange("PostalCode");
+			}
+        }
 
+		private String _country;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Employees" )]
-		public String Country { get; set; }
+		public String Country 
+		{ 
+		    get { return _country; } 
+			set 
+			{
+			    _country = value;
+				NotifyPropertyChange("Country");
+			}
+        }
 
+		private String _homePhone;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="HomePhone", BaseColumnName ="HomePhone", BaseTableName = "Employees" )]
-		public String HomePhone { get; set; }
+		public String HomePhone 
+		{ 
+		    get { return _homePhone; } 
+			set 
+			{
+			    _homePhone = value;
+				NotifyPropertyChange("HomePhone");
+			}
+        }
 
+		private String _extension;
 		[DataMember]
 		[SqlField(DbType.String, 4, ColumnName ="Extension", BaseColumnName ="Extension", BaseTableName = "Employees" )]
-		public String Extension { get; set; }
+		public String Extension 
+		{ 
+		    get { return _extension; } 
+			set 
+			{
+			    _extension = value;
+				NotifyPropertyChange("Extension");
+			}
+        }
 
+		private Byte[] _photo;
 		[DataMember]
 		[SqlField(DbType.Binary, 2147483647, ColumnName ="Photo", BaseColumnName ="Photo", BaseTableName = "Employees" )]
-		public Byte[] Photo { get; set; }
+		public Byte[] Photo 
+		{ 
+		    get { return _photo; } 
+			set 
+			{
+			    _photo = value;
+				NotifyPropertyChange("Photo");
+			}
+        }
 
+		private String _notes;
 		[DataMember]
 		[SqlField(DbType.String, 1073741823, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]
-		public String Notes { get; set; }
+		public String Notes 
+		{ 
+		    get { return _notes; } 
+			set 
+			{
+			    _notes = value;
+				NotifyPropertyChange("Notes");
+			}
+        }
 
+		private Int32? _reportsTo;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ReportsTo", BaseColumnName ="ReportsTo", BaseTableName = "Employees" )]
-		public Int32? ReportsTo { get; set; }
+		public Int32? ReportsTo 
+		{ 
+		    get { return _reportsTo; } 
+			set 
+			{
+			    _reportsTo = value;
+				NotifyPropertyChange("ReportsTo");
+			}
+        }
 
+		private String _photoPath;
 		[DataMember]
 		[SqlField(DbType.String, 255, ColumnName ="PhotoPath", BaseColumnName ="PhotoPath", BaseTableName = "Employees" )]
-		public String PhotoPath { get; set; }
+		public String PhotoPath 
+		{ 
+		    get { return _photoPath; } 
+			set 
+			{
+			    _photoPath = value;
+				NotifyPropertyChange("PhotoPath");
+			}
+        }
 
 
 	}
@@ -344,10 +684,10 @@ namespace Samples.Entities
 			return ((IRepository<Employee>)this).Get(projection, employeeId, fields);
 		}
 
-		public void Delete(System.Int32 employeeId)
+		public bool Delete(System.Int32 employeeId)
 		{
 			var entity = new Employee { EmployeeId = employeeId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -376,91 +716,291 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="OrderDetails")]
-	public partial class OrderDetail
+	public partial class OrderDetail : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _orderDetailId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderDetailID", BaseColumnName ="OrderDetailID", BaseTableName = "OrderDetails" )]
-		public Int32 OrderDetailId { get; set; }
+		public Int32 OrderDetailId 
+		{ 
+		    get { return _orderDetailId; } 
+			set 
+			{
+			    _orderDetailId = value;
+				NotifyPropertyChange("OrderDetailId");
+			}
+        }
 
+		private Int32 _orderId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetails" )]
-		public Int32 OrderId { get; set; }
+		public Int32 OrderId 
+		{ 
+		    get { return _orderId; } 
+			set 
+			{
+			    _orderId = value;
+				NotifyPropertyChange("OrderId");
+			}
+        }
 
+		private Int32 _productId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetails" )]
-		public Int32 ProductId { get; set; }
+		public Int32 ProductId 
+		{ 
+		    get { return _productId; } 
+			set 
+			{
+			    _productId = value;
+				NotifyPropertyChange("ProductId");
+			}
+        }
 
+		private Decimal _unitPrice;
 		[DataMember]
 		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetails" )]
-		public Decimal UnitPrice { get; set; }
+		public Decimal UnitPrice 
+		{ 
+		    get { return _unitPrice; } 
+			set 
+			{
+			    _unitPrice = value;
+				NotifyPropertyChange("UnitPrice");
+			}
+        }
 
+		private Int16 _quantity;
 		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetails" )]
-		public Int16 Quantity { get; set; }
+		public Int16 Quantity 
+		{ 
+		    get { return _quantity; } 
+			set 
+			{
+			    _quantity = value;
+				NotifyPropertyChange("Quantity");
+			}
+        }
 
+		private Decimal _discount;
 		[DataMember]
 		[SqlField(DbType.Decimal, 17, Precision = 5, Scale=4, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetails" )]
-		public Decimal Discount { get; set; }
+		public Decimal Discount 
+		{ 
+		    get { return _discount; } 
+			set 
+			{
+			    _discount = value;
+				NotifyPropertyChange("Discount");
+			}
+        }
 
+		private Decimal? _subTotal;
 		[DataMember]
 		[SqlField(DbType.Decimal, 17, Precision = 32, Scale=8, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]
-		public Decimal? SubTotal { get; set; }
+		public Decimal? SubTotal 
+		{ 
+		    get { return _subTotal; } 
+			set 
+			{
+			    _subTotal = value;
+				NotifyPropertyChange("SubTotal");
+			}
+        }
 
+		private String _productName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]
-		public String ProductName { get; set; }
+		public String ProductName 
+		{ 
+		    get { return _productName; } 
+			set 
+			{
+			    _productName = value;
+				NotifyPropertyChange("ProductName");
+			}
+        }
 
+		private String _categoryNameLang1;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
-		public String CategoryNameLang1 { get; set; }
+		public String CategoryNameLang1 
+		{ 
+		    get { return _categoryNameLang1; } 
+			set 
+			{
+			    _categoryNameLang1 = value;
+				NotifyPropertyChange("CategoryNameLang1");
+			}
+        }
 
+		private String _categoryNameLang2;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
-		public String CategoryNameLang2 { get; set; }
+		public String CategoryNameLang2 
+		{ 
+		    get { return _categoryNameLang2; } 
+			set 
+			{
+			    _categoryNameLang2 = value;
+				NotifyPropertyChange("CategoryNameLang2");
+			}
+        }
 
+		private DateTime? _orderDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]
-		public DateTime? OrderDate { get; set; }
+		public DateTime? OrderDate 
+		{ 
+		    get { return _orderDate; } 
+			set 
+			{
+			    _orderDate = value;
+				NotifyPropertyChange("OrderDate");
+			}
+        }
 
+		private String _customerId;
 		[DataMember]
 		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID" )]
-		public String CustomerId { get; set; }
+		public String CustomerId 
+		{ 
+		    get { return _customerId; } 
+			set 
+			{
+			    _customerId = value;
+				NotifyPropertyChange("CustomerId");
+			}
+        }
 
+		private String _customerName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="CustomerName" )]
-		public String CustomerName { get; set; }
+		public String CustomerName 
+		{ 
+		    get { return _customerName; } 
+			set 
+			{
+			    _customerName = value;
+				NotifyPropertyChange("CustomerName");
+			}
+        }
 
+		private String _address;
 		[DataMember]
 		[SqlField(DbType.String, 60, ColumnName ="Address" )]
-		public String Address { get; set; }
+		public String Address 
+		{ 
+		    get { return _address; } 
+			set 
+			{
+			    _address = value;
+				NotifyPropertyChange("Address");
+			}
+        }
 
+		private String _city;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="City" )]
-		public String City { get; set; }
+		public String City 
+		{ 
+		    get { return _city; } 
+			set 
+			{
+			    _city = value;
+				NotifyPropertyChange("City");
+			}
+        }
 
+		private String _region;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Region" )]
-		public String Region { get; set; }
+		public String Region 
+		{ 
+		    get { return _region; } 
+			set 
+			{
+			    _region = value;
+				NotifyPropertyChange("Region");
+			}
+        }
 
+		private String _postalCode;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode" )]
-		public String PostalCode { get; set; }
+		public String PostalCode 
+		{ 
+		    get { return _postalCode; } 
+			set 
+			{
+			    _postalCode = value;
+				NotifyPropertyChange("PostalCode");
+			}
+        }
 
+		private String _country;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Country" )]
-		public String Country { get; set; }
+		public String Country 
+		{ 
+		    get { return _country; } 
+			set 
+			{
+			    _country = value;
+				NotifyPropertyChange("Country");
+			}
+        }
 
+		private String _phone;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="Phone" )]
-		public String Phone { get; set; }
+		public String Phone 
+		{ 
+		    get { return _phone; } 
+			set 
+			{
+			    _phone = value;
+				NotifyPropertyChange("Phone");
+			}
+        }
 
+		private Int16? _unitsInStock;
 		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock" )]
-		public Int16? UnitsInStock { get; set; }
+		public Int16? UnitsInStock 
+		{ 
+		    get { return _unitsInStock; } 
+			set 
+			{
+			    _unitsInStock = value;
+				NotifyPropertyChange("UnitsInStock");
+			}
+        }
 
+		private Int16? _unitsOnOrder;
 		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder" )]
-		public Int16? UnitsOnOrder { get; set; }
+		public Int16? UnitsOnOrder 
+		{ 
+		    get { return _unitsOnOrder; } 
+			set 
+			{
+			    _unitsOnOrder = value;
+				NotifyPropertyChange("UnitsOnOrder");
+			}
+        }
 
 		[LocalizedField]
 		public String CategoryName 
@@ -515,10 +1055,10 @@ namespace Samples.Entities
 			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, fields);
 		}
 
-		public void Delete(System.Int32 orderDetailId)
+		public bool Delete(System.Int32 orderDetailId)
 		{
 			var entity = new OrderDetail { OrderDetailId = orderDetailId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -551,87 +1091,278 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Orders")]
-	public partial class Order
+	public partial class Order : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _orderId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Orders" )]
-		public Int32 OrderId { get; set; }
+		public Int32 OrderId 
+		{ 
+		    get { return _orderId; } 
+			set 
+			{
+			    _orderId = value;
+				NotifyPropertyChange("OrderId");
+			}
+        }
 
+		private String _customerId;
 		[DataMember]
 		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Orders" )]
-		public String CustomerId { get; set; }
+		public String CustomerId 
+		{ 
+		    get { return _customerId; } 
+			set 
+			{
+			    _customerId = value;
+				NotifyPropertyChange("CustomerId");
+			}
+        }
 
+		private Int32? _employeeId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Orders" )]
-		public Int32? EmployeeId { get; set; }
+		public Int32? EmployeeId 
+		{ 
+		    get { return _employeeId; } 
+			set 
+			{
+			    _employeeId = value;
+				NotifyPropertyChange("EmployeeId");
+			}
+        }
 
+		private DateTime? _orderDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate", BaseColumnName ="OrderDate", BaseTableName = "Orders" )]
-		public DateTime? OrderDate { get; set; }
+		public DateTime? OrderDate 
+		{ 
+		    get { return _orderDate; } 
+			set 
+			{
+			    _orderDate = value;
+				NotifyPropertyChange("OrderDate");
+			}
+        }
 
+		private DateTime? _requiredDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="RequiredDate", BaseColumnName ="RequiredDate", BaseTableName = "Orders" )]
-		public DateTime? RequiredDate { get; set; }
+		public DateTime? RequiredDate 
+		{ 
+		    get { return _requiredDate; } 
+			set 
+			{
+			    _requiredDate = value;
+				NotifyPropertyChange("RequiredDate");
+			}
+        }
 
+		private DateTime? _shippedDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ShippedDate", BaseColumnName ="ShippedDate", BaseTableName = "Orders" )]
-		public DateTime? ShippedDate { get; set; }
+		public DateTime? ShippedDate 
+		{ 
+		    get { return _shippedDate; } 
+			set 
+			{
+			    _shippedDate = value;
+				NotifyPropertyChange("ShippedDate");
+			}
+        }
 
+		private Int32? _shipVia;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ShipVia", BaseColumnName ="ShipVia", BaseTableName = "Orders" )]
-		public Int32? ShipVia { get; set; }
+		public Int32? ShipVia 
+		{ 
+		    get { return _shipVia; } 
+			set 
+			{
+			    _shipVia = value;
+				NotifyPropertyChange("ShipVia");
+			}
+        }
 
+		private Decimal? _freight;
 		[DataMember]
 		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="Freight", BaseColumnName ="Freight", BaseTableName = "Orders" )]
-		public Decimal? Freight { get; set; }
+		public Decimal? Freight 
+		{ 
+		    get { return _freight; } 
+			set 
+			{
+			    _freight = value;
+				NotifyPropertyChange("Freight");
+			}
+        }
 
+		private String _shipName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="ShipName", BaseColumnName ="ShipName", BaseTableName = "Orders" )]
-		public String ShipName { get; set; }
+		public String ShipName 
+		{ 
+		    get { return _shipName; } 
+			set 
+			{
+			    _shipName = value;
+				NotifyPropertyChange("ShipName");
+			}
+        }
 
+		private String _shipAddress;
 		[DataMember]
 		[SqlField(DbType.String, 60, ColumnName ="ShipAddress", BaseColumnName ="ShipAddress", BaseTableName = "Orders" )]
-		public String ShipAddress { get; set; }
+		public String ShipAddress 
+		{ 
+		    get { return _shipAddress; } 
+			set 
+			{
+			    _shipAddress = value;
+				NotifyPropertyChange("ShipAddress");
+			}
+        }
 
+		private String _shipCity;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="ShipCity", BaseColumnName ="ShipCity", BaseTableName = "Orders" )]
-		public String ShipCity { get; set; }
+		public String ShipCity 
+		{ 
+		    get { return _shipCity; } 
+			set 
+			{
+			    _shipCity = value;
+				NotifyPropertyChange("ShipCity");
+			}
+        }
 
+		private String _shipRegion;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="ShipRegion", BaseColumnName ="ShipRegion", BaseTableName = "Orders" )]
-		public String ShipRegion { get; set; }
+		public String ShipRegion 
+		{ 
+		    get { return _shipRegion; } 
+			set 
+			{
+			    _shipRegion = value;
+				NotifyPropertyChange("ShipRegion");
+			}
+        }
 
+		private String _shipPostalCode;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="ShipPostalCode", BaseColumnName ="ShipPostalCode", BaseTableName = "Orders" )]
-		public String ShipPostalCode { get; set; }
+		public String ShipPostalCode 
+		{ 
+		    get { return _shipPostalCode; } 
+			set 
+			{
+			    _shipPostalCode = value;
+				NotifyPropertyChange("ShipPostalCode");
+			}
+        }
 
+		private String _shipCountry;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="ShipCountry", BaseColumnName ="ShipCountry", BaseTableName = "Orders" )]
-		public String ShipCountry { get; set; }
+		public String ShipCountry 
+		{ 
+		    get { return _shipCountry; } 
+			set 
+			{
+			    _shipCountry = value;
+				NotifyPropertyChange("ShipCountry");
+			}
+        }
 
+		private String _customerCompanyName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="CustomerCompanyName" )]
-		public String CustomerCompanyName { get; set; }
+		public String CustomerCompanyName 
+		{ 
+		    get { return _customerCompanyName; } 
+			set 
+			{
+			    _customerCompanyName = value;
+				NotifyPropertyChange("CustomerCompanyName");
+			}
+        }
 
+		private String _employeeFirstName;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="EmployeeFirstName" )]
-		public String EmployeeFirstName { get; set; }
+		public String EmployeeFirstName 
+		{ 
+		    get { return _employeeFirstName; } 
+			set 
+			{
+			    _employeeFirstName = value;
+				NotifyPropertyChange("EmployeeFirstName");
+			}
+        }
 
+		private String _employeeLastName;
 		[DataMember]
 		[SqlField(DbType.String, 20, ColumnName ="EmployeeLastName" )]
-		public String EmployeeLastName { get; set; }
+		public String EmployeeLastName 
+		{ 
+		    get { return _employeeLastName; } 
+			set 
+			{
+			    _employeeLastName = value;
+				NotifyPropertyChange("EmployeeLastName");
+			}
+        }
 
+		private String _shipperCompanyName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="ShipperCompanyName" )]
-		public String ShipperCompanyName { get; set; }
+		public String ShipperCompanyName 
+		{ 
+		    get { return _shipperCompanyName; } 
+			set 
+			{
+			    _shipperCompanyName = value;
+				NotifyPropertyChange("ShipperCompanyName");
+			}
+        }
 
+		private Decimal? _orderTotal;
 		[DataMember]
 		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="OrderTotal" )]
-		public Decimal? OrderTotal { get; set; }
+		public Decimal? OrderTotal 
+		{ 
+		    get { return _orderTotal; } 
+			set 
+			{
+			    _orderTotal = value;
+				NotifyPropertyChange("OrderTotal");
+			}
+        }
 
+		private Int64? _lineCount;
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, AllowNull = true, ColumnName ="LineCount" )]
-		public Int64? LineCount { get; set; }
+		public Int64? LineCount 
+		{ 
+		    get { return _lineCount; } 
+			set 
+			{
+			    _lineCount = value;
+				NotifyPropertyChange("LineCount");
+			}
+        }
 
 
 	}
@@ -678,10 +1409,10 @@ namespace Samples.Entities
 			return ((IRepository<Order>)this).Get(projection, orderId, fields);
 		}
 
-		public void Delete(System.Int32 orderId)
+		public bool Delete(System.Int32 orderId)
 		{
 			var entity = new Order { OrderId = orderId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -712,59 +1443,187 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Products")]
-	public partial class Product
+	public partial class Product : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _productId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Products" )]
-		public Int32 ProductId { get; set; }
+		public Int32 ProductId 
+		{ 
+		    get { return _productId; } 
+			set 
+			{
+			    _productId = value;
+				NotifyPropertyChange("ProductId");
+			}
+        }
 
+		private String _productName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="ProductName", BaseColumnName ="ProductName", BaseTableName = "Products" )]
-		public String ProductName { get; set; }
+		public String ProductName 
+		{ 
+		    get { return _productName; } 
+			set 
+			{
+			    _productName = value;
+				NotifyPropertyChange("ProductName");
+			}
+        }
 
+		private Int32? _supplierId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Products" )]
-		public Int32? SupplierId { get; set; }
+		public Int32? SupplierId 
+		{ 
+		    get { return _supplierId; } 
+			set 
+			{
+			    _supplierId = value;
+				NotifyPropertyChange("SupplierId");
+			}
+        }
 
+		private Int32? _categoryId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Products" )]
-		public Int32? CategoryId { get; set; }
+		public Int32? CategoryId 
+		{ 
+		    get { return _categoryId; } 
+			set 
+			{
+			    _categoryId = value;
+				NotifyPropertyChange("CategoryId");
+			}
+        }
 
+		private String _quantityPerUnit;
 		[DataMember]
 		[SqlField(DbType.String, 20, ColumnName ="QuantityPerUnit", BaseColumnName ="QuantityPerUnit", BaseTableName = "Products" )]
-		public String QuantityPerUnit { get; set; }
+		public String QuantityPerUnit 
+		{ 
+		    get { return _quantityPerUnit; } 
+			set 
+			{
+			    _quantityPerUnit = value;
+				NotifyPropertyChange("QuantityPerUnit");
+			}
+        }
 
+		private Decimal _unitPrice;
 		[DataMember]
 		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]
-		public Decimal UnitPrice { get; set; }
+		public Decimal UnitPrice 
+		{ 
+		    get { return _unitPrice; } 
+			set 
+			{
+			    _unitPrice = value;
+				NotifyPropertyChange("UnitPrice");
+			}
+        }
 
+		private Int16? _unitsInStock;
 		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock", BaseColumnName ="UnitsInStock", BaseTableName = "Products" )]
-		public Int16? UnitsInStock { get; set; }
+		public Int16? UnitsInStock 
+		{ 
+		    get { return _unitsInStock; } 
+			set 
+			{
+			    _unitsInStock = value;
+				NotifyPropertyChange("UnitsInStock");
+			}
+        }
 
+		private Int16? _unitsOnOrder;
 		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder", BaseColumnName ="UnitsOnOrder", BaseTableName = "Products" )]
-		public Int16? UnitsOnOrder { get; set; }
+		public Int16? UnitsOnOrder 
+		{ 
+		    get { return _unitsOnOrder; } 
+			set 
+			{
+			    _unitsOnOrder = value;
+				NotifyPropertyChange("UnitsOnOrder");
+			}
+        }
 
+		private Int16? _reorderLevel;
 		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="ReorderLevel", BaseColumnName ="ReorderLevel", BaseTableName = "Products" )]
-		public Int16? ReorderLevel { get; set; }
+		public Int16? ReorderLevel 
+		{ 
+		    get { return _reorderLevel; } 
+			set 
+			{
+			    _reorderLevel = value;
+				NotifyPropertyChange("ReorderLevel");
+			}
+        }
 
+		private Boolean _discontinued;
 		[DataMember]
 		[SqlField(DbType.Boolean, 1, ColumnName ="Discontinued", BaseColumnName ="Discontinued", BaseTableName = "Products" )]
-		public Boolean Discontinued { get; set; }
+		public Boolean Discontinued 
+		{ 
+		    get { return _discontinued; } 
+			set 
+			{
+			    _discontinued = value;
+				NotifyPropertyChange("Discontinued");
+			}
+        }
 
+		private String _categoryNameLang1;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
-		public String CategoryNameLang1 { get; set; }
+		public String CategoryNameLang1 
+		{ 
+		    get { return _categoryNameLang1; } 
+			set 
+			{
+			    _categoryNameLang1 = value;
+				NotifyPropertyChange("CategoryNameLang1");
+			}
+        }
 
+		private String _categoryNameLang2;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
-		public String CategoryNameLang2 { get; set; }
+		public String CategoryNameLang2 
+		{ 
+		    get { return _categoryNameLang2; } 
+			set 
+			{
+			    _categoryNameLang2 = value;
+				NotifyPropertyChange("CategoryNameLang2");
+			}
+        }
 
+		private String _supplierName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="SupplierName" )]
-		public String SupplierName { get; set; }
+		public String SupplierName 
+		{ 
+		    get { return _supplierName; } 
+			set 
+			{
+			    _supplierName = value;
+				NotifyPropertyChange("SupplierName");
+			}
+        }
 
 		[LocalizedField]
 		public String CategoryName 
@@ -819,10 +1678,10 @@ namespace Samples.Entities
 			return ((IRepository<Product>)this).Get(projection, productId, fields);
 		}
 
-		public void Delete(System.Int32 productId)
+		public bool Delete(System.Int32 productId)
 		{
 			var entity = new Product { ProductId = productId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 
 		public void RaiseProductPrices(Decimal? rate)
@@ -863,19 +1722,57 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Shippers")]
-	public partial class Shipper
+	public partial class Shipper : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _shipperId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ShipperID", BaseColumnName ="ShipperID", BaseTableName = "Shippers" )]
-		public Int32 ShipperId { get; set; }
+		public Int32 ShipperId 
+		{ 
+		    get { return _shipperId; } 
+			set 
+			{
+			    _shipperId = value;
+				NotifyPropertyChange("ShipperId");
+			}
+        }
 
+		private String _companyName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Shippers" )]
-		public String CompanyName { get; set; }
+		public String CompanyName 
+		{ 
+		    get { return _companyName; } 
+			set 
+			{
+			    _companyName = value;
+				NotifyPropertyChange("CompanyName");
+			}
+        }
 
+		private String _phone;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Shippers" )]
-		public String Phone { get; set; }
+		public String Phone 
+		{ 
+		    get { return _phone; } 
+			set 
+			{
+			    _phone = value;
+				NotifyPropertyChange("Phone");
+			}
+        }
 
 
 	}
@@ -922,10 +1819,10 @@ namespace Samples.Entities
 			return ((IRepository<Shipper>)this).Get(projection, shipperId, fields);
 		}
 
-		public void Delete(System.Int32 shipperId)
+		public bool Delete(System.Int32 shipperId)
 		{
 			var entity = new Shipper { ShipperId = shipperId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -939,55 +1836,174 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Suppliers")]
-	public partial class Supplier
+	public partial class Supplier : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _supplierId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Suppliers" )]
-		public Int32 SupplierId { get; set; }
+		public Int32 SupplierId 
+		{ 
+		    get { return _supplierId; } 
+			set 
+			{
+			    _supplierId = value;
+				NotifyPropertyChange("SupplierId");
+			}
+        }
 
+		private String _companyName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Suppliers" )]
-		public String CompanyName { get; set; }
+		public String CompanyName 
+		{ 
+		    get { return _companyName; } 
+			set 
+			{
+			    _companyName = value;
+				NotifyPropertyChange("CompanyName");
+			}
+        }
 
+		private String _contactName;
 		[DataMember]
 		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Suppliers" )]
-		public String ContactName { get; set; }
+		public String ContactName 
+		{ 
+		    get { return _contactName; } 
+			set 
+			{
+			    _contactName = value;
+				NotifyPropertyChange("ContactName");
+			}
+        }
 
+		private String _contactTitle;
 		[DataMember]
 		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Suppliers" )]
-		public String ContactTitle { get; set; }
+		public String ContactTitle 
+		{ 
+		    get { return _contactTitle; } 
+			set 
+			{
+			    _contactTitle = value;
+				NotifyPropertyChange("ContactTitle");
+			}
+        }
 
+		private String _address;
 		[DataMember]
 		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Suppliers" )]
-		public String Address { get; set; }
+		public String Address 
+		{ 
+		    get { return _address; } 
+			set 
+			{
+			    _address = value;
+				NotifyPropertyChange("Address");
+			}
+        }
 
+		private String _city;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Suppliers" )]
-		public String City { get; set; }
+		public String City 
+		{ 
+		    get { return _city; } 
+			set 
+			{
+			    _city = value;
+				NotifyPropertyChange("City");
+			}
+        }
 
+		private String _region;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Suppliers" )]
-		public String Region { get; set; }
+		public String Region 
+		{ 
+		    get { return _region; } 
+			set 
+			{
+			    _region = value;
+				NotifyPropertyChange("Region");
+			}
+        }
 
+		private String _postalCode;
 		[DataMember]
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Suppliers" )]
-		public String PostalCode { get; set; }
+		public String PostalCode 
+		{ 
+		    get { return _postalCode; } 
+			set 
+			{
+			    _postalCode = value;
+				NotifyPropertyChange("PostalCode");
+			}
+        }
 
+		private String _country;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Suppliers" )]
-		public String Country { get; set; }
+		public String Country 
+		{ 
+		    get { return _country; } 
+			set 
+			{
+			    _country = value;
+				NotifyPropertyChange("Country");
+			}
+        }
 
+		private String _phone;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Suppliers" )]
-		public String Phone { get; set; }
+		public String Phone 
+		{ 
+		    get { return _phone; } 
+			set 
+			{
+			    _phone = value;
+				NotifyPropertyChange("Phone");
+			}
+        }
 
+		private String _fax;
 		[DataMember]
 		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Suppliers" )]
-		public String Fax { get; set; }
+		public String Fax 
+		{ 
+		    get { return _fax; } 
+			set 
+			{
+			    _fax = value;
+				NotifyPropertyChange("Fax");
+			}
+        }
 
+		private String _homePage;
 		[DataMember]
 		[SqlField(DbType.String, 1073741823, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]
-		public String HomePage { get; set; }
+		public String HomePage 
+		{ 
+		    get { return _homePage; } 
+			set 
+			{
+			    _homePage = value;
+				NotifyPropertyChange("HomePage");
+			}
+        }
 
 
 	}
@@ -1034,10 +2050,10 @@ namespace Samples.Entities
 			return ((IRepository<Supplier>)this).Get(projection, supplierId, fields);
 		}
 
-		public void Delete(System.Int32 supplierId)
+		public bool Delete(System.Int32 supplierId)
 		{
 			var entity = new Supplier { SupplierId = supplierId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -1060,15 +2076,44 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="my_table")]
-	public partial class MyEntity
+	public partial class MyEntity : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _entityId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]
-		public Int32 EntityId { get; set; }
+		public Int32 EntityId 
+		{ 
+		    get { return _entityId; } 
+			set 
+			{
+			    _entityId = value;
+				NotifyPropertyChange("EntityId");
+			}
+        }
 
+		private String _value;
 		[DataMember]
 		[SqlField(DbType.String, 128, ColumnName ="value", BaseColumnName ="value", BaseTableName = "my_table" )]
-		public String Value { get; set; }
+		public String Value 
+		{ 
+		    get { return _value; } 
+			set 
+			{
+			    _value = value;
+				NotifyPropertyChange("Value");
+			}
+        }
 
 
 	}
@@ -1115,10 +2160,10 @@ namespace Samples.Entities
 			return ((IRepository<MyEntity>)this).Get(projection, entityId, fields);
 		}
 
-		public void Delete(System.Int32 entityId)
+		public bool Delete(System.Int32 entityId)
 		{
 			var entity = new MyEntity { EntityId = entityId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -1131,43 +2176,135 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity()]
-	public partial class ProductSale
+	public partial class ProductSale : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32? _categoryId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID" )]
-		public Int32? CategoryId { get; set; }
+		public Int32? CategoryId 
+		{ 
+		    get { return _categoryId; } 
+			set 
+			{
+			    _categoryId = value;
+				NotifyPropertyChange("CategoryId");
+			}
+        }
 
+		private String _categoryNameLang1;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
-		public String CategoryNameLang1 { get; set; }
+		public String CategoryNameLang1 
+		{ 
+		    get { return _categoryNameLang1; } 
+			set 
+			{
+			    _categoryNameLang1 = value;
+				NotifyPropertyChange("CategoryNameLang1");
+			}
+        }
 
+		private String _categoryNameLang2;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
-		public String CategoryNameLang2 { get; set; }
+		public String CategoryNameLang2 
+		{ 
+		    get { return _categoryNameLang2; } 
+			set 
+			{
+			    _categoryNameLang2 = value;
+				NotifyPropertyChange("CategoryNameLang2");
+			}
+        }
 
+		private Int32 _productId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID" )]
-		public Int32 ProductId { get; set; }
+		public Int32 ProductId 
+		{ 
+		    get { return _productId; } 
+			set 
+			{
+			    _productId = value;
+				NotifyPropertyChange("ProductId");
+			}
+        }
 
+		private String _productName;
 		[DataMember]
 		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]
-		public String ProductName { get; set; }
+		public String ProductName 
+		{ 
+		    get { return _productName; } 
+			set 
+			{
+			    _productName = value;
+				NotifyPropertyChange("ProductName");
+			}
+        }
 
+		private Int32? _year;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Year" )]
-		public Int32? Year { get; set; }
+		public Int32? Year 
+		{ 
+		    get { return _year; } 
+			set 
+			{
+			    _year = value;
+				NotifyPropertyChange("Year");
+			}
+        }
 
+		private Int32? _quarter;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Quarter" )]
-		public Int32? Quarter { get; set; }
+		public Int32? Quarter 
+		{ 
+		    get { return _quarter; } 
+			set 
+			{
+			    _quarter = value;
+				NotifyPropertyChange("Quarter");
+			}
+        }
 
+		private Decimal? _sales;
 		[DataMember]
 		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]
-		public Decimal? Sales { get; set; }
+		public Decimal? Sales 
+		{ 
+		    get { return _sales; } 
+			set 
+			{
+			    _sales = value;
+				NotifyPropertyChange("Sales");
+			}
+        }
 
+		private Int32? _orderCount;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="OrderCount" )]
-		public Int32? OrderCount { get; set; }
+		public Int32? OrderCount 
+		{ 
+		    get { return _orderCount; } 
+			set 
+			{
+			    _orderCount = value;
+				NotifyPropertyChange("OrderCount");
+			}
+        }
 
 		[LocalizedField]
 		public String CategoryName 
@@ -1211,27 +2348,83 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
 	[SqlEntity(BaseTableName="Items")]
-	public partial class Item
+	public partial class Item : INotifyPropertyChanged
 	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _itemId;
 		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ItemId", BaseColumnName ="ItemId", BaseTableName = "Items" )]
-		public Int32 ItemId { get; set; }
+		public Int32 ItemId 
+		{ 
+		    get { return _itemId; } 
+			set 
+			{
+			    _itemId = value;
+				NotifyPropertyChange("ItemId");
+			}
+        }
 
+		private String _field1;
 		[DataMember]
 		[SqlField(DbType.String, 50, ColumnName ="Field1", BaseColumnName ="Field1", BaseTableName = "Items" )]
-		public String Field1 { get; set; }
+		public String Field1 
+		{ 
+		    get { return _field1; } 
+			set 
+			{
+			    _field1 = value;
+				NotifyPropertyChange("Field1");
+			}
+        }
 
+		private String _field2;
 		[DataMember]
 		[SqlField(DbType.String, 50, ColumnName ="Field2", BaseColumnName ="Field2", BaseTableName = "Items" )]
-		public String Field2 { get; set; }
+		public String Field2 
+		{ 
+		    get { return _field2; } 
+			set 
+			{
+			    _field2 = value;
+				NotifyPropertyChange("Field2");
+			}
+        }
 
+		private String _field3;
 		[DataMember]
 		[SqlField(DbType.String, 50, ColumnName ="Field3", BaseColumnName ="Field3", BaseTableName = "Items" )]
-		public String Field3 { get; set; }
+		public String Field3 
+		{ 
+		    get { return _field3; } 
+			set 
+			{
+			    _field3 = value;
+				NotifyPropertyChange("Field3");
+			}
+        }
 
+		private String _field4;
 		[DataMember]
 		[SqlField(DbType.String, 50, ColumnName ="Field4", BaseColumnName ="Field4", BaseTableName = "Items" )]
-		public String Field4 { get; set; }
+		public String Field4 
+		{ 
+		    get { return _field4; } 
+			set 
+			{
+			    _field4 = value;
+				NotifyPropertyChange("Field4");
+			}
+        }
 
 
 	}
@@ -1278,10 +2471,10 @@ namespace Samples.Entities
 			return ((IRepository<Item>)this).Get(projection, itemId, fields);
 		}
 
-		public void Delete(System.Int32 itemId)
+		public bool Delete(System.Int32 itemId)
 		{
 			var entity = new Item { ItemId = itemId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 

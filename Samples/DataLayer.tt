@@ -20,7 +20,7 @@ To generate the datalayer for MySQL you need  to:
 */
 	var generation = new DataLayerGeneration
 	{
-
+		ImplementINotifyPropertyChanged = true,
         ProviderName = "System.Data.SqlClient",
 		ConnectionString = @"Data Source=(LocalDb)\V11.0;Initial Catalog=Northwind",
 		DefaultSchema = "dbo",

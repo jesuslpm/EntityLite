@@ -30,6 +30,7 @@ using System.Configuration;
 using System.Diagnostics;
 using inercya.EntityLite.SqliteProfiler;
 using inercya.EntityLite.Collections;
+using System.ComponentModel;
 
 namespace Samples
 {
@@ -51,7 +52,7 @@ namespace Samples
             //profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
-                SingleTest(50000, InsertSingleItemEntityLite);
+                //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
                 //QueryByPrimaryKey();
                 //ShowSomeProducts();
@@ -62,7 +63,7 @@ namespace Samples
                 //SearchOrderDetails();
                 //ShowProductSales();
                 //RaiseProductPrices();
-                //InsertUpdateDeleteProduct();
+                InsertUpdateDeleteProduct();
                 //RaiseProductPrices2();
                 //HandCraftedSql();
                 //Localization();
@@ -542,12 +543,12 @@ namespace Samples
 
             };
             // inserts the new product
-            ds.ProductRepository.Save(p);
+            var saveResult = ds.ProductRepository.Save(p);
             Console.WriteLine("Inserted product id:" + p.ProductId);
 
             p.ProductName = "Another Name";
             // updates the product
-            ds.ProductRepository.Save(p);
+            var result = ds.ProductRepository.Save(p);
             Console.WriteLine("Product name changed");
 
             // Retrieves the product from the database and shows the product category name
@@ -634,4 +635,5 @@ namespace Samples
             if (failed) Console.WriteLine("Test failed");
         }
     }
+
 }

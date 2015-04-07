@@ -31,6 +31,7 @@ using Microsoft.SqlServer.Types;
 }
 #>
 using System.Runtime.Serialization;
+using System.ComponentModel;
 using inercya.EntityLite;	
 using inercya.EntityLite.Extensions;		
 <#+
@@ -89,16 +90,30 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
 <#+ 
 	} 
 #>
-	public partial class <#= entity.EntityName.EscapeKeyword() #>
+	public partial class <#= entity.EntityName.EscapeKeyword() #><#= generation.ImplementINotifyPropertyChanged ? " : INotifyPropertyChanged" : string.Empty #>
 	{
-<#+
+<#+         if (generation.ImplementINotifyPropertyChanged) { #>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+<#+         } 
 			foreach (var field in generation.GetFieldsMetadata(entity))
             {
+				string propertyName =  field.PropertyName.EscapeKeyword();
+				string fieldName = "_" + propertyName.ToParameterName();
 				if (field.IsLocalizedField)
                 {
 #>
 		[LocalizedField]
-		public <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= field.PropertyName.EscapeKeyword() #> 
+		public <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= propertyName #> 
 		{ 
 			get
 			{
@@ -110,9 +125,20 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
 				else
                 {
 #>
+		private <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= fieldName #>;
 		[DataMember]
 		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #><#= field.Precision == 0 || field.Precision == 255 ? string.Empty : ", Precision = " + field.Precision.ToString() #><#= field.Scale == 0 || field.Scale == 255 ? string.Empty : ", Scale=" + field.Scale.ToString() #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.SequenceName == null ? string.Empty : ", SequenceName = \"" + field.SequenceName + "\"" #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #><#= field.ColumnName == null ? string.Empty : ", ColumnName =\"" + field.ColumnName + "\"" #><#= field.BaseColumnName == null ? string.Empty : ", BaseColumnName =\"" + field.BaseColumnName + "\"" #><#= field.BaseTableName == null ? string.Empty : ", BaseTableName = \"" + field.BaseTableName + "\"" #> )]
-		public <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= field.PropertyName.EscapeKeyword() #> { get; set; }
+		public <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= propertyName #> 
+		{ 
+		    get { return <#= fieldName #>; } 
+			set 
+			{
+			    <#= fieldName #> = value;
+<#+                 if (generation.ImplementINotifyPropertyChanged) { #>
+				NotifyPropertyChange("<#=propertyName#>");
+<#+					} #>
+			}
+        }
 
 <#+
 				}
@@ -293,10 +319,10 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 			return ((IRepository<<#= entity.EntityName #>>)this).Get(projection, <#=primaryKeyField.PropertyName.ToParameterName() #>, fields);
 		}
 
-		public void Delete(<#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
+		public bool Delete(<#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
 		{
 			var entity = new <#= entity.EntityName #> { <#=primaryKeyField.PropertyName #> = <#=primaryKeyField.PropertyName.ToParameterName() #> };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 <#+
     }

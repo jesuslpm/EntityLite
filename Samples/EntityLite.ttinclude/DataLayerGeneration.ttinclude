@@ -27,6 +27,7 @@ public class DataLayerGeneration : IDisposable
 	public string DefaultSchema { get; set;}
     public bool GenerateEntityTypeId { get; set; }
 	public TextTransform EntityNameToEntityViewTransform {get; set;}
+	public bool ImplementINotifyPropertyChanged {get; set;}
 
     public List<EntitySetting> EntitySettings { get; set; }
     public List<ProcedureSetting> ProcedureSettings { get; set; }

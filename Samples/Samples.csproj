@@ -71,9 +71,9 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\packages\Common.Logging.Core.2.2.0\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="inercya.EntityLite, Version=1.8.1.0, Culture=neutral, PublicKeyToken=8ba7eec58c815de9, processorArchitecture=MSIL">
+    <Reference Include="inercya.EntityLite, Version=1.9.0.0, Culture=neutral, PublicKeyToken=8ba7eec58c815de9, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityLite.Core.1.8.2\lib\net35-client\inercya.EntityLite.dll</HintPath>
+      <HintPath>..\packages\EntityLite.Core.1.9.0\lib\net35-client\inercya.EntityLite.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>

@@ -26,13 +26,13 @@ namespace inercya.EntityLite
     {
         IQueryLite Query(Projection projection);
         IQueryLite Query(string projectionName);
-        void Save(object entity);
+        SaveResult Save(object entity);
 
         void Insert(object entity);
 
-        void Update(object entity);
-        void Update(object entity, params string[] fieldsToUpdate);
-        void Delete(object entity);
+        bool Update(object entity);
+        bool Update(object entity, params string[] fieldsToUpdate);
+        bool Delete(object entity);
         Type EntityType { get; }
 
 		object Get(Projection projection, object entityId, FetchMode fetchMode);
@@ -44,11 +44,11 @@ namespace inercya.EntityLite
 
     public interface IRepository<TEntity> : IRepository 
     {
-        void Save(TEntity entity);
+        SaveResult Save(TEntity entity);
         void Insert(TEntity entity);
-        void Update(TEntity entity);
-        void Update(TEntity entity, params string[] fieldsToUpdate);
-        void Delete(TEntity entity);
+        bool Update(TEntity entity);
+        bool Update(TEntity entity, params string[] fieldsToUpdate);
+        bool Delete(TEntity entity);
         new IQueryLite<TEntity> Query(Projection projection);
         new IQueryLite<TEntity> Query(string projectionName);
 
@@ -112,7 +112,7 @@ namespace inercya.EntityLite
 
         #region IRepository<TEntity> Members
 
-        public virtual void Save(TEntity entity)
+        public virtual SaveResult Save(TEntity entity)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -164,9 +164,18 @@ namespace inercya.EntityLite
                     throw new ArgumentException(string.Format("{0} cannot be saved, because the type of {1}  is not supported, use insert and update instead", entityType.Name, primaryKeyFieldName));
                 }
             }
-           
-            if (isNew) this.Insert(entity);
-            else this.Update(entity);
+
+            if (isNew)
+            {
+                this.Insert(entity);
+                return SaveResult.Inserted;
+            }
+
+            if ( this.Update(entity))
+            {
+                return SaveResult.Updated;
+            }
+            return SaveResult.NotModified;
         }
 
         public virtual void Insert(TEntity entity)
@@ -174,24 +183,24 @@ namespace inercya.EntityLite
             this.DataService.Insert(entity, EntityMetadata);
         }
 
-        public void Update(TEntity entity)
+        public bool Update(TEntity entity)
         {
-            this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity));
+            return this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity));
         }
 
-        protected virtual void Update(TEntity entity, List<string> sortedFields)
+        protected virtual bool Update(TEntity entity, List<string> sortedFields)
         {
-            this.DataService.Update(entity, sortedFields);
+            return this.DataService.Update(entity, sortedFields);
         }
 
-        public void Update(TEntity entity, params string[] fieldsToUpdate)
+        public bool Update(TEntity entity, params string[] fieldsToUpdate)
         {
-            this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
+            return this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
-        public virtual void Delete(TEntity entity)
+        public virtual bool Delete(TEntity entity)
         {
-            this.DataService.Delete(entity);
+            return this.DataService.Delete(entity);
         }
 
         public IQueryLite<TEntity> Query(Projection projection)
@@ -256,19 +265,19 @@ namespace inercya.EntityLite
             return this.Query(projectionName);
         }
 
-        void IRepository.Save(object entity)
+        SaveResult IRepository.Save(object entity)
         {
-            this.Save((TEntity)entity);
+            return this.Save((TEntity)entity);
         }
 
-        void IRepository.Update(object entity, string[] fieldsToUpdate)
+        bool IRepository.Update(object entity, string[] fieldsToUpdate)
         {
-            this.Update((TEntity)entity, fieldsToUpdate);
+            return this.Update((TEntity)entity, fieldsToUpdate);
         }
 
-        void IRepository.Delete(object entity)
+        bool IRepository.Delete(object entity)
         {
-            this.Delete((TEntity)entity);
+            return this.Delete((TEntity)entity);
         }
 
         void IRepository.Insert(object entity)
@@ -276,9 +285,9 @@ namespace inercya.EntityLite
             this.Insert((TEntity)entity);
         }
 
-        void IRepository.Update(object entity)
+        bool IRepository.Update(object entity)
         {
-            this.Update((TEntity)entity);
+            return this.Update((TEntity)entity);
         }
 
 		object IRepository.Get(Projection projection, object entityId, FetchMode fetchMode)

@@ -588,12 +588,12 @@ namespace inercya.EntityLite
             }
 		}
 
-        protected internal int Update(object entity)
+        protected internal bool Update(object entity)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity));
         }
 
-        protected internal int Update(object entity, params string[] fieldsToUpdate)
+        protected internal bool Update(object entity, params string[] fieldsToUpdate)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
@@ -621,7 +621,7 @@ namespace inercya.EntityLite
             return q.FirstOrDefault();
         }
 
-        protected internal virtual int Update(object entity, List<string> sortedFields)
+        protected internal virtual bool Update(object entity, List<string> sortedFields)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -665,7 +665,7 @@ namespace inercya.EntityLite
                     }
                     else
                     {
-                        return 0;
+                        return false;
                     }
                 }
             }
@@ -676,7 +676,7 @@ namespace inercya.EntityLite
                     entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName));
                 }
             }
-            return affectedRecords;
+            return affectedRecords > 0;
         }
 
         protected internal List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)

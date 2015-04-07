@@ -118,6 +118,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Builders\FunctionQueryBuilder.cs" />
     <Compile Include="License.cs" />
+    <Compile Include="SaveResult.cs" />
     <Compile Include="SqliteProfiler\DataLayer.cs">
       <DependentUpon>DataLayer.tt</DependentUpon>
       <AutoGen>True</AutoGen>

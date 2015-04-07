@@ -12,6 +12,7 @@
         // you should include a connection string with this name in the configuration file
 		// this is the connection that will be used at runtime
         ConnectionStringName= "Northwind",
+		ImplementINotifyPropertyChanged = false,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 

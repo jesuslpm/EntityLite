@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 using inercya.EntityLite;	
 using inercya.EntityLite.Extensions;		
 
@@ -15,53 +16,149 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 	[SqlEntity(BaseTableName="Statements")]
 	public partial class Statement
 	{
+		private Int64 _statementId;
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, IsKey=true, IsAutoincrement=true, ColumnName ="StatementId", BaseColumnName ="StatementId", BaseTableName = "Statements" )]
-		public Int64 StatementId { get; set; }
+		public Int64 StatementId 
+		{ 
+		    get { return _statementId; } 
+			set 
+			{
+			    _statementId = value;
+			}
+        }
 
+		private Int64 _commandTextHash;
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="CommandTextHash", BaseColumnName ="CommandTextHash", BaseTableName = "Statements" )]
-		public Int64 CommandTextHash { get; set; }
+		public Int64 CommandTextHash 
+		{ 
+		    get { return _commandTextHash; } 
+			set 
+			{
+			    _commandTextHash = value;
+			}
+        }
 
+		private String _commandText;
 		[DataMember]
 		[SqlField(DbType.String, 2147483647, ColumnName ="CommandText", BaseColumnName ="CommandText", BaseTableName = "Statements" )]
-		public String CommandText { get; set; }
+		public String CommandText 
+		{ 
+		    get { return _commandText; } 
+			set 
+			{
+			    _commandText = value;
+			}
+        }
 
+		private Double _maxTime;
 		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MaxTime", BaseColumnName ="MaxTime", BaseTableName = "Statements" )]
-		public Double MaxTime { get; set; }
+		public Double MaxTime 
+		{ 
+		    get { return _maxTime; } 
+			set 
+			{
+			    _maxTime = value;
+			}
+        }
 
+		private Double _minTime;
 		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MinTime", BaseColumnName ="MinTime", BaseTableName = "Statements" )]
-		public Double MinTime { get; set; }
+		public Double MinTime 
+		{ 
+		    get { return _minTime; } 
+			set 
+			{
+			    _minTime = value;
+			}
+        }
 
+		private Double _totalTime;
 		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="TotalTime", BaseColumnName ="TotalTime", BaseTableName = "Statements" )]
-		public Double TotalTime { get; set; }
+		public Double TotalTime 
+		{ 
+		    get { return _totalTime; } 
+			set 
+			{
+			    _totalTime = value;
+			}
+        }
 
+		private Double _sampleTime;
 		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="SampleTime", BaseColumnName ="SampleTime", BaseTableName = "Statements" )]
-		public Double SampleTime { get; set; }
+		public Double SampleTime 
+		{ 
+		    get { return _sampleTime; } 
+			set 
+			{
+			    _sampleTime = value;
+			}
+        }
 
+		private Int64 _executionCount;
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="ExecutionCount", BaseColumnName ="ExecutionCount", BaseTableName = "Statements" )]
-		public Int64 ExecutionCount { get; set; }
+		public Int64 ExecutionCount 
+		{ 
+		    get { return _executionCount; } 
+			set 
+			{
+			    _executionCount = value;
+			}
+        }
 
+		private String _maxTimeParams;
 		[DataMember]
 		[SqlField(DbType.String, 2147483647, ColumnName ="MaxTimeParams", BaseColumnName ="MaxTimeParams", BaseTableName = "Statements" )]
-		public String MaxTimeParams { get; set; }
+		public String MaxTimeParams 
+		{ 
+		    get { return _maxTimeParams; } 
+			set 
+			{
+			    _maxTimeParams = value;
+			}
+        }
 
+		private String _minTimeParams;
 		[DataMember]
 		[SqlField(DbType.String, 2147483647, ColumnName ="MinTimeParams", BaseColumnName ="MinTimeParams", BaseTableName = "Statements" )]
-		public String MinTimeParams { get; set; }
+		public String MinTimeParams 
+		{ 
+		    get { return _minTimeParams; } 
+			set 
+			{
+			    _minTimeParams = value;
+			}
+        }
 
+		private String _sampleParams;
 		[DataMember]
 		[SqlField(DbType.String, 2147483647, ColumnName ="SampleParams", BaseColumnName ="SampleParams", BaseTableName = "Statements" )]
-		public String SampleParams { get; set; }
+		public String SampleParams 
+		{ 
+		    get { return _sampleParams; } 
+			set 
+			{
+			    _sampleParams = value;
+			}
+        }
 
+		private Object _avgTime;
 		[DataMember]
 		[SqlField(DbType.Object, 2147483647, ColumnName ="AvgTime" )]
-		public Object AvgTime { get; set; }
+		public Object AvgTime 
+		{ 
+		    get { return _avgTime; } 
+			set 
+			{
+			    _avgTime = value;
+			}
+        }
 
 
 	}
@@ -108,10 +205,10 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			return ((IRepository<Statement>)this).Get(projection, statementId, fields);
 		}
 
-		public void Delete(System.Int64 statementId)
+		public bool Delete(System.Int64 statementId)
 		{
 			var entity = new Statement { StatementId = statementId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 
@@ -136,21 +233,53 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 	[SqlEntity(BaseTableName="Executions")]
 	public partial class Execution
 	{
+		private Int64 _executionId;
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, IsKey=true, IsAutoincrement=true, ColumnName ="ExecutionId", BaseColumnName ="ExecutionId", BaseTableName = "Executions" )]
-		public Int64 ExecutionId { get; set; }
+		public Int64 ExecutionId 
+		{ 
+		    get { return _executionId; } 
+			set 
+			{
+			    _executionId = value;
+			}
+        }
 
+		private Int64 _statementId;
 		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="StatementId", BaseColumnName ="StatementId", BaseTableName = "Executions" )]
-		public Int64 StatementId { get; set; }
+		public Int64 StatementId 
+		{ 
+		    get { return _statementId; } 
+			set 
+			{
+			    _statementId = value;
+			}
+        }
 
+		private DateTime _executionDate;
 		[DataMember]
 		[SqlField(DbType.DateTime, 8, ColumnName ="ExecutionDate", BaseColumnName ="ExecutionDate", BaseTableName = "Executions" )]
-		public DateTime ExecutionDate { get; set; }
+		public DateTime ExecutionDate 
+		{ 
+		    get { return _executionDate; } 
+			set 
+			{
+			    _executionDate = value;
+			}
+        }
 
+		private Double _executionTime;
 		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="ExecutionTime", BaseColumnName ="ExecutionTime", BaseTableName = "Executions" )]
-		public Double ExecutionTime { get; set; }
+		public Double ExecutionTime 
+		{ 
+		    get { return _executionTime; } 
+			set 
+			{
+			    _executionTime = value;
+			}
+        }
 
 
 	}
@@ -197,10 +326,10 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			return ((IRepository<Execution>)this).Get(projection, executionId, fields);
 		}
 
-		public void Delete(System.Int64 executionId)
+		public bool Delete(System.Int64 executionId)
 		{
 			var entity = new Execution { ExecutionId = executionId };
-			this.Delete(entity);
+			return this.Delete(entity);
 		}
 	}
 

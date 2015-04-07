@@ -20,6 +20,7 @@ public class EntitySetting
     public string Schema { get; set; }
     public string ReadOnlyFields { get; set; }
     public string EntityName { get; set; }
+	public string SequenceName { get; set;}
 
     public int EntityTypeId { get; internal set; }
 
@@ -49,12 +50,12 @@ public class EntitySetting
 		return parameters;
 	}
 
-    public string GetFullTableName(string defaultSchema)
+    public string GetFullTableName(string defaultSchema, string  quotePrefix, string quoteSufix)
     {
         if (string.IsNullOrEmpty(BaseTableName)) return string.Empty;
 		string schema = this.Schema;
 		if (string.IsNullOrEmpty(schema)) schema = defaultSchema;
-		return string.IsNullOrEmpty(schema) ? BaseTableName : schema + "." + BaseTableName;
+		return string.IsNullOrEmpty(schema) ? quotePrefix + BaseTableName + quoteSufix: quotePrefix +  schema + quoteSufix + "." + quotePrefix + BaseTableName + quoteSufix ;
     }
 
     public static string GetFullEntityName(string entityName, string schema, string defaultSchema)
