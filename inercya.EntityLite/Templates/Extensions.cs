@@ -23,6 +23,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using inercya.EntityLite.Extensions;
 using System.Data;
+using System.Collections;
 
 namespace inercya.EntityLite.Templates
 {
@@ -97,8 +98,10 @@ namespace inercya.EntityLite.Templates
 
         internal static string GetSql(this ISqlTemplate template, string parameterPrefix)
         {
-            return parameterRegex.Replace(template.TransformText(),
+            var sql = parameterRegex.Replace(template.TransformText(),
                 (match) => parameterPrefix + match.Value.Substring(2, match.Value.Length - 3));
+
+            return sql;
         }
 
         internal static void AddParametersToCommand(this ISqlTemplate template, DbCommand command, string parameterPrefix)
@@ -125,6 +128,38 @@ namespace inercya.EntityLite.Templates
                     parameter.Value = propValue == null ? DBNull.Value : propValue;
                     command.Parameters.Add(parameter);
                 }
+
+                attrs = pi.GetCustomAttributes(typeof(DbParameterSerieAttribute), false);
+                if (attrs.Length > 0)
+                {
+                    var parameterAttr = (DbParameterSerieAttribute)attrs[0];
+                    object propValue = getters[pi.Name](template);
+                    if (propValue != null)
+                    {
+                        var items = propValue as IEnumerable;
+                        if (items == null)
+                        {
+                            throw new ArgumentException(pi.Name + " property is not enumerable. Properties decorated with DbParameterSerieAttribute must be enumerable");
+                        }
+                        int i = 0;
+                        foreach (object item in items)
+                        {
+                            IDbDataParameter parameter = command.CreateParameter();
+                            parameter.ParameterName = parameterPrefix + pi.Name + i.ToString();
+                            parameter.SourceColumn = pi.Name + i.ToString();
+                            parameter.DbType = parameterAttr.DbType;
+                            parameter.Direction = parameterAttr.Direction;
+                            if (parameterAttr.Size != 0) parameter.Size = parameterAttr.Size;
+                            if (parameterAttr.Precision != 0) parameter.Precision = parameterAttr.Precision;
+                            if (parameterAttr.Scale != 0) parameter.Scale = parameterAttr.Scale;
+
+                            parameter.Value = item == null ? DBNull.Value : item;
+                            command.Parameters.Add(parameter);
+                            i++;
+                        }
+                    }
+                }
+
             }
         }
     }

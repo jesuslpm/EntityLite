@@ -71,10 +71,6 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\packages\Common.Logging.Core.2.2.0\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="inercya.EntityLite, Version=1.9.0.0, Culture=neutral, PublicKeyToken=8ba7eec58c815de9, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EntityLite.Core.1.9.0\lib\net35-client\inercya.EntityLite.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
@@ -122,6 +118,12 @@
     <Compile Include="Entities\OrderDetail.cs" />
     <Compile Include="Entities\Product.cs" />
     <Compile Include="Entities\ProductSaleRepository.cs" />
+    <Compile Include="Entities\Templates\EmployeesThatSoldAllSpecifiedProductsQueryTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EmployeesThatSoldAllSpecifiedProductsQueryTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\Templates\EmployeesThatSoldAllSpecifiedProductsQueryTemplate.partial.cs" />
     <Compile Include="Entities\Templates\TruncateItemsTableCommandTemplate.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -145,6 +147,10 @@
     <None Include="DataLayer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DataLayer.cs</LastGenOutput>
+    </None>
+    <None Include="Entities\Templates\EmployeesThatSoldAllSpecifiedProductsQueryTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>EmployeesThatSoldAllSpecifiedProductsQueryTemplate.cs</LastGenOutput>
     </None>
     <None Include="EntityLite.ttinclude\DataLayerGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\DataServiceGeneration.ttinclude" />
@@ -217,6 +223,12 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.csproj">
+      <Project>{b74df500-8654-40d1-a50c-7262a2095b1e}</Project>
+      <Name>inercya.EntityLite</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

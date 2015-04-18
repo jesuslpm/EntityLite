@@ -12,5 +12,15 @@ namespace Samples.Entities
         {
             return new FunctionQueryLite<Employee>(this.DataService, "dbo.GetEmployeeSubTree", employeeId);
         }
+
+        public IQueryLite<Employee> ThatSoldAllSpecifiedProductsQuery(IEnumerable<int> productIds)
+        {
+            var template = new Templates.EmployeesThatSoldAllSpecifiedProductsQueryTemplate
+            {
+                ProductIds = productIds
+            };
+
+            return new TemplatedQueryLite<Employee>(this.DataService, template);
+        }
     }
 }

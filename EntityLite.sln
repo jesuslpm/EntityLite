@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite", "inercya.EntityLite\inercya.EntityLite.csproj", "{B74DF500-8654-40D1-A50C-7262A2095B1E}"
 EndProject
@@ -37,10 +37,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "EntityLite.ttinclude", "{345D112F-72B2-49C2-907B-40F219FA928C}"
 	ProjectSection(SolutionItems) = preProject
 		nuget\Generators\content\EntityLite.ttinclude\DataLayerGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\DataLayerGeneration.ttinclude
-		Samples\EntityLite.ttinclude\DataLayerGeneration.ttinclude = Samples\EntityLite.ttinclude\DataLayerGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\DataServiceGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\DataServiceGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude
-		Samples\EntityLite.ttinclude\EntityGeneration.ttinclude = Samples\EntityLite.ttinclude\EntityGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude
@@ -94,8 +92,5 @@ Global
 		{03CAC007-291D-420D-8E8C-CC9FA92BFEB5} = {0493F652-14B1-45DD-A168-A4686ACBB9D8}
 		{345D112F-72B2-49C2-907B-40F219FA928C} = {03CAC007-291D-420D-8E8C-CC9FA92BFEB5}
 		{BCEE35A4-CA5B-489E-B1BE-E3AD44F04C81} = {F926993D-D441-4457-9A74-E1BC8A746B52}
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

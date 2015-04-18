@@ -63,7 +63,7 @@ namespace Samples
                 //SearchOrderDetails();
                 //ShowProductSales();
                 //RaiseProductPrices();
-                InsertUpdateDeleteProduct();
+                //InsertUpdateDeleteProduct();
                 //RaiseProductPrices2();
                 //HandCraftedSql();
                 //Localization();
@@ -71,11 +71,27 @@ namespace Samples
                 //BuggyShowQuesoCabralesOrders();
 
                 //Pivot();
+
+                ShowAllEmployeesThatSoldSpecifiedProducts();
             }
             //profiler.StopProfiling();
             //Console.WriteLine("Press enter to exit ...");
             //Console.ReadLine();
            
+        }
+
+        static void ShowAllEmployeesThatSoldSpecifiedProducts()
+        {
+
+            var employees = ds.EmployeeRepository.ThatSoldAllSpecifiedProductsQuery(Enumerable.Range(1, 6))
+                .Fields(EmployeeFields.EmployeeId, EmployeeFields.FirstName, EmployeeFields.LastName)
+                .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName)
+                .ToEnumerable();
+
+            foreach (var e in employees)
+            {
+                Console.WriteLine("{0}: {1} {2}", e.EmployeeId, e.FirstName, e.LastName);
+            }
         }
 
         static void InsertMultipleItems(int itemCount)

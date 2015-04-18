@@ -143,6 +143,7 @@
     <Compile Include="Providers\SqlServerEntityLiteProvider.cs" />
     <Compile Include="Providers\IEntityLiteProvider.cs" />
     <Compile Include="RowNotFoundException.cs" />
+    <Compile Include="Templates\DbParameterSerieAttribute.cs" />
     <Compile Include="Templates\DbParameterAttribute.cs" />
     <Compile Include="Templates\Extensions.cs" />
     <Compile Include="CacheLite.cs" />

@@ -102,3 +102,7 @@ UpgradeLog*.XML
 *.suo
 *.suo
 *.suo
+*.suo
+*.mdf
+*.ldf
+nuget/Core/lib/net35-client/inercya.EntityLite.dll
