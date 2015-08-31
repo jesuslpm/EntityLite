@@ -27,7 +27,16 @@ namespace inercya.EntityLite.Extensions
 	{
 		public static IDictionary<TKey, IList<TItem>> ToListDictionary<TKey, TItem>(this IEnumerable<TItem> itemsSource, Func<TItem, TKey> keySelector)
 		{
-			IDictionary<TKey, IList<TItem>> dic = new Dictionary<TKey, IList<TItem>>();
+            IDictionary<TKey, IList<TItem>> dic;
+            if (typeof(TKey) == typeof(string))
+            {
+                dic =  new Dictionary<TKey, IList<TItem>>((IEqualityComparer<TKey>) StringComparer.CurrentCultureIgnoreCase);
+            }
+            else
+            {
+                dic = new Dictionary<TKey, IList<TItem>>();
+            }
+			
 			foreach (var item in itemsSource)
 			{
 				IList<TItem> list = null;

@@ -119,6 +119,25 @@ namespace inercya.EntityLite.Builders
             return commandText.ToString();
         }
 
+        string IQueryBuilder.GetAnyQuery(DbCommand selectCommand, ref int paramIndex)
+        {
+            StringBuilder commandText = new StringBuilder();
+            commandText.Append("\nSELECT CASE WHEN EXISTS (SELECT * FROM ").Append(GetFromClauseContent(selectCommand, ref paramIndex));
+            bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
+            if (hasWhereClause)
+            {
+                commandText.Append("\nWHERE\n    ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter));
+            }
+            commandText.Append(") THEN 1 ELSE 0 END AS HasAnyRow");
+            var dualTable = this.QueryLite.DataService.EntityLiteProvider.DualTable;
+            if (!string.IsNullOrEmpty(dualTable))
+            {
+                commandText.Append("\nFROM ").Append(dualTable);
+            }
+            SetOptions(commandText);
+            return commandText.ToString();
+        }
+
 
         protected IDbDataParameter CreateParameter(PropertyMetadata propertyMetadata, object paramValue, ref int paramIndex)
         {

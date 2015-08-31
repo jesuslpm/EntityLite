@@ -113,6 +113,7 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
                 {
 #>
 		[LocalizedField]
+		[DataMember]
 		public <#= field.PropertyType.Name + (field.IsNullable && !typeof(INullable).IsAssignableFrom(field.PropertyType) ? "?" : string.Empty) #> <#= propertyName #> 
 		{ 
 			get

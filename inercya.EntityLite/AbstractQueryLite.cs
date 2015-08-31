@@ -113,6 +113,14 @@ namespace inercya.EntityLite
             return selectCommand;
         }
 
+        protected DbCommand GetAnyCommand()
+        {
+            DbCommand selectCommand = this.DataService.Connection.CreateCommand();
+            int paramIndex = 0;
+            selectCommand.CommandText = QueryBuilder.GetAnyQuery(selectCommand, ref paramIndex);
+            return selectCommand;
+        }
+
 
         public int GetCount()
         {
@@ -122,6 +130,17 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public bool Any()
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetAnyCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+
+            return Convert.ToInt32(cmd.ExecuteScalar()) == 1; 
         }
 
         protected AbstractQueryLite()

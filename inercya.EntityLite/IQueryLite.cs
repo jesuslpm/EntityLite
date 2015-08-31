@@ -36,6 +36,7 @@ namespace inercya.EntityLite
         IList ToList(int fromIndex, int toIndex);
 		object FirstOrDefault();
         int GetCount();
+        bool Any();
         Type EntityType { get; set; }
         IList<string> FieldList { get; set; }
         IQueryBuilder QueryBuilder { get; set; }

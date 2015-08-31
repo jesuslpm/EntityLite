@@ -59,5 +59,12 @@ namespace inercya.EntityLite.Providers
             commandText.Append(";\nSELECT LAST_INSERT_ID() AS AutoIncrementField;");
         }
 
+        public override string DualTable
+        {
+            get
+            {
+                return "DUAL";
+            }
+        }
     }
 }

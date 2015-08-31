@@ -116,5 +116,13 @@ END;");
         {
             throw new NotImplementedException();
         }
+
+        public override string DualTable
+        {
+            get
+            {
+                return "DUAL";
+            }
+        }
     }
 }

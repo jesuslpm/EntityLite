@@ -48,8 +48,8 @@ namespace Samples
                 ProfileFileFrecuency.Daily,
                 true
             );
-            //ProfilerLite.Current = profiler;
-            //profiler.StartProfiling();
+            ProfilerLite.Current = profiler;
+            profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
                 //SingleTest(50000, InsertSingleItemEntityLite);
@@ -74,21 +74,24 @@ namespace Samples
 
                 ShowAllEmployeesThatSoldSpecifiedProducts();
             }
-            //profiler.StopProfiling();
-            //Console.WriteLine("Press enter to exit ...");
-            //Console.ReadLine();
+            profiler.StopProfiling();
+            Console.WriteLine("Press enter to exit ...");
+            Console.ReadLine();
            
         }
 
         static void ShowAllEmployeesThatSoldSpecifiedProducts()
         {
 
-            var employees = ds.EmployeeRepository.ThatSoldAllSpecifiedProductsQuery(Enumerable.Range(1, 6))
+            var query = ds.EmployeeRepository.ThatSoldAllSpecifiedProductsQuery(Enumerable.Range(1, 6))
                 .Fields(EmployeeFields.EmployeeId, EmployeeFields.FirstName, EmployeeFields.LastName)
-                .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName)
-                .ToEnumerable();
+                .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
 
-            foreach (var e in employees)
+
+
+            var any = query.Any();
+
+            foreach (var e in query.ToEnumerable())
             {
                 Console.WriteLine("{0}: {1} {2}", e.EmployeeId, e.FirstName, e.LastName);
             }

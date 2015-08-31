@@ -29,6 +29,12 @@ public class DataLayerGeneration : IDisposable
 	public TextTransform EntityNameToEntityViewTransform {get; set;}
 	public bool ImplementINotifyPropertyChanged {get; set;}
 
+
+	public string EntityTypesTableName {get; set;}
+	public string EntityTypeNameColumnName {get; set;}
+
+	public DateTimeKind AuditDateTimeKind {get; set;}
+
     public List<EntitySetting> EntitySettings { get; set; }
     public List<ProcedureSetting> ProcedureSettings { get; set; }
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
@@ -42,6 +48,8 @@ public class DataLayerGeneration : IDisposable
         ProceduresClassName = "StoredProcedures";
 		EntityNameToEntityViewTransform = TextTransform.None;
 		ConnectionStringName = "AppConnectionString";
+		EntityTypesTableName = "EntityTypes";
+		EntityTypeNameColumnName = "EntityTypeName";
     }
 
 	private  DbProviderFactory _factory;
@@ -170,7 +178,7 @@ public class DataLayerGeneration : IDisposable
 
     }
 
-    private void SetEntityTypes()
+    private void GenerateEntityTypes()
     {
         using (var db = this.OpenConnection())
         using (var getlock = db.CreateCommand())
@@ -182,14 +190,14 @@ public class DataLayerGeneration : IDisposable
             getlock.ExecuteNonQuery();
             try
             {
-                cmd.CommandText = "SELECT * FROM EntityTypes";
+                cmd.CommandText = "SELECT * FROM " + this.EntityTypesTableName;
                 IList<EntityType> entityTypes;
                 using (var reader = cmd.ExecuteReader())
                 {
                     entityTypes = reader.ToList<EntityType>();
                 }
                 var entityTypesDic = entityTypes.ToDictionary(x => x.EntityTypeName);
-                insert.CommandText = "INSERT INTO EntityTypes(EntityTypeName) VALUES (@EntityTypeName); SELECT CONVERT(int, SCOPE_IDENTITY())";
+                insert.CommandText = "INSERT INTO " + this.EntityTypesTableName + "(" + EntityTypeNameColumnName + ") VALUES (@EntityTypeName); SELECT CONVERT(int, SCOPE_IDENTITY())";
                 var entityTypeNameParam = insert.CreateParameter();
                 entityTypeNameParam.ParameterName = "@EntityTypeName";
                 entityTypeNameParam.DbType = DbType.AnsiString;
@@ -227,7 +235,7 @@ public class DataLayerGeneration : IDisposable
         SetFieldsMetadataByEntity();
 		
         //This would work only with SQL Server and if the EntityTypes Table exists
-        if (GenerateEntityTypeId) SetEntityTypes();
+        if (GenerateEntityTypeId) GenerateEntityTypes();
     }
 
     public DbType ToDbType(int providerType)

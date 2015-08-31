@@ -30,6 +30,9 @@ namespace <#= generation.RootNamespace #>
 <#+	if (! string.IsNullOrEmpty(generation.DefaultSchema)) { #>
 			EntityLiteProvider.DefaultSchema = "<#= generation.DefaultSchema #>";
 <#+	} #>
+<#+	if (generation.AuditDateTimeKind != DateTimeKind.Unspecified) { #>
+			AuditDateTimeKind = DateTimeKind.<#= generation.AuditDateTimeKind.ToString() #>;
+<#+	} #>
 			OnCreated();
 		}
 

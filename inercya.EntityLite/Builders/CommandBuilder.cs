@@ -127,8 +127,95 @@ namespace inercya.EntityLite.Builders
             DbCommand cmd = DataService.Connection.CreateCommand();
             StringBuilder commandText = new StringBuilder();
             commandText.Append("\nUPDATE ").Append(fullTableName);
-            bool firstTime = true;
+            
             bool hasEntityRowVersionField = false;
+            GenerateUpdateSetClause(entity, fieldsToUpdate, entityMetadata, getters, cmd, commandText, ref hasEntityRowVersionField);
+            GenerateUpdateWhereClauseWithPrimaryKeyAndEntityRowVersion(entity, entityMetadata, getters, cmd, commandText, hasEntityRowVersionField);
+            AddModifiedFieldsPredicateToToUpdateWhereClause(fieldsToUpdate, entityMetadata, commandText);
+            cmd.CommandText = commandText.ToString();
+            return cmd;
+        }
+
+        private void AddModifiedFieldsPredicateToToUpdateWhereClause(IEnumerable<string> fieldsToUpdate, EntityMetadata entityMetadata, StringBuilder commandText)
+        {
+            bool firstTime = true;
+            commandText.Append("\n    AND (");
+            foreach (var propertyName in fieldsToUpdate)
+            {
+                PropertyMetadata propMetadata = null;
+                if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
+                SqlFieldAttribute field = propMetadata.SqlField;
+                if (!field.IsKey
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedByFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    )
+                {
+                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
+                    string fieldName = this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote;
+                    commandText.Append("\n        ");
+                    if (firstTime) firstTime = false;
+                    else commandText.Append("OR ");
+                    if (propMetadata.SqlField.DbType == DbType.Xml)
+                    {
+                        commandText.Append("CAST (").Append(fieldName).Append(" AS nvarchar(max))");
+                        commandText.Append(" <> ");
+                        commandText.Append("CAST (").Append(parameterName).Append(" AS nvarchar(max))");
+                    }
+                    else 
+                    {
+                        commandText.Append(fieldName).Append(" <> ").Append(parameterName);
+                    }
+                    commandText.Append(" OR ").Append(fieldName).Append(" IS NULL AND ").Append(parameterName).Append(" IS NOT NULL")
+                        .Append(" OR ").Append(fieldName).Append(" IS NOT NULL AND ").Append(parameterName).Append(" IS NULL");
+                }
+            }
+            commandText.Append("\n    )");
+            
+        }
+
+        private void GenerateUpdateWhereClauseWithPrimaryKeyAndEntityRowVersion(object entity, EntityMetadata entityMetadata, IPropertyGetterDictionary getters, DbCommand cmd, StringBuilder commandText, bool hasEntityRowVersionField)
+        {
+            bool firstTime = true;
+
+            IEnumerable<string> whereFields = entityMetadata.PrimaryKeyPropertyNames;
+            if (hasEntityRowVersionField) whereFields = whereFields.Concat(new string[] { DataService.SpecialFieldNames.EntityRowVersionFieldName });
+            foreach (string whereField in whereFields)
+            {
+                var property = entityMetadata.Properties[whereField];
+                SqlFieldAttribute field = property.SqlField;
+                if (string.Equals(field.ColumnName, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + whereField;
+                    if (firstTime)
+                    {
+                        commandText.Append("\nWHERE\n    ");
+                        firstTime = false;
+                    }
+                    else
+                    {
+                        commandText.Append("\n    AND ");
+                    }
+                    commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote)
+                        .Append(" = ").Append(parameterName);
+
+                    IDbDataParameter parameter = CreateParameter(property, whereField);
+                    PropertyGetter getter;
+                    if (getters.TryGetValue(whereField, out getter))
+                    {
+                        object parameterValue = getter(entity);
+                        parameter.Value = parameterValue == null ? DBNull.Value : parameterValue;
+                    }
+                    cmd.Parameters.Add(parameter);
+                }
+            }
+        }
+
+        private void GenerateUpdateSetClause(object entity, IEnumerable<string> fieldsToUpdate, EntityMetadata entityMetadata, IPropertyGetterDictionary getters, DbCommand cmd, StringBuilder commandText, ref bool hasEntityRowVersionField)
+        {
+            bool firstTime = true;
             foreach (var propertyName in fieldsToUpdate)
             {
                 PropertyMetadata propMetadata = null;
@@ -166,67 +253,6 @@ namespace inercya.EntityLite.Builders
                     }
                 }
             }
-
-            firstTime = true;
-
-            IEnumerable<string> whereFields = entityMetadata.PrimaryKeyPropertyNames;
-            if (hasEntityRowVersionField) whereFields = whereFields.Concat(new string[] { DataService.SpecialFieldNames.EntityRowVersionFieldName });
-            foreach (string whereField in whereFields)
-            {
-                var property = entityMetadata.Properties[whereField];
-                SqlFieldAttribute field = property.SqlField;
-                if (string.Equals(field.ColumnName, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + whereField;
-                    if (firstTime)
-                    {
-                        commandText.Append("\nWHERE\n    ");
-                        firstTime = false;
-                    }
-                    else
-                    {
-                        commandText.Append("\n    AND ");
-                    }
-                    commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote)
-                        .Append(" = ").Append(parameterName);
-
-                    IDbDataParameter parameter = CreateParameter(property, whereField);
-                    PropertyGetter getter;
-                    if (getters.TryGetValue(whereField, out getter))
-                    {
-                        object parameterValue = getter(entity);
-                        parameter.Value = parameterValue == null ? DBNull.Value : parameterValue;
-                    }
-                    cmd.Parameters.Add(parameter);
-                }
-            }
-            firstTime = true;
-            commandText.Append("\n    AND (");
-            foreach (var propertyName in fieldsToUpdate)
-            {
-                PropertyMetadata propMetadata = null;
-                if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
-                SqlFieldAttribute field = propMetadata.SqlField;
-                if (!field.IsKey
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    )
-                {
-                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
-                    string fieldName = this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote;
-                    commandText.Append("\n        ");
-                    if (firstTime) firstTime = false;
-                    else commandText.Append("OR ");
-                    commandText.Append(fieldName).Append(" <> ").Append(parameterName)
-                        .Append(" OR ").Append(fieldName).Append(" IS NULL AND ").Append(parameterName).Append(" IS NOT NULL")
-                        .Append(" OR ").Append(fieldName).Append(" IS NOT NULL AND ").Append(parameterName).Append(" IS NULL");
-                }
-                
-            }
-            commandText.Append("\n    )");
-            cmd.CommandText = commandText.ToString();
-            return cmd;
         }
 
 

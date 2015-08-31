@@ -41,7 +41,24 @@ namespace inercya.EntityLite
 
         private static readonly CacheLite<string, ConnectionStringSettings> connectionStrings = new CacheLite<string, ConnectionStringSettings>((name) => ConfigurationManager.ConnectionStrings[name]);
 
-        public object CurrentUserId { get; set; }
+        private object _currentUserId;
+
+
+        public Func<DataService, object> CurrentUserIdResolver { get; set; }
+
+        public object CurrentUserId 
+        { 
+            get 
+            {
+                if (CurrentUserIdResolver == null) return _currentUserId;
+                return CurrentUserIdResolver(this);
+            }
+            set
+            {
+                _currentUserId = value;
+                CurrentUserIdResolver = null;
+            }
+        }
 
 		public int MaxRetries { get; protected set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }
@@ -50,6 +67,8 @@ namespace inercya.EntityLite
         private IEntityLiteProvider _entityLiteProvider;
 
         public int CommandTimeout { get; set; }
+
+        public DateTimeKind AuditDateTimeKind { get; set; }
 
         public IEntityLiteProvider EntityLiteProvider
         {
@@ -464,11 +483,25 @@ namespace inercya.EntityLite
                 Type type = metadata.Properties[fieldName].PropertyInfo.PropertyType;
                 if (type == typeof(DateTime) || type == typeof(DateTime?))
                 {
-                    setter(entity, DateTime.Now);
+                    if (this.AuditDateTimeKind == DateTimeKind.Utc)
+                    {
+                        setter(entity, DateTime.UtcNow);
+                    }
+                    else
+                    {
+                        setter(entity, DateTime.Now);
+                    }
                 }
                 else if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?))
                 {
-                    setter(entity, DateTimeOffset.Now);
+                    if (this.AuditDateTimeKind == DateTimeKind.Utc)
+                    {
+                        setter(entity, DateTimeOffset.UtcNow);
+                    }
+                    else
+                    {
+                        setter(entity, DateTimeOffset.Now);
+                    }
                 }
                 else if (type == typeof(string))
                 {

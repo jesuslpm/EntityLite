@@ -67,6 +67,11 @@ namespace inercya.EntityLite.Providers
             }
         }
 
+        public virtual string DualTable
+        {
+            get { return null; }
+        }
+
         protected string ConcatByOperator(string op, string[] strs)
         {
             StringBuilder sb = new StringBuilder();
