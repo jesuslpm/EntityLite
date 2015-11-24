@@ -100,9 +100,9 @@ DECLARE
 BEGIN
     {0} := {1}.nextval;", SequenceVariable, entityMetadata.GetFullSequenceName(commandBuilder.DataService.EntityLiteProvider.DefaultSchema)));
             commandBuilder.AppendInsertStatement(entity, cmd, commandText);
-            commandText.Append(@";
+            commandText.Append(string.Format(@";
     :id_seq_$param$ := {0};
-END;");
+END;", SequenceVariable));
             IDbDataParameter idp = cmd.CreateParameter();
             idp.ParameterName = ":id_seq_$param$";
             idp.Direction = ParameterDirection.Output;

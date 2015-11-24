@@ -89,12 +89,6 @@
     <Reference Include="Npgsql">
       <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\Npgsql.dll</HintPath>
     </Reference>
-    <Reference Include="Oracle.DataAccess">
-      <HintPath>..\packages\Oracle.DataAccess.x86.2.112.1.0\lib\Oracle.DataAccess.dll</HintPath>
-    </Reference>
-    <Reference Include="Oracle.ManagedDataAccess">
-      <HintPath>..\packages\Oracle.ManagedDataAccess.12.1.022\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
-    </Reference>
     <Reference Include="policy.2.0.Npgsql">
       <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\policy.2.0.Npgsql.dll</HintPath>
     </Reference>
@@ -113,11 +107,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OracleDataLayer.cs">
-      <DependentUpon>OracleDataLayer.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="DataLayer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -154,10 +143,6 @@
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="OracleDataLayer.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>OracleDataLayer.cs</LastGenOutput>
     </None>
     <None Include="DataLayer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
