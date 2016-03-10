@@ -26,11 +26,9 @@ namespace inercya.EntityLite.Providers
     public class MySqlEntityLiteProvider : EntityLiteProvider
     {
         public const string ProviderName = "MySql.Data.MySqlClient";
-        private readonly DataService DataService;
 
-        public MySqlEntityLiteProvider(DataService dataService)
+        public MySqlEntityLiteProvider(DataService dataService) : base(dataService)
         {
-            this.DataService = dataService;
             if (DataService.ProviderName != ProviderName)
             {
                 throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);

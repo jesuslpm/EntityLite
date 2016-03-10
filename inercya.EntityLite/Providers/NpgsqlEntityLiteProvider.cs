@@ -26,11 +26,9 @@ namespace inercya.EntityLite.Providers
     public class NpgsqlEntityLiteProvider : EntityLiteProvider
     {
         public const string ProviderName = "Npgsql";
-        private readonly DataService DataService;
 
-        public NpgsqlEntityLiteProvider(DataService dataService)
+        public NpgsqlEntityLiteProvider(DataService dataService): base(dataService)
         {
-            this.DataService = dataService;
             if (DataService.ProviderName != ProviderName)
             {
                 throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);

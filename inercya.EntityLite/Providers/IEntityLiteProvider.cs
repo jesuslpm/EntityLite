@@ -42,5 +42,7 @@ namespace inercya.EntityLite.Providers
 
         DbCommand GenerateInsertCommand(CommandBuilder commandBuilder, object entity);
 
+        DbCommand CreateCommand();
+
     }
 }

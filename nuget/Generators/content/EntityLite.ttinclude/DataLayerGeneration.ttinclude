@@ -238,6 +238,33 @@ public class DataLayerGeneration : IDisposable
         if (GenerateEntityTypeId) GenerateEntityTypes();
     }
 
+	private static Dictionary<Type, DbType> DataTypeToDbType = new Dictionary<Type, DbType>() {
+		{ typeof(byte[]), DbType.Binary },
+		{ typeof(bool), DbType.Boolean },
+		{ typeof(byte), DbType.Byte },
+		{ typeof(DateTime), DbType.DateTime },
+		{ typeof(DateTimeOffset), DbType.DateTimeOffset },
+		{ typeof(Decimal), DbType.Decimal},
+		{ typeof(double), DbType.Double },
+		{ typeof(Guid), DbType.Guid },
+		{ typeof(short), DbType.Int16 },
+		{ typeof(int), DbType.Int32},
+		{ typeof(long), DbType.Int64 },
+		{ typeof(sbyte), DbType.SByte },
+		{ typeof(Single), DbType.Single }, 
+		{ typeof(string), DbType.String }, 
+		{ typeof(ushort), DbType.UInt16 },
+		{ typeof(uint), DbType.UInt32 },
+		{ typeof(ulong), DbType.UInt64 }
+	};
+
+	public DbType ToDbType(Type dataType)
+	{
+		DbType dbType;
+		if (DataTypeToDbType.TryGetValue(dataType, out dbType)) return dbType;
+		return DbType.Object;
+	}
+
     public DbType ToDbType(int providerType)
     {
         switch (ProviderName)
@@ -309,6 +336,7 @@ public class DataLayerGeneration : IDisposable
                         ColumnSize = (int) row["ColumnSize"]
 
                     };
+					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
 					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")
 					{
 						fieldMetadata.BaseSchemaName = null;
@@ -406,6 +434,7 @@ public class DataLayerGeneration : IDisposable
             using (DbDataReader reader = selectCommand.ExecuteReader(CommandBehavior.KeyInfo))
             {
                 var schema = reader.GetSchemaTable();
+				bool isProviderTypeInt = schema.Columns["ProviderType"].DataType == typeof(int);
 				schema.Columns.Add("DbType", typeof(DbType));
                 var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
                 foreach (var row in hidden)
@@ -421,9 +450,12 @@ public class DataLayerGeneration : IDisposable
 					{
 						row["DbType"] = getFieldDbTypeMehtodInfo.Invoke(reader, new object[] { (int)row["ColumnOrdinal"] - 1} );
 					}
-					else
+					else if (isProviderTypeInt)
 					{
 						row["DbType"] = ToDbType( (int) row["ProviderType"]);
+					}
+					else {
+						row["DbType"] =  ToDbType( (Type) row["DataType"]);
 					}
 				}
 				schema.AcceptChanges();
@@ -511,9 +543,10 @@ public class DataLayerGeneration : IDisposable
 				nameColumn = "VIEW_NAME";
 				schemaColumn = "OWNER";
 			}
-            foreach (var entity in this.EntitySettings)
+            foreach (var entity in this.EntitySettings.OrderByDescending(x => x.EntityName.Length))
             {
                 var views = new List<string>();
+				var rowsToDelete = new List<DataRow>();
                 foreach (DataRow row in allViews.Rows)
                 {
                     string viewName = (string)row[nameColumn];
@@ -523,8 +556,15 @@ public class DataLayerGeneration : IDisposable
                     if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(entity.EntityName.Transform(EntityNameToEntityViewTransform).ToLower() + "_"))
                     {
                         views.Add(fullViewName);
+						rowsToDelete.Add(row);
                     }                      
                 }
+
+				foreach(var row in rowsToDelete) 
+				{
+					row.Delete();
+				}
+				allViews.AcceptChanges();
 
                 this.ViewsByEntity.Add(entity, views);
             }
@@ -677,5 +717,45 @@ FROM
         { DbType.Xml, typeof(string) }
     };
 
+	public string GetTypeName(Type t)
+    {
+        return GetCSharpRepresentation(t, new Queue<Type>(t.GetGenericArguments()));
+    }
+    
+	public string GetCSharpRepresentation(Type t, Queue<Type> availableArguments)
+    {
+        string value = t.Name;
+        if (t.IsGenericParameter)
+        {
+            return value;
+        }
+        if (t.DeclaringType != null)
+        {
+            // This is a nested type, build the parent type first
+            value = GetCSharpRepresentation(t.DeclaringType, availableArguments) + "+" + value;
+        }
+        if (t.IsGenericType)
+        {
+            value = value.Split('`')[0];
+
+            // Build the type arguments (if any)
+            string argString = "";
+            var thisTypeArgs = t.GetGenericArguments();
+            for (int i = 0; i < thisTypeArgs.Length && availableArguments.Count > 0; i++)
+            {
+                if (i != 0) argString += ", ";
+
+                argString += GetTypeName(availableArguments.Dequeue());
+            }
+
+            // If there are type arguments, add them with < >
+            if (argString.Length > 0)
+            {
+                value += "<" + argString + ">";
+            }
+        }
+
+        return value;
+    }
 }
 #>

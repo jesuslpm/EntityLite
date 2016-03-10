@@ -91,7 +91,7 @@ namespace inercya.EntityLite
 
         protected DbCommand GetSelectCommand()
         {
-            DbCommand selectCommand = this.DataService.Connection.CreateCommand();
+            DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;
             selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex);
             return selectCommand;
@@ -99,7 +99,7 @@ namespace inercya.EntityLite
 
         protected DbCommand GetSelectCommand(int fromIndex, int toIndex)
         {
-            DbCommand selectCommand = this.DataService.Connection.CreateCommand();
+            DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;
             selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex, fromIndex, toIndex);
             return selectCommand;
@@ -107,7 +107,7 @@ namespace inercya.EntityLite
 
         protected DbCommand GetCountCommand()
         {
-            DbCommand selectCommand = this.DataService.Connection.CreateCommand();
+            DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;
             selectCommand.CommandText =QueryBuilder.GetCountQuery(selectCommand, ref paramIndex);
             return selectCommand;
@@ -115,7 +115,7 @@ namespace inercya.EntityLite
 
         protected DbCommand GetAnyCommand()
         {
-            DbCommand selectCommand = this.DataService.Connection.CreateCommand();
+            DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;
             selectCommand.CommandText = QueryBuilder.GetAnyQuery(selectCommand, ref paramIndex);
             return selectCommand;

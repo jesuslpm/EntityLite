@@ -26,11 +26,9 @@ namespace inercya.EntityLite.Providers
     public class SqliteEntityLiteProvider : EntityLiteProvider
     {
         public const string ProviderName = "System.Data.SQLite";
-        private readonly DataService DataService;
 
-        public SqliteEntityLiteProvider(DataService dataService)
+        public SqliteEntityLiteProvider(DataService dataService): base(dataService)
         {
-            this.DataService = dataService;
             if (DataService.ProviderName != ProviderName)
             {
                 throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);

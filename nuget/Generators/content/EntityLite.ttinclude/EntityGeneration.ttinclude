@@ -82,6 +82,9 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
 #>
 	[Serializable]
 	[DataContract]
+<#+ if (entity.GenerateTypeScript) { #>
+    [TypeScript] 
+<#+ }#>
 	[SqlEntity(<#= entity.GetSqlEntityParameters(generation.DefaultSchema) #>)]
 <#+ if (!string.IsNullOrEmpty(entity.ParentPropertyName)) 
 	{ 

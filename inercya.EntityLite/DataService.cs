@@ -256,6 +256,7 @@ namespace inercya.EntityLite
         {
             get
             {
+                CheckDisposed();
                 if (_connection == null)
                 {
                     if (string.IsNullOrEmpty(this.ConnectionString))
@@ -290,6 +291,7 @@ namespace inercya.EntityLite
         {
             get 
             {
+                CheckDisposed();
                 return _transaction;
             }
         }
@@ -317,6 +319,11 @@ namespace inercya.EntityLite
         public bool IsActiveTransaction
         {
             get { return this.Transaction != null && this.Transaction.Connection != null; }
+        }
+
+        private void CheckDisposed()
+        {
+            if (this._isDisposed) throw new ObjectDisposedException("DataService");
         }
 
         public virtual void Commit()

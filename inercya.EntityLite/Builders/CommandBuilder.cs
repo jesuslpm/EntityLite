@@ -124,7 +124,7 @@ namespace inercya.EntityLite.Builders
             string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
 
             IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
-            DbCommand cmd = DataService.Connection.CreateCommand();
+            DbCommand cmd = DataService.EntityLiteProvider.CreateCommand();
             StringBuilder commandText = new StringBuilder();
             commandText.Append("\nUPDATE ").Append(fullTableName);
             
@@ -431,7 +431,7 @@ namespace inercya.EntityLite.Builders
 					throw new InvalidOperationException("cannot generate delete command for entity " + entityType.Name + " because it does not have a primary key");
 				}
 				IPropertyGetterDictionary getters = PropertyHelper.GetPropertyGetters(entityType);
-				DbCommand cmd = DataService.Connection.CreateCommand();
+				DbCommand cmd = DataService.EntityLiteProvider.CreateCommand();
 				StringBuilder commandText = new StringBuilder();
                 string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
 				commandText.Append("\nDELETE FROM ").Append(fullTableName);

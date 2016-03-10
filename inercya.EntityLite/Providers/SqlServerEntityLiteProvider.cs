@@ -28,11 +28,9 @@ namespace inercya.EntityLite.Providers
     public class SqlServerEntityLiteProvider : EntityLiteProvider
     {
         public const string ProviderName = "System.Data.SqlClient";
-        private readonly DataService DataService;
 
-        public SqlServerEntityLiteProvider(DataService dataService)
+        public SqlServerEntityLiteProvider(DataService dataService): base(dataService)
         {
-            this.DataService = dataService;
             if (DataService.ProviderName != ProviderName)
             {
                 throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);

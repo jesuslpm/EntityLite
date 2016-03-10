@@ -27,11 +27,9 @@ namespace inercya.EntityLite.Providers
     public class OracleEntityLiteProvider : EntityLiteProvider
     {
         public const string ProviderName = "Oracle.DataAccess.Client";
-        private readonly DataService DataService;
 
-        public OracleEntityLiteProvider(DataService dataService)
+        public OracleEntityLiteProvider(DataService dataService): base(dataService)
         {
-            this.DataService = dataService;
             if (DataService.ProviderName != ProviderName)
             {
                 throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);
@@ -123,6 +121,22 @@ END;", SequenceVariable));
             {
                 return "DUAL";
             }
+        }
+
+        private PropertySetter BindByNameSetter;
+
+        public override DbCommand CreateCommand()
+        {
+            var command = base.CreateCommand();
+            if (BindByNameSetter == null)
+            {
+                Type commandType = command.GetType();
+                var pi = commandType.GetProperty("BindByName");
+                if (pi == null) throw new InvalidOperationException("BindByName property not found on type " + commandType.FullName);
+                BindByNameSetter = PropertyHelper.GetPropertySetter(pi);
+            }
+            BindByNameSetter(command, true);
+            return command;
         }
     }
 }

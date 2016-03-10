@@ -38,7 +38,7 @@ namespace inercya.EntityLite
 
         protected override  DbCommand GetCommand()
         {
-            DbCommand command = this.DataService.Connection.CreateCommand();
+            DbCommand command = this.DataService.EntityLiteProvider.CreateCommand();
             string parameterPrefix = this.DataService.EntityLiteProvider.ParameterPrefix;
             command.CommandText = Template.GetSql(parameterPrefix);
             Template.AddParametersToCommand(command, parameterPrefix);
