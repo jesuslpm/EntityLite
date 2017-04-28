@@ -6,13 +6,20 @@
 		// Please, change the connection string. This is the connection string used at design time
 		// to generate de data layer
 		ConnectionString = @"Data Source=(local);Integrated Security=SSPI;Initial Catalog=Northwind",
+		// you should include a connection string with this name in the configuration file
+		// this is the connection that will be used at runtime
+		DataServiceName = "NorhtwindDataService",
 		DefaultSchema = "dbo",
 		RootNamespace = "Samples.Entities",
-		DataServiceName = "NorhtwindDataService",
-        // you should include a connection string with this name in the configuration file
-		// this is the connection that will be used at runtime
         ConnectionStringName= "Northwind",
 		ImplementINotifyPropertyChanged = false,
+		GenerateTypeScript = false,
+		EntityTypesTableName = "entity_types",
+		EntityTypeNameColumnName = "entity_type_name",
+		GenerateEntityTypeId = false,
+		EntityNameToEntityViewTransform = TextTransform.ToUnderscoreLowerCaseNamingConvention,
+		AuditDateTimeKind = DateTimeKind.Utc,
+		JsonType = JsonType.JObject,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 

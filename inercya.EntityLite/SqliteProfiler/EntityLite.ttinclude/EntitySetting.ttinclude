@@ -21,6 +21,7 @@ public class EntitySetting
     public string ReadOnlyFields { get; set; }
     public string EntityName { get; set; }
 	public string SequenceName { get; set;}
+	public bool? GenerateTypeScript { get; set;}
 
     public int EntityTypeId { get; internal set; }
 

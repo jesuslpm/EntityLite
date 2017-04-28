@@ -72,8 +72,8 @@
       <HintPath>..\packages\Common.Logging.Core.2.2.0\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <Private>True</Private>
       <HintPath>..\packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Security">
       <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\Mono.Security.dll</HintPath>
@@ -82,12 +82,16 @@
       <Private>True</Private>
       <HintPath>..\packages\MySql.Data.6.7.4\lib\net40\MySql.Data.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=2.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.2.1.0\lib\net40\NLog.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Npgsql">
       <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.121.2.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.12.1.24160419\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="policy.2.0.Npgsql">
       <HintPath>..\packages\Npgsql.2.0.12.1\lib\net40\policy.2.0.Npgsql.dll</HintPath>
@@ -157,9 +161,11 @@
     <None Include="EntityLite.ttinclude\EntityGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
     <None Include="EntityLite.ttinclude\EntitySetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\JsonType.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldMetadata.ttinclude" />
     <None Include="EntityLite.ttinclude\MemberVisibility.ttinclude" />
+    <None Include="EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureSetting.ttinclude" />

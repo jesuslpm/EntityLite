@@ -396,7 +396,14 @@ namespace inercya.EntityLite.Builders
 				}
 				return parameter;
 			}
-			parameter.DbType = field.DbType;
+            if (field.DbType == DbType.Time && parameter is System.Data.SqlClient.SqlParameter)
+            {
+                ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType = SqlDbType.Time;
+            }
+            else
+            {
+                parameter.DbType = field.DbType;
+            }
 			parameter.Size = field.Size;
 			parameter.SourceColumn = fieldName;
 			if (field.Precision != 255 && field.Precision != 0)
@@ -463,11 +470,11 @@ namespace inercya.EntityLite.Builders
 			{
 				if (entity == null)
 				{
-					Log.ErrorException("Error generating delete command", ex);
+					Log.Error(ex, "Error generating delete command", ex);
 				}
 				else
 				{
-					Log.ErrorException(string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"), ex);
+					Log.Error(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"), ex);
 				}
 				throw;
 			}

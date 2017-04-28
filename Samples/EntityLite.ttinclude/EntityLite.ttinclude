@@ -3,7 +3,8 @@
 <#@ assembly name="Microsoft.CSharp" #>
 <#@ assembly name="System.Data" #>
 <#@ assembly name="System.Xml" #>
-<#@ assembly name="$(SolutionDir)packages\EntityLite.Core.1.9.0\lib\net35-client\inercya.EntityLite.dll" #>
+<#@ assembly name="$(SolutionDir)packages\EntityLite.Core.1.14.0\lib\net35-client\inercya.EntityLite.dll" #>
+<#@ assembly name="$(SolutionDir)packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Data" #>
@@ -18,6 +19,7 @@
 <#@ import namespace="inercya.EntityLite.Templates" #>
 <#@ output extension=".cs" #>
 <#@ include file ="Sequence.ttinclude" #>
+<#@ include file ="JsonType.ttinclude" #>
 <#@ include file ="DataLayerGeneration.ttinclude" #>
 <#@ include file ="DataServiceGeneration.ttinclude" #>
 <#@ include file ="EntityGeneration.ttinclude" #>
@@ -28,6 +30,7 @@
 <#@ include file ="ProcedureGeneration.ttinclude" #>
 <#@ include file ="ProcedureResultSetKind.ttinclude" #>
 <#@ include file ="ProcedureSetting.ttinclude" #>
+<#@ include file ="TypeScriptAttributeGeneration.ttinclude" #>
 <#+ 
 	void Render(DataLayerGeneration generation)
 	{
@@ -37,6 +40,7 @@
             EntityGeneration_Render(generation);
             DataServiceGeneration_Render(generation);
             ProcedureGeneration_Render(generation);
+			TypeScriptAttributeGeneration_Render(generation);
         }
 	}
 #>

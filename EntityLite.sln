@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite", "inercya.EntityLite\inercya.EntityLite.csproj", "{B74DF500-8654-40D1-A50C-7262A2095B1E}"
 EndProject
@@ -43,10 +43,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "Ent
 		nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\FieldMetadata.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldMetadata.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\JsonType.ttinclude = nuget\Generators\content\EntityLite.ttinclude\JsonType.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\MemberVisibility.ttinclude = nuget\Generators\content\EntityLite.ttinclude\MemberVisibility.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\ProcedureGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\ProcedureSetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureSetting.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\Sequence.ttinclude = nuget\Generators\content\EntityLite.ttinclude\Sequence.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeProject", "CodeProject", "{F926993D-D441-4457-9A74-E1BC8A746B52}"

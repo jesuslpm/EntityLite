@@ -225,10 +225,13 @@ namespace inercya.EntityLite
             Dictionary<string, PropertyGetter> internalGetters = new Dictionary<string, PropertyGetter>(props.Length);
             foreach (PropertyInfo pi in props)
             {
-                PropertyGetter getter = GetPropertyGetter(pi);
-                if (getter != null)
+                if (pi.GetIndexParameters().Length == 0)
                 {
-                    internalGetters.Add(pi.Name, getter);
+                    PropertyGetter getter = GetPropertyGetter(pi);
+                    if (getter != null)
+                    {
+                        internalGetters.Add(pi.Name, getter);
+                    }
                 }
             }
             return new PropertyGetterDictionary(internalGetters);

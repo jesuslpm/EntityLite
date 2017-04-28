@@ -32,6 +32,7 @@ public class FieldMetadata
     public int ColumnSize { get; set; }
     public bool IsLocalizedField { get; set; }
 	public string SequenceName { get; set;}
+	public string PropertyTypeName { get; set;}
 
     public string FullTableName(string quotePrefix, string quoteSufix)
     {

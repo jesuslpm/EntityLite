@@ -24,6 +24,7 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Builders
 {
@@ -284,6 +285,23 @@ namespace inercya.EntityLite.Builders
             }
         }
 
+        private bool TryFindMappingProperty(Dictionary<string, PropertyInfo> properties, string fieldName, out PropertyInfo pi )
+        {
+            string candidatePropertyName = fieldName;
+            if (properties.TryGetValue(candidatePropertyName, out pi)) return true;
+            candidatePropertyName = fieldName.ToPascalNamingConvention();
+            if (properties.TryGetValue(candidatePropertyName, out pi)) return true;
+            if (fieldName.EndsWith("json", StringComparison.InvariantCultureIgnoreCase))
+            {
+                fieldName = fieldName.Substring(0, fieldName.Length - 4).TrimEnd('_');
+                candidatePropertyName = fieldName;
+                if (properties.TryGetValue(candidatePropertyName, out pi)) return true;
+                candidatePropertyName = fieldName.ToPascalNamingConvention();
+                return properties.TryGetValue(candidatePropertyName, out pi);
+            }
+            return false;
+        }
+
         private DynamicMethod CreateDynamicMethod()
         {
             DynamicMethod dm = new DynamicMethod("ObjectFromDataReader<" + this.entityType.FullName + ">", typeof(object), new Type[] { typeof(IDataReader) });
@@ -300,7 +318,7 @@ namespace inercya.EntityLite.Builders
             {
                 PropertyInfo pi;
                 string fieldName = reader.GetName(fieldOrdinal);
-                if (properties.TryGetValue(fieldName, out pi) || properties.TryGetValue(fieldName.ToPascalNamingConvention(), out pi))
+                if (TryFindMappingProperty(properties, fieldName, out pi))
                 {
                     EmitCilForOneField(fieldOrdinal, pi);
                 }

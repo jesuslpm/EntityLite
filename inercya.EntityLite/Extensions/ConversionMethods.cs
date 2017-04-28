@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -36,8 +37,26 @@ namespace inercya.EntityLite.Extensions
                 FromType = typeof(DateTimeOffset), 
                 ToType = typeof(DateTime), 
                 Method = typeof(ConversionMethods).GetMethod("FromDateTimeOffsetToLocalDateTime") 
+            },
+            new ConverterEntry
+            {
+                FromType = typeof(string),
+                ToType = typeof(JToken),
+                Method = typeof(ConversionMethods).GetMethod("FromStringToJToken")
             }
         };
+
+        public static JToken FromStringToJToken(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return null;
+            return JToken.Parse(str);
+        }
+
+        public static JObject FromStringToJObject(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return null;
+            return JObject.Parse(str);
+        }
 
         public static DateTime FromDateTimeOffsetToLocalDateTime(DateTimeOffset dateTimeOffset)
         {
@@ -46,12 +65,12 @@ namespace inercya.EntityLite.Extensions
 
         public static MethodInfo GetConversionMethod(Type fromType, Type toType)
         {
-            MethodInfo converter = GetConversionOperatorMethodInfo(fromType, toType);
-            if (converter != null) return converter;
-            return SpecialConvertersTable
+            MethodInfo converter = SpecialConvertersTable
                 .Where(entry => entry.FromType == fromType && entry.ToType == toType)
                 .Select(entry => entry.Method)
                 .FirstOrDefault();
+            if (converter != null) return converter;
+            return GetConversionOperatorMethodInfo(fromType, toType);
         }
 
         private static MethodInfo GetConversionOperatorMethodInfo(Type fromType, Type toType)
@@ -75,6 +94,5 @@ namespace inercya.EntityLite.Extensions
             }
             return null;
         }
-
     }
 }

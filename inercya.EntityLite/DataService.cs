@@ -347,7 +347,7 @@ namespace inercya.EntityLite
 			}
 			catch (Exception ex)
 			{
-				Log.ErrorException("Error on commit", ex);
+				Log.Error(ex, "Error on commit");
 				throw;
 			}
         }
@@ -370,7 +370,7 @@ namespace inercya.EntityLite
 			}
 			catch (Exception ex)
 			{
-				Log.ErrorException("Error on Rollback", ex);
+				Log.Error(ex, "Error on Rollback");
 				throw;
 			}
         }

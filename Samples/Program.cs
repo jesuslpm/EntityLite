@@ -31,6 +31,7 @@ using System.Diagnostics;
 using inercya.EntityLite.SqliteProfiler;
 using inercya.EntityLite.Collections;
 using System.ComponentModel;
+using Newtonsoft.Json.Linq;
 
 namespace Samples
 {
@@ -72,12 +73,31 @@ namespace Samples
 
                 //Pivot();
 
-                ShowAllEmployeesThatSoldSpecifiedProducts();
+                //ShowAllEmployeesThatSoldSpecifiedProducts();
+
+                JsonTest();
             }
             profiler.StopProfiling();
             Console.WriteLine("Press enter to exit ...");
+
             Console.ReadLine();
            
+        }
+
+        static void JsonTest()
+        {
+            foreach( var item in ds.MetadataItemRepository.Query(Projection.BaseTable).ToList())
+            {
+                ds.MetadataItemRepository.Delete(item);
+            }
+
+            var m = new MetadataItem
+            {
+                MetadataId = 1,
+                Data = JObject.Parse("{ \"id\": 1, name: \"Jesús\" }")
+            };
+            ds.MetadataItemRepository.Insert(m);
+            var ms = ds.MetadataItemRepository.Query(Projection.BaseTable).ToList();
         }
 
         static void ShowAllEmployeesThatSoldSpecifiedProducts()

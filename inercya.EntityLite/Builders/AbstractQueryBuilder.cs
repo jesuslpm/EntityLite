@@ -179,6 +179,10 @@ namespace inercya.EntityLite.Builders
                 {
                     parameter.DbType = DbType.String;
                 }
+                else if (propertyMetadata.SqlField.DbType == DbType.Time && sqlParam != null)
+                {
+                    sqlParam.SqlDbType = SqlDbType.Time;
+                }
                 else
                 {
                     parameter.DbType = propertyMetadata.SqlField.DbType;

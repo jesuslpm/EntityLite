@@ -8,12 +8,14 @@ using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using inercya.EntityLite;	
-using inercya.EntityLite.Extensions;		
+using inercya.EntityLite.Extensions;
+using Newtonsoft.Json.Linq;		
 
 namespace Samples.Entities
 {
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Categories")]
 	public partial class Category : INotifyPropertyChanged
 	{
@@ -94,7 +96,8 @@ namespace Samples.Entities
         }
 
 		[LocalizedField]
-		public String CategoryName 
+		[DataMember]
+		public string CategoryName 
 		{ 
 			get
 			{
@@ -165,6 +168,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Customers")]
 	public partial class Customer : INotifyPropertyChanged
 	{
@@ -391,6 +395,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Employees")]
 	public partial class Employee : INotifyPropertyChanged
 	{
@@ -715,6 +720,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="OrderDetails")]
 	public partial class OrderDetail : INotifyPropertyChanged
 	{
@@ -1003,7 +1009,8 @@ namespace Samples.Entities
         }
 
 		[LocalizedField]
-		public String CategoryName 
+		[DataMember]
+		public string CategoryName 
 		{ 
 			get
 			{
@@ -1090,6 +1097,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Orders")]
 	public partial class Order : INotifyPropertyChanged
 	{
@@ -1442,6 +1450,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Products")]
 	public partial class Product : INotifyPropertyChanged
 	{
@@ -1626,7 +1635,8 @@ namespace Samples.Entities
         }
 
 		[LocalizedField]
-		public String CategoryName 
+		[DataMember]
+		public string CategoryName 
 		{ 
 			get
 			{
@@ -1721,6 +1731,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Shippers")]
 	public partial class Shipper : INotifyPropertyChanged
 	{
@@ -1835,6 +1846,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Suppliers")]
 	public partial class Supplier : INotifyPropertyChanged
 	{
@@ -2075,6 +2087,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="my_table")]
 	public partial class MyEntity : INotifyPropertyChanged
 	{
@@ -2175,6 +2188,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity()]
 	public partial class ProductSale : INotifyPropertyChanged
 	{
@@ -2307,7 +2321,8 @@ namespace Samples.Entities
         }
 
 		[LocalizedField]
-		public String CategoryName 
+		[DataMember]
+		public string CategoryName 
 		{ 
 			get
 			{
@@ -2347,6 +2362,7 @@ namespace Samples.Entities
 
 	[Serializable]
 	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Items")]
 	public partial class Item : INotifyPropertyChanged
 	{
@@ -2485,6 +2501,107 @@ namespace Samples.Entities
 		public const string Field2 = "Field2";
 		public const string Field3 = "Field3";
 		public const string Field4 = "Field4";
+	}
+
+	[Serializable]
+	[DataContract]
+    [TypeScript] 
+	[SqlEntity(BaseTableName="Metadata")]
+	public partial class MetadataItem : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _metadataId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="MetadataId", BaseColumnName ="MetadataId", BaseTableName = "Metadata" )]
+		public Int32 MetadataId 
+		{ 
+		    get { return _metadataId; } 
+			set 
+			{
+			    _metadataId = value;
+				NotifyPropertyChange("MetadataId");
+			}
+        }
+
+		private JObject _data;
+		[DataMember]
+		[SqlField(DbType.AnsiString, 8000, ColumnName ="DataJson", BaseColumnName ="DataJson", BaseTableName = "Metadata" )]
+		public JObject Data 
+		{ 
+		    get { return _data; } 
+			set 
+			{
+			    _data = value;
+				NotifyPropertyChange("Data");
+			}
+        }
+
+
+	}
+
+	public partial class MetadataItemRepository : Repository<MetadataItem> 
+	{
+		public MetadataItemRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public MetadataItem Get(string projectionName, System.Int32 metadataId)
+		{
+			return ((IRepository<MetadataItem>)this).Get(projectionName, metadataId, FetchMode.UseIdentityMap);
+		}
+
+		public MetadataItem Get(string projectionName, System.Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<MetadataItem>)this).Get(projectionName, metadataId, fetchMode);
+		}
+
+		public MetadataItem Get(Projection projection, System.Int32 metadataId)
+		{
+			return ((IRepository<MetadataItem>)this).Get(projection, metadataId, FetchMode.UseIdentityMap);
+		}
+
+		public MetadataItem Get(Projection projection, System.Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<MetadataItem>)this).Get(projection, metadataId, fetchMode);
+		}
+
+		public MetadataItem Get(string projectionName, System.Int32 metadataId, params string[] fields)
+		{
+			return ((IRepository<MetadataItem>)this).Get(projectionName, metadataId, fields);
+		}
+
+		public MetadataItem Get(Projection projection, System.Int32 metadataId, params string[] fields)
+		{
+			return ((IRepository<MetadataItem>)this).Get(projection, metadataId, fields);
+		}
+
+		public bool Delete(System.Int32 metadataId)
+		{
+			var entity = new MetadataItem { MetadataId = metadataId };
+			return this.Delete(entity);
+		}
+	}
+
+	public static partial class MetadataItemFields
+	{
+		public const string MetadataId = "MetadataId";
+		public const string Data = "Data";
 	}
 
 }
@@ -2659,6 +2776,19 @@ namespace Samples.Entities
 				return _ItemRepository;
 			}
 		}
+
+		private Samples.Entities.MetadataItemRepository _MetadataItemRepository;
+		public Samples.Entities.MetadataItemRepository MetadataItemRepository
+		{
+			get 
+			{
+				if ( _MetadataItemRepository == null)
+				{
+					_MetadataItemRepository = new Samples.Entities.MetadataItemRepository(this);
+				}
+				return _MetadataItemRepository;
+			}
+		}
 	}
 }
 namespace Samples.Entities
@@ -2692,4 +2822,20 @@ namespace Samples.Entities
 		}
 
 	}
+}
+namespace Samples.Entities
+{
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public partial class TypeScriptAttribute : Attribute
+    {
+        public static IEnumerable<Type> GetClasses()
+        {
+            var asm = System.Reflection.Assembly.GetExecutingAssembly();
+            foreach (var t in asm.GetTypes())
+            {
+                var attrs = t.GetCustomAttributes(typeof(TypeScriptAttribute), false);
+                if (attrs != null && attrs.Length > 0) yield return t;
+            }
+        }
+    }
 }

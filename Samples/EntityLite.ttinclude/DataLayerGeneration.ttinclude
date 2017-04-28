@@ -28,7 +28,7 @@ public class DataLayerGeneration : IDisposable
     public bool GenerateEntityTypeId { get; set; }
 	public TextTransform EntityNameToEntityViewTransform {get; set;}
 	public bool ImplementINotifyPropertyChanged {get; set;}
-
+	public bool GenerateTypeScript { get; set;}
 
 	public string EntityTypesTableName {get; set;}
 	public string EntityTypeNameColumnName {get; set;}
@@ -37,6 +37,8 @@ public class DataLayerGeneration : IDisposable
 
     public List<EntitySetting> EntitySettings { get; set; }
     public List<ProcedureSetting> ProcedureSettings { get; set; }
+	public JsonType JsonType { get; set; }
+
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
 
     private Dictionary<EntitySetting, List<string>> ViewsByEntity;
@@ -337,6 +339,11 @@ public class DataLayerGeneration : IDisposable
 
                     };
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
+					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
+					{
+						fieldMetadata.PropertyTypeName = this.JsonType.ToString();
+						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
+					}
 					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")
 					{
 						fieldMetadata.BaseSchemaName = null;

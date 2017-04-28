@@ -22,7 +22,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\packages\EntityLite.Core.1.14.0\lib\net35-client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\nuget\Core\lib\net35-client\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -79,11 +79,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <Private>True</Private>
       <HintPath>..\packages\Microsoft.SqlServer.Types.10.50.1600.1\lib\Net20\Microsoft.SqlServer.Types.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.1.0\lib\net35\NLog.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net35\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.7\lib\net35\NLog.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -212,11 +217,13 @@
     <None Include="SqliteProfiler\EntityLite.ttinclude\EntitySetting.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\FieldGeneration.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\FieldMetadata.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\JsonType.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\MemberVisibility.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\ProcedureSetting.ttinclude" />
     <None Include="SqliteProfiler\EntityLite.ttinclude\Sequence.ttinclude" />
+    <None Include="SqliteProfiler\EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude" />
     <None Include="SqliteProfiler\EntityLiteProfile.db" />
   </ItemGroup>
   <ItemGroup>
@@ -230,7 +237,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY "$(TargetDir)inercya.EntityLite.*" "$(SolutionDir)nuget\Core\lib\net35-client"  /Y</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
