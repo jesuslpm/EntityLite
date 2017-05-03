@@ -33,8 +33,7 @@ using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using inercya.EntityLite;	
-using inercya.EntityLite.Extensions;
-using Newtonsoft.Json.Linq;		
+using inercya.EntityLite.Extensions;	
 <#+
 	var nsgs = from entity in generation.EntitySettings
 			group entity by entity.GetNamespaceName(generation.RootNamespace) into g

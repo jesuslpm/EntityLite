@@ -22,7 +22,7 @@ using System.Data;
 using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Collections;
-using Newtonsoft.Json.Linq;
+//using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Extensions
 {

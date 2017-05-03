@@ -42,7 +42,7 @@ To generate the datalayer for MySQL you need  to:
 		//DefaultSchema = "public",
 		//EntityNameToEntityViewTransform = TextTransform.ToUnderscoreLowerCaseNamingConvention,
 		
-		JsonType = JsonType.JObject,
+		JsonType = JsonType.JToken,
 		ConnectionStringName = "Northwind",
 		RootNamespace = "Samples.Entities",
 		DataServiceName = "NorthwindDataService",

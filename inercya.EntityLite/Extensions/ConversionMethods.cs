@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
-using Newtonsoft.Json.Linq;
+//using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -36,27 +36,27 @@ namespace inercya.EntityLite.Extensions
             new ConverterEntry { 
                 FromType = typeof(DateTimeOffset), 
                 ToType = typeof(DateTime), 
-                Method = typeof(ConversionMethods).GetMethod("FromDateTimeOffsetToLocalDateTime") 
-            },
-            new ConverterEntry
-            {
-                FromType = typeof(string),
-                ToType = typeof(JToken),
-                Method = typeof(ConversionMethods).GetMethod("FromStringToJToken")
+                Method = typeof(ConversionMethods).GetMethod("FromDateTimeOffsetToLocalDateTime")
             }
+            //new ConverterEntry
+            //{
+            //    FromType = typeof(string),
+            //    ToType = typeof(JToken),
+            //    Method = typeof(ConversionMethods).GetMethod("FromStringToJToken")
+            //}
         };
 
-        public static JToken FromStringToJToken(string str)
-        {
-            if (string.IsNullOrEmpty(str)) return null;
-            return JToken.Parse(str);
-        }
+        //public static JToken FromStringToJToken(string str)
+        //{
+        //    if (string.IsNullOrEmpty(str)) return null;
+        //    return JToken.Parse(str);
+        //}
 
-        public static JObject FromStringToJObject(string str)
-        {
-            if (string.IsNullOrEmpty(str)) return null;
-            return JObject.Parse(str);
-        }
+        //public static JObject FromStringToJObject(string str)
+        //{
+        //    if (string.IsNullOrEmpty(str)) return null;
+        //    return JObject.Parse(str);
+        //}
 
         public static DateTime FromDateTimeOffsetToLocalDateTime(DateTimeOffset dateTimeOffset)
         {

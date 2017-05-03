@@ -8,8 +8,7 @@ using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using inercya.EntityLite;	
-using inercya.EntityLite.Extensions;
-using Newtonsoft.Json.Linq;		
+using inercya.EntityLite.Extensions;	
 
 namespace Samples.Entities
 {
@@ -2533,10 +2532,10 @@ namespace Samples.Entities
 			}
         }
 
-		private JObject _data;
+		private Newtonsoft.Json.Linq.JToken _data;
 		[DataMember]
 		[SqlField(DbType.AnsiString, 8000, ColumnName ="DataJson", BaseColumnName ="DataJson", BaseTableName = "Metadata" )]
-		public JObject Data 
+		public Newtonsoft.Json.Linq.JToken Data 
 		{ 
 		    get { return _data; } 
 			set 

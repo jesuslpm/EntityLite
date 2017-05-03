@@ -341,7 +341,7 @@ public class DataLayerGeneration : IDisposable
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
 					{
-						fieldMetadata.PropertyTypeName = this.JsonType.ToString();
+						fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
 						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
 					}
 					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")

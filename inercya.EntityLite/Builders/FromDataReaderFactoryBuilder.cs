@@ -24,7 +24,7 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Extensions;
-using Newtonsoft.Json.Linq;
+//using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Builders
 {
@@ -237,6 +237,7 @@ namespace inercya.EntityLite.Builders
 
         private void EmitConversionCode(Type fromType, Type toType)
         {
+            MethodInfo parseMethod = null;
             MethodInfo conversionMethod = null;
             // si los tipos son iguales no hay que emitir ningún código
             if (fromType == toType) return;
@@ -251,9 +252,9 @@ namespace inercya.EntityLite.Builders
                 }
                 cil.Emit(opCode);
             }
-            else if ((conversionMethod = ConversionMethods.GetConversionMethod(fromType, toType)) != null)
+            else if (fromType == typeof(string) && (parseMethod = toType.GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string) }, null)) != null )
             {
-                cil.Emit(OpCodes.Call, conversionMethod);
+                cil.Emit(OpCodes.Call, parseMethod);
             }
             else if (toType == typeof(string))
             {
@@ -270,14 +271,9 @@ namespace inercya.EntityLite.Builders
                 }
                 cil.Emit(OpCodes.Call, toStringMethod);
             }
-            else if (fromType == typeof(string))
+            else if ((conversionMethod = ConversionMethods.GetConversionMethod(fromType, toType)) != null)
             {
-                MethodInfo parseMethod = toType.GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(string) }, null);
-                if (parseMethod == null)
-                {
-                    throw new InvalidCastException(string.Format("Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
-                }
-                cil.Emit(OpCodes.Call, parseMethod);
+                cil.Emit(OpCodes.Call, conversionMethod);
             }
             else
             {
