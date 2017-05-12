@@ -24,7 +24,7 @@
     <copyright>Copyright  2013</copyright>
     <dependencies>
       <group targetFramework="net35-client">
-        <dependency id="NLog" version="4.0" />
+        <dependency id="NLog" version="4.4.7" />
         <dependency id="Microsoft.SqlServer.Types" version="[10.50.1600.1]" />
       </group>
     </dependencies>
