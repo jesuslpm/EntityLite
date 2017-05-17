@@ -22,6 +22,8 @@ using System.Data;
 using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Collections;
+using System.Threading.Tasks;
+using System.Data.Common;
 //using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Extensions
@@ -161,20 +163,50 @@ namespace inercya.EntityLite.Extensions
 			}
 		}
 
-		public static IEnumerable<T> ToEnumerable<T>(this IDataReader reader) where T : class, new()
+		public static IEnumerable<T> ToEnumerable<T>(this IDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
 		{
 			if (reader == null) throw new ArgumentNullException("reader");
-			using (reader)
-			{
-				var factory = reader.GetFactory(typeof(T));
-				while (reader.Read())
-				{
-					yield return (T)factory(reader);
-				}
-			}
+            try
+            {
+                using (reader)
+                {
+                    var factory = reader.GetFactory(typeof(T));
+                    while (reader.Read())
+                    {
+                        yield return (T)factory(reader);
+                    }
+                }
+            }
+            finally
+            {
+                onEnumerationCompleted?.Invoke();
+            }
 		}
 
-		[Obsolete("Use ToList instead")]
+        public static async Task<IList<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
+        {
+            if (reader == null) throw new ArgumentNullException("reader");
+            var list = new List<T>();
+            try
+            {
+                using (reader)
+                {
+                    var factory = reader.GetFactory(typeof(T));
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        list.Add((T)factory(reader));
+                    }
+                }
+                return list;
+            }
+            finally
+            {
+                onEnumerationCompleted?.Invoke();
+            }
+        }
+
+
+        [Obsolete("Use ToList instead")]
         public static List<T> GetList<T>(this IDataReader reader) where T : class, new()
         {
             return reader.ToList<T>();

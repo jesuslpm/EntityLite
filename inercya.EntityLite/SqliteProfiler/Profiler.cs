@@ -145,7 +145,7 @@ namespace inercya.EntityLite.SqliteProfiler
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorException("Error Profiling", ex);
+                        log.Error(ex, "Error Profiling");
                     }
                     if (!IsRunning)
                     {
@@ -157,7 +157,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
             catch (Exception ex)
             {
-                log.ErrorException("Error Profiling", ex);
+                log.Error(ex, "Error Profiling");
             }
             finally
             {
@@ -193,7 +193,7 @@ namespace inercya.EntityLite.SqliteProfiler
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorException("Error disposing data service", ex);
+                    log.Error(ex, "Error disposing data service");
                 }
                 dataService = null;
             }
@@ -233,10 +233,8 @@ namespace inercya.EntityLite.SqliteProfiler
             }
             catch (Exception ex)
             {
-                log.ErrorException("Error deleting old profiler database files", ex);
+                log.Error(ex, "Error deleting old profiler database files");
             }
         }
-
-
     }
 }

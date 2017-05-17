@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -50,7 +51,30 @@ namespace inercya.EntityLite.Extensions
 			}
 		}
 
-		public static IEnumerable<T> ToEnumerable<T>(this Func<DbCommand> createCommand)
+        public async static Task<T> ExecuteWithRetriesAsync<T>(this Func<Task<T>> function, int maxRetries, int firstMillisecondsDelay, Action<Exception, bool> onErrorAction = null)
+        {
+            int retry = 0;
+            while (true)
+            {
+                try
+                {
+                    return await function().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    if (retry >= maxRetries)
+                    {
+                        onErrorAction?.Invoke(ex, false);
+                        throw;
+                    }
+                    onErrorAction?.Invoke(ex, true);
+                    await Task.Delay(firstMillisecondsDelay << retry);
+                    retry++;
+                }
+            }
+        }
+
+        public static IEnumerable<T> ToEnumerable<T>(this Func<DbCommand> createCommand)
 		{
 			using (var cmd = createCommand())
 			using (var reader = cmd.ExecuteReader())

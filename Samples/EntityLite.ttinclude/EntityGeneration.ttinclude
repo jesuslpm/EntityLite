@@ -19,6 +19,7 @@ void EntityGeneration_Render(DataLayerGeneration generation)
 #>
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -270,6 +271,123 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 }
 #>
 
+<#+  /****************************************************************************************************************************/
+void RenderProcedureAsyncMethodInRepository(DataLayerGeneration generation, EntitySetting entity, ProcedureSetting procedure)
+{
+	var proc = generation.GetProcedure(procedure);
+	string returnTypeName = procedure.GetReturnTypeName(entity.EntityName);
+	string parametersDefinition = DataLayerGeneration.GetProcedureParametersDefinition(proc);
+	string methodReturnTypeName = returnTypeName == "void" ? "Task" : "Task<" + returnTypeName + ">";
+#>
+
+		<#= procedure.MemberVisibility.ToString().ToLower() #> async <#= methodReturnTypeName #> <#= procedure.ProcedureName.ToPascalNamingConvention() #>Async(<#= parametersDefinition #>)
+		{
+<#+
+	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output && x.Direction != ParameterDirection.ReturnValue))
+	{
+		Type paramType = DataLayerGeneration.GetTypeFromDbType(p.DbType);
+		string paramTypeName = paramType.Name;
+		string nullableParamTypeName = paramTypeName + (paramType.IsValueType ? "?" : string.Empty);
+		string sourceColumn = p.ParameterName;
+		if (sourceColumn[0] == '@' || sourceColumn[0] == ':')
+		{
+			sourceColumn = sourceColumn.Substring(1);
+		}
+		p.SourceColumn = sourceColumn;
+		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+		if ((p.Direction & ParameterDirection.Input) ==  ParameterDirection.Input) 
+		{
+#>
+			<#= nullableParamTypeName #> <#= argumentName #>Param = <#= argumentName #>; 
+<#+	
+		}
+	} #>
+            var executor = new StoredProcedureExecutor(this.DataService, true)
+            {
+<#+ if (procedure.CommandTimeout >= 0) { #>
+                CommandTimeout = <#=procedure.CommandTimeout #>,
+<#+ } #>
+                GetCommandFunc = () =>
+                {
+                    var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);
+<#+
+	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Input) == ParameterDirection.Input))
+	{ 
+		string sourceColumn = p.ParameterName;
+		if (sourceColumn[0] == '@' || sourceColumn[0] == ':')
+		{
+			sourceColumn = sourceColumn.Substring(1);
+		}
+		p.SourceColumn = sourceColumn;
+		string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+		if ((p.Direction & ParameterDirection.Output) == ParameterDirection.Output) argumentName += "Param";
+#>
+					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+<#+
+	}
+#>
+                    return proc;
+                }
+            };
+
+<#+
+	if (procedure.ResultSetKind == ProcedureResultSetKind.SingleRow)
+	{	
+#>
+			var result = await executor.FirstOrDefaultAsync<<#= entity.EntityName #>>().ConfigureAwait(false);				
+<#+
+	}
+	else if (procedure.ResultSetKind == ProcedureResultSetKind.MultipleRows)
+	{
+#>			
+			var result = await executor.ToListAsync<<#= entity.EntityName #>>().ConfigureAwait(false);
+<#+	
+	}
+	else if (procedure.ResultSetKind == ProcedureResultSetKind.Scalar)
+	{
+#>
+			object result = await executor.ExecuteScalarAsync().ConfigureAwait(false);	
+<#+
+	}
+	else
+	{
+#>
+			await executor.ExecuteNonQueryAsync().ConfigureAwait(false);
+<#+
+	}
+	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output && x.Direction != ParameterDirection.ReturnValue))
+	{
+		Type paramType = DataLayerGeneration.GetTypeFromDbType(p.DbType);
+		string paramTypeName = paramType.Name;
+		string nullableParamTypeName = paramTypeName + (paramType.IsValueType ? "?" : string.Empty);
+#>
+			<#= p.SourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword() #> = (<#= nullableParamTypeName #>) executor.OutputParameterValues["<#= p.SourceColumn #>"]; 
+<#+
+	}				
+	switch (procedure.ResultSetKind)
+	{	
+		case ProcedureResultSetKind.MultipleRows:
+#>
+			return result;
+<#+
+		break;
+		case ProcedureResultSetKind.SingleRow:
+#>
+			return result;
+<#+
+		break;
+		case ProcedureResultSetKind.Scalar:				
+#>
+			return (result == DBNull.Value || result == null) ? default(<#= procedure.ScalarReturnType.ActualName() #>) : (<#= procedure.ScalarReturnType.ActualName() #>) Convert.ChangeType(result, typeof(<#= procedure.ScalarReturnType.UndelyingType().Name #>));
+<#+
+		break;
+	}
+#>
+		}
+<#+
+}
+#>
+
 <#+ /****************************************************************************************************************************/
 void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting entity)
 {
@@ -328,6 +446,44 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 			var entity = new <#= entity.EntityName #> { <#=primaryKeyField.PropertyName #> = <#=primaryKeyField.PropertyName.ToParameterName() #> };
 			return this.Delete(entity);
 		}
+		// asyncrhonous methods
+
+		public Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projectionName, <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode.UseIdentityMap);
+		}
+
+		public Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projectionName, <#=primaryKeyField.PropertyName.ToParameterName() #>, fetchMode);
+		}
+
+		public Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projection, <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode.UseIdentityMap);
+		}
+
+		public Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projection, <#=primaryKeyField.PropertyName.ToParameterName() #>, fetchMode);
+		}
+
+		public Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>, params string[] fields)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projectionName, <#=primaryKeyField.PropertyName.ToParameterName() #>, fields);
+		}
+
+		public Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>, params string[] fields)
+		{
+			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projection, <#=primaryKeyField.PropertyName.ToParameterName() #>, fields);
+		}
+
+		public Task<bool> DeleteAsync(<#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyField.PropertyName.ToParameterName() #>)
+		{
+			var entity = new <#= entity.EntityName #> { <#=primaryKeyField.PropertyName #> = <#=primaryKeyField.PropertyName.ToParameterName() #> };
+			return this.DeleteAsync(entity);
+		}
+
 <#+
     }
 		var procedures = generation.GetRelatedProcedures(entity.EntityName, entity.Schema);
@@ -336,6 +492,7 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 			foreach (var procedure in procedures)
 			{
 				RenderProcedureMethodInRepository(generation, entity, procedure);
+				RenderProcedureAsyncMethodInRepository(generation, entity, procedure);
 			}
 		}
 #>

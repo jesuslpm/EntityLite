@@ -32,6 +32,9 @@ using inercya.EntityLite.SqliteProfiler;
 using inercya.EntityLite.Collections;
 using System.ComponentModel;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.IO;
 
 namespace Samples
 {
@@ -43,6 +46,21 @@ namespace Samples
 
         static void Main(string[] args)
         {
+
+            var encoding = Encoding.GetEncoding("iso-8859-1");
+            var doc = new XDocument(
+                new XElement("CORPME-eDoc", "Documento CORPME"
+                ));
+
+
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream, encoding);
+            doc.Save(writer, SaveOptions.DisableFormatting);
+            stream.Position = 0;
+            var reader = new StreamReader(stream, encoding);
+            var xml = reader.ReadToEnd();
+
+
             //for (int i =0; i < 100; i++) TestQueue();
             profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
                 AppDomain.CurrentDomain.BaseDirectory, 
@@ -75,20 +93,18 @@ namespace Samples
 
                 //ShowAllEmployeesThatSoldSpecifiedProducts();
 
-                JsonTest();
+                JsonTest().Wait();
             }
             profiler.StopProfiling();
             Console.WriteLine("Press enter to exit ...");
-
             Console.ReadLine();
-           
         }
 
-        static void JsonTest()
+        static async Task JsonTest()
         {
             foreach( var item in ds.MetadataItemRepository.Query(Projection.BaseTable).ToList())
             {
-                ds.MetadataItemRepository.Delete(item);
+                await ds.MetadataItemRepository.DeleteAsync(item);
             }
 
             var m = new MetadataItem
@@ -96,8 +112,8 @@ namespace Samples
                 MetadataId = 1,
                 Data = JObject.Parse("{ \"id\": 1, name: \"Jesús\" }")
             };
-            ds.MetadataItemRepository.Insert(m);
-            var ms = ds.MetadataItemRepository.Query(Projection.BaseTable).ToList();
+            await ds.MetadataItemRepository.InsertAsync(m);
+            var ms = await ds.MetadataItemRepository.Query(Projection.BaseTable).ToListAsync();
         }
 
         static void ShowAllEmployeesThatSoldSpecifiedProducts()

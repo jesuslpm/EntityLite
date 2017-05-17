@@ -7,7 +7,7 @@ using System.Data.Common;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using inercya.EntityLite;	
-using inercya.EntityLite.Extensions;		
+using inercya.EntityLite.Extensions;	
 
 namespace inercya.EntityLite.SqliteProfiler.Entities
 {

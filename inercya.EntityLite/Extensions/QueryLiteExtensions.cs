@@ -30,6 +30,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Data.SqlTypes;
 using inercya.EntityLite.Extensions;
+using System.Threading.Tasks;
 
 namespace inercya.EntityLite
 {
@@ -524,6 +525,11 @@ namespace inercya.EntityLite
 		{
 			return query.Where(fieldName, OperatorLite.Equals, fieldValue).FirstOrDefault();
 		}
+
+        public static Task<TEntity> GetAsync<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue) where TEntity : class, new()
+        {
+            return query.Where(fieldName, OperatorLite.Equals, fieldValue).FirstOrDefaultAsync();
+        }
 
         /// <summary>
         /// Allows you to specify the fields in the select list

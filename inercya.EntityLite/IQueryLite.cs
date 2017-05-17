@@ -22,6 +22,7 @@ using System.Collections;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Templates;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace inercya.EntityLite
 {
@@ -32,11 +33,22 @@ namespace inercya.EntityLite
 		ICollection<string> Options { get; set; }
 		IEnumerable ToEnumerable();
 		IEnumerable ToEnumerable(int fromIndex, int toIndex);
+        Task<IEnumerable> ToEnumerableAsync();
+        Task<IEnumerable> ToEnumerableAsync(int fromIndex, int toIndex);
+
         IList ToList();
+        Task<IList> ToListAsync();
         IList ToList(int fromIndex, int toIndex);
+
+        Task<IList> ToListAsync(int fromIndex, int toIndex);
 		object FirstOrDefault();
+
+        Task<object> FirstOrDefaultAsync();
         int GetCount();
+
+        Task<int> GetCountAsync();
         bool Any();
+        Task<bool> AnyAsync();
         Type EntityType { get; set; }
         IList<string> FieldList { get; set; }
         IQueryBuilder QueryBuilder { get; set; }
@@ -50,10 +62,17 @@ namespace inercya.EntityLite
     public interface IQueryLite<TEntity> : IQueryLite
     {
 		new TEntity FirstOrDefault();
-		new IEnumerable<TEntity> ToEnumerable();
-		new IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex);
+        new Task<TEntity> FirstOrDefaultAsync();
+        new IEnumerable<TEntity> ToEnumerable();
+        new Task<IEnumerable<TEntity>> ToEnumerableAsync();
+
+
+        new IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex);
+        new Task<IEnumerable<TEntity>> ToEnumerableAsync(int fromIndex, int toIndex);
         new IList<TEntity> ToList();
+        new Task<IList<TEntity>> ToListAsync();
         new IList<TEntity> ToList(int fromIndex, int toIndex);
+        new Task<IList<TEntity>> ToListAsync(int fromIndex, int toIndex);
     }
 
     public interface IProjectedQueryLite : IQueryLite

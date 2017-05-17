@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
+using System.Threading.Tasks;
 
 namespace inercya.EntityLite
 {
@@ -27,28 +28,41 @@ namespace inercya.EntityLite
         IQueryLite Query(Projection projection);
         IQueryLite Query(string projectionName);
         SaveResult Save(object entity);
-
+        Task<SaveResult> SaveAsync(object entity);
         void Insert(object entity);
-
+        Task InsertAsync(object entity);
         bool Update(object entity);
+        Task<bool> UpdateAsync(object entity);
         bool Update(object entity, params string[] fieldsToUpdate);
+        Task<bool> UpdateAsync(object entity, params string[] fieldsToUpdate);
         bool Delete(object entity);
+        Task<bool> DeleteAsync(object entity);
         Type EntityType { get; }
-
 		object Get(Projection projection, object entityId, FetchMode fetchMode);
-		object Get(string projectionName, object entityId, FetchMode fetchMode);
+        Task<object> GetAsync(Projection projection, object entityId, FetchMode fetchMode);
+        object Get(string projectionName, object entityId, FetchMode fetchMode);
+        Task<object> GetAsync(string projectionName, object entityId, FetchMode fetchMode);
         object Get(Projection projection, object entityId, string[] fields);
+        Task<object> GetAsync(Projection projection, object entityId, string[] fields);
         object Get(string projectionName, object entityId, string[] fields);
+        Task<object> GetAsync(string projectionName, object entityId, string[] fields);
 
     }
 
     public interface IRepository<TEntity> : IRepository 
     {
         SaveResult Save(TEntity entity);
+        Task<SaveResult> SaveAsync(TEntity entity);
         void Insert(TEntity entity);
+        Task InsertAsync(TEntity entity);
         bool Update(TEntity entity);
+        Task<bool> UpdateAsync(TEntity entity);
         bool Update(TEntity entity, params string[] fieldsToUpdate);
+        Task<bool> UpdateAsync(TEntity entity, params string[] fieldsToUpdate);
+
         bool Delete(TEntity entity);
+        Task<bool> DeleteAsync(TEntity entity);
+
         new IQueryLite<TEntity> Query(Projection projection);
         new IQueryLite<TEntity> Query(string projectionName);
 
@@ -56,6 +70,12 @@ namespace inercya.EntityLite
 		new TEntity Get(string projectionName, object entityId, FetchMode fetchMode);
         new TEntity Get(Projection projection, object entityId, string[] fields);
         new TEntity Get(string projectionName, object entityId, string[] fields);
+
+        new Task<TEntity> GetAsync(Projection projection, object entityId, FetchMode fetchMode);
+        new Task<TEntity> GetAsync(string projectionName, object entityId, FetchMode fetchMode);
+        new Task<TEntity> GetAsync(Projection projection, object entityId, string[] fields);
+        new Task<TEntity> GetAsync(string projectionName, object entityId, string[] fields);
+
     }
 
 
@@ -114,6 +134,23 @@ namespace inercya.EntityLite
 
         public virtual SaveResult Save(TEntity entity)
         {
+            bool isNew = IsNew(entity);
+
+            if (isNew)
+            {
+                this.Insert(entity);
+                return SaveResult.Inserted;
+            }
+
+            if (this.Update(entity))
+            {
+                return SaveResult.Updated;
+            }
+            return SaveResult.NotModified;
+        }
+
+        private static bool IsNew(TEntity entity)
+        {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
@@ -123,7 +160,7 @@ namespace inercya.EntityLite
             }
             if (string.IsNullOrEmpty(metadata.BaseTableName))
             {
-                throw new ArgumentException(string.Format("{0} cannot be saved because it has no base table", entityType.Name ));
+                throw new ArgumentException(string.Format("{0} cannot be saved because it has no base table", entityType.Name));
             }
             if (metadata.PrimaryKeyPropertyNames.Count == 0)
             {
@@ -164,14 +201,19 @@ namespace inercya.EntityLite
                     throw new ArgumentException(string.Format("{0} cannot be saved, because the type of {1}  is not supported, use insert and update instead", entityType.Name, primaryKeyFieldName));
                 }
             }
+            return isNew;
+        }
 
+        public virtual async Task<SaveResult> SaveAsync(TEntity entity)
+        {
+            bool isNew = IsNew(entity);
             if (isNew)
             {
-                this.Insert(entity);
+                await this.InsertAsync(entity);
                 return SaveResult.Inserted;
             }
 
-            if ( this.Update(entity))
+            if (await this.UpdateAsync(entity))
             {
                 return SaveResult.Updated;
             }
@@ -182,6 +224,12 @@ namespace inercya.EntityLite
         {
             this.DataService.Insert(entity, EntityMetadata);
         }
+
+        public virtual Task InsertAsync(TEntity entity)
+        {
+            return this.DataService.InsertAsync(entity, EntityMetadata);
+        }
+
 
         public bool Update(TEntity entity)
         {
@@ -198,9 +246,30 @@ namespace inercya.EntityLite
             return this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
+        public Task<bool> UpdateAsync(TEntity entity)
+        {
+            return this.UpdateAsync(entity, this.DataService.GetValidatedForUpdateSortedFields(entity));
+        }
+
+        protected virtual Task<bool> UpdateAsync(TEntity entity, List<string> sortedFields)
+        {
+            return this.DataService.UpdateAsync(entity, sortedFields);
+        }
+
+        public Task<bool> UpdateAsync(TEntity entity, params string[] fieldsToUpdate)
+        {
+            return this.UpdateAsync(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
+        }
+
+
         public virtual bool Delete(TEntity entity)
         {
             return this.DataService.Delete(entity);
+        }
+
+        public virtual Task<bool> DeleteAsync(TEntity entity)
+        {
+            return this.DataService.DeleteAsync(entity);
         }
 
         public IQueryLite<TEntity> Query(Projection projection)
@@ -253,6 +322,44 @@ namespace inercya.EntityLite
 
         #endregion
 
+        Task<TEntity> IRepository<TEntity>.GetAsync(Projection projection, object entityId, FetchMode fetchMode)
+        {
+            return ((IRepository<TEntity>)this).GetAsync(projection.GetProjectionName(), entityId, fetchMode);
+        }
+
+        async Task<TEntity> IRepository<TEntity>.GetAsync(string projectionName, object entityId, FetchMode fetchMode)
+        {
+            TEntity entity = null;
+            if (fetchMode == FetchMode.UseIdentityMap &&
+                (entity = this.DataService.IdentityMap.Get<TEntity>(projectionName, entityId)) != null)
+            {
+                return await Task.FromResult(entity).ConfigureAwait(false);
+            }
+            string primaryKeyFieldName = typeof(TEntity).GetPrimaryKeyFieldName();
+            entity = await this.Query(projectionName).GetAsync(primaryKeyFieldName, entityId).ConfigureAwait(false);
+            if (entity != null)
+            {
+                this.DataService.IdentityMap.Put(projectionName, entity);
+            }
+            return entity;
+        }
+
+        async Task<TEntity> IRepository<TEntity>.GetAsync(string projectionName, object entityId, string[] fields)
+        {
+            TEntity entity = null;
+            if ((entity = DataService.IdentityMap.Get<TEntity>(projectionName, entityId)) != null)
+            {
+                return await Task.FromResult(entity).ConfigureAwait(false);
+            }
+            string primaryKeyFieldName = typeof(TEntity).GetPrimaryKeyFieldName();
+            return await this.Query(projectionName).Fields(fields).GetAsync(primaryKeyFieldName, entityId).ConfigureAwait(false);
+        }
+
+        Task<TEntity> IRepository<TEntity>.GetAsync(Projection projection, object entityId, string[] fields)
+        {
+            return ((IRepository<TEntity>)this).GetAsync(projection.GetProjectionName(), entityId, fields);
+        }
+
         #region IRepository Members
 
         IQueryLite IRepository.Query(Projection projection)
@@ -270,9 +377,19 @@ namespace inercya.EntityLite
             return this.Save((TEntity)entity);
         }
 
+        Task<SaveResult> IRepository.SaveAsync(object entity)
+        {
+            return this.SaveAsync((TEntity)entity);
+        }
+
         bool IRepository.Update(object entity, string[] fieldsToUpdate)
         {
             return this.Update((TEntity)entity, fieldsToUpdate);
+        }
+
+        Task<bool> IRepository.UpdateAsync(object entity, string[] fieldsToUpdate)
+        {
+            return this.UpdateAsync((TEntity)entity, fieldsToUpdate);
         }
 
         bool IRepository.Delete(object entity)
@@ -280,17 +397,34 @@ namespace inercya.EntityLite
             return this.Delete((TEntity)entity);
         }
 
+        Task<bool> IRepository.DeleteAsync(object entity)
+        {
+            return this.DeleteAsync((TEntity)entity);
+        }
+
+
         void IRepository.Insert(object entity)
         {
             this.Insert((TEntity)entity);
         }
+
+        Task IRepository.InsertAsync(object entity)
+        {
+            return this.InsertAsync((TEntity)entity);
+        }
+
 
         bool IRepository.Update(object entity)
         {
             return this.Update((TEntity)entity);
         }
 
-		object IRepository.Get(Projection projection, object entityId, FetchMode fetchMode)
+        Task<bool> IRepository.UpdateAsync(object entity)
+        {
+            return this.UpdateAsync((TEntity)entity);
+        }
+
+        object IRepository.Get(Projection projection, object entityId, FetchMode fetchMode)
 		{
 			return ((IRepository<TEntity>)this).Get(projection, entityId, fetchMode);
 		}
@@ -313,6 +447,26 @@ namespace inercya.EntityLite
         public Type EntityType
         {
             get { return typeof(TEntity); }
+        }
+
+        async Task<object> IRepository.GetAsync(Projection projection, object entityId, FetchMode fetchMode)
+        {
+            return await ((IRepository<TEntity>)this).GetAsync(projection, entityId, fetchMode).ConfigureAwait(false);
+        }
+
+        async Task<object> IRepository.GetAsync(string proyectionName, object entityId, FetchMode fetchMode)
+        {
+            return await ((IRepository<TEntity>)this).GetAsync(proyectionName, entityId, fetchMode).ConfigureAwait(false);
+        }
+
+        async Task<object> IRepository.GetAsync(Projection projection, object entityId, string[] fields)
+        {
+            return await ((IRepository<TEntity>)this).GetAsync(projection, entityId, fields).ConfigureAwait(false);
+        }
+
+        async Task<object> IRepository.GetAsync(string proyectionName, object entityId, string[] fields)
+        {
+            return await ((IRepository<TEntity>)this).GetAsync(proyectionName, entityId, fields).ConfigureAwait(false);
         }
 
         #endregion
