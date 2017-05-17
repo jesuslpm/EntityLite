@@ -239,8 +239,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY $(TargetDir)inercya.EntityLite.dll $(SolutionDir)nuget\Core\lib\net35-client /Y
-COPY $(TargetDir)inercya.EntityLite.pdb $(SolutionDir)nuget\Core\lib\net35-client /Y</PostBuildEvent>
+    <PostBuildEvent>COPY $(TargetDir)inercya.EntityLite.dll $(SolutionDir)nuget\Core\lib\net452 /Y
+COPY $(TargetDir)inercya.EntityLite.pdb $(SolutionDir)nuget\Core\lib\net452 /Y</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
