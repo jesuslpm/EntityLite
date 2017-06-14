@@ -2800,6 +2800,19 @@ namespace Samples.Entities
 			}
         }
 
+		private Int64 _dbChangeNumber;
+		[DataMember]
+		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="DbChangeNumber", BaseColumnName ="DbChangeNumber", BaseTableName = "Items" )]
+		public Int64 DbChangeNumber 
+		{ 
+		    get { return _dbChangeNumber; } 
+			set 
+			{
+			    _dbChangeNumber = value;
+				NotifyPropertyChange("DbChangeNumber");
+			}
+        }
+
 
 	}
 
@@ -2897,6 +2910,7 @@ namespace Samples.Entities
 		public const string Field2 = "Field2";
 		public const string Field3 = "Field3";
 		public const string Field4 = "Field4";
+		public const string DbChangeNumber = "DbChangeNumber";
 	}
 
 	[Serializable]

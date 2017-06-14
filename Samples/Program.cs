@@ -93,11 +93,27 @@ namespace Samples
 
                 //ShowAllEmployeesThatSoldSpecifiedProducts();
 
-                JsonTest().Wait();
+                //JsonTest().Wait();
+                DbChangeNumberTest();
             }
             profiler.StopProfiling();
             Console.WriteLine("Press enter to exit ...");
             Console.ReadLine();
+        }
+
+
+        static void DbChangeNumberTest()
+        {
+            var item = new Item
+            {
+                Field1 = "Field 1",
+                Field2 = "Field 2"
+            };
+
+            ds.ItemRepository.Insert(item);
+            ds.ItemRepository.Update(item);
+            item.Field1 = "Field something";
+            ds.ItemRepository.Update(item);
         }
 
         static async Task JsonTest()

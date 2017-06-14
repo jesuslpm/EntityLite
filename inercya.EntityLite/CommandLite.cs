@@ -104,6 +104,11 @@ namespace inercya.EntityLite
             return this.ToEnumerable<T>().FirstOrDefault();
         }
 
+        public async Task<T> FirstOrDefaultAsync<T>() where T : class, new()
+        {
+            return (await this.ToEnumerableAsync<T>().ConfigureAwait(false)).FirstOrDefault();
+        }
+
         public IEnumerable<T> ToEnumerable<T>() where T : class, new()
         {
             DbCommand command = null;

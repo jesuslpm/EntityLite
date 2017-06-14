@@ -136,6 +136,11 @@ ORDER BY __RowNumber__
             return cmd;
         }
 
+        public override string GetNextValExpression(string fullSequenceName)
+        {
+            return "NEXT VALUE FOR " + fullSequenceName;
+        }
+
         public override string SequenceVariable
         {
             get

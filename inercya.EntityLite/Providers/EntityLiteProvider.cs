@@ -75,6 +75,8 @@ namespace inercya.EntityLite.Providers
             }
         }
 
+        public abstract string GetNextValExpression(string fullSequenceName);
+
         public virtual string DualTable
         {
             get { return null; }

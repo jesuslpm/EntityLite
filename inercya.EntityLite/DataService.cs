@@ -927,6 +927,7 @@ namespace inercya.EntityLite
             sortedFields.EnsureField(metadata, SpecialFieldNames.ModifiedByFieldName);
             sortedFields.EnsureField(metadata, SpecialFieldNames.ModifiedDateFieldName);
             sortedFields.EnsureField(metadata, SpecialFieldNames.EntityRowVersionFieldName);
+            sortedFields.EnsureField(metadata, SpecialFieldNames.DbChangeNumberFieldName);
 
             foreach (var field in sortedFields)
             {

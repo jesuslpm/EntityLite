@@ -51,5 +51,9 @@ namespace inercya.EntityLite.Providers
             commandText.Append(";\nSELECT last_insert_rowid() AS AutoIncrementField;");
         }
 
+        public override string GetNextValExpression(string fullSequenceName)
+        {
+            throw new NotSupportedException("SQLite doesn't support sequences");
+        }
     }
 }

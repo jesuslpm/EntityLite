@@ -151,6 +151,7 @@ namespace inercya.EntityLite.Builders
                     && !string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase)
                     && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedByFieldName, StringComparison.InvariantCultureIgnoreCase)
                     && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.DbChangeNumberFieldName, StringComparison.InvariantCultureIgnoreCase)
                     )
                 {
                     string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
@@ -241,6 +242,11 @@ namespace inercya.EntityLite.Builders
                         commandText.Append(this.DataService.EntityLiteProvider.StartQuote + propMetadata.SqlField.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" = ")
                             .Append(this.DataService.EntityLiteProvider.StartQuote + propMetadata.SqlField.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" + 1");
                     }
+                    else if (propertyName == DataService.SpecialFieldNames.DbChangeNumberFieldName)
+                    {
+                        commandText.Append(this.DataService.EntityLiteProvider.StartQuote + propMetadata.SqlField.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" = ")
+                            .Append(DataService.EntityLiteProvider.GetNextValExpression(GetDbChangeNumberFullSequenceName()));
+                    }
                     else
                     {
                         string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
@@ -313,6 +319,10 @@ namespace inercya.EntityLite.Builders
                 {
                     valuesText.Append("1");
                 }
+                else if (propertyName == DataService.SpecialFieldNames.DbChangeNumberFieldName)
+                {
+                    valuesText.Append(DataService.EntityLiteProvider.GetNextValExpression(GetDbChangeNumberFullSequenceName()));
+                }
                 else if (field.SequenceName != null)
                 {
                     valuesText.Append(DataService.EntityLiteProvider.SequenceVariable);
@@ -328,6 +338,16 @@ namespace inercya.EntityLite.Builders
             commandText.Append(")");
             valuesText.Append(")");
             commandText.Append(valuesText.ToString());
+        }
+
+        private string GetDbChangeNumberFullSequenceName()
+        {
+            var sequenceName = (DataService.SpecialFieldNames.DbChangeNumberFieldName + "_Seq").Transform(DataService.EntityNameToEntityViewTransform);
+            if (!string.IsNullOrEmpty(DataService.EntityLiteProvider.DefaultSchema))
+            {
+                sequenceName = DataService.EntityLiteProvider.DefaultSchema + "." + sequenceName;
+            }
+            return sequenceName;
         }
 
 		private static void SetValueToCommandParameter(object entity, IPropertyGetterDictionary getters, string propertyName, IDbDataParameter param)

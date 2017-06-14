@@ -28,6 +28,7 @@ namespace inercya.EntityLite
 		public string CreatedByFieldName { get; set; }
 		public string ModifiedByFieldName { get; set; }
 		public string EntityRowVersionFieldName { get; set; }
+        public string DbChangeNumberFieldName { get; set; }
 
 		public SpecialFieldNames()
 		{
@@ -36,6 +37,7 @@ namespace inercya.EntityLite
 			this.CreatedByFieldName = "CreatedBy";
 			this.ModifiedByFieldName = "ModifiedBy";
 			this.EntityRowVersionFieldName = "EntityRowVersion";
+            this.DbChangeNumberFieldName = "DbChangeNumber";
 		}
 	}
 }

@@ -44,5 +44,7 @@ namespace inercya.EntityLite.Providers
 
         DbCommand CreateCommand();
 
+        string GetNextValExpression(string fullSequenceName);
+
     }
 }

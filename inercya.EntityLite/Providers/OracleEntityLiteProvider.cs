@@ -96,7 +96,7 @@ WHERE RowNumber__ between 10 and 19;
 DECLARE
     {0} NUMERIC(18);
 BEGIN
-    {0} := {1}.nextval;", SequenceVariable, entityMetadata.GetFullSequenceName(commandBuilder.DataService.EntityLiteProvider.DefaultSchema)));
+    {0} := {1};", SequenceVariable, GetNextValExpression( entityMetadata.GetFullSequenceName(this.DefaultSchema))));
             commandBuilder.AppendInsertStatement(entity, cmd, commandText);
             commandText.Append(string.Format(@";
     :id_seq_$param$ := {0};
@@ -108,6 +108,11 @@ END;", SequenceVariable));
             cmd.Parameters.Add(idp);
             cmd.CommandText = commandText.ToString();
             return cmd;
+        }
+
+        public override string GetNextValExpression(string fullSequenceName)
+        {
+            return fullSequenceName + ".nextval";
         }
 
         protected override void AppendGetAutoincrementField(StringBuilder commandText, EntityMetadata entityMetadata)

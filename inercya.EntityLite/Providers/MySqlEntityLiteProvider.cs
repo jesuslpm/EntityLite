@@ -64,5 +64,10 @@ namespace inercya.EntityLite.Providers
                 return "DUAL";
             }
         }
+
+        public override string GetNextValExpression(string fullSequenceName)
+        {
+            throw new NotSupportedException("MySQL doesn't support sequences");
+        }
     }
 }
