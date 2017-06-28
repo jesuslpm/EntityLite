@@ -58,7 +58,8 @@ namespace inercya.EntityLite.Builders
             { typeof(DateTimeOffset), typeof(DataReaderExtensions).GetMethod("GetDateTimeOffset") },
 			{ typeof(SqlHierarchyId), typeof(DataReaderExtensions).GetMethod("GetSqlHierarchyId") },
 			{ typeof(SqlGeometry), typeof(DataReaderExtensions).GetMethod("GetSqlGeometry") },
-			{ typeof(SqlGeography), typeof(DataReaderExtensions).GetMethod("GetSqlGeography") }
+			{ typeof(SqlGeography), typeof(DataReaderExtensions).GetMethod("GetSqlGeography") },
+            { typeof(sbyte), typeof(DataReaderExtensions).GetMethod("GetSByte") }
         };
 
         private static readonly MethodInfo IsDbNullMethodInfo = typeof(IDataRecord).GetMethod("IsDBNull");

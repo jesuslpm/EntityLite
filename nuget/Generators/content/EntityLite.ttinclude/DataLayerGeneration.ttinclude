@@ -358,6 +358,11 @@ public class DataLayerGeneration : IDisposable
 						fieldMetadata.BaseTableName = null;
 					}
 
+					if (!string.IsNullOrEmpty(entity.SynonymName) && fieldMetadata.BaseTableName != null)
+					{
+						fieldMetadata.BaseTableName = entity.SynonymName;
+						fieldMetadata.BaseSchemaName = string.IsNullOrEmpty(entity.SynonymSchema) ? DefaultSchema : entity.SynonymSchema;
+					}
 
 
                     fieldsMetadata.Add(fieldMetadata);
@@ -388,10 +393,14 @@ public class DataLayerGeneration : IDisposable
                 }
 
 	
-
+				
 
                 this.FieldsMetadataByEntity.Add(entity, fieldsMetadata);
 
+				if (! string.IsNullOrEmpty(entity.SynonymName)) {
+					entity.BaseTableName = entity.SynonymName;
+					entity.Schema = entity.SynonymSchema;
+				}
 				var primaryKey = GetPrimaryKey(entity);
 				if (primaryKey.Count == 1)
 				{
@@ -491,7 +500,7 @@ public class DataLayerGeneration : IDisposable
         DataTable baseTableSchema = null;
         if (!string.IsNullOrEmpty(entitySetting.BaseTableName))
         {
-            baseTableSchema = GetSchema(entitySetting.GetFullTableName(DefaultSchema, CommandBuilder.QuotePrefix, CommandBuilder.QuoteSuffix), cn);
+            baseTableSchema = GetSchema(entitySetting.GetFullObjectName(DefaultSchema, CommandBuilder.QuotePrefix, CommandBuilder.QuoteSuffix), cn);
             if ((entitySetting.FieldGeneration & FieldGeneration.ForBaseTable) == FieldGeneration.ForBaseTable)
             {
                 schemaUnion = baseTableSchema.Copy();
@@ -587,10 +596,10 @@ public class DataLayerGeneration : IDisposable
     public List<FieldMetadata> GetPrimaryKey(EntitySetting entity)
     {
 
-        var fullTableName = entity.GetFullTableName(DefaultSchema, CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix);
+        var fullObjectName = entity.GetFullObjectName(DefaultSchema, CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix);
         return GetFieldsMetadata(entity).Where(x => x.IsKey 
             && ! string.IsNullOrEmpty(entity.BaseTableName)
-            && string.Equals(fullTableName, x.FullTableName(CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix), StringComparison.InvariantCultureIgnoreCase) ).ToList(); 
+            && string.Equals(fullObjectName, x.FullTableName(CommandBuilder.QuotePrefix , CommandBuilder.QuoteSuffix), StringComparison.InvariantCultureIgnoreCase) ).ToList(); 
 
     }
 

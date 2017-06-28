@@ -22,6 +22,8 @@ public class EntitySetting
     public string EntityName { get; set; }
 	public string SequenceName { get; set;}
 	public bool? GenerateTypeScript { get; set;}
+	public string SynonymName {get; set;}
+	public string SynonymSchema {get; set;}
 
     public int EntityTypeId { get; internal set; }
 
@@ -58,6 +60,14 @@ public class EntitySetting
 		if (string.IsNullOrEmpty(schema)) schema = defaultSchema;
 		return string.IsNullOrEmpty(schema) ? quotePrefix + BaseTableName + quoteSufix: quotePrefix +  schema + quoteSufix + "." + quotePrefix + BaseTableName + quoteSufix ;
     }
+
+	public string GetFullObjectName(string defaultSchema, string  quotePrefix, string quoteSufix)
+	{
+		if (string.IsNullOrEmpty(SynonymName)) return GetFullTableName(defaultSchema, quotePrefix, quoteSufix);
+		string schema = this.SynonymSchema;
+		if (string.IsNullOrEmpty(schema)) schema = defaultSchema;
+		return string.IsNullOrEmpty(schema) ? quotePrefix + SynonymName + quoteSufix: quotePrefix +  schema + quoteSufix + "." + quotePrefix + SynonymName + quoteSufix ;
+	}
 
     public static string GetFullEntityName(string entityName, string schema, string defaultSchema)
     {

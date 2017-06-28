@@ -94,11 +94,28 @@ namespace Samples
                 //ShowAllEmployeesThatSoldSpecifiedProducts();
 
                 //JsonTest().Wait();
-                DbChangeNumberTest();
+                //DbChangeNumberTest();
+                SynonymTest();
             }
             profiler.StopProfiling();
             Console.WriteLine("Press enter to exit ...");
             Console.ReadLine();
+        }
+
+        static void SynonymTest()
+        {
+
+            var elem = new Entities.Tools.Element
+            {
+                Name = "Some name"
+            };
+
+            ds.ToolsElementRepository.Insert(elem);
+
+            elem.Name = "Anoher Name";
+            ds.ToolsElementRepository.Update(elem);
+
+            ds.ToolsElementRepository.Delete(elem);
         }
 
 

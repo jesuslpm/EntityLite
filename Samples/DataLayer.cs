@@ -3054,6 +3054,149 @@ namespace Samples.Entities
 
 }
 
+namespace Samples.Entities.Tools
+{
+	[Serializable]
+	[DataContract]
+    [TypeScript] 
+	[SqlEntity(BaseTableName="elems", SchemaName="Tools")]
+	public partial class Element : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _elementId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ElementId", BaseColumnName ="ElementId", BaseTableName = "elems" )]
+		public Int32 ElementId 
+		{ 
+		    get { return _elementId; } 
+			set 
+			{
+			    _elementId = value;
+				NotifyPropertyChange("ElementId");
+			}
+        }
+
+		private String _name;
+		[DataMember]
+		[SqlField(DbType.AnsiString, 128, ColumnName ="Name", BaseColumnName ="Name", BaseTableName = "elems" )]
+		public String Name 
+		{ 
+		    get { return _name; } 
+			set 
+			{
+			    _name = value;
+				NotifyPropertyChange("Name");
+			}
+        }
+
+
+	}
+
+	public partial class ElementRepository : Repository<Element> 
+	{
+		public ElementRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public Element Get(string projectionName, System.Int32 elementId)
+		{
+			return ((IRepository<Element>)this).Get(projectionName, elementId, FetchMode.UseIdentityMap);
+		}
+
+		public Element Get(string projectionName, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Element>)this).Get(projectionName, elementId, fetchMode);
+		}
+
+		public Element Get(Projection projection, System.Int32 elementId)
+		{
+			return ((IRepository<Element>)this).Get(projection, elementId, FetchMode.UseIdentityMap);
+		}
+
+		public Element Get(Projection projection, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Element>)this).Get(projection, elementId, fetchMode);
+		}
+
+		public Element Get(string projectionName, System.Int32 elementId, params string[] fields)
+		{
+			return ((IRepository<Element>)this).Get(projectionName, elementId, fields);
+		}
+
+		public Element Get(Projection projection, System.Int32 elementId, params string[] fields)
+		{
+			return ((IRepository<Element>)this).Get(projection, elementId, fields);
+		}
+
+		public bool Delete(System.Int32 elementId)
+		{
+			var entity = new Element { ElementId = elementId };
+			return this.Delete(entity);
+		}
+		// asyncrhonous methods
+
+		public Task<Element> GetAsync(string projectionName, System.Int32 elementId)
+		{
+			return ((IRepository<Element>)this).GetAsync(projectionName, elementId, FetchMode.UseIdentityMap);
+		}
+
+		public Task<Element> GetAsync(string projectionName, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Element>)this).GetAsync(projectionName, elementId, fetchMode);
+		}
+
+		public Task<Element> GetAsync(Projection projection, System.Int32 elementId)
+		{
+			return ((IRepository<Element>)this).GetAsync(projection, elementId, FetchMode.UseIdentityMap);
+		}
+
+		public Task<Element> GetAsync(Projection projection, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Element>)this).GetAsync(projection, elementId, fetchMode);
+		}
+
+		public Task<Element> GetAsync(string projectionName, System.Int32 elementId, params string[] fields)
+		{
+			return ((IRepository<Element>)this).GetAsync(projectionName, elementId, fields);
+		}
+
+		public Task<Element> GetAsync(Projection projection, System.Int32 elementId, params string[] fields)
+		{
+			return ((IRepository<Element>)this).GetAsync(projection, elementId, fields);
+		}
+
+		public Task<bool> DeleteAsync(System.Int32 elementId)
+		{
+			var entity = new Element { ElementId = elementId };
+			return this.DeleteAsync(entity);
+		}
+
+	}
+
+	public static partial class ElementFields
+	{
+		public const string ElementId = "ElementId";
+		public const string Name = "Name";
+	}
+
+}
+
 namespace Samples.Entities
 {
 	public partial class NorthwindDataService : DataService
@@ -3235,6 +3378,19 @@ namespace Samples.Entities
 					_MetadataItemRepository = new Samples.Entities.MetadataItemRepository(this);
 				}
 				return _MetadataItemRepository;
+			}
+		}
+
+		private Samples.Entities.Tools.ElementRepository _ToolsElementRepository;
+		public Samples.Entities.Tools.ElementRepository ToolsElementRepository
+		{
+			get 
+			{
+				if ( _ToolsElementRepository == null)
+				{
+					_ToolsElementRepository = new Samples.Entities.Tools.ElementRepository(this);
+				}
+				return _ToolsElementRepository;
 			}
 		}
 	}

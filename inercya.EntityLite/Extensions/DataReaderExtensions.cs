@@ -75,6 +75,11 @@ namespace inercya.EntityLite.Extensions
             return (SqlGeography)dataRecord.GetValue(fieldOrdinal);
         }
 
+        public static sbyte GetSByte(this IDataRecord dataRecord, int fieldOrdinal)
+        {
+            return (sbyte)dataRecord.GetValue(fieldOrdinal);
+        }
+
         private static string GetMetadataSummary(this IDataReader reader)
         {
 			if (reader == null) throw new ArgumentNullException("reader");
