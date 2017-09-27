@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\inercya.EntityLite.Core\inercya.EntityLite.Core.csproj" />
+    <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
