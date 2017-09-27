@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -210,6 +211,44 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			var entity = new Statement { StatementId = statementId };
 			return this.Delete(entity);
 		}
+		// asyncrhonous methods
+
+		public Task<Statement> GetAsync(string projectionName, System.Int64 statementId)
+		{
+			return ((IRepository<Statement>)this).GetAsync(projectionName, statementId, FetchMode.UseIdentityMap);
+		}
+
+		public Task<Statement> GetAsync(string projectionName, System.Int64 statementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Statement>)this).GetAsync(projectionName, statementId, fetchMode);
+		}
+
+		public Task<Statement> GetAsync(Projection projection, System.Int64 statementId)
+		{
+			return ((IRepository<Statement>)this).GetAsync(projection, statementId, FetchMode.UseIdentityMap);
+		}
+
+		public Task<Statement> GetAsync(Projection projection, System.Int64 statementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Statement>)this).GetAsync(projection, statementId, fetchMode);
+		}
+
+		public Task<Statement> GetAsync(string projectionName, System.Int64 statementId, params string[] fields)
+		{
+			return ((IRepository<Statement>)this).GetAsync(projectionName, statementId, fields);
+		}
+
+		public Task<Statement> GetAsync(Projection projection, System.Int64 statementId, params string[] fields)
+		{
+			return ((IRepository<Statement>)this).GetAsync(projection, statementId, fields);
+		}
+
+		public Task<bool> DeleteAsync(System.Int64 statementId)
+		{
+			var entity = new Statement { StatementId = statementId };
+			return this.DeleteAsync(entity);
+		}
+
 	}
 
 	public static partial class StatementFields
@@ -331,6 +370,44 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			var entity = new Execution { ExecutionId = executionId };
 			return this.Delete(entity);
 		}
+		// asyncrhonous methods
+
+		public Task<Execution> GetAsync(string projectionName, System.Int64 executionId)
+		{
+			return ((IRepository<Execution>)this).GetAsync(projectionName, executionId, FetchMode.UseIdentityMap);
+		}
+
+		public Task<Execution> GetAsync(string projectionName, System.Int64 executionId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Execution>)this).GetAsync(projectionName, executionId, fetchMode);
+		}
+
+		public Task<Execution> GetAsync(Projection projection, System.Int64 executionId)
+		{
+			return ((IRepository<Execution>)this).GetAsync(projection, executionId, FetchMode.UseIdentityMap);
+		}
+
+		public Task<Execution> GetAsync(Projection projection, System.Int64 executionId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<Execution>)this).GetAsync(projection, executionId, fetchMode);
+		}
+
+		public Task<Execution> GetAsync(string projectionName, System.Int64 executionId, params string[] fields)
+		{
+			return ((IRepository<Execution>)this).GetAsync(projectionName, executionId, fields);
+		}
+
+		public Task<Execution> GetAsync(Projection projection, System.Int64 executionId, params string[] fields)
+		{
+			return ((IRepository<Execution>)this).GetAsync(projection, executionId, fields);
+		}
+
+		public Task<bool> DeleteAsync(System.Int64 executionId)
+		{
+			var entity = new Execution { ExecutionId = executionId };
+			return this.DeleteAsync(entity);
+		}
+
 	}
 
 	public static partial class ExecutionFields

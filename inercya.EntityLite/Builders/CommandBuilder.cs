@@ -406,15 +406,16 @@ namespace inercya.EntityLite.Builders
 			if (typeof(System.Data.SqlTypes.INullable).IsAssignableFrom(propertyType))
 			{
 				parameter.DbType = DbType.String;
-				if (propertyType == typeof(Microsoft.SqlServer.Types.SqlHierarchyId))
-				{
-					parameter.Size = 4000;
-				}
-				else
-				{
-					parameter.Size = 1073741823;
-				}
-				return parameter;
+				//if (propertyType == typeof(Microsoft.SqlServer.Types.SqlHierarchyId))
+				//{
+				//	parameter.Size = 4000;
+				//}
+				//else
+				//{
+				//	parameter.Size = 1073741823;
+				//}
+                parameter.Size = 1073741823;
+                return parameter;
 			}
             if (field.DbType == DbType.Time && parameter is System.Data.SqlClient.SqlParameter)
             {

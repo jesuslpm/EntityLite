@@ -2,11 +2,14 @@
 <package >
   <metadata>
     <id>EntityLite</id>
-    <version>1.17.0</version>
+    <version>2.0.0-beta1</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
+    <repository url="https://github.com/jesuslpm/EntityLite" />
+    <iconUrl>http://www.i-nercya.com/EntityLite.png</iconUrl>
     <description>
       A lightweight, database first, micro ORM
     </description>
@@ -18,20 +21,14 @@
       The EntityLite code generators and core library
     </summary>
     <language>en-US</language>
-    <projectUrl>https://nuget.org/packages/EntityLite.Generators</projectUrl>
-    <iconUrl>http://www.i-nercya.com/EntityLite.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2013-2017</copyright>
     <dependencies>
-      <group targetFramework="net452">
-        <dependency id="EntityLite.Core" version="[1.17.0]" />
+      <group targetFramework="netstandard2.0">
+        <dependency id="EntityLite.Core" version="[2.0.0-beta1]" />
       </group>
     </dependencies>
     <references></references>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Data" />
-      <frameworkAssembly assemblyName="System.Runtime.Serialization"  />
-    </frameworkAssemblies>
     <tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
   </metadata>
   <files>

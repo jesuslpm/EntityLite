@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
-using Microsoft.SqlServer.Types;
+//using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Collections;
 using System.Threading.Tasks;
@@ -60,20 +60,20 @@ namespace inercya.EntityLite.Extensions
             return (DateTimeOffset)dataRecord.GetValue(fieldOrdinal);
         }
 
-        public static SqlHierarchyId GetSqlHierarchyId(this IDataRecord dataRecord, int fieldOrdinal)
-        {
-            return (SqlHierarchyId)dataRecord.GetValue(fieldOrdinal);
-        }
+        //public static SqlHierarchyId GetSqlHierarchyId(this IDataRecord dataRecord, int fieldOrdinal)
+        //{
+        //    return (SqlHierarchyId)dataRecord.GetValue(fieldOrdinal);
+        //}
 
-        public static SqlGeometry GetSqlGeometry(this IDataRecord dataRecord, int fieldOrdinal)
-        {
-            return (SqlGeometry)dataRecord.GetValue(fieldOrdinal);
-        }
+        //public static SqlGeometry GetSqlGeometry(this IDataRecord dataRecord, int fieldOrdinal)
+        //{
+        //    return (SqlGeometry)dataRecord.GetValue(fieldOrdinal);
+        //}
 
-        public static SqlGeography GetSqlGeography(this IDataRecord dataRecord, int fieldOrdinal)
-        {
-            return (SqlGeography)dataRecord.GetValue(fieldOrdinal);
-        }
+        //public static SqlGeography GetSqlGeography(this IDataRecord dataRecord, int fieldOrdinal)
+        //{
+        //    return (SqlGeography)dataRecord.GetValue(fieldOrdinal);
+        //}
 
         public static sbyte GetSByte(this IDataRecord dataRecord, int fieldOrdinal)
         {

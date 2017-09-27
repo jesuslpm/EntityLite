@@ -22,7 +22,7 @@ using System.Data;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Diagnostics;
-using Microsoft.SqlServer.Types;
+//using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Extensions;
 //using Newtonsoft.Json.Linq;
 
@@ -56,13 +56,14 @@ namespace inercya.EntityLite.Builders
             { typeof(UInt64), typeof(DataReaderExtensions).GetMethod("GetUInt64")},
             { typeof(TimeSpan), typeof(DataReaderExtensions).GetMethod("GetTimeSpan") },
             { typeof(DateTimeOffset), typeof(DataReaderExtensions).GetMethod("GetDateTimeOffset") },
-			{ typeof(SqlHierarchyId), typeof(DataReaderExtensions).GetMethod("GetSqlHierarchyId") },
-			{ typeof(SqlGeometry), typeof(DataReaderExtensions).GetMethod("GetSqlGeometry") },
-			{ typeof(SqlGeography), typeof(DataReaderExtensions).GetMethod("GetSqlGeography") },
+			//{ typeof(SqlHierarchyId), typeof(DataReaderExtensions).GetMethod("GetSqlHierarchyId") },
+			//{ typeof(SqlGeometry), typeof(DataReaderExtensions).GetMethod("GetSqlGeometry") },
+			//{ typeof(SqlGeography), typeof(DataReaderExtensions).GetMethod("GetSqlGeography") },
             { typeof(sbyte), typeof(DataReaderExtensions).GetMethod("GetSByte") }
         };
 
-        private static readonly MethodInfo IsDbNullMethodInfo = typeof(IDataRecord).GetMethod("IsDBNull");
+
+        private static readonly MethodInfo IsDbNullMethodInfo = typeof(IDataRecord).GetTypeInfo().GetMethod("IsDBNull");
 
         private static MethodInfo GetGetDataReaderMethodForFieldType(Type fieldType)
         {
@@ -90,6 +91,8 @@ namespace inercya.EntityLite.Builders
             Label endField = cil.DefineLabel();
             Label setPropertyFromField = cil.DefineLabel();
 
+            //var IsDbNullMethodInfo = typeof(IDataRecord).GetMethod("IsDBNull");
+
             /* 
                 if (!reader.IsDBNull( fieldOrdinal ) goto setPropertyFromField 
             */
@@ -98,6 +101,7 @@ namespace inercya.EntityLite.Builders
             // cargar fieldOrdinal en la pila
             cil.Emit(OpCodes.Ldc_I4, fieldOrdinal);
             // llamar al método IsDBNull del datareader
+            var IsDbNullMethodInfo = FromDataReaderFactoryBuilder.IsDbNullMethodInfo;
             cil.Emit(OpCodes.Callvirt, IsDbNullMethodInfo);
             // si no es nulo ir a establecer la propiedad = valor del campo
             cil.Emit(OpCodes.Brfalse_S, setPropertyFromField);

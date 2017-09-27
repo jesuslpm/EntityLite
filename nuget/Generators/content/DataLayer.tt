@@ -8,10 +8,10 @@
 		ConnectionString = @"Data Source=(local);Integrated Security=SSPI;Initial Catalog=Northwind",
 		// you should include a connection string with this name in the configuration file
 		// this is the connection that will be used at runtime
+		ConnectionStringName= "Northwind",
 		DataServiceName = "NorhtwindDataService",
 		DefaultSchema = "dbo",
 		RootNamespace = "Samples.Entities",
-        ConnectionStringName= "Northwind",
 		ImplementINotifyPropertyChanged = false,
 		GenerateTypeScript = false,
 		EntityTypesTableName = "entity_types",
@@ -29,6 +29,10 @@
 			}
 		},
 		ProcedureSettings = new List<ProcedureSetting>
+		{
+		
+		},
+		EnumSettings = new List<EnumSetting>
 		{
 		
 		}

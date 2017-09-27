@@ -21,10 +21,10 @@ using System.Text;
 using System.Data.Common;
 using inercya.EntityLite.Extensions;
 using System.Data;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Data.SqlTypes;
 using System.Collections;
+using System.Data.SqlClient;
 
 namespace inercya.EntityLite.Builders
 {
@@ -138,6 +138,7 @@ namespace inercya.EntityLite.Builders
             return commandText.ToString();
         }
 
+        private static readonly PropertySetter udtTypeNameSetter = PropertyHelper.GetPropertySetter(typeof(SqlParameter), "UdtTypeName");
 
         protected IDbDataParameter CreateParameter(PropertyMetadata propertyMetadata, object paramValue, ref int paramIndex)
         {
@@ -153,7 +154,8 @@ namespace inercya.EntityLite.Builders
                 if (sqlParam != null)
                 {
                     sqlParam.SqlDbType = SqlDbType.Udt;
-                    sqlParam.UdtTypeName = propertyType.Name.Substring(3).ToLower();
+                    //TODO: En .NET Core no va a funcionar porque no existe la propiedad "UdtTypeName" y dará un error en tiempo de ejecución.
+                    udtTypeNameSetter?.Invoke(sqlParam, propertyType.Name.Substring(3).ToLower());
                 }
                 else
                 {

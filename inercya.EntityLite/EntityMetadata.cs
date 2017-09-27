@@ -51,12 +51,6 @@ namespace inercya.EntityLite
             }
         }
 
-        public bool HasEntityRowVersionField
-        {
-            get;
-            private set;
-        }
-
         private ICollection<String> _primaryKeyProperties;
         public ICollection<String> PrimaryKeyPropertyNames
         {

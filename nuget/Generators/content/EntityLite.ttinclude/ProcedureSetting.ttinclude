@@ -42,11 +42,11 @@ public class ProcedureSetting
     {
         if (!string.IsNullOrEmpty(this.ProcedureSchema) && this.ProcedureSchema != defaultSchema)
         {
-            return "Create" + (this.ProcedureSchema.ToPascalNamingConvention() + this.ProcedureName.ToPascalNamingConvention()) + "Procedure";
+            return "Create" + Extensions.ToPascalNamingConvention(this.ProcedureSchema) + Extensions.ToPascalNamingConvention(this.ProcedureName) + "Procedure";
         }
         else
         {
-            return "Create" +  this.ProcedureName.ToPascalNamingConvention() + "Procedure";
+            return "Create" +  Extensions.ToPascalNamingConvention(this.ProcedureName) + "Procedure";
         }
     }
 
@@ -68,7 +68,7 @@ public class ProcedureSetting
             case ProcedureResultSetKind.None:
                 return "void";
             case ProcedureResultSetKind.Scalar:                 
-                return ScalarReturnType.ActualName();
+                return Extensions.ActualName(ScalarReturnType);
             case ProcedureResultSetKind.SingleRow:
                 return entityName;
             case ProcedureResultSetKind.MultipleRows:

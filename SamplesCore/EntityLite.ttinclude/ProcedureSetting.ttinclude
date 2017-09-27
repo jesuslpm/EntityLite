@@ -1,0 +1,82 @@
+﻿<#+
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+public class ProcedureSetting
+{
+    public string ProcedureName { get; set; }
+    public string ProcedureSchema { get; set; }
+
+    public Type ScalarReturnType { get; set; }
+
+    public MemberVisibility MemberVisibility { get; set; }
+
+    public int CommandTimeout { get; set; }
+
+    public string GetFullProcedureName()
+    {
+        if (string.IsNullOrEmpty(ProcedureName)) return string.Empty;
+        if (!string.IsNullOrEmpty(ProcedureSchema))
+        {
+            return ProcedureSchema + "." + ProcedureName;
+        }
+        else
+        {
+            return ProcedureName;
+        }
+    }
+
+    public string GetCreateProcedureMethodName(string defaultSchema)
+    {
+        if (!string.IsNullOrEmpty(this.ProcedureSchema) && this.ProcedureSchema != defaultSchema)
+        {
+            return "Create" + Extensions.ToPascalNamingConvention(this.ProcedureSchema) + Extensions.ToPascalNamingConvention(this.ProcedureName) + "Procedure";
+        }
+        else
+        {
+            return "Create" +  Extensions.ToPascalNamingConvention(this.ProcedureName) + "Procedure";
+        }
+    }
+
+    public ProcedureResultSetKind ResultSetKind { get; set; }
+
+    public string RelatedEntityName { get; set; }
+    public string RelatedEntitySchema { get; set; }
+
+    public ProcedureSetting()
+    {
+        this.CommandTimeout = -1;
+    }
+
+    public string GetReturnTypeName(string entityName)
+    {
+
+        switch (ResultSetKind)
+        {
+            case ProcedureResultSetKind.None:
+                return "void";
+            case ProcedureResultSetKind.Scalar:                 
+                return Extensions.ActualName(ScalarReturnType);
+            case ProcedureResultSetKind.SingleRow:
+                return entityName;
+            case ProcedureResultSetKind.MultipleRows:
+                return "IList<" + entityName + ">";
+            default:
+                throw new NotSupportedException("ResultSetKind not supported");
+        }
+
+    }
+}
+#>

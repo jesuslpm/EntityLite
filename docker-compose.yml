@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+
+  connectsqlserver:
+    image: samplescore
+    build:
+      context: ./samplescore
+      dockerfile: Dockerfile
+

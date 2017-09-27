@@ -7,6 +7,8 @@ using System.Data;
 using System.Data.Common;
 using inercya.EntityLite.SqliteProfiler;
 using System.IO;
+using System.Reflection;
+using System.Security.Cryptography;
 
 namespace inercya.EntityLite.SqliteProfiler.Entities
 {
@@ -18,7 +20,9 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
         public static SqliteProfilerDataService Create(string filePath)
         {
-            string connectionString = string.Format("Data Source=\"{0}\";journal mode=Off;page size=4096;cache size=1024;synchronous=Off", filePath);
+            //string connectionString = string.Format("Data Source=\"{0}\";journal mode=Off;page size=4096;cache size=1024;synchronous=Off", filePath);
+            //TODO: turn off journal mode.
+            string connectionString = string.Format("Data Source=\"{0}\"", filePath);
             var logger = new SqliteProfilerDataService(connectionString, "System.Data.SQLite");
             logger.FilePath = filePath;
             return logger;
@@ -34,21 +38,31 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
                     CreateProfileDatabase();
                 }
                 base.OpenConnection();
+                using (var cmd = this.Connection.CreateCommand())
+                {
+                    cmd.CommandText = "PRAGMA journal_mode = OFF;";
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
         private  void CreateProfileDatabase()
         {
+            var asm = Assembly.GetExecutingAssembly();
+            using (var stream = asm.GetManifestResourceStream("inercya.EntityLite.SqliteProfiler.EntityLiteProfile.db"))
             using (var file = File.Create(this.FilePath))
             {
-                file.Write(Resources.EntityLiteProfile, 0, Resources.EntityLiteProfile.Length);
+                stream.CopyTo(file);
             }
         }
 
+        private static readonly MD5 md5 = System.Security.Cryptography.MD5.Create();
 
         public void LogCommandExecution(LogItem item, bool fullLogging)
         {
-            long commandTextHash = item.CommandText.GetHashCode();
+            byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(item.CommandText);
+            byte[] hash = md5.ComputeHash(inputBytes);
+            long commandTextHash = BitConverter.ToInt64(hash, 0);
             var statement = this.StatementRepository.Query(Projection.BaseTable)
                 .Where(StatementFields.CommandTextHash, commandTextHash)
                 .And(StatementFields.CommandText, item.CommandText).ToList().FirstOrDefault();
