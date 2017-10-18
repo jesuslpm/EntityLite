@@ -1,0 +1,41 @@
+﻿<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Item">
+  <TemplateData>
+    <DefaultName>DataLayer.tt</DefaultName>
+    <Name>EntityLite Data Layer</Name>
+    <Description>EntityLite Data Layer Code Generator</Description>
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>10</SortOrder>
+    <Icon>DataLayerItemTemplate.ico</Icon>
+  </TemplateData>
+  <TemplateContent>
+    <References />
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\DataLayerGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\DataLayerGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\DataServiceGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\DataServiceGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\EntityGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\EntityGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\EntityLite.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\EntityLite.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\EntitySetting.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\EntitySetting.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\EnumGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\EnumGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\EnumSetting.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\EnumSetting.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\Extensions.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\Extensions.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\FieldGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\FieldGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\FieldMetadata.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\FieldMetadata.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\JsonType.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\JsonType.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\MemberVisibility.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\MemberVisibility.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\ProcedureGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\ProcedureGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\ProcedureResultSetKind.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\ProcedureResultSetKind.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\ProcedureSetting.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\ProcedureSetting.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\Sequence.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\Sequence.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\TextTransform.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\TextTransform.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\TypeScriptAttributeGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.tt" ReplaceParameters="true">DataLayer.tt</ProjectItem>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>NuGet.VisualStudio.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</Assembly>
+    <FullClassName>NuGet.VisualStudio.TemplateWizard</FullClassName>
+  </WizardExtension>
+  <WizardData>
+    <packages>
+      <package id="EntityLite.Core" version="2.0.0-beta2" />
+    </packages>
+  </WizardData>
+</VSTemplate>

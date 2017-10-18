@@ -110,3 +110,6 @@ nuget/Core/lib/
 *.nupkg
 *.dll
 packages/
+nuget/Generators/content/EntityLite.ttinclude/
+inercya.EntityLite/SqliteProfiler/EntityLite.ttinclude/
+DataLayerItemTemplate/EntityLite.ttinclude/

@@ -59,15 +59,14 @@ namespace Samples
         static void Main(string[] args)
         {
             TestHttp();
-            inercya.EntityLite.DataService.RegisterDbProviderFactory("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
-            inercya.EntityLite.DataService.RegisterDbProviderFactory("System.Data.SQLite", Microsoft.Data.Sqlite.SqliteFactory.Instance);
+            ConfigurationLite.DbProviderFactories.Register("System.Data.SQLite", Microsoft.Data.Sqlite.SqliteFactory.Instance);
             ////for (int i =0; i < 100; i++) TestQueue();
             profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
                 AppDomain.CurrentDomain.BaseDirectory,
                 ProfileFileFrecuency.Daily,
                 true
             );
-            ProfilerLite.Current = profiler;
+            ConfigurationLite.Profiler = profiler;
             profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {

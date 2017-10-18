@@ -68,7 +68,7 @@ namespace inercya.EntityLite.Extensions
                         throw;
                     }
                     onErrorAction?.Invoke(ex, true);
-                    await Task.Delay(firstMillisecondsDelay << retry);
+                    await Task.Delay(firstMillisecondsDelay << retry).ConfigureAwait(false);
                     retry++;
                 }
             }

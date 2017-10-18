@@ -22,7 +22,6 @@ using System.Data;
 using System.Threading;
 using System.Reflection;
 using System.Data.Common;
-using NLog;
 using System.Diagnostics;
 using inercya.EntityLite.Extensions;
 using inercya.EntityLite.Builders;
@@ -31,6 +30,7 @@ using inercya.EntityLite.Collections;
 using inercya.EntityLite.Providers;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
 {
@@ -45,20 +45,30 @@ namespace inercya.EntityLite
         private object _currentUserId;
 
 
-        public Func<DataService, object> CurrentUserIdResolver { get; set; }
+        public Func<object> CurrentUserIdGetter { get; set; }
+
+        public Func<Task<object>> CurrentUserIdAsyncGetter { get; set; }
 
         public object CurrentUserId 
         { 
             get 
             {
-                if (CurrentUserIdResolver == null) return _currentUserId;
-                return CurrentUserIdResolver(this);
+                if (CurrentUserIdGetter != null) return CurrentUserIdGetter();
+                if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter().Result;
+                return _currentUserId;
             }
             set
             {
                 _currentUserId = value;
-                CurrentUserIdResolver = null;
+                CurrentUserIdGetter = null;
+                CurrentUserIdAsyncGetter = null;
             }
+        }
+
+        public Task<object> GetCurrentUserIdAsync()
+        {
+            if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter();
+            return Task.FromResult(CurrentUserId);
         }
 
 		public int MaxRetries { get; protected set; }
@@ -96,7 +106,19 @@ namespace inercya.EntityLite
 
 		private CommandBuilder commandBuilder;
 
-		private static readonly Logger Log = NLog.LogManager.GetCurrentClassLogger();
+        private static ILogger logger;
+
+        private static ILogger Log
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = ConfigurationLite.LoggerFactory.CreateLogger<DataService>();
+                }
+                return logger;
+            }
+        }
 
         private string _connectionStringName;
         public string ConnectionStringName
@@ -205,7 +227,7 @@ namespace inercya.EntityLite
             }
         }
 
-        private static CacheLite<string, DbProviderFactory> providerFactoriesCache;
+        //private static CacheLite<string, DbProviderFactory> providerFactoriesCache;
 
         private IIdentityMap _identityMap;
 
@@ -225,14 +247,6 @@ namespace inercya.EntityLite
             }
         }
 
-
-        // Ya que no tenemos DbProviderFactories en .net standard proporionamos una
-        // manera de registrar la factoría
-        private static ConcurrentDictionary<string, DbProviderFactory> registeredProviderFactories = new ConcurrentDictionary<string, DbProviderFactory>();
-        public static void RegisterDbProviderFactory(string providerInvariantName, DbProviderFactory providerFactory)
-        {
-            registeredProviderFactories[providerInvariantName] = providerFactory;
-        }
 
         static DataService()
         {
@@ -258,7 +272,7 @@ namespace inercya.EntityLite
                     }
                     // Esta línea se ha sustituido temporalmente por la siguiente hasta que se implemente DbProviderFactories en .net standard
                     //_dbProviderFactory = providerFactoriesCache.GetItem(this.ProviderName);
-                    _dbProviderFactory = registeredProviderFactories[this.ProviderName];
+                    _dbProviderFactory = ConfigurationLite.DbProviderFactories.Get(this.ProviderName);
                 }
                 return _dbProviderFactory;
             }
@@ -372,7 +386,7 @@ namespace inercya.EntityLite
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex, "Error on commit");
+				Log.LogError(ex, "Error on commit");
 				throw;
 			}
         }
@@ -395,7 +409,7 @@ namespace inercya.EntityLite
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ex, "Error on Rollback");
+				Log.LogError(ex, "Error on Rollback");
 				throw;
 			}
         }
@@ -513,20 +527,51 @@ namespace inercya.EntityLite
             return affectedRecords > 0;
         }
 
-        private bool SetAuditDate(string fieldName, object entity, EntityMetadata metadata, out object previousValue)
+        private (bool IsSet, object PreviousValue) TrySetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
-            PropertyGetter getter;
-            if (metadata.Getters.TryGetValue(fieldName, out getter))
+            object previousValue = null;
+            if (entityMetadata.Getters.TryGetValue(fieldName, out PropertyGetter getter))
             {
                 previousValue = getter(entity);
             }
-            else
+            if (string.IsNullOrEmpty(fieldName) || !entityMetadata.Setters.TryGetValue(fieldName, out PropertySetter setter))
             {
-                previousValue = null;
+                return (false, previousValue);
             }
-            PropertySetter setter = null;
-            if (!string.IsNullOrEmpty(fieldName) && metadata.Setters.TryGetValue(fieldName, out setter))
+            object currentUserId = this.CurrentUserId;
+            if (currentUserId == null) return (false, previousValue);
+            setter(entity, currentUserId);
+            return (true, previousValue);
+        }
+
+        private async Task<(bool IsSet, object PreviousValue)> TrySetAuditUserAsync(string fieldName, object entity, EntityMetadata entityMetadata)
+        {
+            if (entity == null) throw new ArgumentNullException("entity");
+            object previousValue = null;
+            if (entityMetadata.Getters.TryGetValue(fieldName, out PropertyGetter getter))
+            {
+                previousValue = getter(entity);
+            }
+            if (string.IsNullOrEmpty(fieldName) || !entityMetadata.Setters.TryGetValue(fieldName, out PropertySetter setter))
+            {
+                return (false, previousValue);
+            }
+            object currentUserId = await this.GetCurrentUserIdAsync().ConfigureAwait(false);
+            if (currentUserId == null) return (false, previousValue);
+            setter(entity, currentUserId);
+            return (true, previousValue);
+        }
+
+        private (bool IsSet, object PreviousValue) TrySetAuditDate(string fieldName, object entity, EntityMetadata metadata)
+        {
+            if (entity == null) throw new ArgumentNullException("entity");
+            object previousValue = null;
+            if (metadata.Getters.TryGetValue(fieldName, out PropertyGetter getter))
+            {
+                previousValue = getter(entity);
+            }
+            if (!string.IsNullOrEmpty(fieldName) && metadata.Setters.TryGetValue(fieldName, out PropertySetter setter))
             {
                 Type type = metadata.Properties[fieldName].PropertyInfo.PropertyType;
                 if (type == typeof(DateTime) || type == typeof(DateTime?))
@@ -559,35 +604,12 @@ namespace inercya.EntityLite
                 {
                     throw new NotSupportedException("The field \"" + fieldName + "\" is of an unsuported type " + type.Name);
                 }
-                return true;
+                return (true, previousValue);
             }
-            return false;
+            return (false, previousValue);
         }
 
-        private bool SetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata, out object previousValue)
-        {
-            if (entity == null) throw new ArgumentNullException("entity");
-            var entityType = entityMetadata.EntityType;
-            var getters = entityMetadata.Getters;
-            PropertyGetter getter;
-            if (getters.TryGetValue(fieldName, out getter))
-            {
-                previousValue = getter(entity);
-            }
-            else
-            {
-                previousValue = null;
-            }
-            if (this.CurrentUserId == null) return false;
-            var setters = PropertyHelper.GetPropertySetters(entityType);
-            PropertySetter setter = null;
-            if (!string.IsNullOrEmpty(fieldName) && setters.TryGetValue(fieldName, out setter))
-            {
-                setter(entity, this.CurrentUserId);
-                return true;
-            }
-            return false;
-        }
+
 
         protected internal virtual Guid NewGuid()
         {
@@ -612,17 +634,15 @@ namespace inercya.EntityLite
 		{
 		    if (entity == null) throw new ArgumentNullException("entity");
 
-            object previousValue = null;
-
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata, out previousValue);
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata, out previousValue);
+                TrySetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata);
+                TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata);
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata, out previousValue);
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata, out previousValue);
+                TrySetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
+                TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
             }
 
             DbCommand cmd = null;
@@ -646,7 +666,6 @@ namespace inercya.EntityLite
                         entity.SetPropertyValue(entityMetadata.PrimaryKeyPropertyName, cmd.Parameters[EntityLiteProvider.ParameterPrefix + entityMetadata.PrimaryKeyPropertyName].Value);
                     }
                 }
-
             }
             else
             {
@@ -687,17 +706,24 @@ namespace inercya.EntityLite
         {
             if (entity == null) throw new ArgumentNullException("entity");
 
-            object previousValue = null;
 
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                SetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata, out previousValue);
-                SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata, out previousValue);
+                TrySetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata);
+                TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata);
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                SetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata, out previousValue);
-                SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata, out previousValue);
+                if (this.CurrentUserIdAsyncGetter == null)
+                {
+                    TrySetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
+                    TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
+                }
+                else
+                {
+                    await TrySetAuditUserAsync(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata).ConfigureAwait(false);
+                    await TrySetAuditUserAsync(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata).ConfigureAwait(false);
+                }
             }
 
             DbCommand cmd = null;
@@ -736,11 +762,11 @@ namespace inercya.EntityLite
                         }
                         autogeneratedFieldValue = autogeneratedFieldParam.Value;
                     };
-                    await cmdExecutor.ExecuteNonQueryAsync();
+                    await cmdExecutor.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    autogeneratedFieldValue = await cmdExecutor.ExecuteScalarAsync();
+                    autogeneratedFieldValue = await cmdExecutor.ExecuteScalarAsync().ConfigureAwait(false);
                 }
                 Type autogeneratedFieldType = autogeneratedFieldValue.GetType();
                 if (autogeneratedFieldType == entityMetadata.PrimaryKeyType)
@@ -824,11 +850,11 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                isModifiedBySet = SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata, out previousModifiedBy);
+                (isModifiedBySet, previousModifiedBy) = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                isModifiedDateSet = SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata, out previousModifiedDate);
+                (isModifiedDateSet, previousModifiedDate) = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
             }
             var cmd = new CommandExecutor(this, false)
             {
@@ -883,11 +909,18 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                isModifiedBySet = SetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata, out previousModifiedBy);
+                if (this.CurrentUserIdAsyncGetter == null)
+                {
+                    (isModifiedBySet, previousModifiedBy) = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+                }
+                else
+                {
+                    (isModifiedBySet, previousModifiedBy) = await TrySetAuditUserAsync(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata).ConfigureAwait(false);
+                }
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                isModifiedDateSet = SetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata, out previousModifiedDate);
+                (isModifiedDateSet, previousModifiedDate) = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
             }
             var cmd = new CommandExecutor(this, false)
             {

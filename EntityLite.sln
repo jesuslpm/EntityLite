@@ -1,10 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A632C4A4-E33E-4C29-A084-CA91A0C0E494}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -55,13 +56,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite", "EntityLite", 
 		CodeProject\EntityLite\EntityLite.htm = CodeProject\EntityLite\EntityLite.htm
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9D1E9989-244B-4D30-87D9-75710447D95F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SamplesCore", "SamplesCore\SamplesCore.csproj", "{7392C56B-00B5-44FD-8E9D-DA08C8D79B12}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{7922B9F1-9609-4F5B-86AB-33515F903580}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inercya.EntityLite.Core", "inercya.EntityLite\inercya.EntityLite.Core.csproj", "{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayerItemTemplate", "DataLayerItemTemplate\DataLayerItemTemplate.csproj", "{01BF724E-D70B-427B-BDD2-4A7774649A9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLite", "EntityLite\EntityLite.csproj", "{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +98,22 @@ Global
 		{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}.Release|x86.Build.0 = Release|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Debug|x86.Build.0 = Debug|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Release|x86.ActiveCfg = Release|Any CPU
+		{01BF724E-D70B-427B-BDD2-4A7774649A9D}.Release|x86.Build.0 = Release|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Debug|x86.Build.0 = Debug|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|x86.ActiveCfg = Release|Any CPU
+		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

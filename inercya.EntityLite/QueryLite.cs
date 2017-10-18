@@ -29,7 +29,6 @@ using System.Threading;
 using System.Diagnostics;
 using System.Globalization;
 using System.Data.SqlTypes;
-using NLog;
 using inercya.EntityLite.Extensions;
 using inercya.EntityLite.Builders;
 

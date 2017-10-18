@@ -10,6 +10,7 @@ using inercya.EntityLite.SqliteProfiler.Entities;
 using System.IO;
 using inercya.EntityLite.Collections;
 using inercya.EntityLite.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite.SqliteProfiler
 {
@@ -30,7 +31,19 @@ namespace inercya.EntityLite.SqliteProfiler
 
     public class Profiler : inercya.EntityLite.IProfilerLite
     {
-        private static readonly NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+        private static ILogger logger;
+
+        private static ILogger Log
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = ConfigurationLite.LoggerFactory.CreateLogger<Profiler>();
+                }
+                return logger;
+            }
+        }
 
         SafeQueue<LogItem> logItems;
         private AutoResetEvent signal;
@@ -145,7 +158,7 @@ namespace inercya.EntityLite.SqliteProfiler
                     }
                     catch (Exception ex)
                     {
-                        log.Error(ex, "Error Profiling");
+                        Log.LogError(ex, "Error Profiling");
                     }
                     if (!IsRunning)
                     {
@@ -157,7 +170,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
             catch (Exception ex)
             {
-                log.Error(ex, "Error Profiling");
+                Log.LogError(ex, "Error Profiling");
             }
             finally
             {
@@ -193,7 +206,7 @@ namespace inercya.EntityLite.SqliteProfiler
                 }
                 catch (Exception ex)
                 {
-                    log.Error(ex, "Error disposing data service");
+                    Log.LogError(ex, "Error disposing data service");
                 }
                 dataService = null;
             }
@@ -233,7 +246,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
             catch (Exception ex)
             {
-                log.Error(ex, "Error deleting old profiler database files");
+                Log.LogError(ex, "Error deleting old profiler database files");
             }
         }
     }

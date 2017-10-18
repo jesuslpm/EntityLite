@@ -20,18 +20,30 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.Common;
-using NLog;
 using System.Data.SqlTypes;
 using System.Globalization;
 using inercya.EntityLite.Extensions;
 using inercya.EntityLite.Collections;
+using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite.Builders
 {
 
 	public class CommandBuilder : IDisposable
 	{
-		private static Logger Log = NLog.LogManager.GetCurrentClassLogger();
+        private static ILogger logger;
+
+		private static ILogger Log
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = ConfigurationLite.LoggerFactory.CreateLogger<CommandBuilder>();
+                }
+                return logger;
+            }
+        } 
 
 		public readonly DataService DataService;
 
@@ -491,11 +503,11 @@ namespace inercya.EntityLite.Builders
 			{
 				if (entity == null)
 				{
-					Log.Error(ex, "Error generating delete command", ex);
+					Log.LogError(ex, "Error generating delete command", ex);
 				}
 				else
 				{
-					Log.Error(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"), ex);
+					Log.LogError(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"), ex);
 				}
 				throw;
 			}

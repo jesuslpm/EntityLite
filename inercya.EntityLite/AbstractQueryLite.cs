@@ -21,11 +21,11 @@ using System.Text;
 using System.Collections;
 using System.Data.Common;
 using inercya.EntityLite.Extensions;
-using NLog;
 using System.Diagnostics;
 using inercya.EntityLite.Builders;
 using System.Data;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
 {
@@ -33,7 +33,19 @@ namespace inercya.EntityLite
     public abstract class AbstractQueryLite : IQueryLite
     {
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private static ILogger logger;
+
+        private static ILogger Log
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = ConfigurationLite.LoggerFactory.CreateLogger<AbstractQueryLite>();
+                }
+                return logger;
+            }
+        }
         public IList<string> FieldList { get; set; }
         public ICollection<ConditionLite> Filter { get; set; }
         public ICollection<SortDescriptor> Sort { get; set; }
@@ -241,7 +253,20 @@ namespace inercya.EntityLite
 
     public class AbstractQueryLite<TEntity> : AbstractQueryLite, IQueryLite<TEntity> where TEntity : class, new()
     {
-        private static readonly Logger Log = LogManager.GetLogger("inercya.EntityLite.QueryLite<" + typeof(TEntity).Name + ">");
+
+        private static ILogger logger;
+
+        private static ILogger Log
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = ConfigurationLite.LoggerFactory.CreateLogger("inercya.EntityLite.QueryLite<" + typeof(TEntity).Name + ">");
+                }
+                return logger;
+            }
+        }
 
         protected AbstractQueryLite() : base()
         {

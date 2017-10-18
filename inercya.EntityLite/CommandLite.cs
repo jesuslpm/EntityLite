@@ -24,13 +24,26 @@ using System.Text;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
 {
     public abstract class AbstractCommand
     {
 
-        public static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
+        private static ILogger logger;
+
+        private static ILogger Log
+        {
+            get
+            {
+                if (logger == null)
+                {
+                    logger = ConfigurationLite.LoggerFactory.CreateLogger<AbstractCommand>();
+                }
+                return logger;
+            }
+        }
 
         public readonly DataService DataService;
         public readonly bool DisposeCommand;
@@ -128,11 +141,11 @@ namespace inercya.EntityLite
             {
                 if (command == null)
                 {
-                    Log.Error(ex, "Couldn't get data reader from command", ex);
+                    Log.LogError(ex, "Couldn't get data reader from command", ex);
                 }
                 else
                 {
-                    Log.Error(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log.LogError(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
                 }
                 throw;
             }
@@ -141,13 +154,24 @@ namespace inercya.EntityLite
                 try
                 {
                     SetOutPutParameters(command);
-                    ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
+                    LogQueryExecution(command, watch.Elapsed);
+                    ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
                 }
                 finally
                 {
                     if (DisposeCommand && command != null) command.Dispose();
                 }
             });
+        }
+
+        private void LogQueryExecution(DbCommand cmd, TimeSpan timeTaken)
+        {
+            Log.LogInformation("Query completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
+        }
+
+        private void LogCommandExecution(DbCommand cmd, TimeSpan timeTaken)
+        {
+            Log.LogInformation("Command completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
         public async Task<IEnumerable<T>> ToEnumerableAsync<T>() where T : class, new()
@@ -170,11 +194,11 @@ namespace inercya.EntityLite
             {
                 if (command == null)
                 {
-                    Log.Error(ex, "Couldn't get data reader from command", ex);
+                    Log.LogError(ex, "Couldn't get data reader from command", ex);
                 }
                 else
                 {
-                    Log.Error(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log.LogError(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
                 }
                 throw;
             }
@@ -183,7 +207,8 @@ namespace inercya.EntityLite
                 try
                 {
                     SetOutPutParameters(command);
-                    ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
+                    LogQueryExecution(command, watch.Elapsed);
+                    ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
                 }
                 finally
                 {
@@ -217,11 +242,11 @@ namespace inercya.EntityLite
             {
                 if (command == null)
                 {
-                    Log.Error(ex, "Couldn't get data reader from command", ex);
+                    Log.LogError(ex, "Couldn't get data reader from command", ex);
                 }
                 else
                 {
-                    Log.Error(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log.LogError(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
                 }
                 throw;
             }
@@ -230,7 +255,8 @@ namespace inercya.EntityLite
                 try
                 {
                     SetOutPutParameters(command);
-                    ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
+                    LogQueryExecution(command, watch.Elapsed);
+                    ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
                 }
                 finally
                 {
@@ -280,18 +306,19 @@ namespace inercya.EntityLite
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
                         (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry))
                         .ConfigureAwait(false);
-                ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
+                LogCommandExecution(command, watch.Elapsed);
+                ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
                 return result;
             }
             catch (Exception ex)
             {
                 if (command == null)
                 {
-                    Log.Error(ex, "Couldn't execute command");
+                    Log.LogError(ex, "Couldn't execute command");
                 }
                 else
                 {
-                    Log.Error(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log.LogError(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
                 }
                 throw;
             }
@@ -316,18 +343,19 @@ namespace inercya.EntityLite
                 var result = func.ExecuteWithRetries(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
                         (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
-                ProfilerLite.LogCommandExecution(command, DataService, watch.Elapsed);
+                LogCommandExecution(command, watch.Elapsed);
+                ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
                 return result;
             }
             catch (Exception ex)
             {
                 if (command == null)
                 {
-                    Log.Error(ex, "Couldn't execute command", ex);
+                    Log.LogError(ex, "Couldn't execute command");
                 }
                 else
                 {
-                    Log.Error(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log.LogError(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
                 }
                 throw;
             }

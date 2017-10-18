@@ -40,4 +40,8 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude /Y&#xD;&#xA;COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)inercya.EntityLite\SqliteProfiler\EntityLite.ttinclude /Y&#xD;&#xA;COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)DataLayerItemTemplate\EntityLite.ttinclude /Y" />
+  </Target>
+
 </Project>

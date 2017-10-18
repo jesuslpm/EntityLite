@@ -28,16 +28,10 @@ namespace inercya.EntityLite
 		void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime);
 	}
 
-	public static class ProfilerLite
-	{
-		public static IProfilerLite Current { get; set; }
-
-        public static void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
-		{
-			if (Current != null)
-			{
-                Current.LogCommandExecution(command, dataService, executionTime);
-			}
-		}
-	}
+    internal class NullProfilerLite : IProfilerLite
+    {
+        public void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
+        {
+        }
+    }
 }

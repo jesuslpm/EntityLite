@@ -209,11 +209,11 @@ namespace inercya.EntityLite
             bool isNew = IsNew(entity);
             if (isNew)
             {
-                await this.InsertAsync(entity);
+                await this.InsertAsync(entity).ConfigureAwait(false);
                 return SaveResult.Inserted;
             }
 
-            if (await this.UpdateAsync(entity))
+            if (await this.UpdateAsync(entity).ConfigureAwait(false))
             {
                 return SaveResult.Updated;
             }
