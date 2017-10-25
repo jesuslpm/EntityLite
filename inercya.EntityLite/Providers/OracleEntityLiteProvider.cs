@@ -143,5 +143,19 @@ END;", SequenceVariable));
             BindByNameSetter(command, true);
             return command;
         }
+
+        private static PropertySetter OracleDbTypeSetter;
+
+        public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
+        {
+            if (OracleDbTypeSetter == null)
+            {
+                var parameterType = parameter.GetType();
+                var pi = parameterType.GetProperty("OracleDbType");
+                if (pi == null) new InvalidOperationException("OracleDbType property not found on type " + parameterType.FullName);
+                OracleDbTypeSetter = PropertyHelper.GetPropertySetter(pi);
+            }
+            OracleDbTypeSetter(parameter, providerType);
+        }
     }
 }

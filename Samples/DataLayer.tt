@@ -22,7 +22,7 @@ To generate the datalayer for MySQL you need  to:
 	{
 		ImplementINotifyPropertyChanged = true,
         ProviderName = "System.Data.SqlClient",
-		ConnectionString = @"Data Source=(LocalDb)\ProjectsV13;Initial Catalog=Northwind",
+		ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=Northwind;Integrated Security=SSPI",
 		DefaultSchema = "dbo",
 
 		//ProviderName = "Oracle.DataAccess.Client",
@@ -107,13 +107,6 @@ To generate the datalayer for MySQL you need  to:
 			{
 				EntityName = "MetadataItem",
 				BaseTableName = "Metadata"
-			},
-			new EntitySetting 
-			{
-				EntityName = "Element",
-				BaseTableName = "Elements",
-				SynonymName = "elems",
-				SynonymSchema = "Tools"
 			}
 		},
 		ProcedureSettings = new List<ProcedureSetting>

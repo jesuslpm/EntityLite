@@ -171,7 +171,11 @@ namespace inercya.EntityLite.Builders
             else
             {
 
-                if (propertyMetadata.SqlField.DbType == DbType.AnsiStringFixedLength)
+                if (propertyMetadata.SqlField.ProviderType != int.MaxValue)
+                {
+                    this.QueryLite.DataService.EntityLiteProvider.SetProviderTypeToParameter(parameter, propertyMetadata.SqlField.ProviderType);
+                }
+                else if (propertyMetadata.SqlField.DbType == DbType.AnsiStringFixedLength)
                 {
                     parameter.DbType = DbType.AnsiString;
                 }

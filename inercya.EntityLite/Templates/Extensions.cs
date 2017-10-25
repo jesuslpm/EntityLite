@@ -104,12 +104,13 @@ namespace inercya.EntityLite.Templates
             return sql;
         }
 
-        internal static void AddParametersToCommand(this ISqlTemplate template, DbCommand command, string parameterPrefix)
+        internal static void AddParametersToCommand(this ISqlTemplate template, DbCommand command, DataService dataService)
         {
             if (template == null) throw new ArgumentNullException("template");
             if (command == null) throw new ArgumentNullException("command");
             Type templateType = template.GetType();
             var getters = templateType.GetPropertyGetters();
+            var parameterPrefix = dataService.EntityLiteProvider.ParameterPrefix;
             foreach (var pi in templateType.GetProperties())
             {
                 var attrs = pi.GetCustomAttributes(typeof(DbParameterAttribute), false);
@@ -119,7 +120,14 @@ namespace inercya.EntityLite.Templates
                     IDbDataParameter parameter = command.CreateParameter();
                     parameter.ParameterName = parameterPrefix + pi.Name;
                     parameter.SourceColumn = pi.Name;
-                    parameter.DbType = parameterAttr.DbType;
+                    if (parameterAttr.ProviderType == int.MaxValue)
+                    {
+                        parameter.DbType = parameterAttr.DbType;
+                    }
+                    else
+                    {
+                        dataService.EntityLiteProvider.SetProviderTypeToParameter(parameter, parameterAttr.ProviderType);
+                    }
                     parameter.Direction = parameterAttr.Direction;
                     if (parameterAttr.Size != 0) parameter.Size = parameterAttr.Size;
                     if (parameterAttr.Precision != 0) parameter.Precision = parameterAttr.Precision;
@@ -147,7 +155,14 @@ namespace inercya.EntityLite.Templates
                             IDbDataParameter parameter = command.CreateParameter();
                             parameter.ParameterName = parameterPrefix + pi.Name + i.ToString();
                             parameter.SourceColumn = pi.Name + i.ToString();
-                            parameter.DbType = parameterAttr.DbType;
+                            if (parameterAttr.ProviderType == int.MaxValue)
+                            {
+                                parameter.DbType = parameterAttr.DbType;
+                            }
+                            else
+                            {
+                                dataService.EntityLiteProvider.SetProviderTypeToParameter(parameter, parameterAttr.ProviderType);
+                            }
                             parameter.Direction = parameterAttr.Direction;
                             if (parameterAttr.Size != 0) parameter.Size = parameterAttr.Size;
                             if (parameterAttr.Precision != 0) parameter.Precision = parameterAttr.Precision;
@@ -159,7 +174,6 @@ namespace inercya.EntityLite.Templates
                         }
                     }
                 }
-
             }
         }
     }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Microsoft.SqlServer.Types;
+// using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using inercya.EntityLite;	
@@ -32,8 +32,7 @@ namespace Samples.Entities
 		
 		private Int32 _categoryId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Categories" )]
-		public Int32 CategoryId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Categories" )]		public Int32 CategoryId 
 		{ 
 		    get { return _categoryId; } 
 			set 
@@ -45,8 +44,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang1;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1", BaseColumnName ="CategoryNameLang1", BaseTableName = "Categories" )]
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1", BaseColumnName ="CategoryNameLang1", BaseTableName = "Categories" )]		public String CategoryNameLang1 
 		{ 
 		    get { return _categoryNameLang1; } 
 			set 
@@ -58,8 +56,7 @@ namespace Samples.Entities
 
 		private String _description;
 		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]
-		public String Description 
+		[SqlField(DbType.String, 2147483647, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]		public String Description 
 		{ 
 		    get { return _description; } 
 			set 
@@ -71,8 +68,7 @@ namespace Samples.Entities
 
 		private Byte[] _picture;
 		[DataMember]
-		[SqlField(DbType.Binary, 2147483647, ColumnName ="Picture", BaseColumnName ="Picture", BaseTableName = "Categories" )]
-		public Byte[] Picture 
+		[SqlField(DbType.Binary, 2147483647, ColumnName ="Picture", BaseColumnName ="Picture", BaseTableName = "Categories" )]		public Byte[] Picture 
 		{ 
 		    get { return _picture; } 
 			set 
@@ -84,8 +80,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang2;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2", BaseColumnName ="CategoryNameLang2", BaseTableName = "Categories" )]
-		public String CategoryNameLang2 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2", BaseColumnName ="CategoryNameLang2", BaseTableName = "Categories" )]		public String CategoryNameLang2 
 		{ 
 		    get { return _categoryNameLang2; } 
 			set 
@@ -156,44 +151,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Category> GetAsync(string projectionName, System.Int32 categoryId)
+		public System.Threading.Tasks.Task<Category> GetAsync(string projectionName, System.Int32 categoryId)
 		{
 			return ((IRepository<Category>)this).GetAsync(projectionName, categoryId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Category> GetAsync(string projectionName, System.Int32 categoryId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Category> GetAsync(string projectionName, System.Int32 categoryId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Category>)this).GetAsync(projectionName, categoryId, fetchMode);
 		}
 
-		public Task<Category> GetAsync(Projection projection, System.Int32 categoryId)
+		public System.Threading.Tasks.Task<Category> GetAsync(Projection projection, System.Int32 categoryId)
 		{
 			return ((IRepository<Category>)this).GetAsync(projection, categoryId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Category> GetAsync(Projection projection, System.Int32 categoryId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Category> GetAsync(Projection projection, System.Int32 categoryId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Category>)this).GetAsync(projection, categoryId, fetchMode);
 		}
 
-		public Task<Category> GetAsync(string projectionName, System.Int32 categoryId, params string[] fields)
+		public System.Threading.Tasks.Task<Category> GetAsync(string projectionName, System.Int32 categoryId, params string[] fields)
 		{
 			return ((IRepository<Category>)this).GetAsync(projectionName, categoryId, fields);
 		}
 
-		public Task<Category> GetAsync(Projection projection, System.Int32 categoryId, params string[] fields)
+		public System.Threading.Tasks.Task<Category> GetAsync(Projection projection, System.Int32 categoryId, params string[] fields)
 		{
 			return ((IRepository<Category>)this).GetAsync(projection, categoryId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 categoryId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 categoryId)
 		{
 			var entity = new Category { CategoryId = categoryId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class CategoryFields
 	{
 		public const string CategoryId = "CategoryId";
@@ -223,8 +218,7 @@ namespace Samples.Entities
 		
 		private String _customerId;
 		[DataMember]
-		[SqlField(DbType.StringFixedLength, 5, IsKey=true, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Customers" )]
-		public String CustomerId 
+		[SqlField(DbType.StringFixedLength, 5, IsKey=true, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Customers" )]		public String CustomerId 
 		{ 
 		    get { return _customerId; } 
 			set 
@@ -236,8 +230,7 @@ namespace Samples.Entities
 
 		private String _companyName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Customers" )]
-		public String CompanyName 
+		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Customers" )]		public String CompanyName 
 		{ 
 		    get { return _companyName; } 
 			set 
@@ -249,8 +242,7 @@ namespace Samples.Entities
 
 		private String _contactName;
 		[DataMember]
-		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Customers" )]
-		public String ContactName 
+		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Customers" )]		public String ContactName 
 		{ 
 		    get { return _contactName; } 
 			set 
@@ -262,8 +254,7 @@ namespace Samples.Entities
 
 		private String _contactTitle;
 		[DataMember]
-		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Customers" )]
-		public String ContactTitle 
+		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Customers" )]		public String ContactTitle 
 		{ 
 		    get { return _contactTitle; } 
 			set 
@@ -275,8 +266,7 @@ namespace Samples.Entities
 
 		private String _address;
 		[DataMember]
-		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Customers" )]
-		public String Address 
+		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Customers" )]		public String Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -288,8 +278,7 @@ namespace Samples.Entities
 
 		private String _city;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Customers" )]
-		public String City 
+		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Customers" )]		public String City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -301,8 +290,7 @@ namespace Samples.Entities
 
 		private String _region;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Customers" )]
-		public String Region 
+		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Customers" )]		public String Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -314,8 +302,7 @@ namespace Samples.Entities
 
 		private String _postalCode;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Customers" )]
-		public String PostalCode 
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Customers" )]		public String PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -327,8 +314,7 @@ namespace Samples.Entities
 
 		private String _country;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Customers" )]
-		public String Country 
+		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Customers" )]		public String Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -340,8 +326,7 @@ namespace Samples.Entities
 
 		private String _phone;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Customers" )]
-		public String Phone 
+		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Customers" )]		public String Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -353,8 +338,7 @@ namespace Samples.Entities
 
 		private String _fax;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Customers" )]
-		public String Fax 
+		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Customers" )]		public String Fax 
 		{ 
 		    get { return _fax; } 
 			set 
@@ -416,44 +400,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Customer> GetAsync(string projectionName, System.String customerId)
+		public System.Threading.Tasks.Task<Customer> GetAsync(string projectionName, System.String customerId)
 		{
 			return ((IRepository<Customer>)this).GetAsync(projectionName, customerId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Customer> GetAsync(string projectionName, System.String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Customer> GetAsync(string projectionName, System.String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Customer>)this).GetAsync(projectionName, customerId, fetchMode);
 		}
 
-		public Task<Customer> GetAsync(Projection projection, System.String customerId)
+		public System.Threading.Tasks.Task<Customer> GetAsync(Projection projection, System.String customerId)
 		{
 			return ((IRepository<Customer>)this).GetAsync(projection, customerId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Customer> GetAsync(Projection projection, System.String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Customer> GetAsync(Projection projection, System.String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Customer>)this).GetAsync(projection, customerId, fetchMode);
 		}
 
-		public Task<Customer> GetAsync(string projectionName, System.String customerId, params string[] fields)
+		public System.Threading.Tasks.Task<Customer> GetAsync(string projectionName, System.String customerId, params string[] fields)
 		{
 			return ((IRepository<Customer>)this).GetAsync(projectionName, customerId, fields);
 		}
 
-		public Task<Customer> GetAsync(Projection projection, System.String customerId, params string[] fields)
+		public System.Threading.Tasks.Task<Customer> GetAsync(Projection projection, System.String customerId, params string[] fields)
 		{
 			return ((IRepository<Customer>)this).GetAsync(projection, customerId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.String customerId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.String customerId)
 		{
 			var entity = new Customer { CustomerId = customerId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class CustomerFields
 	{
 		public const string CustomerId = "CustomerId";
@@ -488,8 +472,7 @@ namespace Samples.Entities
 		
 		private Int32 _employeeId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Employees" )]
-		public Int32 EmployeeId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Employees" )]		public Int32 EmployeeId 
 		{ 
 		    get { return _employeeId; } 
 			set 
@@ -501,8 +484,7 @@ namespace Samples.Entities
 
 		private String _lastName;
 		[DataMember]
-		[SqlField(DbType.String, 20, ColumnName ="LastName", BaseColumnName ="LastName", BaseTableName = "Employees" )]
-		public String LastName 
+		[SqlField(DbType.String, 20, ColumnName ="LastName", BaseColumnName ="LastName", BaseTableName = "Employees" )]		public String LastName 
 		{ 
 		    get { return _lastName; } 
 			set 
@@ -514,8 +496,7 @@ namespace Samples.Entities
 
 		private String _firstName;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="FirstName", BaseColumnName ="FirstName", BaseTableName = "Employees" )]
-		public String FirstName 
+		[SqlField(DbType.String, 10, ColumnName ="FirstName", BaseColumnName ="FirstName", BaseTableName = "Employees" )]		public String FirstName 
 		{ 
 		    get { return _firstName; } 
 			set 
@@ -527,8 +508,7 @@ namespace Samples.Entities
 
 		private String _title;
 		[DataMember]
-		[SqlField(DbType.String, 30, ColumnName ="Title", BaseColumnName ="Title", BaseTableName = "Employees" )]
-		public String Title 
+		[SqlField(DbType.String, 30, ColumnName ="Title", BaseColumnName ="Title", BaseTableName = "Employees" )]		public String Title 
 		{ 
 		    get { return _title; } 
 			set 
@@ -540,8 +520,7 @@ namespace Samples.Entities
 
 		private String _titleOfCourtesy;
 		[DataMember]
-		[SqlField(DbType.String, 25, ColumnName ="TitleOfCourtesy", BaseColumnName ="TitleOfCourtesy", BaseTableName = "Employees" )]
-		public String TitleOfCourtesy 
+		[SqlField(DbType.String, 25, ColumnName ="TitleOfCourtesy", BaseColumnName ="TitleOfCourtesy", BaseTableName = "Employees" )]		public String TitleOfCourtesy 
 		{ 
 		    get { return _titleOfCourtesy; } 
 			set 
@@ -553,8 +532,7 @@ namespace Samples.Entities
 
 		private DateTime? _birthDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="BirthDate", BaseColumnName ="BirthDate", BaseTableName = "Employees" )]
-		public DateTime? BirthDate 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="BirthDate", BaseColumnName ="BirthDate", BaseTableName = "Employees" )]		public DateTime? BirthDate 
 		{ 
 		    get { return _birthDate; } 
 			set 
@@ -566,8 +544,7 @@ namespace Samples.Entities
 
 		private DateTime? _hireDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="HireDate", BaseColumnName ="HireDate", BaseTableName = "Employees" )]
-		public DateTime? HireDate 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="HireDate", BaseColumnName ="HireDate", BaseTableName = "Employees" )]		public DateTime? HireDate 
 		{ 
 		    get { return _hireDate; } 
 			set 
@@ -579,8 +556,7 @@ namespace Samples.Entities
 
 		private String _address;
 		[DataMember]
-		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Employees" )]
-		public String Address 
+		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Employees" )]		public String Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -592,8 +568,7 @@ namespace Samples.Entities
 
 		private String _city;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Employees" )]
-		public String City 
+		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Employees" )]		public String City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -605,8 +580,7 @@ namespace Samples.Entities
 
 		private String _region;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Employees" )]
-		public String Region 
+		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Employees" )]		public String Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -618,8 +592,7 @@ namespace Samples.Entities
 
 		private String _postalCode;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Employees" )]
-		public String PostalCode 
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Employees" )]		public String PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -631,8 +604,7 @@ namespace Samples.Entities
 
 		private String _country;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Employees" )]
-		public String Country 
+		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Employees" )]		public String Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -644,8 +616,7 @@ namespace Samples.Entities
 
 		private String _homePhone;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="HomePhone", BaseColumnName ="HomePhone", BaseTableName = "Employees" )]
-		public String HomePhone 
+		[SqlField(DbType.String, 24, ColumnName ="HomePhone", BaseColumnName ="HomePhone", BaseTableName = "Employees" )]		public String HomePhone 
 		{ 
 		    get { return _homePhone; } 
 			set 
@@ -657,8 +628,7 @@ namespace Samples.Entities
 
 		private String _extension;
 		[DataMember]
-		[SqlField(DbType.String, 4, ColumnName ="Extension", BaseColumnName ="Extension", BaseTableName = "Employees" )]
-		public String Extension 
+		[SqlField(DbType.String, 4, ColumnName ="Extension", BaseColumnName ="Extension", BaseTableName = "Employees" )]		public String Extension 
 		{ 
 		    get { return _extension; } 
 			set 
@@ -670,8 +640,7 @@ namespace Samples.Entities
 
 		private Byte[] _photo;
 		[DataMember]
-		[SqlField(DbType.Binary, 2147483647, ColumnName ="Photo", BaseColumnName ="Photo", BaseTableName = "Employees" )]
-		public Byte[] Photo 
+		[SqlField(DbType.Binary, 2147483647, ColumnName ="Photo", BaseColumnName ="Photo", BaseTableName = "Employees" )]		public Byte[] Photo 
 		{ 
 		    get { return _photo; } 
 			set 
@@ -683,8 +652,7 @@ namespace Samples.Entities
 
 		private String _notes;
 		[DataMember]
-		[SqlField(DbType.String, 1073741823, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]
-		public String Notes 
+		[SqlField(DbType.String, 1073741823, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]		public String Notes 
 		{ 
 		    get { return _notes; } 
 			set 
@@ -696,8 +664,7 @@ namespace Samples.Entities
 
 		private Int32? _reportsTo;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ReportsTo", BaseColumnName ="ReportsTo", BaseTableName = "Employees" )]
-		public Int32? ReportsTo 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ReportsTo", BaseColumnName ="ReportsTo", BaseTableName = "Employees" )]		public Int32? ReportsTo 
 		{ 
 		    get { return _reportsTo; } 
 			set 
@@ -709,8 +676,7 @@ namespace Samples.Entities
 
 		private String _photoPath;
 		[DataMember]
-		[SqlField(DbType.String, 255, ColumnName ="PhotoPath", BaseColumnName ="PhotoPath", BaseTableName = "Employees" )]
-		public String PhotoPath 
+		[SqlField(DbType.String, 255, ColumnName ="PhotoPath", BaseColumnName ="PhotoPath", BaseTableName = "Employees" )]		public String PhotoPath 
 		{ 
 		    get { return _photoPath; } 
 			set 
@@ -772,44 +738,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Employee> GetAsync(string projectionName, System.Int32 employeeId)
+		public System.Threading.Tasks.Task<Employee> GetAsync(string projectionName, System.Int32 employeeId)
 		{
 			return ((IRepository<Employee>)this).GetAsync(projectionName, employeeId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Employee> GetAsync(string projectionName, System.Int32 employeeId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Employee> GetAsync(string projectionName, System.Int32 employeeId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Employee>)this).GetAsync(projectionName, employeeId, fetchMode);
 		}
 
-		public Task<Employee> GetAsync(Projection projection, System.Int32 employeeId)
+		public System.Threading.Tasks.Task<Employee> GetAsync(Projection projection, System.Int32 employeeId)
 		{
 			return ((IRepository<Employee>)this).GetAsync(projection, employeeId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Employee> GetAsync(Projection projection, System.Int32 employeeId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Employee> GetAsync(Projection projection, System.Int32 employeeId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Employee>)this).GetAsync(projection, employeeId, fetchMode);
 		}
 
-		public Task<Employee> GetAsync(string projectionName, System.Int32 employeeId, params string[] fields)
+		public System.Threading.Tasks.Task<Employee> GetAsync(string projectionName, System.Int32 employeeId, params string[] fields)
 		{
 			return ((IRepository<Employee>)this).GetAsync(projectionName, employeeId, fields);
 		}
 
-		public Task<Employee> GetAsync(Projection projection, System.Int32 employeeId, params string[] fields)
+		public System.Threading.Tasks.Task<Employee> GetAsync(Projection projection, System.Int32 employeeId, params string[] fields)
 		{
 			return ((IRepository<Employee>)this).GetAsync(projection, employeeId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 employeeId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 employeeId)
 		{
 			var entity = new Employee { EmployeeId = employeeId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class EmployeeFields
 	{
 		public const string EmployeeId = "EmployeeId";
@@ -851,8 +817,7 @@ namespace Samples.Entities
 		
 		private Int32 _orderDetailId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderDetailID", BaseColumnName ="OrderDetailID", BaseTableName = "OrderDetails" )]
-		public Int32 OrderDetailId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderDetailID", BaseColumnName ="OrderDetailID", BaseTableName = "OrderDetails" )]		public Int32 OrderDetailId 
 		{ 
 		    get { return _orderDetailId; } 
 			set 
@@ -864,8 +829,7 @@ namespace Samples.Entities
 
 		private Int32 _orderId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetails" )]
-		public Int32 OrderId 
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetails" )]		public Int32 OrderId 
 		{ 
 		    get { return _orderId; } 
 			set 
@@ -877,8 +841,7 @@ namespace Samples.Entities
 
 		private Int32 _productId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetails" )]
-		public Int32 ProductId 
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetails" )]		public Int32 ProductId 
 		{ 
 		    get { return _productId; } 
 			set 
@@ -890,8 +853,7 @@ namespace Samples.Entities
 
 		private Decimal _unitPrice;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetails" )]
-		public Decimal UnitPrice 
+		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetails" )]		public Decimal UnitPrice 
 		{ 
 		    get { return _unitPrice; } 
 			set 
@@ -903,8 +865,7 @@ namespace Samples.Entities
 
 		private Int16 _quantity;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetails" )]
-		public Int16 Quantity 
+		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetails" )]		public Int16 Quantity 
 		{ 
 		    get { return _quantity; } 
 			set 
@@ -916,8 +877,7 @@ namespace Samples.Entities
 
 		private Decimal _discount;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 5, Scale=4, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetails" )]
-		public Decimal Discount 
+		[SqlField(DbType.Decimal, 17, Precision = 5, Scale=4, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetails" )]		public Decimal Discount 
 		{ 
 		    get { return _discount; } 
 			set 
@@ -929,8 +889,7 @@ namespace Samples.Entities
 
 		private Decimal? _subTotal;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 32, Scale=8, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]
-		public Decimal? SubTotal 
+		[SqlField(DbType.Decimal, 17, Precision = 32, Scale=8, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]		public Decimal? SubTotal 
 		{ 
 		    get { return _subTotal; } 
 			set 
@@ -942,8 +901,7 @@ namespace Samples.Entities
 
 		private String _productName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]
-		public String ProductName 
+		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]		public String ProductName 
 		{ 
 		    get { return _productName; } 
 			set 
@@ -955,8 +913,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang1;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]		public String CategoryNameLang1 
 		{ 
 		    get { return _categoryNameLang1; } 
 			set 
@@ -968,8 +925,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang2;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
-		public String CategoryNameLang2 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]		public String CategoryNameLang2 
 		{ 
 		    get { return _categoryNameLang2; } 
 			set 
@@ -981,8 +937,7 @@ namespace Samples.Entities
 
 		private DateTime? _orderDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]
-		public DateTime? OrderDate 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]		public DateTime? OrderDate 
 		{ 
 		    get { return _orderDate; } 
 			set 
@@ -994,8 +949,7 @@ namespace Samples.Entities
 
 		private String _customerId;
 		[DataMember]
-		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID" )]
-		public String CustomerId 
+		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID" )]		public String CustomerId 
 		{ 
 		    get { return _customerId; } 
 			set 
@@ -1007,8 +961,7 @@ namespace Samples.Entities
 
 		private String _customerName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="CustomerName" )]
-		public String CustomerName 
+		[SqlField(DbType.String, 40, ColumnName ="CustomerName" )]		public String CustomerName 
 		{ 
 		    get { return _customerName; } 
 			set 
@@ -1020,8 +973,7 @@ namespace Samples.Entities
 
 		private String _address;
 		[DataMember]
-		[SqlField(DbType.String, 60, ColumnName ="Address" )]
-		public String Address 
+		[SqlField(DbType.String, 60, ColumnName ="Address" )]		public String Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -1033,8 +985,7 @@ namespace Samples.Entities
 
 		private String _city;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="City" )]
-		public String City 
+		[SqlField(DbType.String, 15, ColumnName ="City" )]		public String City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -1046,8 +997,7 @@ namespace Samples.Entities
 
 		private String _region;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Region" )]
-		public String Region 
+		[SqlField(DbType.String, 15, ColumnName ="Region" )]		public String Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -1059,8 +1009,7 @@ namespace Samples.Entities
 
 		private String _postalCode;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="PostalCode" )]
-		public String PostalCode 
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode" )]		public String PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -1072,8 +1021,7 @@ namespace Samples.Entities
 
 		private String _country;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Country" )]
-		public String Country 
+		[SqlField(DbType.String, 15, ColumnName ="Country" )]		public String Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -1085,8 +1033,7 @@ namespace Samples.Entities
 
 		private String _phone;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Phone" )]
-		public String Phone 
+		[SqlField(DbType.String, 24, ColumnName ="Phone" )]		public String Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -1098,8 +1045,7 @@ namespace Samples.Entities
 
 		private Int16? _unitsInStock;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock" )]
-		public Int16? UnitsInStock 
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock" )]		public Int16? UnitsInStock 
 		{ 
 		    get { return _unitsInStock; } 
 			set 
@@ -1111,8 +1057,7 @@ namespace Samples.Entities
 
 		private Int16? _unitsOnOrder;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder" )]
-		public Int16? UnitsOnOrder 
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder" )]		public Int16? UnitsOnOrder 
 		{ 
 		    get { return _unitsOnOrder; } 
 			set 
@@ -1183,44 +1128,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<OrderDetail> GetAsync(string projectionName, System.Int32 orderDetailId)
+		public System.Threading.Tasks.Task<OrderDetail> GetAsync(string projectionName, System.Int32 orderDetailId)
 		{
 			return ((IRepository<OrderDetail>)this).GetAsync(projectionName, orderDetailId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<OrderDetail> GetAsync(string projectionName, System.Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<OrderDetail> GetAsync(string projectionName, System.Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<OrderDetail>)this).GetAsync(projectionName, orderDetailId, fetchMode);
 		}
 
-		public Task<OrderDetail> GetAsync(Projection projection, System.Int32 orderDetailId)
+		public System.Threading.Tasks.Task<OrderDetail> GetAsync(Projection projection, System.Int32 orderDetailId)
 		{
 			return ((IRepository<OrderDetail>)this).GetAsync(projection, orderDetailId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<OrderDetail> GetAsync(Projection projection, System.Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<OrderDetail> GetAsync(Projection projection, System.Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<OrderDetail>)this).GetAsync(projection, orderDetailId, fetchMode);
 		}
 
-		public Task<OrderDetail> GetAsync(string projectionName, System.Int32 orderDetailId, params string[] fields)
+		public System.Threading.Tasks.Task<OrderDetail> GetAsync(string projectionName, System.Int32 orderDetailId, params string[] fields)
 		{
 			return ((IRepository<OrderDetail>)this).GetAsync(projectionName, orderDetailId, fields);
 		}
 
-		public Task<OrderDetail> GetAsync(Projection projection, System.Int32 orderDetailId, params string[] fields)
+		public System.Threading.Tasks.Task<OrderDetail> GetAsync(Projection projection, System.Int32 orderDetailId, params string[] fields)
 		{
 			return ((IRepository<OrderDetail>)this).GetAsync(projection, orderDetailId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 orderDetailId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 orderDetailId)
 		{
 			var entity = new OrderDetail { OrderDetailId = orderDetailId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class OrderDetailFields
 	{
 		public const string OrderDetailId = "OrderDetailId";
@@ -1266,8 +1211,7 @@ namespace Samples.Entities
 		
 		private Int32 _orderId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Orders" )]
-		public Int32 OrderId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Orders" )]		public Int32 OrderId 
 		{ 
 		    get { return _orderId; } 
 			set 
@@ -1279,8 +1223,7 @@ namespace Samples.Entities
 
 		private String _customerId;
 		[DataMember]
-		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Orders" )]
-		public String CustomerId 
+		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Orders" )]		public String CustomerId 
 		{ 
 		    get { return _customerId; } 
 			set 
@@ -1292,8 +1235,7 @@ namespace Samples.Entities
 
 		private Int32? _employeeId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Orders" )]
-		public Int32? EmployeeId 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Orders" )]		public Int32? EmployeeId 
 		{ 
 		    get { return _employeeId; } 
 			set 
@@ -1305,8 +1247,7 @@ namespace Samples.Entities
 
 		private DateTime? _orderDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate", BaseColumnName ="OrderDate", BaseTableName = "Orders" )]
-		public DateTime? OrderDate 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate", BaseColumnName ="OrderDate", BaseTableName = "Orders" )]		public DateTime? OrderDate 
 		{ 
 		    get { return _orderDate; } 
 			set 
@@ -1318,8 +1259,7 @@ namespace Samples.Entities
 
 		private DateTime? _requiredDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="RequiredDate", BaseColumnName ="RequiredDate", BaseTableName = "Orders" )]
-		public DateTime? RequiredDate 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="RequiredDate", BaseColumnName ="RequiredDate", BaseTableName = "Orders" )]		public DateTime? RequiredDate 
 		{ 
 		    get { return _requiredDate; } 
 			set 
@@ -1331,8 +1271,7 @@ namespace Samples.Entities
 
 		private DateTime? _shippedDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ShippedDate", BaseColumnName ="ShippedDate", BaseTableName = "Orders" )]
-		public DateTime? ShippedDate 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ShippedDate", BaseColumnName ="ShippedDate", BaseTableName = "Orders" )]		public DateTime? ShippedDate 
 		{ 
 		    get { return _shippedDate; } 
 			set 
@@ -1344,8 +1283,7 @@ namespace Samples.Entities
 
 		private Int32? _shipVia;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ShipVia", BaseColumnName ="ShipVia", BaseTableName = "Orders" )]
-		public Int32? ShipVia 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ShipVia", BaseColumnName ="ShipVia", BaseTableName = "Orders" )]		public Int32? ShipVia 
 		{ 
 		    get { return _shipVia; } 
 			set 
@@ -1357,8 +1295,7 @@ namespace Samples.Entities
 
 		private Decimal? _freight;
 		[DataMember]
-		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="Freight", BaseColumnName ="Freight", BaseTableName = "Orders" )]
-		public Decimal? Freight 
+		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="Freight", BaseColumnName ="Freight", BaseTableName = "Orders" )]		public Decimal? Freight 
 		{ 
 		    get { return _freight; } 
 			set 
@@ -1370,8 +1307,7 @@ namespace Samples.Entities
 
 		private String _shipName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="ShipName", BaseColumnName ="ShipName", BaseTableName = "Orders" )]
-		public String ShipName 
+		[SqlField(DbType.String, 40, ColumnName ="ShipName", BaseColumnName ="ShipName", BaseTableName = "Orders" )]		public String ShipName 
 		{ 
 		    get { return _shipName; } 
 			set 
@@ -1383,8 +1319,7 @@ namespace Samples.Entities
 
 		private String _shipAddress;
 		[DataMember]
-		[SqlField(DbType.String, 60, ColumnName ="ShipAddress", BaseColumnName ="ShipAddress", BaseTableName = "Orders" )]
-		public String ShipAddress 
+		[SqlField(DbType.String, 60, ColumnName ="ShipAddress", BaseColumnName ="ShipAddress", BaseTableName = "Orders" )]		public String ShipAddress 
 		{ 
 		    get { return _shipAddress; } 
 			set 
@@ -1396,8 +1331,7 @@ namespace Samples.Entities
 
 		private String _shipCity;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="ShipCity", BaseColumnName ="ShipCity", BaseTableName = "Orders" )]
-		public String ShipCity 
+		[SqlField(DbType.String, 15, ColumnName ="ShipCity", BaseColumnName ="ShipCity", BaseTableName = "Orders" )]		public String ShipCity 
 		{ 
 		    get { return _shipCity; } 
 			set 
@@ -1409,8 +1343,7 @@ namespace Samples.Entities
 
 		private String _shipRegion;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="ShipRegion", BaseColumnName ="ShipRegion", BaseTableName = "Orders" )]
-		public String ShipRegion 
+		[SqlField(DbType.String, 15, ColumnName ="ShipRegion", BaseColumnName ="ShipRegion", BaseTableName = "Orders" )]		public String ShipRegion 
 		{ 
 		    get { return _shipRegion; } 
 			set 
@@ -1422,8 +1355,7 @@ namespace Samples.Entities
 
 		private String _shipPostalCode;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="ShipPostalCode", BaseColumnName ="ShipPostalCode", BaseTableName = "Orders" )]
-		public String ShipPostalCode 
+		[SqlField(DbType.String, 10, ColumnName ="ShipPostalCode", BaseColumnName ="ShipPostalCode", BaseTableName = "Orders" )]		public String ShipPostalCode 
 		{ 
 		    get { return _shipPostalCode; } 
 			set 
@@ -1435,8 +1367,7 @@ namespace Samples.Entities
 
 		private String _shipCountry;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="ShipCountry", BaseColumnName ="ShipCountry", BaseTableName = "Orders" )]
-		public String ShipCountry 
+		[SqlField(DbType.String, 15, ColumnName ="ShipCountry", BaseColumnName ="ShipCountry", BaseTableName = "Orders" )]		public String ShipCountry 
 		{ 
 		    get { return _shipCountry; } 
 			set 
@@ -1448,8 +1379,7 @@ namespace Samples.Entities
 
 		private String _customerCompanyName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="CustomerCompanyName" )]
-		public String CustomerCompanyName 
+		[SqlField(DbType.String, 40, ColumnName ="CustomerCompanyName" )]		public String CustomerCompanyName 
 		{ 
 		    get { return _customerCompanyName; } 
 			set 
@@ -1461,8 +1391,7 @@ namespace Samples.Entities
 
 		private String _employeeFirstName;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="EmployeeFirstName" )]
-		public String EmployeeFirstName 
+		[SqlField(DbType.String, 10, ColumnName ="EmployeeFirstName" )]		public String EmployeeFirstName 
 		{ 
 		    get { return _employeeFirstName; } 
 			set 
@@ -1474,8 +1403,7 @@ namespace Samples.Entities
 
 		private String _employeeLastName;
 		[DataMember]
-		[SqlField(DbType.String, 20, ColumnName ="EmployeeLastName" )]
-		public String EmployeeLastName 
+		[SqlField(DbType.String, 20, ColumnName ="EmployeeLastName" )]		public String EmployeeLastName 
 		{ 
 		    get { return _employeeLastName; } 
 			set 
@@ -1487,8 +1415,7 @@ namespace Samples.Entities
 
 		private String _shipperCompanyName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="ShipperCompanyName" )]
-		public String ShipperCompanyName 
+		[SqlField(DbType.String, 40, ColumnName ="ShipperCompanyName" )]		public String ShipperCompanyName 
 		{ 
 		    get { return _shipperCompanyName; } 
 			set 
@@ -1500,8 +1427,7 @@ namespace Samples.Entities
 
 		private Decimal? _orderTotal;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="OrderTotal" )]
-		public Decimal? OrderTotal 
+		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="OrderTotal" )]		public Decimal? OrderTotal 
 		{ 
 		    get { return _orderTotal; } 
 			set 
@@ -1513,8 +1439,7 @@ namespace Samples.Entities
 
 		private Int64? _lineCount;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, AllowNull = true, ColumnName ="LineCount" )]
-		public Int64? LineCount 
+		[SqlField(DbType.Int64, 8, Precision = 19, AllowNull = true, ColumnName ="LineCount" )]		public Int64? LineCount 
 		{ 
 		    get { return _lineCount; } 
 			set 
@@ -1576,44 +1501,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Order> GetAsync(string projectionName, System.Int32 orderId)
+		public System.Threading.Tasks.Task<Order> GetAsync(string projectionName, System.Int32 orderId)
 		{
 			return ((IRepository<Order>)this).GetAsync(projectionName, orderId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Order> GetAsync(string projectionName, System.Int32 orderId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Order> GetAsync(string projectionName, System.Int32 orderId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Order>)this).GetAsync(projectionName, orderId, fetchMode);
 		}
 
-		public Task<Order> GetAsync(Projection projection, System.Int32 orderId)
+		public System.Threading.Tasks.Task<Order> GetAsync(Projection projection, System.Int32 orderId)
 		{
 			return ((IRepository<Order>)this).GetAsync(projection, orderId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Order> GetAsync(Projection projection, System.Int32 orderId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Order> GetAsync(Projection projection, System.Int32 orderId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Order>)this).GetAsync(projection, orderId, fetchMode);
 		}
 
-		public Task<Order> GetAsync(string projectionName, System.Int32 orderId, params string[] fields)
+		public System.Threading.Tasks.Task<Order> GetAsync(string projectionName, System.Int32 orderId, params string[] fields)
 		{
 			return ((IRepository<Order>)this).GetAsync(projectionName, orderId, fields);
 		}
 
-		public Task<Order> GetAsync(Projection projection, System.Int32 orderId, params string[] fields)
+		public System.Threading.Tasks.Task<Order> GetAsync(Projection projection, System.Int32 orderId, params string[] fields)
 		{
 			return ((IRepository<Order>)this).GetAsync(projection, orderId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 orderId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 orderId)
 		{
 			var entity = new Order { OrderId = orderId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class OrderFields
 	{
 		public const string OrderId = "OrderId";
@@ -1657,8 +1582,7 @@ namespace Samples.Entities
 		
 		private Int32 _productId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Products" )]
-		public Int32 ProductId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Products" )]		public Int32 ProductId 
 		{ 
 		    get { return _productId; } 
 			set 
@@ -1670,8 +1594,7 @@ namespace Samples.Entities
 
 		private String _productName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="ProductName", BaseColumnName ="ProductName", BaseTableName = "Products" )]
-		public String ProductName 
+		[SqlField(DbType.String, 40, ColumnName ="ProductName", BaseColumnName ="ProductName", BaseTableName = "Products" )]		public String ProductName 
 		{ 
 		    get { return _productName; } 
 			set 
@@ -1683,8 +1606,7 @@ namespace Samples.Entities
 
 		private Int32? _supplierId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Products" )]
-		public Int32? SupplierId 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Products" )]		public Int32? SupplierId 
 		{ 
 		    get { return _supplierId; } 
 			set 
@@ -1696,8 +1618,7 @@ namespace Samples.Entities
 
 		private Int32? _categoryId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Products" )]
-		public Int32? CategoryId 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Products" )]		public Int32? CategoryId 
 		{ 
 		    get { return _categoryId; } 
 			set 
@@ -1709,8 +1630,7 @@ namespace Samples.Entities
 
 		private String _quantityPerUnit;
 		[DataMember]
-		[SqlField(DbType.String, 20, ColumnName ="QuantityPerUnit", BaseColumnName ="QuantityPerUnit", BaseTableName = "Products" )]
-		public String QuantityPerUnit 
+		[SqlField(DbType.String, 20, ColumnName ="QuantityPerUnit", BaseColumnName ="QuantityPerUnit", BaseTableName = "Products" )]		public String QuantityPerUnit 
 		{ 
 		    get { return _quantityPerUnit; } 
 			set 
@@ -1722,8 +1642,7 @@ namespace Samples.Entities
 
 		private Decimal _unitPrice;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]
-		public Decimal UnitPrice 
+		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]		public Decimal UnitPrice 
 		{ 
 		    get { return _unitPrice; } 
 			set 
@@ -1735,8 +1654,7 @@ namespace Samples.Entities
 
 		private Int16? _unitsInStock;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock", BaseColumnName ="UnitsInStock", BaseTableName = "Products" )]
-		public Int16? UnitsInStock 
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock", BaseColumnName ="UnitsInStock", BaseTableName = "Products" )]		public Int16? UnitsInStock 
 		{ 
 		    get { return _unitsInStock; } 
 			set 
@@ -1748,8 +1666,7 @@ namespace Samples.Entities
 
 		private Int16? _unitsOnOrder;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder", BaseColumnName ="UnitsOnOrder", BaseTableName = "Products" )]
-		public Int16? UnitsOnOrder 
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder", BaseColumnName ="UnitsOnOrder", BaseTableName = "Products" )]		public Int16? UnitsOnOrder 
 		{ 
 		    get { return _unitsOnOrder; } 
 			set 
@@ -1761,8 +1678,7 @@ namespace Samples.Entities
 
 		private Int16? _reorderLevel;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="ReorderLevel", BaseColumnName ="ReorderLevel", BaseTableName = "Products" )]
-		public Int16? ReorderLevel 
+		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="ReorderLevel", BaseColumnName ="ReorderLevel", BaseTableName = "Products" )]		public Int16? ReorderLevel 
 		{ 
 		    get { return _reorderLevel; } 
 			set 
@@ -1774,8 +1690,7 @@ namespace Samples.Entities
 
 		private Boolean _discontinued;
 		[DataMember]
-		[SqlField(DbType.Boolean, 1, ColumnName ="Discontinued", BaseColumnName ="Discontinued", BaseTableName = "Products" )]
-		public Boolean Discontinued 
+		[SqlField(DbType.Boolean, 1, ColumnName ="Discontinued", BaseColumnName ="Discontinued", BaseTableName = "Products" )]		public Boolean Discontinued 
 		{ 
 		    get { return _discontinued; } 
 			set 
@@ -1785,10 +1700,21 @@ namespace Samples.Entities
 			}
         }
 
+		private Int32 _entityRowVersion;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="EntityRowVersion", BaseColumnName ="EntityRowVersion", BaseTableName = "Products" )]		public Int32 EntityRowVersion 
+		{ 
+		    get { return _entityRowVersion; } 
+			set 
+			{
+			    _entityRowVersion = value;
+				NotifyPropertyChange("EntityRowVersion");
+			}
+        }
+
 		private String _categoryNameLang1;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]		public String CategoryNameLang1 
 		{ 
 		    get { return _categoryNameLang1; } 
 			set 
@@ -1800,8 +1726,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang2;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
-		public String CategoryNameLang2 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]		public String CategoryNameLang2 
 		{ 
 		    get { return _categoryNameLang2; } 
 			set 
@@ -1813,8 +1738,7 @@ namespace Samples.Entities
 
 		private String _supplierName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="SupplierName" )]
-		public String SupplierName 
+		[SqlField(DbType.String, 40, ColumnName ="SupplierName" )]		public String SupplierName 
 		{ 
 		    get { return _supplierName; } 
 			set 
@@ -1885,37 +1809,37 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Product> GetAsync(string projectionName, System.Int32 productId)
+		public System.Threading.Tasks.Task<Product> GetAsync(string projectionName, System.Int32 productId)
 		{
 			return ((IRepository<Product>)this).GetAsync(projectionName, productId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Product> GetAsync(string projectionName, System.Int32 productId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Product> GetAsync(string projectionName, System.Int32 productId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Product>)this).GetAsync(projectionName, productId, fetchMode);
 		}
 
-		public Task<Product> GetAsync(Projection projection, System.Int32 productId)
+		public System.Threading.Tasks.Task<Product> GetAsync(Projection projection, System.Int32 productId)
 		{
 			return ((IRepository<Product>)this).GetAsync(projection, productId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Product> GetAsync(Projection projection, System.Int32 productId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Product> GetAsync(Projection projection, System.Int32 productId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Product>)this).GetAsync(projection, productId, fetchMode);
 		}
 
-		public Task<Product> GetAsync(string projectionName, System.Int32 productId, params string[] fields)
+		public System.Threading.Tasks.Task<Product> GetAsync(string projectionName, System.Int32 productId, params string[] fields)
 		{
 			return ((IRepository<Product>)this).GetAsync(projectionName, productId, fields);
 		}
 
-		public Task<Product> GetAsync(Projection projection, System.Int32 productId, params string[] fields)
+		public System.Threading.Tasks.Task<Product> GetAsync(Projection projection, System.Int32 productId, params string[] fields)
 		{
 			return ((IRepository<Product>)this).GetAsync(projection, productId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 productId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 productId)
 		{
 			var entity = new Product { ProductId = productId };
 			return this.DeleteAsync(entity);
@@ -1938,7 +1862,7 @@ namespace Samples.Entities
 			executor.ExecuteNonQuery();
 		}
 
-		public async Task RaiseProductPricesAsync(Decimal? rate)
+		public async System.Threading.Tasks.Task RaiseProductPricesAsync(Decimal? rate)
 		{
             var executor = new StoredProcedureExecutor(this.DataService, true)
             {
@@ -1954,7 +1878,7 @@ namespace Samples.Entities
 			await executor.ExecuteNonQueryAsync().ConfigureAwait(false);
 		}
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class ProductFields
 	{
 		public const string ProductId = "ProductId";
@@ -1967,6 +1891,7 @@ namespace Samples.Entities
 		public const string UnitsOnOrder = "UnitsOnOrder";
 		public const string ReorderLevel = "ReorderLevel";
 		public const string Discontinued = "Discontinued";
+		public const string EntityRowVersion = "EntityRowVersion";
 		public const string CategoryNameLang1 = "CategoryNameLang1";
 		public const string CategoryNameLang2 = "CategoryNameLang2";
 		public const string SupplierName = "SupplierName";
@@ -1992,8 +1917,7 @@ namespace Samples.Entities
 		
 		private Int32 _shipperId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ShipperID", BaseColumnName ="ShipperID", BaseTableName = "Shippers" )]
-		public Int32 ShipperId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ShipperID", BaseColumnName ="ShipperID", BaseTableName = "Shippers" )]		public Int32 ShipperId 
 		{ 
 		    get { return _shipperId; } 
 			set 
@@ -2005,8 +1929,7 @@ namespace Samples.Entities
 
 		private String _companyName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Shippers" )]
-		public String CompanyName 
+		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Shippers" )]		public String CompanyName 
 		{ 
 		    get { return _companyName; } 
 			set 
@@ -2018,8 +1941,7 @@ namespace Samples.Entities
 
 		private String _phone;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Shippers" )]
-		public String Phone 
+		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Shippers" )]		public String Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -2081,44 +2003,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Shipper> GetAsync(string projectionName, System.Int32 shipperId)
+		public System.Threading.Tasks.Task<Shipper> GetAsync(string projectionName, System.Int32 shipperId)
 		{
 			return ((IRepository<Shipper>)this).GetAsync(projectionName, shipperId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Shipper> GetAsync(string projectionName, System.Int32 shipperId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Shipper> GetAsync(string projectionName, System.Int32 shipperId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Shipper>)this).GetAsync(projectionName, shipperId, fetchMode);
 		}
 
-		public Task<Shipper> GetAsync(Projection projection, System.Int32 shipperId)
+		public System.Threading.Tasks.Task<Shipper> GetAsync(Projection projection, System.Int32 shipperId)
 		{
 			return ((IRepository<Shipper>)this).GetAsync(projection, shipperId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Shipper> GetAsync(Projection projection, System.Int32 shipperId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Shipper> GetAsync(Projection projection, System.Int32 shipperId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Shipper>)this).GetAsync(projection, shipperId, fetchMode);
 		}
 
-		public Task<Shipper> GetAsync(string projectionName, System.Int32 shipperId, params string[] fields)
+		public System.Threading.Tasks.Task<Shipper> GetAsync(string projectionName, System.Int32 shipperId, params string[] fields)
 		{
 			return ((IRepository<Shipper>)this).GetAsync(projectionName, shipperId, fields);
 		}
 
-		public Task<Shipper> GetAsync(Projection projection, System.Int32 shipperId, params string[] fields)
+		public System.Threading.Tasks.Task<Shipper> GetAsync(Projection projection, System.Int32 shipperId, params string[] fields)
 		{
 			return ((IRepository<Shipper>)this).GetAsync(projection, shipperId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 shipperId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 shipperId)
 		{
 			var entity = new Shipper { ShipperId = shipperId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class ShipperFields
 	{
 		public const string ShipperId = "ShipperId";
@@ -2145,8 +2067,7 @@ namespace Samples.Entities
 		
 		private Int32 _supplierId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Suppliers" )]
-		public Int32 SupplierId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Suppliers" )]		public Int32 SupplierId 
 		{ 
 		    get { return _supplierId; } 
 			set 
@@ -2158,8 +2079,7 @@ namespace Samples.Entities
 
 		private String _companyName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Suppliers" )]
-		public String CompanyName 
+		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Suppliers" )]		public String CompanyName 
 		{ 
 		    get { return _companyName; } 
 			set 
@@ -2171,8 +2091,7 @@ namespace Samples.Entities
 
 		private String _contactName;
 		[DataMember]
-		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Suppliers" )]
-		public String ContactName 
+		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Suppliers" )]		public String ContactName 
 		{ 
 		    get { return _contactName; } 
 			set 
@@ -2184,8 +2103,7 @@ namespace Samples.Entities
 
 		private String _contactTitle;
 		[DataMember]
-		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Suppliers" )]
-		public String ContactTitle 
+		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Suppliers" )]		public String ContactTitle 
 		{ 
 		    get { return _contactTitle; } 
 			set 
@@ -2197,8 +2115,7 @@ namespace Samples.Entities
 
 		private String _address;
 		[DataMember]
-		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Suppliers" )]
-		public String Address 
+		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Suppliers" )]		public String Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -2210,8 +2127,7 @@ namespace Samples.Entities
 
 		private String _city;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Suppliers" )]
-		public String City 
+		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Suppliers" )]		public String City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -2223,8 +2139,7 @@ namespace Samples.Entities
 
 		private String _region;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Suppliers" )]
-		public String Region 
+		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Suppliers" )]		public String Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -2236,8 +2151,7 @@ namespace Samples.Entities
 
 		private String _postalCode;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Suppliers" )]
-		public String PostalCode 
+		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Suppliers" )]		public String PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -2249,8 +2163,7 @@ namespace Samples.Entities
 
 		private String _country;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Suppliers" )]
-		public String Country 
+		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Suppliers" )]		public String Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -2262,8 +2175,7 @@ namespace Samples.Entities
 
 		private String _phone;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Suppliers" )]
-		public String Phone 
+		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Suppliers" )]		public String Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -2275,8 +2187,7 @@ namespace Samples.Entities
 
 		private String _fax;
 		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Suppliers" )]
-		public String Fax 
+		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Suppliers" )]		public String Fax 
 		{ 
 		    get { return _fax; } 
 			set 
@@ -2288,8 +2199,7 @@ namespace Samples.Entities
 
 		private String _homePage;
 		[DataMember]
-		[SqlField(DbType.String, 1073741823, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]
-		public String HomePage 
+		[SqlField(DbType.String, 1073741823, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]		public String HomePage 
 		{ 
 		    get { return _homePage; } 
 			set 
@@ -2351,44 +2261,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Supplier> GetAsync(string projectionName, System.Int32 supplierId)
+		public System.Threading.Tasks.Task<Supplier> GetAsync(string projectionName, System.Int32 supplierId)
 		{
 			return ((IRepository<Supplier>)this).GetAsync(projectionName, supplierId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Supplier> GetAsync(string projectionName, System.Int32 supplierId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Supplier> GetAsync(string projectionName, System.Int32 supplierId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Supplier>)this).GetAsync(projectionName, supplierId, fetchMode);
 		}
 
-		public Task<Supplier> GetAsync(Projection projection, System.Int32 supplierId)
+		public System.Threading.Tasks.Task<Supplier> GetAsync(Projection projection, System.Int32 supplierId)
 		{
 			return ((IRepository<Supplier>)this).GetAsync(projection, supplierId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Supplier> GetAsync(Projection projection, System.Int32 supplierId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Supplier> GetAsync(Projection projection, System.Int32 supplierId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Supplier>)this).GetAsync(projection, supplierId, fetchMode);
 		}
 
-		public Task<Supplier> GetAsync(string projectionName, System.Int32 supplierId, params string[] fields)
+		public System.Threading.Tasks.Task<Supplier> GetAsync(string projectionName, System.Int32 supplierId, params string[] fields)
 		{
 			return ((IRepository<Supplier>)this).GetAsync(projectionName, supplierId, fields);
 		}
 
-		public Task<Supplier> GetAsync(Projection projection, System.Int32 supplierId, params string[] fields)
+		public System.Threading.Tasks.Task<Supplier> GetAsync(Projection projection, System.Int32 supplierId, params string[] fields)
 		{
 			return ((IRepository<Supplier>)this).GetAsync(projection, supplierId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 supplierId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 supplierId)
 		{
 			var entity = new Supplier { SupplierId = supplierId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class SupplierFields
 	{
 		public const string SupplierId = "SupplierId";
@@ -2424,8 +2334,7 @@ namespace Samples.Entities
 		
 		private Int32 _entityId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]
-		public Int32 EntityId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]		public Int32 EntityId 
 		{ 
 		    get { return _entityId; } 
 			set 
@@ -2437,8 +2346,7 @@ namespace Samples.Entities
 
 		private String _value;
 		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="value", BaseColumnName ="value", BaseTableName = "my_table" )]
-		public String Value 
+		[SqlField(DbType.String, 128, ColumnName ="value", BaseColumnName ="value", BaseTableName = "my_table" )]		public String Value 
 		{ 
 		    get { return _value; } 
 			set 
@@ -2500,44 +2408,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<MyEntity> GetAsync(string projectionName, System.Int32 entityId)
+		public System.Threading.Tasks.Task<MyEntity> GetAsync(string projectionName, System.Int32 entityId)
 		{
 			return ((IRepository<MyEntity>)this).GetAsync(projectionName, entityId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<MyEntity> GetAsync(string projectionName, System.Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<MyEntity> GetAsync(string projectionName, System.Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<MyEntity>)this).GetAsync(projectionName, entityId, fetchMode);
 		}
 
-		public Task<MyEntity> GetAsync(Projection projection, System.Int32 entityId)
+		public System.Threading.Tasks.Task<MyEntity> GetAsync(Projection projection, System.Int32 entityId)
 		{
 			return ((IRepository<MyEntity>)this).GetAsync(projection, entityId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<MyEntity> GetAsync(Projection projection, System.Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<MyEntity> GetAsync(Projection projection, System.Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<MyEntity>)this).GetAsync(projection, entityId, fetchMode);
 		}
 
-		public Task<MyEntity> GetAsync(string projectionName, System.Int32 entityId, params string[] fields)
+		public System.Threading.Tasks.Task<MyEntity> GetAsync(string projectionName, System.Int32 entityId, params string[] fields)
 		{
 			return ((IRepository<MyEntity>)this).GetAsync(projectionName, entityId, fields);
 		}
 
-		public Task<MyEntity> GetAsync(Projection projection, System.Int32 entityId, params string[] fields)
+		public System.Threading.Tasks.Task<MyEntity> GetAsync(Projection projection, System.Int32 entityId, params string[] fields)
 		{
 			return ((IRepository<MyEntity>)this).GetAsync(projection, entityId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 entityId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 entityId)
 		{
 			var entity = new MyEntity { EntityId = entityId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class MyEntityFields
 	{
 		public const string EntityId = "EntityId";
@@ -2563,8 +2471,7 @@ namespace Samples.Entities
 		
 		private Int32? _categoryId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID" )]
-		public Int32? CategoryId 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID" )]		public Int32? CategoryId 
 		{ 
 		    get { return _categoryId; } 
 			set 
@@ -2576,8 +2483,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang1;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]		public String CategoryNameLang1 
 		{ 
 		    get { return _categoryNameLang1; } 
 			set 
@@ -2589,8 +2495,7 @@ namespace Samples.Entities
 
 		private String _categoryNameLang2;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]
-		public String CategoryNameLang2 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]		public String CategoryNameLang2 
 		{ 
 		    get { return _categoryNameLang2; } 
 			set 
@@ -2602,8 +2507,7 @@ namespace Samples.Entities
 
 		private Int32 _productId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID" )]
-		public Int32 ProductId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID" )]		public Int32 ProductId 
 		{ 
 		    get { return _productId; } 
 			set 
@@ -2615,8 +2519,7 @@ namespace Samples.Entities
 
 		private String _productName;
 		[DataMember]
-		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]
-		public String ProductName 
+		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]		public String ProductName 
 		{ 
 		    get { return _productName; } 
 			set 
@@ -2628,8 +2531,7 @@ namespace Samples.Entities
 
 		private Int32? _year;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Year" )]
-		public Int32? Year 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Year" )]		public Int32? Year 
 		{ 
 		    get { return _year; } 
 			set 
@@ -2641,8 +2543,7 @@ namespace Samples.Entities
 
 		private Int32? _quarter;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Quarter" )]
-		public Int32? Quarter 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Quarter" )]		public Int32? Quarter 
 		{ 
 		    get { return _quarter; } 
 			set 
@@ -2654,8 +2555,7 @@ namespace Samples.Entities
 
 		private Decimal? _sales;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]
-		public Decimal? Sales 
+		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]		public Decimal? Sales 
 		{ 
 		    get { return _sales; } 
 			set 
@@ -2667,8 +2567,7 @@ namespace Samples.Entities
 
 		private Int32? _orderCount;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="OrderCount" )]
-		public Int32? OrderCount 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="OrderCount" )]		public Int32? OrderCount 
 		{ 
 		    get { return _orderCount; } 
 			set 
@@ -2703,7 +2602,7 @@ namespace Samples.Entities
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class ProductSaleFields
 	{
 		public const string CategoryId = "CategoryId";
@@ -2737,8 +2636,7 @@ namespace Samples.Entities
 		
 		private Int32 _itemId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ItemId", BaseColumnName ="ItemId", BaseTableName = "Items" )]
-		public Int32 ItemId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ItemId", BaseColumnName ="ItemId", BaseTableName = "Items" )]		public Int32 ItemId 
 		{ 
 		    get { return _itemId; } 
 			set 
@@ -2750,8 +2648,7 @@ namespace Samples.Entities
 
 		private String _field1;
 		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field1", BaseColumnName ="Field1", BaseTableName = "Items" )]
-		public String Field1 
+		[SqlField(DbType.String, 50, ColumnName ="Field1", BaseColumnName ="Field1", BaseTableName = "Items" )]		public String Field1 
 		{ 
 		    get { return _field1; } 
 			set 
@@ -2763,8 +2660,7 @@ namespace Samples.Entities
 
 		private String _field2;
 		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field2", BaseColumnName ="Field2", BaseTableName = "Items" )]
-		public String Field2 
+		[SqlField(DbType.String, 50, ColumnName ="Field2", BaseColumnName ="Field2", BaseTableName = "Items" )]		public String Field2 
 		{ 
 		    get { return _field2; } 
 			set 
@@ -2776,8 +2672,7 @@ namespace Samples.Entities
 
 		private String _field3;
 		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field3", BaseColumnName ="Field3", BaseTableName = "Items" )]
-		public String Field3 
+		[SqlField(DbType.String, 50, ColumnName ="Field3", BaseColumnName ="Field3", BaseTableName = "Items" )]		public String Field3 
 		{ 
 		    get { return _field3; } 
 			set 
@@ -2789,8 +2684,7 @@ namespace Samples.Entities
 
 		private String _field4;
 		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field4", BaseColumnName ="Field4", BaseTableName = "Items" )]
-		public String Field4 
+		[SqlField(DbType.String, 50, ColumnName ="Field4", BaseColumnName ="Field4", BaseTableName = "Items" )]		public String Field4 
 		{ 
 		    get { return _field4; } 
 			set 
@@ -2802,8 +2696,7 @@ namespace Samples.Entities
 
 		private Int64 _dbChangeNumber;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="DbChangeNumber", BaseColumnName ="DbChangeNumber", BaseTableName = "Items" )]
-		public Int64 DbChangeNumber 
+		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="DbChangeNumber", BaseColumnName ="DbChangeNumber", BaseTableName = "Items" )]		public Int64 DbChangeNumber 
 		{ 
 		    get { return _dbChangeNumber; } 
 			set 
@@ -2865,44 +2758,44 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<Item> GetAsync(string projectionName, System.Int32 itemId)
+		public System.Threading.Tasks.Task<Item> GetAsync(string projectionName, System.Int32 itemId)
 		{
 			return ((IRepository<Item>)this).GetAsync(projectionName, itemId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Item> GetAsync(string projectionName, System.Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Item> GetAsync(string projectionName, System.Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Item>)this).GetAsync(projectionName, itemId, fetchMode);
 		}
 
-		public Task<Item> GetAsync(Projection projection, System.Int32 itemId)
+		public System.Threading.Tasks.Task<Item> GetAsync(Projection projection, System.Int32 itemId)
 		{
 			return ((IRepository<Item>)this).GetAsync(projection, itemId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<Item> GetAsync(Projection projection, System.Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<Item> GetAsync(Projection projection, System.Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Item>)this).GetAsync(projection, itemId, fetchMode);
 		}
 
-		public Task<Item> GetAsync(string projectionName, System.Int32 itemId, params string[] fields)
+		public System.Threading.Tasks.Task<Item> GetAsync(string projectionName, System.Int32 itemId, params string[] fields)
 		{
 			return ((IRepository<Item>)this).GetAsync(projectionName, itemId, fields);
 		}
 
-		public Task<Item> GetAsync(Projection projection, System.Int32 itemId, params string[] fields)
+		public System.Threading.Tasks.Task<Item> GetAsync(Projection projection, System.Int32 itemId, params string[] fields)
 		{
 			return ((IRepository<Item>)this).GetAsync(projection, itemId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 itemId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 itemId)
 		{
 			var entity = new Item { ItemId = itemId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class ItemFields
 	{
 		public const string ItemId = "ItemId";
@@ -2932,8 +2825,7 @@ namespace Samples.Entities
 		
 		private Int32 _metadataId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="MetadataId", BaseColumnName ="MetadataId", BaseTableName = "Metadata" )]
-		public Int32 MetadataId 
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="MetadataId", BaseColumnName ="MetadataId", BaseTableName = "Metadata" )]		public Int32 MetadataId 
 		{ 
 		    get { return _metadataId; } 
 			set 
@@ -2945,8 +2837,7 @@ namespace Samples.Entities
 
 		private Newtonsoft.Json.Linq.JToken _data;
 		[DataMember]
-		[SqlField(DbType.AnsiString, 8000, ColumnName ="DataJson", BaseColumnName ="DataJson", BaseTableName = "Metadata" )]
-		public Newtonsoft.Json.Linq.JToken Data 
+		[SqlField(DbType.AnsiString, 8000, ColumnName ="DataJson", BaseColumnName ="DataJson", BaseTableName = "Metadata" )]		public Newtonsoft.Json.Linq.JToken Data 
 		{ 
 		    get { return _data; } 
 			set 
@@ -3008,191 +2899,48 @@ namespace Samples.Entities
 		}
 		// asyncrhonous methods
 
-		public Task<MetadataItem> GetAsync(string projectionName, System.Int32 metadataId)
+		public System.Threading.Tasks.Task<MetadataItem> GetAsync(string projectionName, System.Int32 metadataId)
 		{
 			return ((IRepository<MetadataItem>)this).GetAsync(projectionName, metadataId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<MetadataItem> GetAsync(string projectionName, System.Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<MetadataItem> GetAsync(string projectionName, System.Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<MetadataItem>)this).GetAsync(projectionName, metadataId, fetchMode);
 		}
 
-		public Task<MetadataItem> GetAsync(Projection projection, System.Int32 metadataId)
+		public System.Threading.Tasks.Task<MetadataItem> GetAsync(Projection projection, System.Int32 metadataId)
 		{
 			return ((IRepository<MetadataItem>)this).GetAsync(projection, metadataId, FetchMode.UseIdentityMap);
 		}
 
-		public Task<MetadataItem> GetAsync(Projection projection, System.Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<MetadataItem> GetAsync(Projection projection, System.Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<MetadataItem>)this).GetAsync(projection, metadataId, fetchMode);
 		}
 
-		public Task<MetadataItem> GetAsync(string projectionName, System.Int32 metadataId, params string[] fields)
+		public System.Threading.Tasks.Task<MetadataItem> GetAsync(string projectionName, System.Int32 metadataId, params string[] fields)
 		{
 			return ((IRepository<MetadataItem>)this).GetAsync(projectionName, metadataId, fields);
 		}
 
-		public Task<MetadataItem> GetAsync(Projection projection, System.Int32 metadataId, params string[] fields)
+		public System.Threading.Tasks.Task<MetadataItem> GetAsync(Projection projection, System.Int32 metadataId, params string[] fields)
 		{
 			return ((IRepository<MetadataItem>)this).GetAsync(projection, metadataId, fields);
 		}
 
-		public Task<bool> DeleteAsync(System.Int32 metadataId)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(System.Int32 metadataId)
 		{
 			var entity = new MetadataItem { MetadataId = metadataId };
 			return this.DeleteAsync(entity);
 		}
 
 	}
-
+	[Obsolete("Use nameof instead")]
 	public static partial class MetadataItemFields
 	{
 		public const string MetadataId = "MetadataId";
 		public const string Data = "Data";
-	}
-
-}
-
-namespace Samples.Entities.Tools
-{
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
-	[SqlEntity(BaseTableName="elems", SchemaName="Tools")]
-	public partial class Element : INotifyPropertyChanged
-	{
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChange(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }				
-		
-		private Int32 _elementId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ElementId", BaseColumnName ="ElementId", BaseTableName = "elems" )]
-		public Int32 ElementId 
-		{ 
-		    get { return _elementId; } 
-			set 
-			{
-			    _elementId = value;
-				NotifyPropertyChange("ElementId");
-			}
-        }
-
-		private String _name;
-		[DataMember]
-		[SqlField(DbType.AnsiString, 128, ColumnName ="Name", BaseColumnName ="Name", BaseTableName = "elems" )]
-		public String Name 
-		{ 
-		    get { return _name; } 
-			set 
-			{
-			    _name = value;
-				NotifyPropertyChange("Name");
-			}
-        }
-
-
-	}
-
-	public partial class ElementRepository : Repository<Element> 
-	{
-		public ElementRepository(DataService DataService) : base(DataService)
-		{
-		}
-
-		public new NorthwindDataService  DataService  
-		{
-			get { return (NorthwindDataService) base.DataService; }
-			set { base.DataService = value; }
-		}
-
-		public Element Get(string projectionName, System.Int32 elementId)
-		{
-			return ((IRepository<Element>)this).Get(projectionName, elementId, FetchMode.UseIdentityMap);
-		}
-
-		public Element Get(string projectionName, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Element>)this).Get(projectionName, elementId, fetchMode);
-		}
-
-		public Element Get(Projection projection, System.Int32 elementId)
-		{
-			return ((IRepository<Element>)this).Get(projection, elementId, FetchMode.UseIdentityMap);
-		}
-
-		public Element Get(Projection projection, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Element>)this).Get(projection, elementId, fetchMode);
-		}
-
-		public Element Get(string projectionName, System.Int32 elementId, params string[] fields)
-		{
-			return ((IRepository<Element>)this).Get(projectionName, elementId, fields);
-		}
-
-		public Element Get(Projection projection, System.Int32 elementId, params string[] fields)
-		{
-			return ((IRepository<Element>)this).Get(projection, elementId, fields);
-		}
-
-		public bool Delete(System.Int32 elementId)
-		{
-			var entity = new Element { ElementId = elementId };
-			return this.Delete(entity);
-		}
-		// asyncrhonous methods
-
-		public Task<Element> GetAsync(string projectionName, System.Int32 elementId)
-		{
-			return ((IRepository<Element>)this).GetAsync(projectionName, elementId, FetchMode.UseIdentityMap);
-		}
-
-		public Task<Element> GetAsync(string projectionName, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Element>)this).GetAsync(projectionName, elementId, fetchMode);
-		}
-
-		public Task<Element> GetAsync(Projection projection, System.Int32 elementId)
-		{
-			return ((IRepository<Element>)this).GetAsync(projection, elementId, FetchMode.UseIdentityMap);
-		}
-
-		public Task<Element> GetAsync(Projection projection, System.Int32 elementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Element>)this).GetAsync(projection, elementId, fetchMode);
-		}
-
-		public Task<Element> GetAsync(string projectionName, System.Int32 elementId, params string[] fields)
-		{
-			return ((IRepository<Element>)this).GetAsync(projectionName, elementId, fields);
-		}
-
-		public Task<Element> GetAsync(Projection projection, System.Int32 elementId, params string[] fields)
-		{
-			return ((IRepository<Element>)this).GetAsync(projection, elementId, fields);
-		}
-
-		public Task<bool> DeleteAsync(System.Int32 elementId)
-		{
-			var entity = new Element { ElementId = elementId };
-			return this.DeleteAsync(entity);
-		}
-
-	}
-
-	public static partial class ElementFields
-	{
-		public const string ElementId = "ElementId";
-		public const string Name = "Name";
 	}
 
 }
@@ -3378,19 +3126,6 @@ namespace Samples.Entities
 					_MetadataItemRepository = new Samples.Entities.MetadataItemRepository(this);
 				}
 				return _MetadataItemRepository;
-			}
-		}
-
-		private Samples.Entities.Tools.ElementRepository _ToolsElementRepository;
-		public Samples.Entities.Tools.ElementRepository ToolsElementRepository
-		{
-			get 
-			{
-				if ( _ToolsElementRepository == null)
-				{
-					_ToolsElementRepository = new Samples.Entities.Tools.ElementRepository(this);
-				}
-				return _ToolsElementRepository;
 			}
 		}
 	}

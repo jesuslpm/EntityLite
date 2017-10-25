@@ -95,7 +95,7 @@ public class EntitySetting
         string namespaceName = rootNamespace;
         if (!string.IsNullOrEmpty(this.Schema))
         {
-            namespaceName += "." + this.Schema;
+            namespaceName += "." + Extensions.ToPascalNamingConvention(this.Schema);
         }
         return namespaceName;
     }
@@ -104,7 +104,7 @@ public class EntitySetting
     {
         if (!string.IsNullOrEmpty(this.Schema))
         {
-            return this.Schema + this.EntityName + "Repository";
+            return Extensions.ToPascalNamingConvention(this.Schema) + this.EntityName + "Repository";
         }
         else
         {

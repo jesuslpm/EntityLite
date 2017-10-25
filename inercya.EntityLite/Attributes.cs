@@ -44,10 +44,13 @@ namespace inercya.EntityLite
 
         public string SequenceName { get; set; }
 
+        public int ProviderType { get; set; }
+
         public SqlFieldAttribute(DbType dbType, int size)
         {
             this.DbType = dbType;
             this.Size = size;
+            this.ProviderType = int.MaxValue;
         }
     }
 

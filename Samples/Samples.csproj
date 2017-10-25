@@ -166,10 +166,14 @@
     <None Include="EntityLite.ttinclude\EntityGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\EntityLite.ttinclude" />
     <None Include="EntityLite.ttinclude\EntitySetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\EnumGeneration.ttinclude" />
+    <None Include="EntityLite.ttinclude\EnumSetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\Extensions.ttinclude" />
     <None Include="EntityLite.ttinclude\JsonType.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\FieldMetadata.ttinclude" />
     <None Include="EntityLite.ttinclude\MemberVisibility.ttinclude" />
+    <None Include="EntityLite.ttinclude\TextTransform.ttinclude" />
     <None Include="EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
@@ -243,7 +247,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM COPY "$(ProjectDir)EntityLite.ttinclude\*.ttinclude" "$(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude\" /Y</PostBuildEvent>
+    <PostBuildEvent>COPY "$(ProjectDir)EntityLite.ttinclude\*.ttinclude" "$(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude\" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

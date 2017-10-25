@@ -37,6 +37,7 @@ public class DataLayerGeneration : IDisposable
 
     public List<EntitySetting> EntitySettings { get; set; }
     public List<ProcedureSetting> ProcedureSettings { get; set; }
+	public List<EnumSetting> EnumSettings {get; set;}
 	public JsonType JsonType { get; set; }
 
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
@@ -68,7 +69,7 @@ public class DataLayerGeneration : IDisposable
 	}
 
 
-    private DbConnection OpenConnection()
+    public DbConnection OpenConnection()
     {
         DbConnection cn = Factory.CreateConnection();
         cn.ConnectionString = this.ConnectionString;
@@ -108,7 +109,7 @@ public class DataLayerGeneration : IDisposable
 			}
 			else
 			{
-				this.ProceduresByFullEntityName = this.ProcedureSettings.ToListDictionary(x => EntitySetting.GetFullEntityName(x.RelatedEntityName, x.RelatedEntitySchema, DefaultSchema));
+				this.ProceduresByFullEntityName = Extensions.ToListDictionary(this.ProcedureSettings, x => EntitySetting.GetFullEntityName(x.RelatedEntityName, x.RelatedEntitySchema, DefaultSchema)); 
 			}
         }
         IList<ProcedureSetting> relatedProcedures = null;
@@ -193,10 +194,16 @@ public class DataLayerGeneration : IDisposable
             try
             {
                 cmd.CommandText = "SELECT * FROM " + this.EntityTypesTableName;
-                IList<EntityType> entityTypes;
+				IList<EntityType> entityTypes = new List<EntityType>();
                 using (var reader = cmd.ExecuteReader())
                 {
-                    entityTypes = reader.ToList<EntityType>();
+					while (reader.Read()) 
+					{
+						entityTypes.Add(new EntityType {
+							EntityTypeId = reader.GetInt32(0),
+							EntityTypeName = reader.GetString(1)
+						});
+					}
                 }
                 var entityTypesDic = entityTypes.ToDictionary(x => x.EntityTypeName);
                 insert.CommandText = "INSERT INTO " + this.EntityTypesTableName + "(" + EntityTypeNameColumnName + ") VALUES (@EntityTypeName); SELECT CONVERT(int, SCOPE_IDENTITY())";
@@ -280,12 +287,12 @@ public class DataLayerGeneration : IDisposable
 			case "MySql.Data.MySqlClient":
 				dynamic mySqlParam = Factory.CreateParameter();
 				Type mySqlDbTypeType = mySqlParam.MySqlDbType.GetType();
-				ObjectExtensions.SetPropertyValue(mySqlParam, "MySqlDbType", Enum.ToObject(mySqlDbTypeType, providerType));
+				Extensions.SetPropertyValue(mySqlParam, "MySqlDbType", Enum.ToObject(mySqlDbTypeType, providerType));
 				return (DbType) mySqlParam.DbType; 
 			case "Oracle.DataAccess.Client":
 				dynamic oracleParam = Factory.CreateParameter();
 				Type oracleDbTypeType = oracleParam.OracleDbType.GetType();
-				ObjectExtensions.SetPropertyValue(oracleParam, "OracleDbType", Enum.ToObject(oracleDbTypeType, providerType));
+				Extensions.SetPropertyValue(oracleParam, "OracleDbType", Enum.ToObject(oracleDbTypeType, providerType));
 				return (DbType) oracleParam.DbType; 
             default:
                 throw new NotSupportedException("provider " + ProviderName + " is not supported");
@@ -332,11 +339,11 @@ public class DataLayerGeneration : IDisposable
                         IsNullable = ((Type)row["DataType"]).IsValueType && (bool) row["AllowDBNull"],
                         IsReadOnly = (bool) row["IsReadOnly"] || readOnlyFields.Contains((string) row["ColumnName"]),
                         Precision = Convert.IsDBNull(row["NumericPrecision"]) ? (byte) 255 : Convert.ToByte(row["NumericPrecision"]),
-                        PropertyName = ((string)row["ColumnName"]).ToPascalNamingConvention(),
+                        PropertyName = Extensions.ToPascalNamingConvention(((string)row["ColumnName"])),
                         PropertyType = (Type)row["DataType"],
                         Scale = Convert.IsDBNull(row["NumericScale"]) ? (byte) 255 : Convert.ToByte(row["NumericScale"]),
-                        ColumnSize = (int) row["ColumnSize"]
-
+                        ColumnSize = (int) row["ColumnSize"],
+						ProviderType = IsOracleNationalCharacterType(row["ProviderType"]) ? (int?) Convert.ToInt32(row["ProviderType"]) : (int?) null
                     };
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
@@ -450,7 +457,7 @@ public class DataLayerGeneration : IDisposable
             using (DbDataReader reader = selectCommand.ExecuteReader(CommandBehavior.KeyInfo))
             {
                 var schema = reader.GetSchemaTable();
-				bool isProviderTypeInt = schema.Columns["ProviderType"].DataType == typeof(int);
+				bool isProviderTypeInt = schema.Columns["ProviderType"].DataType == typeof(int) || schema.Columns["ProviderType"].DataType.IsEnum;;
 				schema.Columns.Add("DbType", typeof(DbType));
                 var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
                 foreach (var row in hidden)
@@ -468,7 +475,7 @@ public class DataLayerGeneration : IDisposable
 					}
 					else if (isProviderTypeInt)
 					{
-						row["DbType"] = ToDbType( (int) row["ProviderType"]);
+						row["DbType"] = ToDbType( Convert.ToInt32( row["ProviderType"]));
 					}
 					else {
 						row["DbType"] =  ToDbType( (Type) row["DataType"]);
@@ -569,7 +576,7 @@ public class DataLayerGeneration : IDisposable
                     string viewSchema = Convert.IsDBNull(row[schemaColumn]) ? null : (string)row[schemaColumn];
                     string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;
                         
-                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(entity.EntityName.Transform(EntityNameToEntityViewTransform).ToLower() + "_"))
+                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(Extensions.Transform(entity.EntityName, EntityNameToEntityViewTransform).ToLower() + "_"))
                     {
                         views.Add(fullViewName);
 						rowsToDelete.Add(row);
@@ -633,7 +640,7 @@ public class DataLayerGeneration : IDisposable
 			  }
 			  Type paramType = DataLayerGeneration.GetTypeFromDbType(p.DbType);
 			  string paramTypeName = paramType.IsValueType ? paramType.Name + "?" : paramType.Name;
-			  string argumentName = sourceColumn.ToPascalNamingConvention().ToParameterName().EscapeKeyword();
+			  string argumentName = Extensions.EscapeKeyword(Extensions.ToParameterName(Extensions.ToPascalNamingConvention(sourceColumn)));
 			  paramDef = paramTypeName + " " + argumentName;
 
 			  if (p.Direction == ParameterDirection.Output)
@@ -681,9 +688,17 @@ FROM
 					using (var cmd = cn.CreateCommand())
 					{
 						cmd.CommandText = commandText;
+						Sequences = new Dictionary<string, Sequence>();
 						using (var reader = cmd.ExecuteReader()) 
 						{
-							Sequences = reader.ToEnumerable<Sequence>().ToDictionary(x => x.FullSequenceName, StringComparer.InvariantCultureIgnoreCase);
+							while(reader.Read())
+							{
+								var sequence = new Sequence {
+									SequenceSchema = reader.GetString(0),
+									SequenceName = reader.GetString(1)
+								};
+								Sequences.Add(sequence.FullSequenceName, sequence);
+							}
 						}
 					}
 				}
@@ -773,5 +788,37 @@ FROM
 
         return value;
     }
+
+		private Type _providerDbTypeType;
+	private Type ProviderDbTypeType  {
+		get {
+			if (_providerDbTypeType == null) {
+				switch (ProviderName)
+				{
+					case "System.Data.SqlClient":
+						_providerDbTypeType = typeof(SqlDbType); break;
+					case "System.Data.SQLite":
+						_providerDbTypeType = typeof(DbType); break;
+					case "MySql.Data.MySqlClient":
+						dynamic mySqlParam = Factory.CreateParameter();
+						_providerDbTypeType = mySqlParam.MySqlDbType.GetType();
+						break;
+					case "Oracle.DataAccess.Client":
+						dynamic oracleParam = Factory.CreateParameter();
+						_providerDbTypeType = oracleParam.OracleDbType.GetType();
+						break;
+					default:
+						throw new NotSupportedException("provider " + ProviderName + " is not supported");
+				}
+			}
+			return _providerDbTypeType;
+		}
+	} 
+
+	bool IsOracleNationalCharacterType(object providerType) {
+		if (ProviderName != "Oracle.DataAccess.Client") return false;
+		var providerDbTypeName = Enum.ToObject(ProviderDbTypeType, Convert.ToInt32(providerType)).ToString();
+		return providerDbTypeName == "NChar" || providerDbTypeName == "NVarchar2" || providerDbTypeName == "NClob";	
+	}
 }
 #>

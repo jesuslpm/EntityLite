@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inercya.EntityLite", "inerc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A632C4A4-E33E-4C29-A084-CA91A0C0E494}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -41,6 +42,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "Ent
 		nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\EnumGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EnumGeneration.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\EnumSetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EnumSetting.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\Extensions.ttinclude = nuget\Generators\content\EntityLite.ttinclude\Extensions.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\FieldMetadata.ttinclude = nuget\Generators\content\EntityLite.ttinclude\FieldMetadata.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\JsonType.ttinclude = nuget\Generators\content\EntityLite.ttinclude\JsonType.ttinclude
@@ -49,6 +53,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "Ent
 		nuget\Generators\content\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureResultSetKind.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\ProcedureSetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\ProcedureSetting.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\Sequence.ttinclude = nuget\Generators\content\EntityLite.ttinclude\Sequence.ttinclude
+		nuget\Generators\content\EntityLite.ttinclude\TextTransform.ttinclude = nuget\Generators\content\EntityLite.ttinclude\TextTransform.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude
 	EndProjectSection
 EndProject

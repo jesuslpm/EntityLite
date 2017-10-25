@@ -44,8 +44,28 @@ namespace Samples
         static NorthwindDataService ds;
         static Profiler profiler;
 
+        public enum MyEnum
+        {
+            None = 0,
+            Something = 1
+
+        }
+
         static void Main(string[] args)
         {
+            object o = MyEnum.Something;
+
+            var enumName = Enum.ToObject(typeof(MyEnum), (int)o).ToString();
+
+            Console.WriteLine(o.GetType().Name);
+
+            var t = new DataTable();
+            t.Columns.Add("Col1", typeof(MyEnum));
+            t.Rows.Add(o);
+
+            Console.WriteLine(t.Rows[0]["Col1"].GetType().Name);
+
+
 
             var encoding = Encoding.GetEncoding("iso-8859-1");
             var doc = new XDocument(
@@ -95,28 +115,28 @@ namespace Samples
 
                 //JsonTest().Wait();
                 //DbChangeNumberTest();
-                SynonymTest();
+                //SynonymTest();
             }
             profiler.StopProfiling();
             Console.WriteLine("Press enter to exit ...");
             Console.ReadLine();
         }
 
-        static void SynonymTest()
-        {
+        //static void SynonymTest()
+        //{
 
-            var elem = new Entities.Tools.Element
-            {
-                Name = "Some name"
-            };
+        //    var elem = new Entities.Tools.Element
+        //    {
+        //        Name = "Some name"
+        //    };
 
-            ds.ToolsElementRepository.Insert(elem);
+        //    ds.ToolsElementRepository.Insert(elem);
 
-            elem.Name = "Anoher Name";
-            ds.ToolsElementRepository.Update(elem);
+        //    elem.Name = "Anoher Name";
+        //    ds.ToolsElementRepository.Update(elem);
 
-            ds.ToolsElementRepository.Delete(elem);
-        }
+        //    ds.ToolsElementRepository.Delete(elem);
+        //}
 
 
         static void DbChangeNumberTest()
