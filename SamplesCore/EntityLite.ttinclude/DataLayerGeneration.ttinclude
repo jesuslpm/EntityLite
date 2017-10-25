@@ -342,8 +342,8 @@ public class DataLayerGeneration : IDisposable
                         PropertyName = Extensions.ToPascalNamingConvention(((string)row["ColumnName"])),
                         PropertyType = (Type)row["DataType"],
                         Scale = Convert.IsDBNull(row["NumericScale"]) ? (byte) 255 : Convert.ToByte(row["NumericScale"]),
-                        ColumnSize = (int) row["ColumnSize"]
-
+                        ColumnSize = (int) row["ColumnSize"],
+						ProviderType = IsOracleNationalCharacterType(row["ProviderType"]) ? (int?) Convert.ToInt32(row["ProviderType"]) : (int?) null
                     };
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
@@ -457,7 +457,7 @@ public class DataLayerGeneration : IDisposable
             using (DbDataReader reader = selectCommand.ExecuteReader(CommandBehavior.KeyInfo))
             {
                 var schema = reader.GetSchemaTable();
-				bool isProviderTypeInt = schema.Columns["ProviderType"].DataType == typeof(int);
+				bool isProviderTypeInt = schema.Columns["ProviderType"].DataType == typeof(int) || schema.Columns["ProviderType"].DataType.IsEnum;;
 				schema.Columns.Add("DbType", typeof(DbType));
                 var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
                 foreach (var row in hidden)
@@ -475,7 +475,7 @@ public class DataLayerGeneration : IDisposable
 					}
 					else if (isProviderTypeInt)
 					{
-						row["DbType"] = ToDbType( (int) row["ProviderType"]);
+						row["DbType"] = ToDbType( Convert.ToInt32( row["ProviderType"]));
 					}
 					else {
 						row["DbType"] =  ToDbType( (Type) row["DataType"]);
@@ -788,5 +788,37 @@ FROM
 
         return value;
     }
+
+		private Type _providerDbTypeType;
+	private Type ProviderDbTypeType  {
+		get {
+			if (_providerDbTypeType == null) {
+				switch (ProviderName)
+				{
+					case "System.Data.SqlClient":
+						_providerDbTypeType = typeof(SqlDbType); break;
+					case "System.Data.SQLite":
+						_providerDbTypeType = typeof(DbType); break;
+					case "MySql.Data.MySqlClient":
+						dynamic mySqlParam = Factory.CreateParameter();
+						_providerDbTypeType = mySqlParam.MySqlDbType.GetType();
+						break;
+					case "Oracle.DataAccess.Client":
+						dynamic oracleParam = Factory.CreateParameter();
+						_providerDbTypeType = oracleParam.OracleDbType.GetType();
+						break;
+					default:
+						throw new NotSupportedException("provider " + ProviderName + " is not supported");
+				}
+			}
+			return _providerDbTypeType;
+		}
+	} 
+
+	bool IsOracleNationalCharacterType(object providerType) {
+		if (ProviderName != "Oracle.DataAccess.Client") return false;
+		var providerDbTypeName = Enum.ToObject(ProviderDbTypeType, Convert.ToInt32(providerType)).ToString();
+		return providerDbTypeName == "NChar" || providerDbTypeName == "NVarchar2" || providerDbTypeName == "NClob";	
+	}
 }
 #>

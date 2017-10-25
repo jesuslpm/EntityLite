@@ -150,13 +150,16 @@ namespace inercya.EntityLite.Builders
 
         private void AddModifiedFieldsPredicateToToUpdateWhereClause(IEnumerable<string> fieldsToUpdate, EntityMetadata entityMetadata, StringBuilder commandText)
         {
-            bool firstTime = true;
-            commandText.Append("\n    AND (");
+            var propertiesMetadata = new List<PropertyMetadata>();
             foreach (var propertyName in fieldsToUpdate)
             {
                 PropertyMetadata propMetadata = null;
                 if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
                 SqlFieldAttribute field = propMetadata.SqlField;
+                if ((field.Size == Int32.MaxValue) && (DataService.EntityLiteProvider is inercya.EntityLite.Providers.OracleEntityLiteProvider))
+                {
+                    return;
+                }
                 if (!field.IsKey
                     && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
                     && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
@@ -166,27 +169,37 @@ namespace inercya.EntityLite.Builders
                     && !string.Equals(propertyName, DataService.SpecialFieldNames.DbChangeNumberFieldName, StringComparison.InvariantCultureIgnoreCase)
                     )
                 {
-                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
-                    string fieldName = this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote;
-                    commandText.Append("\n        ");
-                    if (firstTime) firstTime = false;
-                    else commandText.Append("OR ");
-                    if (propMetadata.SqlField.DbType == DbType.Xml)
-                    {
-                        commandText.Append("CAST (").Append(fieldName).Append(" AS nvarchar(max))");
-                        commandText.Append(" <> ");
-                        commandText.Append("CAST (").Append(parameterName).Append(" AS nvarchar(max))");
-                    }
-                    else 
-                    {
-                        commandText.Append(fieldName).Append(" <> ").Append(parameterName);
-                    }
-                    commandText.Append(" OR ").Append(fieldName).Append(" IS NULL AND ").Append(parameterName).Append(" IS NOT NULL")
-                        .Append(" OR ").Append(fieldName).Append(" IS NOT NULL AND ").Append(parameterName).Append(" IS NULL");
+                    propertiesMetadata.Add(propMetadata);
                 }
             }
+
+            bool firstTime = true;
+            commandText.Append("\n    AND (");
+
+            foreach (var propMetadata in propertiesMetadata)
+            {
+                SqlFieldAttribute field = propMetadata.SqlField;
+                string propertyName = propMetadata.PropertyInfo.Name;
+                string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
+                string fieldName = this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote;
+                commandText.Append("\n        ");
+                if (firstTime) firstTime = false;
+                else commandText.Append("OR ");
+                if (propMetadata.SqlField.DbType == DbType.Xml)
+                {
+                    commandText.Append("CAST (").Append(fieldName).Append(" AS nvarchar(max))");
+                    commandText.Append(" <> ");
+                    commandText.Append("CAST (").Append(parameterName).Append(" AS nvarchar(max))");
+                }
+                else
+                {
+                    commandText.Append(fieldName).Append(" <> ").Append(parameterName);
+                }
+                commandText.Append(" OR ").Append(fieldName).Append(" IS NULL AND ").Append(parameterName).Append(" IS NOT NULL")
+                    .Append(" OR ").Append(fieldName).Append(" IS NOT NULL AND ").Append(parameterName).Append(" IS NULL");
+            }
             commandText.Append("\n    )");
-            
+
         }
 
         private void GenerateUpdateWhereClauseWithPrimaryKeyAndEntityRowVersion(object entity, EntityMetadata entityMetadata, IPropertyGetterDictionary getters, DbCommand cmd, StringBuilder commandText, bool hasEntityRowVersionField)
@@ -413,32 +426,36 @@ namespace inercya.EntityLite.Builders
 			string parameterName = DataService.EntityLiteProvider.ParameterPrefix + fieldName;
 			IDbDataParameter parameter = DataService.DbProviderFactory.CreateParameter();
 			parameter.ParameterName = parameterName;
-			Type propertyType = property.PropertyInfo.PropertyType.UndelyingType();
+            parameter.SourceColumn = fieldName;
+            Type propertyType = property.PropertyInfo.PropertyType.UndelyingType();
             
 			if (typeof(System.Data.SqlTypes.INullable).IsAssignableFrom(propertyType))
 			{
 				parameter.DbType = DbType.String;
-				//if (propertyType == typeof(Microsoft.SqlServer.Types.SqlHierarchyId))
-				//{
-				//	parameter.Size = 4000;
-				//}
-				//else
-				//{
-				//	parameter.Size = 1073741823;
-				//}
-                parameter.Size = 1073741823;
+                if (propertyType.FullName == "Microsoft.SqlServer.Types.SqlHierarchyId")
+                {
+                    parameter.Size = 4000;
+                }
+                else
+                {
+                    parameter.Size = 1073741823;
+                }
                 return parameter;
 			}
             if (field.DbType == DbType.Time && parameter is System.Data.SqlClient.SqlParameter)
             {
                 ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType = SqlDbType.Time;
             }
+            else if (field.ProviderType != int.MaxValue)
+            {
+                DataService.EntityLiteProvider.SetProviderTypeToParameter(parameter, field.ProviderType);
+            }
             else
             {
                 parameter.DbType = field.DbType;
             }
 			parameter.Size = field.Size;
-			parameter.SourceColumn = fieldName;
+			
 			if (field.Precision != 255 && field.Precision != 0)
 			{
 				parameter.Precision = field.Precision;

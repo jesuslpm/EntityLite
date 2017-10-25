@@ -132,8 +132,7 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
 #>
 		private <#= field.PropertyTypeName #> <#= fieldName #>;
 		[DataMember]
-		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #><#= field.Precision == 0 || field.Precision == 255 ? string.Empty : ", Precision = " + field.Precision.ToString() #><#= field.Scale == 0 || field.Scale == 255 ? string.Empty : ", Scale=" + field.Scale.ToString() #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.SequenceName == null ? string.Empty : ", SequenceName = \"" + field.SequenceName + "\"" #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #><#= field.ColumnName == null ? string.Empty : ", ColumnName =\"" + field.ColumnName + "\"" #><#= field.BaseColumnName == null ? string.Empty : ", BaseColumnName =\"" + field.BaseColumnName + "\"" #><#= field.BaseTableName == null ? string.Empty : ", BaseTableName = \"" + field.BaseTableName + "\"" #> )]
-		public <#= field.PropertyTypeName #> <#= propertyName #> 
+		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #><#= field.Precision == 0 || field.Precision == 255 ? string.Empty : ", Precision = " + field.Precision.ToString() #><#= field.Scale == 0 || field.Scale == 255 ? string.Empty : ", Scale=" + field.Scale.ToString() #><#= field.ProviderType.HasValue ? ", ProviderType=" + field.ProviderType.Value.ToString() : string.Empty #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.SequenceName == null ? string.Empty : ", SequenceName = \"" + field.SequenceName + "\"" #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #><#= field.ColumnName == null ? string.Empty : ", ColumnName =\"" + field.ColumnName + "\"" #><#= field.BaseColumnName == null ? string.Empty : ", BaseColumnName =\"" + field.BaseColumnName + "\"" #><#= field.BaseTableName == null ? string.Empty : ", BaseTableName = \"" + field.BaseTableName + "\"" #> )]		public <#= field.PropertyTypeName #> <#= propertyName #> 
 		{ 
 		    get { return <#= fieldName #>; } 
 			set 
@@ -275,9 +274,12 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 void RenderProcedureAsyncMethodInRepository(DataLayerGeneration generation, EntitySetting entity, ProcedureSetting procedure)
 {
 	var proc = generation.GetProcedure(procedure);
+	if (proc.Parameters.Cast<IDbDataParameter>().Any( x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output && x.Direction != ParameterDirection.ReturnValue)) {
+	 return;
+	}
 	string returnTypeName = procedure.GetReturnTypeName(entity.EntityName);
 	string parametersDefinition = DataLayerGeneration.GetProcedureParametersDefinition(proc);
-	string methodReturnTypeName = returnTypeName == "void" ? "Task" : "Task<" + returnTypeName + ">";
+	string methodReturnTypeName = returnTypeName == "void" ? "System.Threading.Tasks.Task" : "System.Threading.Tasks.Task<" + returnTypeName + ">";
 #>
 
 		<#= procedure.MemberVisibility.ToString().ToLower() #> async <#= methodReturnTypeName #> <#= Extensions.ToPascalNamingConvention(procedure.ProcedureName) #>Async(<#= parametersDefinition #>)
@@ -449,37 +451,37 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 		}
 		// asyncrhonous methods
 
-		public Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>)
+		public System.Threading.Tasks.Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projectionName, <#=primaryKeyParameterName #>, FetchMode.UseIdentityMap);
 		}
 
-		public Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projectionName, <#=primaryKeyParameterName #>, fetchMode);
 		}
 
-		public Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>)
+		public System.Threading.Tasks.Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projection, <#=primaryKeyParameterName #>, FetchMode.UseIdentityMap);
 		}
 
-		public Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public System.Threading.Tasks.Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projection, <#=primaryKeyParameterName #>, fetchMode);
 		}
 
-		public Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, params string[] fields)
+		public System.Threading.Tasks.Task<<#= entity.EntityName #>> GetAsync(string projectionName, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, params string[] fields)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projectionName, <#=primaryKeyParameterName #>, fields);
 		}
 
-		public Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, params string[] fields)
+		public System.Threading.Tasks.Task<<#= entity.EntityName #>> GetAsync(Projection projection, <#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>, params string[] fields)
 		{
 			return ((IRepository<<#= entity.EntityName #>>)this).GetAsync(projection, <#=primaryKeyParameterName #>, fields);
 		}
 
-		public Task<bool> DeleteAsync(<#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>)
+		public System.Threading.Tasks.Task<bool> DeleteAsync(<#=primaryKeyField.PropertyType.ToString() #> <#=primaryKeyParameterName #>)
 		{
 			var entity = new <#= entity.EntityName #> { <#=primaryKeyField.PropertyName #> = <#=primaryKeyParameterName #> };
 			return this.DeleteAsync(entity);

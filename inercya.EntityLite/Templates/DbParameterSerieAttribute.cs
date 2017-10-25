@@ -37,6 +37,8 @@ namespace inercya.EntityLite.Templates
 
         public byte Scale { get; set; }
 
+        public int ProviderType { get; set; }
+
         public DbParameterSerieAttribute()
         {
             Direction = ParameterDirection.Input;

@@ -38,7 +38,7 @@ namespace inercya.EntityLite.Builders
         {
             ISqlTemplate template = ((ITemplatedQueryLite)this.QueryLite).Template;
             string parameterPrefix = this.QueryLite.DataService.EntityLiteProvider.ParameterPrefix;
-            template.AddParametersToCommand(selectCommand, parameterPrefix);
+            template.AddParametersToCommand(selectCommand, this.QueryLite.DataService);
             if (string.IsNullOrEmpty(sql))
             {
                 sql = "(\n" + template.GetSql(parameterPrefix) + "\n) TQ";

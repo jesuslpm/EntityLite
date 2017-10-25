@@ -39,15 +39,15 @@ namespace inercya.EntityLite
         public bool AllowNull { get; set; }
         public string BaseColumnName { get; set; }
         public string BaseTableName { get; set; }
-
         public string ColumnName { get; set; }
-
         public string SequenceName { get; set; }
+        public int ProviderType { get; set; }
 
         public SqlFieldAttribute(DbType dbType, int size)
         {
             this.DbType = dbType;
             this.Size = size;
+            this.ProviderType = int.MaxValue;
         }
     }
 

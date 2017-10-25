@@ -17,6 +17,7 @@ limitations under the License.
 using inercya.EntityLite.Builders;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -46,5 +47,6 @@ namespace inercya.EntityLite.Providers
 
         string GetNextValExpression(string fullSequenceName);
 
+        void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType);
     }
 }

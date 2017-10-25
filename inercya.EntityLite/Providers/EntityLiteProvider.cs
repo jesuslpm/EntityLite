@@ -21,6 +21,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
+using System.Data;
 
 namespace inercya.EntityLite.Providers
 {
@@ -152,5 +153,11 @@ namespace inercya.EntityLite.Providers
         {
             return this.DataService.Connection.CreateCommand();
         }
+
+        public virtual void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

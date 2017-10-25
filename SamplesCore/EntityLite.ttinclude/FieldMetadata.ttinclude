@@ -33,6 +33,7 @@ public class FieldMetadata
     public bool IsLocalizedField { get; set; }
 	public string SequenceName { get; set;}
 	public string PropertyTypeName { get; set;}
+	public int? ProviderType {get; set;}
 
     public string FullTableName(string quotePrefix, string quoteSufix)
     {
