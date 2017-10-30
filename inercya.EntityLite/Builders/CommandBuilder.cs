@@ -520,11 +520,11 @@ namespace inercya.EntityLite.Builders
 			{
 				if (entity == null)
 				{
-					Log.LogError(ex, "Error generating delete command", ex);
+					Log.LogError(ex, "Error generating delete command");
 				}
 				else
 				{
-					Log.LogError(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"), ex);
+					Log.LogError(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"));
 				}
 				throw;
 			}

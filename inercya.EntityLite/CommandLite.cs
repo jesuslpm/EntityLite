@@ -141,7 +141,7 @@ namespace inercya.EntityLite
             {
                 if (command == null)
                 {
-                    Log.LogError(ex, "Couldn't get data reader from command", ex);
+                    Log.LogError(ex, "Couldn't get data reader from command");
                 }
                 else
                 {
@@ -194,7 +194,7 @@ namespace inercya.EntityLite
             {
                 if (command == null)
                 {
-                    Log.LogError(ex, "Couldn't get data reader from command", ex);
+                    Log.LogError(ex, "Couldn't get data reader from command");
                 }
                 else
                 {
@@ -242,7 +242,7 @@ namespace inercya.EntityLite
             {
                 if (command == null)
                 {
-                    Log.LogError(ex, "Couldn't get data reader from command", ex);
+                    Log.LogError(ex, "Couldn't get data reader from command");
                 }
                 else
                 {

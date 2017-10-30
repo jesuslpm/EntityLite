@@ -1,22 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.0.0-beta1</Version>
-    <Description>A lightweight, database first, micro ORM</Description>
+    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
+    <Version>2.0.0</Version>
+    <Description></Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EntityLite.Core</PackageId>
     <RootNamespace>inercya.EntityLite</RootNamespace>
-    <Authors>Jesús López</Authors>
-    <Company>i-nercya intelligent software</Company>
-    <Product>EntityLite.Core</Product>
-    <Copyright>Copyright  2017</Copyright>
-    <PackageIconUrl>http://www.i-nercya.com/EntityLite.png</PackageIconUrl>
-    <PackageProjectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
-    <PackageTags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</PackageTags>
-    <RepositoryUrl>https://github.com/jesuslpm/EntityLite</RepositoryUrl>
+    <Authors></Authors>
+    <Company></Company>
+    <Product></Product>
+    <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,12 +28,18 @@
     <EmbeddedResource Include="SqliteProfiler\EntityLiteProfile.db" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+    <Reference Include="System.Configuration" />
+    <PackageReference Include="NLog" Version="4.4.12" />
+
   </ItemGroup>
 
   <ItemGroup>
@@ -55,7 +62,8 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\netstandard2.0 /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\netstandard2.0 /Y" />
+    <Exec Condition="'$(TargetFramework)'=='netstandard2.0'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\netstandard2.0 /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\netstandard2.0 /Y" />
+    <Exec Condition="'$(TargetFramework)'=='net452'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\net452 /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\net452 /Y" />
   </Target>
 
 </Project>

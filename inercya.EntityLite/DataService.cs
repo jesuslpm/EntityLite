@@ -227,7 +227,6 @@ namespace inercya.EntityLite
             }
         }
 
-        //private static CacheLite<string, DbProviderFactory> providerFactoriesCache;
 
         private IIdentityMap _identityMap;
 
@@ -250,8 +249,6 @@ namespace inercya.EntityLite
 
         static DataService()
         {
-            // Esta línea se ha quitado temporalmente hasta que se implemente DbProviderFactories en .net standard
-            //providerFactoriesCache = new CacheLite<string, DbProviderFactory>(providerName => DbProviderFactories.GetFactory(providerName));
             EntityLiteProviderFactories.Add(SqlServerEntityLiteProvider.ProviderName, (ds) => new SqlServerEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(SqliteEntityLiteProvider.ProviderName, (ds) => new SqliteEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(MySqlEntityLiteProvider.ProviderName, (ds) => new MySqlEntityLiteProvider(ds));
@@ -270,8 +267,6 @@ namespace inercya.EntityLite
                     {
                         throw new InvalidOperationException("The ProviderName property of the data service has not been set. Please check the connection string \"" + this.ConnectionStringName + "\" in the configuration file exists and includes the attribute ProviderName");
                     }
-                    // Esta línea se ha sustituido temporalmente por la siguiente hasta que se implemente DbProviderFactories en .net standard
-                    //_dbProviderFactory = providerFactoriesCache.GetItem(this.ProviderName);
                     _dbProviderFactory = ConfigurationLite.DbProviderFactories.Get(this.ProviderName);
                 }
                 return _dbProviderFactory;
@@ -527,7 +522,14 @@ namespace inercya.EntityLite
             return affectedRecords > 0;
         }
 
-        private (bool IsSet, object PreviousValue) TrySetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata)
+
+        internal struct SetAuditObjectResult
+        {
+            public bool IsSet;
+            public object PreviousValue;
+        }
+
+        private SetAuditObjectResult  TrySetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             object previousValue = null;
@@ -537,15 +539,15 @@ namespace inercya.EntityLite
             }
             if (string.IsNullOrEmpty(fieldName) || !entityMetadata.Setters.TryGetValue(fieldName, out PropertySetter setter))
             {
-                return (false, previousValue);
+                return new SetAuditObjectResult { IsSet = false, PreviousValue = previousValue };
             }
             object currentUserId = this.CurrentUserId;
-            if (currentUserId == null) return (false, previousValue);
+            if (currentUserId == null) return  new SetAuditObjectResult { IsSet = false, PreviousValue = previousValue };
             setter(entity, currentUserId);
-            return (true, previousValue);
+            return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue }; ;
         }
 
-        private async Task<(bool IsSet, object PreviousValue)> TrySetAuditUserAsync(string fieldName, object entity, EntityMetadata entityMetadata)
+        private async Task<SetAuditObjectResult> TrySetAuditUserAsync(string fieldName, object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             object previousValue = null;
@@ -555,15 +557,15 @@ namespace inercya.EntityLite
             }
             if (string.IsNullOrEmpty(fieldName) || !entityMetadata.Setters.TryGetValue(fieldName, out PropertySetter setter))
             {
-                return (false, previousValue);
+                return new SetAuditObjectResult { IsSet = false, PreviousValue = previousValue };
             }
             object currentUserId = await this.GetCurrentUserIdAsync().ConfigureAwait(false);
-            if (currentUserId == null) return (false, previousValue);
+            if (currentUserId == null) return new SetAuditObjectResult { IsSet = false, PreviousValue = previousValue }; ;
             setter(entity, currentUserId);
-            return (true, previousValue);
+            return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue };
         }
 
-        private (bool IsSet, object PreviousValue) TrySetAuditDate(string fieldName, object entity, EntityMetadata metadata)
+        private SetAuditObjectResult TrySetAuditDate(string fieldName, object entity, EntityMetadata metadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             object previousValue = null;
@@ -604,9 +606,9 @@ namespace inercya.EntityLite
                 {
                     throw new NotSupportedException("The field \"" + fieldName + "\" is of an unsuported type " + type.Name);
                 }
-                return (true, previousValue);
+                return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue };
             }
-            return (false, previousValue);
+            return new SetAuditObjectResult { IsSet = false, PreviousValue = previousValue };
         }
 
 
@@ -843,18 +845,17 @@ namespace inercya.EntityLite
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
-            bool isModifiedBySet = false;
-            bool isModifiedDateSet = false;
-            object previousModifiedBy = null;
-            object previousModifiedDate = null;
+
+            SetAuditObjectResult previousModifiedBy = default(SetAuditObjectResult);
+            SetAuditObjectResult previousModifiedDate = default(SetAuditObjectResult);
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                (isModifiedBySet, previousModifiedBy) = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+                previousModifiedBy = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                (isModifiedDateSet, previousModifiedDate) = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
+                previousModifiedDate = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
             }
             var cmd = new CommandExecutor(this, false)
             {
@@ -869,8 +870,8 @@ namespace inercya.EntityLite
             {
                 if (affectedRecords == 0)
                 {
-                    if (isModifiedBySet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy);
-                    if (isModifiedDateSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate);
+                    if (previousModifiedBy.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy.PreviousValue);
+                    if (previousModifiedDate.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate.PreviousValue);
 
                     if (!hasEntityRowVersion) freshEntity = GeByPrimaryKeyIncludingJustPkAndRowVersionFields(entityType, entity);
                     if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
@@ -902,25 +903,23 @@ namespace inercya.EntityLite
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
-            bool isModifiedBySet = false;
-            bool isModifiedDateSet = false;
-            object previousModifiedBy = null;
-            object previousModifiedDate = null;
+            SetAuditObjectResult previousModifiedBy = default(SetAuditObjectResult);
+            SetAuditObjectResult previousModifiedDate = default(SetAuditObjectResult);
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
-                    (isModifiedBySet, previousModifiedBy) = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+                     previousModifiedBy = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
                 }
                 else
                 {
-                    (isModifiedBySet, previousModifiedBy) = await TrySetAuditUserAsync(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata).ConfigureAwait(false);
+                    previousModifiedBy = await TrySetAuditUserAsync(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata).ConfigureAwait(false);
                 }
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                (isModifiedDateSet, previousModifiedDate) = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
+                previousModifiedDate = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
             }
             var cmd = new CommandExecutor(this, false)
             {
@@ -935,8 +934,8 @@ namespace inercya.EntityLite
             {
                 if (affectedRecords == 0)
                 {
-                    if (isModifiedBySet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy);
-                    if (isModifiedDateSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate);
+                    if (previousModifiedBy.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy.PreviousValue);
+                    if (previousModifiedDate.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate.PreviousValue);
 
                     if (!hasEntityRowVersion) freshEntity = await GeByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(entityType, entity).ConfigureAwait(false);
                     if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
