@@ -63,7 +63,7 @@ namespace inercya.EntityLite.Builders
         };
 
 
-        private static readonly MethodInfo IsDbNullMethodInfo = typeof(IDataRecord).GetTypeInfo().GetMethod("IsDBNull");
+        private static readonly MethodInfo IsDbNullMethodInfo = typeof(IDataRecord).GetMethod("IsDBNull");
 
         private static MethodInfo GetGetDataReaderMethodForFieldType(Type fieldType)
         {

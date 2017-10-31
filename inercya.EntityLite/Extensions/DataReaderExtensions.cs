@@ -22,7 +22,9 @@ using System.Data;
 //using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Collections;
+#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
+#endif
 using System.Data.Common;
 //using Newtonsoft.Json.Linq;
 
@@ -188,6 +190,7 @@ namespace inercya.EntityLite.Extensions
             }
 		}
 
+#if (NET452 || NETSTANDARD2_0)
         public static async Task<IList<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
         {
             if (reader == null) throw new ArgumentNullException("reader");
@@ -209,6 +212,7 @@ namespace inercya.EntityLite.Extensions
                 onEnumerationCompleted?.Invoke();
             }
         }
+#endif
 
 
         [Obsolete("Use ToList instead")]

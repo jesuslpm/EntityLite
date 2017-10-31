@@ -1,20 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <Version>2.0.0</Version>
-    <Description></Description>
+    <TargetFrameworks>net35;net452;netstandard2.0</TargetFrameworks>
+    <Version>2.1.0</Version>
+    <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EntityLite.Core</PackageId>
     <RootNamespace>inercya.EntityLite</RootNamespace>
-    <Authors></Authors>
-    <Company></Company>
-    <Product></Product>
+    <Authors>Jesús López</Authors>
+    <Company>i-nercya</Company>
+    <Product>i-nercya EntityLite</Product>
     <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <DelaySign>false</DelaySign>
@@ -39,7 +45,11 @@
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
     <Reference Include="System.Configuration" />
     <PackageReference Include="NLog" Version="4.4.12" />
+  </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)'=='net35'">
+    <Reference Include="System.Configuration" />
+    <PackageReference Include="NLog" Version="4.4.12" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,8 +72,8 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition="'$(TargetFramework)'=='netstandard2.0'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\netstandard2.0 /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\netstandard2.0 /Y" />
-    <Exec Condition="'$(TargetFramework)'=='net452'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\net452 /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\net452 /Y" />
+    <Exec Condition="'$(TargetFramework)'=='netstandard2.0'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\netstandard2.0\ /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\netstandard2.0\ /Y" />
+    <Exec Condition="'$(TargetFramework)'=='net452'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\net452\ /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\net452\ /Y" />
+    <Exec Condition="'$(TargetFramework)'=='net35'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\net35\ /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\net35\ /Y" />
   </Target>
-
 </Project>

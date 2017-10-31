@@ -46,10 +46,7 @@ public void RenderEnumType(DataLayerGeneration generation, EnumSetting enumSetti
 	if (string.IsNullOrEmpty(enumSetting.TypeName)) {
 		enumSetting.TypeName = Extensions.ToPascalNamingConvention(enumSetting.IdField);
 	}
-	if (generation.GenerateTypeScript) {
 #>
-	[TypeScript] 
-<#+ } #>
 	public enum <#= Extensions.EscapeKeyword(enumSetting.TypeName) #>
 	{
 <#+ using (var cn = generation.OpenConnection())

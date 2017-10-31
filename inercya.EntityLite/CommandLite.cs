@@ -23,7 +23,9 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Diagnostics;
+#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
+#endif
 using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
@@ -70,16 +72,6 @@ namespace inercya.EntityLite
             });
         }
 
-        public Task<int> ExecuteNonQueryAsync()
-        {
-           return this.ExecuteCommandAsync(async (cmd) =>
-           {
-               var returnValue = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-               SetOutPutParameters(cmd);
-               return returnValue;
-           });
-        }
-
         public object ExecuteScalar()
         {
             return this.ExecuteCommand(cmd =>
@@ -90,24 +82,9 @@ namespace inercya.EntityLite
             });
         }
 
-        public Task<object> ExecuteScalarAsync()
-        {
-            return this.ExecuteCommandAsync(async (cmd) =>
-            {
-                var returnValue = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
-                SetOutPutParameters(cmd);
-                return returnValue;
-            });
-        }
-
         public IDataReader ExecuteReader()
         {
             return this.ExecuteCommand(cmd => cmd.ExecuteReader());
-        }
-
-        public Task<DbDataReader> ExecuteReaderAsync()
-        {
-            return this.ExecuteCommandAsync(cmd => cmd.ExecuteReaderAsync());
         }
 
         protected abstract void SetOutPutParameters(DbCommand command);
@@ -115,11 +92,6 @@ namespace inercya.EntityLite
         public T FirstOrDefault<T>() where T : class, new()
         {
             return this.ToEnumerable<T>().FirstOrDefault();
-        }
-
-        public async Task<T> FirstOrDefaultAsync<T>() where T : class, new()
-        {
-            return (await this.ToEnumerableAsync<T>().ConfigureAwait(false)).FirstOrDefault();
         }
 
         public IEnumerable<T> ToEnumerable<T>() where T : class, new()
@@ -174,6 +146,99 @@ namespace inercya.EntityLite
             Log.LogInformation("Command completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
+        public IList<T> ToList<T>() where T : class, new()
+        {
+            return this.ToEnumerable<T>().ToList();
+        }
+
+        private DbCommand ConfigureCommand()
+        {
+            var command = GetCommand();
+            command.Connection = this.DataService.Connection;
+            if (this.CommandTimeout >= 0) command.CommandTimeout = this.CommandTimeout;
+            else if (this.DataService.CommandTimeout >= 0) command.CommandTimeout = this.DataService.CommandTimeout;
+            if (DataService.IsActiveTransaction)
+            {
+                command.Transaction = DataService.Transaction;
+            }
+            return command;
+        }
+
+        private DbCommand ConfigureCommandAndOpenConnection()
+        {
+            var cmd = ConfigureCommand();
+            this.DataService.OpenConnection();
+            return cmd;
+        }
+
+        private T ExecuteCommand<T>(Func<DbCommand, T> executeCommandFunc)
+        {
+            DbCommand command = null;
+            try
+            {
+                int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
+                command = ConfigureCommandAndOpenConnection();
+                Func<T> func = () =>
+                {
+                    return executeCommandFunc(command);
+                };
+                var watch = Stopwatch.StartNew();
+                var result = func.ExecuteWithRetries(
+                        maxRetries, DataService.InitialMillisecondsRetryDelay,
+                        (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
+                LogCommandExecution(command, watch.Elapsed);
+                ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                if (command == null)
+                {
+                    Log.LogError(ex, "Couldn't execute command");
+                }
+                else
+                {
+                    Log.LogError(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                }
+                throw;
+            }
+            finally
+            {
+                if (command != null && DisposeCommand) command.Dispose();
+            }
+        }
+
+#if NET452 || NETSTANDARD2_0
+        public Task<int> ExecuteNonQueryAsync()
+        {
+           return this.ExecuteCommandAsync(async (cmd) =>
+           {
+               var returnValue = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+               SetOutPutParameters(cmd);
+               return returnValue;
+           });
+        }
+
+        public Task<object> ExecuteScalarAsync()
+        {
+            return this.ExecuteCommandAsync(async (cmd) =>
+            {
+                var returnValue = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                SetOutPutParameters(cmd);
+                return returnValue;
+            });
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync()
+        {
+            return this.ExecuteCommandAsync(cmd => cmd.ExecuteReaderAsync());
+        }
+
+        public async Task<T> FirstOrDefaultAsync<T>() where T : class, new()
+        {
+            return (await this.ToEnumerableAsync<T>().ConfigureAwait(false)).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<T>> ToEnumerableAsync<T>() where T : class, new()
         {
             DbCommand command = null;
@@ -215,11 +280,6 @@ namespace inercya.EntityLite
                     if (DisposeCommand && command != null) command.Dispose();
                 }
             });
-        }
-
-        public IList<T> ToList<T>() where T : class, new()
-        {
-            return this.ToEnumerable<T>().ToList();
         }
 
         public async Task<IList<T>> ToListAsync<T>() where T : class, new()
@@ -265,27 +325,6 @@ namespace inercya.EntityLite
             }).ConfigureAwait(false);
         }
 
-
-        private DbCommand ConfigureCommand()
-        {
-            var command = GetCommand();
-            command.Connection = this.DataService.Connection;
-            if (this.CommandTimeout >= 0) command.CommandTimeout = this.CommandTimeout;
-            else if (this.DataService.CommandTimeout >= 0) command.CommandTimeout = this.DataService.CommandTimeout;
-            if (DataService.IsActiveTransaction)
-            {
-                command.Transaction = DataService.Transaction;
-            }
-            return command;
-        }
-
-        private DbCommand ConfigureCommandAndOpenConnection()
-        {
-            var cmd = ConfigureCommand();
-            this.DataService.OpenConnection();
-            return cmd;
-        }
-
         private async Task<DbCommand> ConfigureCommandAndOpenConnectionAsync()
         {
             var cmd = ConfigureCommand();
@@ -293,7 +332,7 @@ namespace inercya.EntityLite
             return cmd;
         }
 
-        private async Task<T> ExecuteCommandAsync<T>(Func<DbCommand, Task<T>> executeCommandAsyncFunc)
+               private async Task<T> ExecuteCommandAsync<T>(Func<DbCommand, Task<T>> executeCommandAsyncFunc)
         {
             DbCommand command = null;
             try
@@ -327,43 +366,7 @@ namespace inercya.EntityLite
                 if (command != null && DisposeCommand) command.Dispose();
             }
         }
-
-        private T ExecuteCommand<T>(Func<DbCommand, T> executeCommandFunc)
-        {
-            DbCommand command = null;
-            try
-            {
-                int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = ConfigureCommandAndOpenConnection();
-                Func<T> func = () =>
-                {
-                    return executeCommandFunc(command);
-                };
-                var watch = Stopwatch.StartNew();
-                var result = func.ExecuteWithRetries(
-                        maxRetries, DataService.InitialMillisecondsRetryDelay,
-                        (ex, willRetry) => DataService.NotifyErrorOcurred(ex, willRetry));
-                LogCommandExecution(command, watch.Elapsed);
-                ConfigurationLite.Profiler.LogCommandExecution(command, DataService, watch.Elapsed);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                if (command == null)
-                {
-                    Log.LogError(ex, "Couldn't execute command");
-                }
-                else
-                {
-                    Log.LogError(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
-                }
-                throw;
-            }
-            finally
-            {
-                if (command != null && DisposeCommand) command.Dispose();
-            }
-        }
+#endif
     }
 
     public class CommandExecutor : AbstractCommand
@@ -382,7 +385,6 @@ namespace inercya.EntityLite
             if (GetCommandFunc == null) return null;
             else return GetCommandFunc();
         }
-
 
         protected override void SetOutPutParameters(DbCommand command)
         {

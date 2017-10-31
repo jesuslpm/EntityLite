@@ -3,9 +3,10 @@
 	var generation = new DataLayerGeneration
 	{
 		ProviderName = "System.Data.SQLite",
-		ConnectionString = @"Data Source=C:\Projects\EntityLite\inercya.EntityLite\SqliteProfiler\EntityLiteProfile.db",
+		ConnectionString = @"Data Source=C:\projects\EntityLite\inercya.EntityLite\SqliteProfiler\EntityLiteProfile.db",
 		RootNamespace = "inercya.EntityLite.SqliteProfiler.Entities",
 		DataServiceName = "SqliteProfilerDataService",
+		GenerateAsyncMethods = false,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 

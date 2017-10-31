@@ -22,7 +22,9 @@ using System.Collections;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Templates;
 using System.Data;
+#if NET452 || NETSTANDARD2_0
 using System.Threading.Tasks;
+#endif
 
 namespace inercya.EntityLite
 {
@@ -33,22 +35,11 @@ namespace inercya.EntityLite
 		ICollection<string> Options { get; set; }
 		IEnumerable ToEnumerable();
 		IEnumerable ToEnumerable(int fromIndex, int toIndex);
-        Task<IEnumerable> ToEnumerableAsync();
-        Task<IEnumerable> ToEnumerableAsync(int fromIndex, int toIndex);
-
         IList ToList();
-        Task<IList> ToListAsync();
         IList ToList(int fromIndex, int toIndex);
-
-        Task<IList> ToListAsync(int fromIndex, int toIndex);
 		object FirstOrDefault();
-
-        Task<object> FirstOrDefaultAsync();
         int GetCount();
-
-        Task<int> GetCountAsync();
         bool Any();
-        Task<bool> AnyAsync();
         Type EntityType { get; set; }
         IList<string> FieldList { get; set; }
         IQueryBuilder QueryBuilder { get; set; }
@@ -56,23 +47,33 @@ namespace inercya.EntityLite
         DataTable Pivot(params PivotTransform[] pivotTransforms);
         DataTable Pivot(Comparison<PivotedColumn> pivotedColumnComparison, params PivotTransform[] pivotTransforms);
         int CommandTimeout { get; set; }
-  
+
+#if NET452 || NETSTANDARD2_0
+        Task<IEnumerable> ToEnumerableAsync();
+        Task<IEnumerable> ToEnumerableAsync(int fromIndex, int toIndex);
+        Task<IList> ToListAsync();
+        Task<IList> ToListAsync(int fromIndex, int toIndex);
+        Task<object> FirstOrDefaultAsync();
+        Task<int> GetCountAsync();
+        Task<bool> AnyAsync();
+#endif
+
     }
 
     public interface IQueryLite<TEntity> : IQueryLite
     {
 		new TEntity FirstOrDefault();
-        new Task<TEntity> FirstOrDefaultAsync();
         new IEnumerable<TEntity> ToEnumerable();
-        new Task<IEnumerable<TEntity>> ToEnumerableAsync();
-
-
         new IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex);
-        new Task<IEnumerable<TEntity>> ToEnumerableAsync(int fromIndex, int toIndex);
         new IList<TEntity> ToList();
-        new Task<IList<TEntity>> ToListAsync();
         new IList<TEntity> ToList(int fromIndex, int toIndex);
+#if NET452 || NETSTANDARD2_0
+        new Task<TEntity> FirstOrDefaultAsync();
+        new Task<IEnumerable<TEntity>> ToEnumerableAsync();
+        new Task<IEnumerable<TEntity>> ToEnumerableAsync(int fromIndex, int toIndex);
+        new Task<IList<TEntity>> ToListAsync();
         new Task<IList<TEntity>> ToListAsync(int fromIndex, int toIndex);
+#endif
     }
 
     public interface IProjectedQueryLite : IQueryLite

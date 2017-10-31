@@ -12,6 +12,7 @@
 		DataServiceName = "NorhtwindDataService",
 		DefaultSchema = "dbo",
 		RootNamespace = "Samples.Entities",
+		GenerateAsyncMethods = true,
 		ImplementINotifyPropertyChanged = false,
 		GenerateTypeScript = false,
 		EntityTypesTableName = "entity_types",
@@ -19,7 +20,7 @@
 		GenerateEntityTypeId = false,
 		EntityNameToEntityViewTransform = TextTransform.ToUnderscoreLowerCaseNamingConvention,
 		AuditDateTimeKind = DateTimeKind.Utc,
-		JsonType = JsonType.JObject,
+		JsonType = JsonType.JToken,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 

@@ -24,7 +24,9 @@ using inercya.EntityLite.Extensions;
 using System.Diagnostics;
 using inercya.EntityLite.Builders;
 using System.Data;
+#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
+#endif
 using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
@@ -58,82 +60,35 @@ namespace inercya.EntityLite
         [NonSerialized]
         private IQueryBuilder _queryBuilder;
         public IQueryBuilder QueryBuilder { get { return _queryBuilder; } set { _queryBuilder = value; } }
-
         public int CommandTimeout { get; set; }
-
-
 		protected abstract IEnumerable NonGenericToEnumerable();
-        protected abstract Task<IEnumerable> NonGenericToEnumerableAsync();
-
         IEnumerable IQueryLite.ToEnumerable()
 		{
 			return NonGenericToEnumerable();
 		}
-
-        Task<IEnumerable> IQueryLite.ToEnumerableAsync()
-        {
-            return NonGenericToEnumerableAsync();
-        }
-
 		protected abstract IEnumerable NonGenericToEnumerable(int fromIndex, int toIndex);
-
-        protected abstract Task<IEnumerable> NonGenericToEnumerableAsync(int fromIndex, int toIndex);
-
         IEnumerable IQueryLite.ToEnumerable(int fromIndex, int toIndex)
 		{
 			return NonGenericToEnumerable(fromIndex, toIndex);
 		}
-
-        Task<IEnumerable> IQueryLite.ToEnumerableAsync(int fromIndex, int toIndex)
-        {
-            return NonGenericToEnumerableAsync(fromIndex, toIndex);
-        }
-
         IList IQueryLite.ToList()
         {
             return NonGenericToList();
         }
-
-        Task<IList> IQueryLite.ToListAsync()
-        {
-            return NonGenericToListAsync();
-        }
-
         protected abstract IList NonGenericToList();
-        protected abstract Task<IList> NonGenericToListAsync();
-
         IList IQueryLite.ToList(int fromIndex, int toIndex)
         {
             return NonGenericToList(fromIndex, toIndex);
         }
-
-        Task<IList> IQueryLite.ToListAsync(int fromIndex, int toIndex)
-        {
-            return NonGenericToListAsync(fromIndex, toIndex);
-        }
-
         protected abstract IList NonGenericToList(int fromIndex, int toIndex);
-
-        protected abstract Task<IList> NonGenericToListAsync(int fromIndex, int toIndex);
-
         protected abstract object NonGenericFirstOrDefault();
-
-        protected abstract Task<object> NonGenericFirstOrDefaultAsync();
-
         object IQueryLite.FirstOrDefault()
 		{
 			return NonGenericFirstOrDefault();
 		}
-
-        Task<object> IQueryLite.FirstOrDefaultAsync()
-        {
-            return NonGenericFirstOrDefaultAsync();
-        }
-
         [NonSerialized]
         private Type _entityType;
         public virtual Type EntityType { get { return _entityType; } set { _entityType = value; } }
-
 
         protected DbCommand GetSelectCommand()
         {
@@ -167,7 +122,6 @@ namespace inercya.EntityLite
             return selectCommand;
         }
 
-
         public int GetCount()
         {
             var cmd = new CommandExecutor(this.DataService, true)
@@ -176,17 +130,6 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             return Convert.ToInt32(cmd.ExecuteScalar());
-        }
-
-        public async Task<int> GetCountAsync()
-        {
-            var cmd = new CommandExecutor(this.DataService, true)
-            {
-                GetCommandFunc = GetCountCommand,
-                CommandTimeout = this.CommandTimeout
-            };
-            object result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
-            return Convert.ToInt32(result);
         }
 
         public bool Any()
@@ -200,16 +143,6 @@ namespace inercya.EntityLite
             return Convert.ToInt32(cmd.ExecuteScalar()) == 1; 
         }
 
-        public async Task<bool> AnyAsync()
-        {
-            var cmd = new CommandExecutor(this.DataService, true)
-            {
-                GetCommandFunc = GetAnyCommand,
-                CommandTimeout = this.CommandTimeout
-            };
-            var result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
-            return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
-        }
 
         protected AbstractQueryLite()
         {
@@ -249,6 +182,66 @@ namespace inercya.EntityLite
                 return reader.Pivot(pivotDef, pivotedColumnComparison);
             }
         }
+
+#if NET452 || NETSTANDARD2_0
+        protected abstract Task<IEnumerable> NonGenericToEnumerableAsync();
+
+        Task<IEnumerable> IQueryLite.ToEnumerableAsync()
+        {
+            return NonGenericToEnumerableAsync();
+        }
+
+        protected abstract Task<IEnumerable> NonGenericToEnumerableAsync(int fromIndex, int toIndex);
+
+        Task<IEnumerable> IQueryLite.ToEnumerableAsync(int fromIndex, int toIndex)
+        {
+            return NonGenericToEnumerableAsync(fromIndex, toIndex);
+        }
+
+        Task<IList> IQueryLite.ToListAsync()
+        {
+            return NonGenericToListAsync();
+        }
+
+        protected abstract Task<IList> NonGenericToListAsync();
+
+        Task<IList> IQueryLite.ToListAsync(int fromIndex, int toIndex)
+        {
+            return NonGenericToListAsync(fromIndex, toIndex);
+        }
+
+        protected abstract Task<IList> NonGenericToListAsync(int fromIndex, int toIndex);
+
+        protected abstract Task<object> NonGenericFirstOrDefaultAsync();
+
+        Task<object> IQueryLite.FirstOrDefaultAsync()
+        {
+            return NonGenericFirstOrDefaultAsync();
+        }
+
+        public async Task<int> GetCountAsync()
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetCountCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            object result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+            return Convert.ToInt32(result);
+        }
+
+        public async Task<bool> AnyAsync()
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetAnyCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            var result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+            return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
+        }
+#endif
+
     }
 
     public class AbstractQueryLite<TEntity> : AbstractQueryLite, IQueryLite<TEntity> where TEntity : class, new()
@@ -273,8 +266,6 @@ namespace inercya.EntityLite
             this.EntityType = typeof(TEntity);
         }
 
-        #region IQueryLite<TEntity> Members
-
 
 		public virtual IEnumerable<TEntity> ToEnumerable()
 		{
@@ -286,16 +277,6 @@ namespace inercya.EntityLite
             return cmd.ToEnumerable<TEntity>();
 		}
 
-        public virtual Task<IEnumerable<TEntity>> ToEnumerableAsync()
-        {
-            var cmd = new CommandExecutor(this.DataService, true)
-            {
-                GetCommandFunc = GetSelectCommand,
-                CommandTimeout = this.CommandTimeout
-            };
-            return cmd.ToEnumerableAsync<TEntity>();
-        }
-
         public virtual IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex)
 		{
             var cmd = new CommandExecutor(this.DataService, true)
@@ -304,6 +285,57 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ToEnumerable<TEntity>();
+        }
+
+        public TEntity FirstOrDefault()
+		{
+			return this.ToEnumerable().FirstOrDefault();
+		}
+
+        protected override object NonGenericFirstOrDefault()
+		{
+			return this.FirstOrDefault();
+		}
+
+        public virtual IList<TEntity> ToList()
+		{
+			return ToEnumerable().ToList();
+		}
+
+        public virtual IList<TEntity> ToList(int fromIndex, int toIndex)
+        {
+			return ToEnumerable(fromIndex, toIndex).ToList();
+        }
+
+        protected override IEnumerable NonGenericToEnumerable()
+		{
+			return ToEnumerable();
+		}
+
+        protected override IEnumerable NonGenericToEnumerable(int fromIndex, int toIndex)
+		{
+			return ToEnumerable(fromIndex, toIndex);
+		}
+
+        protected override IList NonGenericToList()
+		{
+			return (IList)ToList();
+		}
+
+        protected override IList NonGenericToList(int fromIndex, int toIndex)
+		{
+			return (IList)ToList(fromIndex, toIndex);
+		}
+
+#if (NET452 || NETSTANDARD2_0)
+        public virtual Task<IEnumerable<TEntity>> ToEnumerableAsync()
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetSelectCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ToEnumerableAsync<TEntity>();
         }
 
         public virtual Task<IEnumerable<TEntity>> ToEnumerableAsync(int fromIndex, int toIndex)
@@ -316,30 +348,15 @@ namespace inercya.EntityLite
             return cmd.ToEnumerableAsync<TEntity>();
         }
 
-        public TEntity FirstOrDefault()
-		{
-			return this.ToEnumerable().FirstOrDefault();
-		}
-
         public async Task<TEntity> FirstOrDefaultAsync()
         {
             return (await this.ToEnumerableAsync().ConfigureAwait(false)).FirstOrDefault();
         }
 
-        protected override object NonGenericFirstOrDefault()
-		{
-			return this.FirstOrDefault();
-		}
-
         protected override async Task<object> NonGenericFirstOrDefaultAsync()
         {
             return await this.FirstOrDefaultAsync().ConfigureAwait(false);
         }
-
-        public virtual IList<TEntity> ToList()
-		{
-			return ToEnumerable().ToList();
-		}
 
         public virtual Task<IList<TEntity>> ToListAsync()
         {
@@ -349,11 +366,6 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ToListAsync<TEntity>();
-        }
-
-        public virtual IList<TEntity> ToList(int fromIndex, int toIndex)
-        {
-			return ToEnumerable(fromIndex, toIndex).ToList();
         }
 
         public virtual Task<IList<TEntity>> ToListAsync(int fromIndex, int toIndex)
@@ -366,49 +378,27 @@ namespace inercya.EntityLite
             return cmd.ToListAsync<TEntity>();
         }
 
-
-        protected override IEnumerable NonGenericToEnumerable()
-		{
-			return ToEnumerable();
-		}
-
         protected override async Task<IEnumerable> NonGenericToEnumerableAsync()
         {
             return await this.ToEnumerableAsync().ConfigureAwait(false);
         }
-
-
-        protected override IEnumerable NonGenericToEnumerable(int fromIndex, int toIndex)
-		{
-			return ToEnumerable(fromIndex, toIndex);
-		}
 
         protected override async Task<IEnumerable> NonGenericToEnumerableAsync(int fromIndex, int toIndex)
         {
             return await ToEnumerableAsync(fromIndex, toIndex).ConfigureAwait(false);
         }
 
-        protected override IList NonGenericToList()
-		{
-			return (IList)ToList();
-		}
-
         protected override async Task<IList> NonGenericToListAsync()
         {
             return (IList) await this.ToListAsync().ConfigureAwait(false);
         }
 
-
-        protected override IList NonGenericToList(int fromIndex, int toIndex)
-		{
-			return (IList)ToList(fromIndex, toIndex);
-		}
-
         protected override async Task<IList> NonGenericToListAsync(int fromIndex, int toIndex)
         {
             return (IList) await ToListAsync(fromIndex, toIndex).ConfigureAwait(false);
         }
-        #endregion
+#endif
+
     }
 
 }

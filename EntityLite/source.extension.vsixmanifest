@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" ?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="EntityLite.b61609f3-7241-4088-a93e-6d8ab9eca30a" Version="1.0.1" Language="en-US" Publisher="Jesús López Méndez" />
+        <Identity Id="EntityLite.536EC2A7-0C91-4FD4-A0DB-F9D977A6613C" Version="1.0.2" Language="en-US" Publisher="Jesús López Méndez" />
         <DisplayName>EntityLite Code Generators</DisplayName>
         <Description xml:space="preserve">EntityLite DataLayer Code Generator</Description>
+        <Icon>EntityLite.png</Icon>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0]" />

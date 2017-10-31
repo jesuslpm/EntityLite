@@ -14,7 +14,7 @@ namespace inercya.EntityLite
             Profiler = new NullProfilerLite();
 #if NET452
             LoggerFactory = new NLogFactory();
-#elif NETSTANDARD20
+#elif NETSTANDARD2_0
             LoggerFactory = new NullLoggerFactory();
 #endif
 

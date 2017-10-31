@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using inercya.EntityLite.Collections;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
@@ -14,7 +14,7 @@ namespace inercya.EntityLite
 
     internal class DefaultDbProviderFactories : IDbProviderFactories
     {
-        ConcurrentDictionary<string, DbProviderFactory> factoriesByName = new ConcurrentDictionary<string, DbProviderFactory>();
+        SynchronizedDictionary<string, DbProviderFactory> factoriesByName = new SynchronizedDictionary<string, DbProviderFactory>();
 
         public DbProviderFactory Get(string providerInvariantName)
         {

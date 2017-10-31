@@ -28,8 +28,9 @@ using inercya.EntityLite.Builders;
 using System.Linq;
 using inercya.EntityLite.Collections;
 using inercya.EntityLite.Providers;
+#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
+#endif
 using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
@@ -47,29 +48,37 @@ namespace inercya.EntityLite
 
         public Func<object> CurrentUserIdGetter { get; set; }
 
+#if (NET452 || NETSTANDARD2_0)
         public Func<Task<object>> CurrentUserIdAsyncGetter { get; set; }
+#endif
 
         public object CurrentUserId 
         { 
             get 
             {
                 if (CurrentUserIdGetter != null) return CurrentUserIdGetter();
+#if (NET452 || NETSTANDARD2_0)
                 if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter().Result;
+#endif
                 return _currentUserId;
             }
             set
             {
                 _currentUserId = value;
                 CurrentUserIdGetter = null;
+#if (NET452 || NETSTANDARD2_0)
                 CurrentUserIdAsyncGetter = null;
+#endif
             }
         }
 
+#if (NET452 || NETSTANDARD2_0)
         public Task<object> GetCurrentUserIdAsync()
         {
             if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter();
             return Task.FromResult(CurrentUserId);
         }
+#endif
 
 		public int MaxRetries { get; protected set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }
@@ -253,6 +262,7 @@ namespace inercya.EntityLite
             EntityLiteProviderFactories.Add(SqliteEntityLiteProvider.ProviderName, (ds) => new SqliteEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(MySqlEntityLiteProvider.ProviderName, (ds) => new MySqlEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ProviderName, (ds) => new OracleEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ManagedProviderName, (ds) => new OracleEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(NpgsqlEntityLiteProvider.ProviderName, (ds) => new NpgsqlEntityLiteProvider(ds));
         }
 
@@ -327,6 +337,7 @@ namespace inercya.EntityLite
             }
         }
 
+#if (NET452 || NETSTANDARD2_0)
         private static Task completedTask = Task.FromResult((object)null);
 
         public virtual Task OpenConnectionAsync()
@@ -337,6 +348,7 @@ namespace inercya.EntityLite
             }
             return completedTask;
         }
+#endif
 
         public int TransactionCount { get; private set; }
 
@@ -453,7 +465,7 @@ namespace inercya.EntityLite
         }
 
 
-        #region IDisposable Members
+#region IDisposable Members
 
         private bool _isDisposed;
 
@@ -485,9 +497,9 @@ namespace inercya.EntityLite
             Dispose(true);
         }
 
-        #endregion
+#endregion
 
-		#region Modification methods
+#region Modification methods
 		
 
 		protected internal virtual bool Delete(object entity)
@@ -506,6 +518,7 @@ namespace inercya.EntityLite
             return affectedRecords > 0;
 		}
 
+#if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task<bool> DeleteAsync(object entity)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -521,6 +534,7 @@ namespace inercya.EntityLite
             if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
             return affectedRecords > 0;
         }
+#endif
 
 
         internal struct SetAuditObjectResult
@@ -547,6 +561,7 @@ namespace inercya.EntityLite
             return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue }; ;
         }
 
+#if (NET452 || NETSTANDARD2_0)
         private async Task<SetAuditObjectResult> TrySetAuditUserAsync(string fieldName, object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -564,6 +579,7 @@ namespace inercya.EntityLite
             setter(entity, currentUserId);
             return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue };
         }
+#endif
 
         private SetAuditObjectResult TrySetAuditDate(string fieldName, object entity, EntityMetadata metadata)
         {
@@ -625,12 +641,14 @@ namespace inercya.EntityLite
             Insert(entity, EntityMetadata.GetEntityMetadata(entityType));
         }
 
+#if (NET452 || NETSTANDARD2_0)
         protected internal virtual Task InsertAsync(object entity)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             return InsertAsync(entity, EntityMetadata.GetEntityMetadata(entityType));
         }
+#endif
 
         protected internal virtual void Insert(object entity, EntityMetadata entityMetadata)
 		{
@@ -704,6 +722,7 @@ namespace inercya.EntityLite
             }
 		}
 
+#if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task InsertAsync(object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -785,37 +804,45 @@ namespace inercya.EntityLite
                 entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType));
             }
         }
+#endif
 
         protected internal bool Update(object entity)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity));
         }
 
+#if (NET452 || NETSTANDARD2_0)
         protected internal Task<bool> UpdateAsync(object entity)
         {
             return UpdateAsync(entity, GetValidatedForUpdateSortedFields(entity));
         }
+#endif
 
 
         protected internal bool Update(object entity, params string[] fieldsToUpdate)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
+
+#if (NET452 || NETSTANDARD2_0)        
         protected internal Task<bool> UpdateAsync(object entity, params string[] fieldsToUpdate)
         {
             return UpdateAsync(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
+#endif
         private object GeByPrimaryKeyIncludingJustPkAndRowVersionFields(Type entityType, object entity)
         {
             IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(entityType, entity);
             return q.FirstOrDefault();
         }
 
+#if (NET452 || NETSTANDARD2_0)
         private Task<object> GeByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(Type entityType, object entity)
         {
             IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(entityType, entity);
             return q.FirstOrDefaultAsync();
         }
+#endif
 
         private IQueryLite GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(Type entityType, object entity)
         {
@@ -897,7 +924,7 @@ namespace inercya.EntityLite
             return affectedRecords > 0;
         }
 
-
+#if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task<bool> UpdateAsync(object entity, List<string> sortedFields)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -960,6 +987,8 @@ namespace inercya.EntityLite
             }
             return affectedRecords > 0;
         }
+#endif
+
         protected internal List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -1001,9 +1030,7 @@ namespace inercya.EntityLite
             return sortedFields;
         }
 
-
-
-		#endregion
+#endregion
 
 	}
 }

@@ -70,6 +70,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayerItemTemplate", "Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLite", "EntityLite\EntityLite.csproj", "{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesFx", "SamplesFx\SamplesFx.csproj", "{27444030-B98D-4ECD-A27B-A41518305AC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,14 @@ Global
 		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|x86.ActiveCfg = Release|Any CPU
 		{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}.Release|x86.Build.0 = Release|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Debug|x86.Build.0 = Debug|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|x86.ActiveCfg = Release|Any CPU
+		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

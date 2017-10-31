@@ -52,7 +52,13 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
             using (var stream = asm.GetManifestResourceStream("inercya.EntityLite.SqliteProfiler.EntityLiteProfile.db"))
             using (var file = File.Create(this.FilePath))
             {
+#if (NET452 || NETSTANDARD2_0)
                 stream.CopyTo(file);
+#else
+                var buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+                file.Write(buffer, 0, buffer.Length);
+#endif
             }
         }
 
@@ -64,8 +70,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
             byte[] hash = md5.ComputeHash(inputBytes);
             long commandTextHash = BitConverter.ToInt64(hash, 0);
             var statement = this.StatementRepository.Query(Projection.BaseTable)
-                .Where(StatementFields.CommandTextHash, commandTextHash)
-                .And(StatementFields.CommandText, item.CommandText).ToList().FirstOrDefault();
+                .Where(nameof(Statement.CommandTextHash), commandTextHash)
+                .And(nameof(Statement.CommandText), item.CommandText).ToList().FirstOrDefault();
 
             string parametersAsString = item.Params;
             if (statement == null)

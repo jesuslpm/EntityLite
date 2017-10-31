@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-#if NET452
+#if (NET452 || NET35)
 namespace Microsoft.Extensions.Logging
 {
     public interface ILogger

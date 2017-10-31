@@ -12,6 +12,7 @@
 		DataServiceName = "NorhtwindDataService",
 		DefaultSchema = "dbo",
 		RootNamespace = "Samples.Entities",
+		GenerateAsyncMethods = true,
 		ImplementINotifyPropertyChanged = false,
 		GenerateTypeScript = false,
 		EntityTypesTableName = "entity_types",

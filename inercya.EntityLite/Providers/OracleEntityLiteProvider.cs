@@ -27,12 +27,13 @@ namespace inercya.EntityLite.Providers
     public class OracleEntityLiteProvider : EntityLiteProvider
     {
         public const string ProviderName = "Oracle.DataAccess.Client";
+        public const string ManagedProviderName = "Oracle.ManagedDataAccess.Client";
 
         public OracleEntityLiteProvider(DataService dataService): base(dataService)
         {
-            if (DataService.ProviderName != ProviderName)
+            if (DataService.ProviderName != ProviderName && DataService.ProviderName != ManagedProviderName)
             {
-                throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);
+                throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName +  " and for " + ManagedProviderName + ". Not for " + DataService.ProviderName);
             }
         }
 

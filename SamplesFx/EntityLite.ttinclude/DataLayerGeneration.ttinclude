@@ -473,7 +473,7 @@ public class DataLayerGeneration : IDisposable
                     schema.Rows.Remove(row);
                 }
                 schema.Constraints.Add("PK_Schema", schema.Columns["ColumnName"], true);
-				if (!schema.Columns.Contains("IsAutoIncrement")) {
+				if (!schema.Columns.Contains("IsAutoIcrement")) {
 					schema.Columns.Add("IsAutoIncrement", typeof(bool));
 				}
                 schema.Columns["IsAutoIncrement"].ReadOnly = false;

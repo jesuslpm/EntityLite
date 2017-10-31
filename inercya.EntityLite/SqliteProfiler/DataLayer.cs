@@ -1,7 +1,6 @@
 ﻿
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -19,8 +18,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 	{
 		private Int64 _statementId;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, IsKey=true, IsAutoincrement=true, ColumnName ="StatementId", BaseColumnName ="StatementId", BaseTableName = "Statements" )]
-		public Int64 StatementId 
+		[SqlField(DbType.Int64, 8, Precision = 19, IsKey=true, IsAutoincrement=true, ColumnName ="StatementId", BaseColumnName ="StatementId", BaseTableName = "Statements" )]		public Int64 StatementId 
 		{ 
 		    get { return _statementId; } 
 			set 
@@ -31,8 +29,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Int64 _commandTextHash;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="CommandTextHash", BaseColumnName ="CommandTextHash", BaseTableName = "Statements" )]
-		public Int64 CommandTextHash 
+		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="CommandTextHash", BaseColumnName ="CommandTextHash", BaseTableName = "Statements" )]		public Int64 CommandTextHash 
 		{ 
 		    get { return _commandTextHash; } 
 			set 
@@ -43,8 +40,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private String _commandText;
 		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="CommandText", BaseColumnName ="CommandText", BaseTableName = "Statements" )]
-		public String CommandText 
+		[SqlField(DbType.String, 2147483647, ColumnName ="CommandText", BaseColumnName ="CommandText", BaseTableName = "Statements" )]		public String CommandText 
 		{ 
 		    get { return _commandText; } 
 			set 
@@ -55,8 +51,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Double _maxTime;
 		[DataMember]
-		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MaxTime", BaseColumnName ="MaxTime", BaseTableName = "Statements" )]
-		public Double MaxTime 
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MaxTime", BaseColumnName ="MaxTime", BaseTableName = "Statements" )]		public Double MaxTime 
 		{ 
 		    get { return _maxTime; } 
 			set 
@@ -67,8 +62,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Double _minTime;
 		[DataMember]
-		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MinTime", BaseColumnName ="MinTime", BaseTableName = "Statements" )]
-		public Double MinTime 
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MinTime", BaseColumnName ="MinTime", BaseTableName = "Statements" )]		public Double MinTime 
 		{ 
 		    get { return _minTime; } 
 			set 
@@ -79,8 +73,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Double _totalTime;
 		[DataMember]
-		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="TotalTime", BaseColumnName ="TotalTime", BaseTableName = "Statements" )]
-		public Double TotalTime 
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="TotalTime", BaseColumnName ="TotalTime", BaseTableName = "Statements" )]		public Double TotalTime 
 		{ 
 		    get { return _totalTime; } 
 			set 
@@ -91,8 +84,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Double _sampleTime;
 		[DataMember]
-		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="SampleTime", BaseColumnName ="SampleTime", BaseTableName = "Statements" )]
-		public Double SampleTime 
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="SampleTime", BaseColumnName ="SampleTime", BaseTableName = "Statements" )]		public Double SampleTime 
 		{ 
 		    get { return _sampleTime; } 
 			set 
@@ -103,8 +95,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Int64 _executionCount;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="ExecutionCount", BaseColumnName ="ExecutionCount", BaseTableName = "Statements" )]
-		public Int64 ExecutionCount 
+		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="ExecutionCount", BaseColumnName ="ExecutionCount", BaseTableName = "Statements" )]		public Int64 ExecutionCount 
 		{ 
 		    get { return _executionCount; } 
 			set 
@@ -115,8 +106,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private String _maxTimeParams;
 		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="MaxTimeParams", BaseColumnName ="MaxTimeParams", BaseTableName = "Statements" )]
-		public String MaxTimeParams 
+		[SqlField(DbType.String, 2147483647, ColumnName ="MaxTimeParams", BaseColumnName ="MaxTimeParams", BaseTableName = "Statements" )]		public String MaxTimeParams 
 		{ 
 		    get { return _maxTimeParams; } 
 			set 
@@ -127,8 +117,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private String _minTimeParams;
 		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="MinTimeParams", BaseColumnName ="MinTimeParams", BaseTableName = "Statements" )]
-		public String MinTimeParams 
+		[SqlField(DbType.String, 2147483647, ColumnName ="MinTimeParams", BaseColumnName ="MinTimeParams", BaseTableName = "Statements" )]		public String MinTimeParams 
 		{ 
 		    get { return _minTimeParams; } 
 			set 
@@ -139,8 +128,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private String _sampleParams;
 		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="SampleParams", BaseColumnName ="SampleParams", BaseTableName = "Statements" )]
-		public String SampleParams 
+		[SqlField(DbType.String, 2147483647, ColumnName ="SampleParams", BaseColumnName ="SampleParams", BaseTableName = "Statements" )]		public String SampleParams 
 		{ 
 		    get { return _sampleParams; } 
 			set 
@@ -151,8 +139,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Object _avgTime;
 		[DataMember]
-		[SqlField(DbType.Object, 2147483647, ColumnName ="AvgTime" )]
-		public Object AvgTime 
+		[SqlField(DbType.Object, 2147483647, ColumnName ="AvgTime" )]		public Object AvgTime 
 		{ 
 		    get { return _avgTime; } 
 			set 
@@ -211,46 +198,9 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			var entity = new Statement { StatementId = statementId };
 			return this.Delete(entity);
 		}
-		// asyncrhonous methods
 
-		public Task<Statement> GetAsync(string projectionName, System.Int64 statementId)
-		{
-			return ((IRepository<Statement>)this).GetAsync(projectionName, statementId, FetchMode.UseIdentityMap);
-		}
-
-		public Task<Statement> GetAsync(string projectionName, System.Int64 statementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Statement>)this).GetAsync(projectionName, statementId, fetchMode);
-		}
-
-		public Task<Statement> GetAsync(Projection projection, System.Int64 statementId)
-		{
-			return ((IRepository<Statement>)this).GetAsync(projection, statementId, FetchMode.UseIdentityMap);
-		}
-
-		public Task<Statement> GetAsync(Projection projection, System.Int64 statementId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Statement>)this).GetAsync(projection, statementId, fetchMode);
-		}
-
-		public Task<Statement> GetAsync(string projectionName, System.Int64 statementId, params string[] fields)
-		{
-			return ((IRepository<Statement>)this).GetAsync(projectionName, statementId, fields);
-		}
-
-		public Task<Statement> GetAsync(Projection projection, System.Int64 statementId, params string[] fields)
-		{
-			return ((IRepository<Statement>)this).GetAsync(projection, statementId, fields);
-		}
-
-		public Task<bool> DeleteAsync(System.Int64 statementId)
-		{
-			var entity = new Statement { StatementId = statementId };
-			return this.DeleteAsync(entity);
-		}
-
-	}
-
+			}
+	[Obsolete("Use nameof instead")]
 	public static partial class StatementFields
 	{
 		public const string StatementId = "StatementId";
@@ -274,8 +224,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 	{
 		private Int64 _executionId;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, IsKey=true, IsAutoincrement=true, ColumnName ="ExecutionId", BaseColumnName ="ExecutionId", BaseTableName = "Executions" )]
-		public Int64 ExecutionId 
+		[SqlField(DbType.Int64, 8, Precision = 19, IsKey=true, IsAutoincrement=true, ColumnName ="ExecutionId", BaseColumnName ="ExecutionId", BaseTableName = "Executions" )]		public Int64 ExecutionId 
 		{ 
 		    get { return _executionId; } 
 			set 
@@ -286,8 +235,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Int64 _statementId;
 		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="StatementId", BaseColumnName ="StatementId", BaseTableName = "Executions" )]
-		public Int64 StatementId 
+		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="StatementId", BaseColumnName ="StatementId", BaseTableName = "Executions" )]		public Int64 StatementId 
 		{ 
 		    get { return _statementId; } 
 			set 
@@ -298,8 +246,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private DateTime _executionDate;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, ColumnName ="ExecutionDate", BaseColumnName ="ExecutionDate", BaseTableName = "Executions" )]
-		public DateTime ExecutionDate 
+		[SqlField(DbType.DateTime, 8, ColumnName ="ExecutionDate", BaseColumnName ="ExecutionDate", BaseTableName = "Executions" )]		public DateTime ExecutionDate 
 		{ 
 		    get { return _executionDate; } 
 			set 
@@ -310,8 +257,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
 		private Double _executionTime;
 		[DataMember]
-		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="ExecutionTime", BaseColumnName ="ExecutionTime", BaseTableName = "Executions" )]
-		public Double ExecutionTime 
+		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="ExecutionTime", BaseColumnName ="ExecutionTime", BaseTableName = "Executions" )]		public Double ExecutionTime 
 		{ 
 		    get { return _executionTime; } 
 			set 
@@ -370,46 +316,9 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			var entity = new Execution { ExecutionId = executionId };
 			return this.Delete(entity);
 		}
-		// asyncrhonous methods
 
-		public Task<Execution> GetAsync(string projectionName, System.Int64 executionId)
-		{
-			return ((IRepository<Execution>)this).GetAsync(projectionName, executionId, FetchMode.UseIdentityMap);
-		}
-
-		public Task<Execution> GetAsync(string projectionName, System.Int64 executionId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Execution>)this).GetAsync(projectionName, executionId, fetchMode);
-		}
-
-		public Task<Execution> GetAsync(Projection projection, System.Int64 executionId)
-		{
-			return ((IRepository<Execution>)this).GetAsync(projection, executionId, FetchMode.UseIdentityMap);
-		}
-
-		public Task<Execution> GetAsync(Projection projection, System.Int64 executionId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Execution>)this).GetAsync(projection, executionId, fetchMode);
-		}
-
-		public Task<Execution> GetAsync(string projectionName, System.Int64 executionId, params string[] fields)
-		{
-			return ((IRepository<Execution>)this).GetAsync(projectionName, executionId, fields);
-		}
-
-		public Task<Execution> GetAsync(Projection projection, System.Int64 executionId, params string[] fields)
-		{
-			return ((IRepository<Execution>)this).GetAsync(projection, executionId, fields);
-		}
-
-		public Task<bool> DeleteAsync(System.Int64 executionId)
-		{
-			var entity = new Execution { ExecutionId = executionId };
-			return this.DeleteAsync(entity);
-		}
-
-	}
-
+			}
+	[Obsolete("Use nameof instead")]
 	public static partial class ExecutionFields
 	{
 		public const string ExecutionId = "ExecutionId";
