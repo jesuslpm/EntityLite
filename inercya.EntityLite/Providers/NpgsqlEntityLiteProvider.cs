@@ -17,6 +17,7 @@ limitations under the License.
 using inercya.EntityLite.Builders;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -65,6 +66,20 @@ namespace inercya.EntityLite.Providers
         public override string GetNextValExpression(string fullSequenceName)
         {
             return "nextval('" + fullSequenceName + "')";
+        }
+
+        private static PropertySetter NpgsqlDbTypeSetter;
+
+        public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
+        {
+            if (NpgsqlDbTypeSetter == null)
+            {
+                var parameterType = parameter.GetType();
+                var pi = parameterType.GetProperty("NpgsqlDbType");
+                if (pi == null) new InvalidOperationException("NpgsqlDbType property not found on type " + parameterType.FullName);
+                NpgsqlDbTypeSetter = PropertyHelper.GetPropertySetter(pi);
+            }
+            NpgsqlDbTypeSetter(parameter, providerType);
         }
     }
 }

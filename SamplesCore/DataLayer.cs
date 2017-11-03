@@ -2524,7 +2524,7 @@ namespace Samples.Entities
 namespace Samples.Entities
 {
 	[TypeScript] 
-	public enum TaskTemplateId
+	public enum TaskTemplates
 	{
 		RebateProcessSubmit = 1,
 		RebateProcessCancel = 2,

@@ -699,7 +699,7 @@ FROM
 					using (var cmd = cn.CreateCommand())
 					{
 						cmd.CommandText = commandText;
-						Sequences = new Dictionary<string, Sequence>();
+						Sequences = new Dictionary<string, Sequence>(StringComparer.InvariantCultureIgnoreCase);
 						using (var reader = cmd.ExecuteReader()) 
 						{
 							while(reader.Read())

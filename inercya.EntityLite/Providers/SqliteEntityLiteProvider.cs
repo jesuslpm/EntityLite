@@ -17,6 +17,7 @@ limitations under the License.
 using inercya.EntityLite.Builders;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -54,6 +55,11 @@ namespace inercya.EntityLite.Providers
         public override string GetNextValExpression(string fullSequenceName)
         {
             throw new NotSupportedException("SQLite doesn't support sequences");
+        }
+
+        public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
+        {
+            parameter.DbType = (DbType)providerType;
         }
     }
 }

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace inercya.EntityLite.Providers
 {
@@ -147,6 +148,12 @@ ORDER BY __RowNumber__
             {
                 return "@$equenceGeneratedColumnValue_";
             }
+        }
+
+
+        public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
+        {
+            ((SqlParameter)parameter).SqlDbType = (SqlDbType)providerType;
         }
 
         protected override void AppendGetAutoincrementField(StringBuilder commandText, EntityMetadata entityMetadata)

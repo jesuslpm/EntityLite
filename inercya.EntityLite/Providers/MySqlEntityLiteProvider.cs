@@ -17,6 +17,7 @@ limitations under the License.
 using inercya.EntityLite.Builders;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -68,6 +69,20 @@ namespace inercya.EntityLite.Providers
         public override string GetNextValExpression(string fullSequenceName)
         {
             throw new NotSupportedException("MySQL doesn't support sequences");
+        }
+
+        private static PropertySetter MySqlDbTypeSetter;
+
+        public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
+        {
+            if (MySqlDbTypeSetter == null)
+            {
+                var parameterType = parameter.GetType();
+                var pi = parameterType.GetProperty("MySqlDbType");
+                if (pi == null) new InvalidOperationException("MySqlDbType property not found on type " + parameterType.FullName);
+                MySqlDbTypeSetter = PropertyHelper.GetPropertySetter(pi);
+            }
+            MySqlDbTypeSetter(parameter, providerType);
         }
     }
 }

@@ -140,6 +140,7 @@ To generate the datalayer for MySQL you need  to:
 				BaseTableName = "task_templates",
 				IdField = "task_template_id",
 				NameField = "task_invariant_name",
+				TypeName = "TaskTemplates"
 			}
 		}
 	};
