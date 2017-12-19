@@ -34,6 +34,7 @@ public class FieldMetadata
 	public string SequenceName { get; set;}
 	public string PropertyTypeName { get; set;}
 	public int? ProviderType {get; set;}
+	public bool IsRoundDate {get; set;}
 
     public string FullTableName(string quotePrefix, string quoteSufix)
     {

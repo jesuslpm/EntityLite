@@ -214,7 +214,8 @@ namespace inercya.EntityLite.Builders
                 SqlFieldAttribute field = property.SqlField;
                 if (string.Equals(field.ColumnName, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string parameterName = DataService.EntityLiteProvider.ParameterPrefix + whereField;
+                    string parameterName;
+                    IDbDataParameter parameter = CreateParameter(property, whereField, out parameterName);
                     if (firstTime)
                     {
                         commandText.Append("\nWHERE\n    ");
@@ -227,7 +228,7 @@ namespace inercya.EntityLite.Builders
                     commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote)
                         .Append(" = ").Append(parameterName);
 
-                    IDbDataParameter parameter = CreateParameter(property, whereField);
+                    
                     PropertyGetter getter;
                     if (getters.TryGetValue(whereField, out getter))
                     {
@@ -274,10 +275,11 @@ namespace inercya.EntityLite.Builders
                     }
                     else
                     {
-                        string parameterName = DataService.EntityLiteProvider.ParameterPrefix + propertyName;
+                        string parameterName;
+                        IDbDataParameter param = CreateParameter(propMetadata, propertyName, out parameterName);
                         commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote)
                             .Append(" = ").Append(parameterName);
-                        IDbDataParameter param = CreateParameter(propMetadata, propertyName);
+                        
                         object fieldValue = getters[propertyName](entity);
                         SetValueToCommandParameter(entity, getters, propertyName, param);
                         cmd.Parameters.Add(param);
@@ -354,8 +356,9 @@ namespace inercya.EntityLite.Builders
                 }
                 else
                 {
-                    valuesText.Append(parameterPrefix).Append(propertyName);
-                    IDbDataParameter param = CreateParameter(kv.Value, propertyName);
+                    string parameterName;
+                    IDbDataParameter param = CreateParameter(kv.Value, propertyName, out parameterName);
+                    valuesText.Append(parameterName);
                     SetValueToCommandParameter(entity, getters, propertyName, param);
                     parameters.Add(param);
                 }
@@ -420,10 +423,10 @@ namespace inercya.EntityLite.Builders
 			}
 		}
 
-		protected IDbDataParameter CreateParameter(PropertyMetadata property, string fieldName)
+		protected IDbDataParameter CreateParameter(PropertyMetadata property, string fieldName, out string parameterName)
 		{
 			var field = property.SqlField;
-			string parameterName = DataService.EntityLiteProvider.ParameterPrefix + fieldName;
+			parameterName = DataService.EntityLiteProvider.ParameterPrefix + fieldName;
 			IDbDataParameter parameter = DataService.DbProviderFactory.CreateParameter();
 			parameter.ParameterName = parameterName;
             parameter.SourceColumn = fieldName;
@@ -497,8 +500,11 @@ namespace inercya.EntityLite.Builders
 				{
 					var property = entityMetadata.Properties[fieldName];
 					SqlFieldAttribute field = property.SqlField;
-					string parameterName = DataService.EntityLiteProvider.ParameterPrefix + fieldName;
-					if (firstTime)
+                    string parameterName;
+                    IDbDataParameter param = CreateParameter(property, fieldName, out parameterName);
+                    SetValueToCommandParameter(entity, getters, fieldName, param);
+                    cmd.Parameters.Add(param);
+                    if (firstTime)
 					{
 						commandText.Append("\nWHERE\n    ");
 						firstTime = false;
@@ -508,10 +514,6 @@ namespace inercya.EntityLite.Builders
 						commandText.Append("\n    AND ");
 					}
 					commandText.Append(this.DataService.EntityLiteProvider.StartQuote + field.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" = ").Append(parameterName);
-
-					IDbDataParameter param = CreateParameter(property, fieldName);
-					SetValueToCommandParameter(entity, getters, fieldName, param);
-					cmd.Parameters.Add(param);
 				}
 				cmd.CommandText = commandText.ToString();
 				return cmd;

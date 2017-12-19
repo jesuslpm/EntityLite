@@ -140,9 +140,9 @@ namespace inercya.EntityLite.Builders
 
         private static readonly PropertySetter udtTypeNameSetter = PropertyHelper.GetPropertySetter(typeof(SqlParameter), "UdtTypeName");
 
-        protected IDbDataParameter CreateParameter(PropertyMetadata propertyMetadata, object paramValue, ref int paramIndex)
+        protected IDbDataParameter CreateParameter(PropertyMetadata propertyMetadata, object paramValue, ref int paramIndex, out string parameterName)
         {
-            string parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+            parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
             IDbDataParameter parameter = QueryLite.DataService.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.Size = propertyMetadata.SqlField.Size;
@@ -222,9 +222,9 @@ namespace inercya.EntityLite.Builders
             return parameter;
         }
 
-        public IDbDataParameter CreateIn32Parameter(int paramValue, ref int paramIndex)
+        public IDbDataParameter CreateIn32Parameter(int paramValue, ref int paramIndex, out string parameterName)
         {
-            string parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+            parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
             IDbDataParameter parameter = QueryLite.DataService.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.DbType = DbType.Int32;
@@ -236,6 +236,7 @@ namespace inercya.EntityLite.Builders
 
         protected virtual void GenerateFilterForCondition(DbCommand cmd, ConditionLite condition, StringBuilder sb, ref int paramIndex, ref bool firstCondition)
         {
+            string parameterName = null;
             if (condition.Filter != null && condition.Filter.IsEmpty()) return;
             if (firstCondition) { ;}
             else if (condition.LogicalOperator == LogicalOperatorLite.And) sb.Append("\n    AND ");
@@ -321,11 +322,12 @@ namespace inercya.EntityLite.Builders
                     bool firstValue = true;
                     foreach (object value in values)
                     {
-                        var param = CreateParameter(propertyMetadata, value, ref paramIndex);
+                        
+                        var param = CreateParameter(propertyMetadata, value, ref paramIndex, out parameterName);
                         cmd.Parameters.Add(param);
                         if (firstValue) firstValue = false;
                         else sb.Append(", ");
-                        sb.Append(param.ParameterName);
+                        sb.Append(parameterName);
                     }
                 }
                 else
@@ -336,65 +338,65 @@ namespace inercya.EntityLite.Builders
                 return;
             }
 
-            var parameter = CreateParameter(propertyMetadata, condition.FieldValue, ref paramIndex);
+            var parameter = CreateParameter(propertyMetadata, condition.FieldValue, ref paramIndex, out parameterName);
             cmd.Parameters.Add(parameter);
 
             switch (condition.Operator)
             {
                 case OperatorLite.Contains:
-                    sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameter.ParameterName, "'%'"));
+                    sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameterName, "'%'"));
                     break;
                 case OperatorLite.Equals:
-                    sb.Append(" = ").Append(parameter.ParameterName);
+                    sb.Append(" = ").Append(parameterName);
                     break;
                 case OperatorLite.Greater:
-                    sb.Append(" > ").Append(parameter.ParameterName);
+                    sb.Append(" > ").Append(parameterName);
                     break;
                 case OperatorLite.GreaterOrEquals:
-                    sb.Append(" >= ").Append(parameter.ParameterName);
+                    sb.Append(" >= ").Append(parameterName);
                     break;
                 case OperatorLite.Less:
-                    sb.Append(" < ").Append(parameter.ParameterName);
+                    sb.Append(" < ").Append(parameterName);
                     break;
                 case OperatorLite.LessOrEquals:
-                    sb.Append(" <= ").Append(parameter.ParameterName);
+                    sb.Append(" <= ").Append(parameterName);
                     break;
                 case OperatorLite.NotContains:
-                    sb.Append(" NOT LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameter.ParameterName, "'%'"));
+                    sb.Append(" NOT LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameterName, "'%'"));
                     break;
                 case OperatorLite.NotEquals:
-                    sb.Append(" <> ").Append(parameter.ParameterName);
+                    sb.Append(" <> ").Append(parameterName);
                     break;
                 case OperatorLite.NotStartsWith:
-                    sb.Append(" NOT LIKE " + QueryLite.DataService.EntityLiteProvider.Concat(parameter.ParameterName, "'%'"));
+                    sb.Append(" NOT LIKE " + QueryLite.DataService.EntityLiteProvider.Concat(parameterName, "'%'"));
                     break;
                 case OperatorLite.StartsWith:
-                    sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat(parameter.ParameterName, "'%'"));
+                    sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat(parameterName, "'%'"));
                     break;
                 case OperatorLite.IsDescendantOf:
-                    sb.Append(".IsDescendantOf(" + parameter.ParameterName + ") = 1");
+                    sb.Append(".IsDescendantOf(" + parameterName + ") = 1");
                     break;
                 case OperatorLite.IsChildOf:
-                    sb.Append(".GetAncestor(1) = " + parameter.ParameterName);
+                    sb.Append(".GetAncestor(1) = " + parameterName);
                     break;
                 case OperatorLite.IsGrandChildOf:
-                    sb.Append(".GetAncestor(2) = " + parameter.ParameterName);
+                    sb.Append(".GetAncestor(2) = " + parameterName);
                     break;
                 case OperatorLite.HierarchyLevelEquals:
-                    sb.Append(".GetLevel() = " + parameter.ParameterName);
+                    sb.Append(".GetLevel() = " + parameterName);
                     break;
                 case OperatorLite.STEquals:
-                    sb.Append(".STEquals(" + parameter.ParameterName + ") = 1");
+                    sb.Append(".STEquals(" + parameterName + ") = 1");
                     break;
                 case OperatorLite.STIntersects:
-                    sb.Append(".STIntersects(" + parameter.ParameterName + ") = 1");
+                    sb.Append(".STIntersects(" + parameterName + ") = 1");
                     break;
                 case OperatorLite.STDistanceLess:
                 case OperatorLite.STDistanceLessOrEquals:
-                    string parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
-                    cmd.Parameters.AddWithValue(parameterName, condition.Parameter);
+                    string pname = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+                    cmd.Parameters.AddWithValue(pname, condition.Parameter);
                     paramIndex++;
-                    sb.Append(".STDistance(" + parameter.ParameterName + ") " + (condition.Operator == OperatorLite.STDistanceLess ? "< " : "<= ") + parameterName);
+                    sb.Append(".STDistance(" + parameterName + ") " + (condition.Operator == OperatorLite.STDistanceLess ? "< " : "<= ") + pname);
                     break;
                 default:
                     throw new NotImplementedException("operator " + condition.Operator.ToString() + " not implemented yet");

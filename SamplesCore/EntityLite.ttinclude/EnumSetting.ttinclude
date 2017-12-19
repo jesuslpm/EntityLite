@@ -18,9 +18,22 @@ public class EnumSetting
 {
     public string BaseTableName { get; set; }
     public string Schema { get; set; }
-    public string TypeName { get; set; }
 	public string IdField { get; set;}
 	public string NameField { get; set;}
+
+	private string _typeName;
+	public string TypeName { 
+		get {
+			if (_typeName == null && IdField != null) {
+				_typeName = Extensions.ToPascalNamingConvention(IdField);
+			}
+			return _typeName;
+		}
+		set {
+			_typeName = value;
+		}
+	}
+
 
     public string GetFullTableName(string defaultSchema, string  quotePrefix, string quoteSufix)
     {

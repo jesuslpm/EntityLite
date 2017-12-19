@@ -70,35 +70,50 @@ namespace Samples
             profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
+                TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
-                QueryByPrimaryKey();
-                ShowSomeProducts();
-                ShowOrderDetails();
-                ShowQuesoCabralesOrders();
+                //QueryByPrimaryKey();
+                //ShowSomeProducts();
+                //ShowOrderDetails();
+                //ShowQuesoCabralesOrders();
                 //ShowPagedProducts();
-                ShowLondonAndewFullerSubtree();
+                //ShowLondonAndewFullerSubtree();
                 //SearchOrderDetails();
                 //ShowProductSales();
                 //RaiseProductPrices();
-                InsertUpdateDeleteProduct();
+                //InsertUpdateDeleteProduct();
                 //RaiseProductPrices2();
                 //HandCraftedSql();
                 //Localization();
                 //WillFail();
                 //BuggyShowQuesoCabralesOrders();
 
-                Pivot();
+                //Pivot();
 
                 //ShowAllEmployeesThatSoldSpecifiedProducts();
 
-                JsonTest().Wait();
+                //JsonTest().Wait();
                 //DbChangeNumberTest();
                 //SynonymTest();
             }
             profiler.StopProfiling();
             //Console.WriteLine("Press enter to exit ...");
             //Console.ReadLine();
+        }
+
+
+        static void TestEnums()
+        {
+            var t = new ProcessTask
+            {
+                TaskTemplateId = TaskTemplates.DealProcessCancel
+            };
+            ds.ProcessTaskRepository.Insert(t);
+
+            var tasks = ds.ProcessTaskRepository.Query(Projection.BaseTable)
+                .Where(nameof(ProcessTask.TaskTemplateId), OperatorLite.Equals, TaskTemplates.DealProcessCancel)
+                .ToList();
         }
 
         //static void SynonymTest()

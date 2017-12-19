@@ -193,6 +193,10 @@ namespace inercya.EntityLite
         }
 
         public event EventHandler<ErrorOcurredEventArgs> ErrorOcurred;
+        public event EventHandler BeforeCommit;
+        public event EventHandler AfterCommit;
+        public event EventHandler BeforeRollback;
+        public event EventHandler AfterRollback;
 
         private string _connectionString;
         public  string ConnectionString
@@ -263,6 +267,7 @@ namespace inercya.EntityLite
             EntityLiteProviderFactories.Add(MySqlEntityLiteProvider.ProviderName, (ds) => new MySqlEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ProviderName, (ds) => new OracleEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ManagedProviderName, (ds) => new OracleEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(DevArtEntityLiteProvider.ProviderName, (ds) => new DevArtEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(NpgsqlEntityLiteProvider.ProviderName, (ds) => new NpgsqlEntityLiteProvider(ds));
         }
 
@@ -378,13 +383,19 @@ namespace inercya.EntityLite
 			{
 				if (IsActiveTransaction)
 				{
-					if (TransactionCount == 1)
-					{
-						this.Transaction.Commit();
-						this.Transaction.Dispose();
-						_transaction = null;
-					}
-					TransactionCount--;
+                    if (TransactionCount == 1)
+                    {
+                        this.BeforeCommit?.Invoke(this, EventArgs.Empty);
+                        this.Transaction.Commit();
+                        this.Transaction.Dispose();
+                        _transaction = null;
+                        TransactionCount = 0;
+                        this.AfterCommit?.Invoke(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        TransactionCount--;
+                    }
 				}
 				else
 				{
@@ -404,10 +415,12 @@ namespace inercya.EntityLite
 			{
 				if (IsActiveTransaction)
 				{
+                    this.BeforeRollback?.Invoke(this, EventArgs.Empty);
 					this.Transaction.Rollback();
 					this.Transaction.Dispose();
 					_transaction = null;
 					TransactionCount = 0;
+                    this.AfterRollback?.Invoke(this, EventArgs.Empty);
 				}
 				else
 				{

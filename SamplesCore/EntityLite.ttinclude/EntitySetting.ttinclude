@@ -24,6 +24,7 @@ public class EntitySetting
 	public bool? GenerateTypeScript { get; set;}
 	public string SynonymName {get; set;}
 	public string SynonymSchema {get; set;}
+	public string RoundDateFields {get; set;}
 
     public int EntityTypeId { get; internal set; }
 
@@ -126,6 +127,21 @@ public class EntitySetting
         }
         return readOnlyFields;
     }
+
+	public HashSet<string> GetRoundDateFields()
+	{
+        HashSet<string> roundDateFields = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        if (this.RoundDateFields == null) return roundDateFields;
+        foreach (string token in this.RoundDateFields.Split(','))
+        {
+            string fieldName = token.Trim();
+            if (!string.IsNullOrEmpty(fieldName))
+            {
+                roundDateFields.Add(fieldName);
+            }
+        }
+        return roundDateFields;		
+	}
 
 
     public FieldGeneration FieldGeneration { get; set; }

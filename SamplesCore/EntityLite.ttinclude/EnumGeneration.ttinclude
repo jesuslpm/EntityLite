@@ -43,9 +43,6 @@ namespace <#= namespaceName #>
 <#+ /** ************************************************************************************************************************ **/
 public void RenderEnumType(DataLayerGeneration generation, EnumSetting enumSetting)
 {
-	if (string.IsNullOrEmpty(enumSetting.TypeName)) {
-		enumSetting.TypeName = Extensions.ToPascalNamingConvention(enumSetting.IdField);
-	}
 	if (generation.GenerateTypeScript) {
 #>
 	[TypeScript] 

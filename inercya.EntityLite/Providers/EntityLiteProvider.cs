@@ -100,11 +100,13 @@ namespace inercya.EntityLite.Providers
         {
             StringBuilder commandText = new StringBuilder();
             builder.GetSelectQuery(selectCommand, ref paramIndex, commandText);
-            var limitParam = builder.CreateIn32Parameter(toRowIndex - fromRowIndex + 1, ref paramIndex);
+            string limitParameterName;
+            var limitParam = builder.CreateIn32Parameter(toRowIndex - fromRowIndex + 1, ref paramIndex, out limitParameterName);
             selectCommand.Parameters.Add(limitParam);
-            var offsetParam = builder.CreateIn32Parameter(fromRowIndex, ref paramIndex);
+            string offsetParameterName;
+            var offsetParam = builder.CreateIn32Parameter(fromRowIndex, ref paramIndex, out offsetParameterName);
             selectCommand.Parameters.Add(offsetParam);
-            commandText.Append("\nLIMIT ").Append(limitParam.ParameterName).Append(" OFFSET ").Append(offsetParam.ParameterName);
+            commandText.Append("\nLIMIT ").Append(limitParameterName).Append(" OFFSET ").Append(offsetParameterName);
             return commandText.ToString();
         }
 

@@ -112,11 +112,13 @@ ORDER BY __RowNumber__
                 commandText.Append("\nWHERE\n    ").Append(builder.GetFilter(selectCommand, ref paramIndex, builder.QueryLite.Filter));
             }
             commandText.Append("\n) T\n");
-            IDbDataParameter fromParameter = builder.CreateIn32Parameter(fromRowIndex + 1, ref paramIndex);
+            string fromParameterName;
+            IDbDataParameter fromParameter = builder.CreateIn32Parameter(fromRowIndex + 1, ref paramIndex, out fromParameterName);
             selectCommand.Parameters.Add(fromParameter);
-            IDbDataParameter toParameter = builder.CreateIn32Parameter(toRowIndex + 1, ref paramIndex);
+            string toParameterName;
+            IDbDataParameter toParameter = builder.CreateIn32Parameter(toRowIndex + 1, ref paramIndex, out toParameterName);
             selectCommand.Parameters.Add(toParameter);
-            commandText.Append("WHERE __RowNumber__ BETWEEN ").Append(fromParameter.ParameterName).Append(" AND ").Append(toParameter.ParameterName);
+            commandText.Append("WHERE __RowNumber__ BETWEEN ").Append(fromParameterName).Append(" AND ").Append(toParameterName);
             commandText.Append("\nORDER BY __RowNumber__;");
 
             builder.SetOptions(commandText);

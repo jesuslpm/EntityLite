@@ -2519,6 +2519,106 @@ namespace Samples.Entities
 		public const string Data = "Data";
 	}
 
+	[Serializable]
+	[DataContract]
+    [TypeScript] 
+	[SqlEntity(BaseTableName="tasks")]
+	public partial class ProcessTask : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _taskId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="task_id", BaseColumnName ="task_id", BaseTableName = "tasks" )]		public Int32 TaskId 
+		{ 
+		    get { return _taskId; } 
+			set 
+			{
+			    _taskId = value;
+				NotifyPropertyChange("TaskId");
+			}
+        }
+
+		private TaskTemplates _taskTemplateId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="task_template_id", BaseColumnName ="task_template_id", BaseTableName = "tasks" )]		public TaskTemplates TaskTemplateId 
+		{ 
+		    get { return _taskTemplateId; } 
+			set 
+			{
+			    _taskTemplateId = value;
+				NotifyPropertyChange("TaskTemplateId");
+			}
+        }
+
+
+	}
+
+	public partial class ProcessTaskRepository : Repository<ProcessTask> 
+	{
+		public ProcessTaskRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public ProcessTask Get(string projectionName, System.Int32 taskId)
+		{
+			return ((IRepository<ProcessTask>)this).Get(projectionName, taskId, FetchMode.UseIdentityMap);
+		}
+
+		public ProcessTask Get(string projectionName, System.Int32 taskId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<ProcessTask>)this).Get(projectionName, taskId, fetchMode);
+		}
+
+		public ProcessTask Get(Projection projection, System.Int32 taskId)
+		{
+			return ((IRepository<ProcessTask>)this).Get(projection, taskId, FetchMode.UseIdentityMap);
+		}
+
+		public ProcessTask Get(Projection projection, System.Int32 taskId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<ProcessTask>)this).Get(projection, taskId, fetchMode);
+		}
+
+		public ProcessTask Get(string projectionName, System.Int32 taskId, params string[] fields)
+		{
+			return ((IRepository<ProcessTask>)this).Get(projectionName, taskId, fields);
+		}
+
+		public ProcessTask Get(Projection projection, System.Int32 taskId, params string[] fields)
+		{
+			return ((IRepository<ProcessTask>)this).Get(projection, taskId, fields);
+		}
+
+		public bool Delete(System.Int32 taskId)
+		{
+			var entity = new ProcessTask { TaskId = taskId };
+			return this.Delete(entity);
+		}
+
+			}
+	[Obsolete("Use nameof instead")]
+	public static partial class ProcessTaskFields
+	{
+		public const string TaskId = "TaskId";
+		public const string TaskTemplateId = "TaskTemplateId";
+	}
+
 }
 
 namespace Samples.Entities
@@ -2737,6 +2837,19 @@ namespace Samples.Entities
 					_MetadataItemRepository = new Samples.Entities.MetadataItemRepository(this);
 				}
 				return _MetadataItemRepository;
+			}
+		}
+
+		private Samples.Entities.ProcessTaskRepository _ProcessTaskRepository;
+		public Samples.Entities.ProcessTaskRepository ProcessTaskRepository
+		{
+			get 
+			{
+				if ( _ProcessTaskRepository == null)
+				{
+					_ProcessTaskRepository = new Samples.Entities.ProcessTaskRepository(this);
+				}
+				return _ProcessTaskRepository;
 			}
 		}
 	}

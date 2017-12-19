@@ -40,6 +40,7 @@ public class DataLayerGeneration : IDisposable
     public List<ProcedureSetting> ProcedureSettings { get; set; }
 	public List<EnumSetting> EnumSettings {get; set;}
 	public JsonType JsonType { get; set; }
+	public string ViewNamePrefix {get; set;}
 
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
 
@@ -54,6 +55,7 @@ public class DataLayerGeneration : IDisposable
 		ConnectionStringName = "AppConnectionString";
 		EntityTypesTableName = "EntityTypes";
 		EntityTypeNameColumnName = "EntityTypeName";
+		EnumSettings = new List<EnumSetting>();
     }
 
 	private  DbProviderFactory _factory;
@@ -155,6 +157,12 @@ public class DataLayerGeneration : IDisposable
 					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
 					mi.Invoke(null, new object[] {cmd});				
 				}
+				else if (ProviderName == "Devart.Data.Oracle")
+				{
+					var commandBuilderType = Type.GetType("Devart.Data.Oracle.OracleCommandBuilder, " + Factory.GetType().Assembly.FullName, true);
+					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
+					mi.Invoke(null, new object[] {cmd});					
+				}
 				else if (ProviderName == "Npgsql")
 				{
 					var commandBuilderType = Type.GetType("Npgsql.NpgsqlCommandBuilder, " + Factory.GetType().Assembly.FullName, true);
@@ -243,16 +251,32 @@ public class DataLayerGeneration : IDisposable
         }
     }
 
+	private Dictionary<string, EnumSetting> EnumSettingsByIdField;
+
 
     public void Initialize()
     {
+		SetEnumSettigsByIdField();
 		LoadSequences();
         SetViewsByEntity();
         SetFieldsMetadataByEntity();
 		
+		
         //This would work only with SQL Server and if the EntityTypes Table exists
         if (GenerateEntityTypeId) GenerateEntityTypes();
     }
+
+	private void SetEnumSettigsByIdField() 
+	{
+		EnumSettingsByIdField = this.EnumSettings.ToDictionary(x => Extensions.ToPascalNamingConvention(x.IdField));
+		if (GenerateEntityTypeId) {
+			EnumSettingsByIdField.Add("EntityTypeId", new EnumSetting {
+				BaseTableName = EntityTypesTableName,
+				IdField = "entity_type_id",
+				NameField = EntityTypeNameColumnName
+			});
+		}
+	}
 
 	private static Dictionary<Type, DbType> DataTypeToDbType = new Dictionary<Type, DbType>() {
 		{ typeof(byte[]), DbType.Binary },
@@ -302,6 +326,11 @@ public class DataLayerGeneration : IDisposable
 				Type oracleDbTypeType = oracleParam.OracleDbType.GetType();
 				Extensions.SetPropertyValue(oracleParam, "OracleDbType", Enum.ToObject(oracleDbTypeType, providerType));
 				return (DbType) oracleParam.DbType; 
+			case "Devart.Data.Oracle":
+				dynamic devartParam = Factory.CreateParameter();
+				Type devartDbTypeType = devartParam.OracleDbType.GetType();
+				Extensions.SetPropertyValue(devartParam, "OracleDbType", Enum.ToObject(devartDbTypeType, providerType));
+				return (DbType) devartParam.DbType; 				
             default:
                 throw new NotSupportedException("provider " + ProviderName + " is not supported");
         }
@@ -332,8 +361,9 @@ public class DataLayerGeneration : IDisposable
                 var schema = GetSchemaUnion(entity, cn);
 
                 var readOnlyFields = entity.GetReadOnlyFields();
+				var roundDateFields = entity.GetRoundDateFields();
                 HashSet<string> localizedFields = new HashSet<string>();
-                foreach (var row in schema.Rows.Cast<DataRow>().Where( x => x["IsHidden"].GetType() != typeof(bool) || !(bool) x["IsHidden"]))
+                foreach (var row in schema.Rows.Cast<DataRow>().Where( x => !schema.Columns.Contains("IsHidden") || x["IsHidden"].GetType() != typeof(bool) || !(bool) x["IsHidden"]))
                 {                     
                     var fieldMetadata = new FieldMetadata
                     {
@@ -346,18 +376,25 @@ public class DataLayerGeneration : IDisposable
                         IsKey =  (bool) row["IsKey"],
                         IsNullable = ((Type)row["DataType"]).IsValueType && (bool) row["AllowDBNull"],
                         IsReadOnly = (bool) row["IsReadOnly"] || readOnlyFields.Contains((string) row["ColumnName"]),
+						IsRoundDate = roundDateFields.Contains((string)row["ColumnName"]),
                         Precision = Convert.IsDBNull(row["NumericPrecision"]) ? (byte) 255 : Convert.ToByte(row["NumericPrecision"]),
                         PropertyName = Extensions.ToPascalNamingConvention(((string)row["ColumnName"])),
                         PropertyType = (Type)row["DataType"],
-                        Scale = Convert.IsDBNull(row["NumericScale"]) ? (byte) 255 : Convert.ToByte(row["NumericScale"]),
+                        Scale = (Convert.IsDBNull(row["NumericScale"]) || Convert.ToInt32(row["NumericScale"]) < 0) ? (byte) 255 : Convert.ToByte(row["NumericScale"]),
                         ColumnSize = (int) row["ColumnSize"],
-						ProviderType = IsOracleNationalCharacterType(row["ProviderType"]) ? (int?) Convert.ToInt32(row["ProviderType"]) : (int?) null
+						ProviderType = ShouldUseProviderType(row["ProviderType"]) ? (int?) Convert.ToInt32(row["ProviderType"]) : (int?) null
                     };
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
 					{
 						fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
 						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
+					}
+					EnumSetting enumSetting;
+					if (EnumSettingsByIdField.TryGetValue(fieldMetadata.PropertyName, out enumSetting))
+					{
+						fieldMetadata.PropertyTypeName = fieldMetadata.IsNullable ? enumSetting.TypeName + "?" : enumSetting.TypeName;
+						fieldMetadata.PropertyName = enumSetting.TypeName;
 					}
 					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")
 					{
@@ -406,9 +443,6 @@ public class DataLayerGeneration : IDisposable
                     };
                     fieldsMetadata.Add(fieldMetadata);
                 }
-
-	
-				
 
                 this.FieldsMetadataByEntity.Add(entity, fieldsMetadata);
 
@@ -467,11 +501,14 @@ public class DataLayerGeneration : IDisposable
                 var schema = reader.GetSchemaTable();
 				bool isProviderTypeInt = schema.Columns["ProviderType"].DataType == typeof(int) || schema.Columns["ProviderType"].DataType.IsEnum;;
 				schema.Columns.Add("DbType", typeof(DbType));
-                var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
-                foreach (var row in hidden)
-                {
-                    schema.Rows.Remove(row);
-                }
+				if (schema.Columns.Contains("IsHidden")) 
+				{
+					var hidden = schema.Rows.Cast<DataRow>().Where(x => x["IsHidden"].GetType() == typeof(bool) && (bool) x["IsHidden"]).ToList();
+					foreach (var row in hidden)
+					{
+						schema.Rows.Remove(row);
+					}
+				}
                 schema.Constraints.Add("PK_Schema", schema.Columns["ColumnName"], true);
 				if (!schema.Columns.Contains("IsAutoIncrement")) {
 					schema.Columns.Add("IsAutoIncrement", typeof(bool));
@@ -577,6 +614,11 @@ public class DataLayerGeneration : IDisposable
 				nameColumn = "VIEW_NAME";
 				schemaColumn = "OWNER";
 			}
+			else if (ProviderName == "Devart.Data.Oracle")
+			{
+				nameColumn = "Name";
+				schemaColumn = "Schema";
+			}
             foreach (var entity in this.EntitySettings.OrderByDescending(x => x.EntityName.Length))
             {
                 var views = new List<string>();
@@ -585,8 +627,7 @@ public class DataLayerGeneration : IDisposable
                 {
                     string viewName = (string)row[nameColumn];
                     string viewSchema = Convert.IsDBNull(row[schemaColumn]) ? null : (string)row[schemaColumn];
-                    string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;
-                        
+                    string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;   
                     if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(Extensions.Transform(entity.EntityName, EntityNameToEntityViewTransform).ToLower() + "_"))
                     {
                         views.Add(fullViewName);
@@ -670,7 +711,7 @@ public class DataLayerGeneration : IDisposable
 	private void LoadSequences()
 	{
 		string commandText = null;
-		if (ProviderName == "Oracle.DataAccess.Client" || ProviderName == "Oracle.ManagedDataAccess.Client")
+		if (ProviderName == "Oracle.DataAccess.Client" || ProviderName == "Oracle.ManagedDataAccess.Client" || ProviderName == "Devart.Data.Oracle")
 		{
 			commandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
 		}
@@ -816,6 +857,7 @@ FROM
 						break;
 					case "Oracle.DataAccess.Client":
 					case "Oracle.ManagedDataAccess.Client":
+					case "Devart.Data.Oracle":
 						dynamic oracleParam = Factory.CreateParameter();
 						_providerDbTypeType = oracleParam.OracleDbType.GetType();
 						break;
@@ -827,10 +869,15 @@ FROM
 		}
 	} 
 
-	bool IsOracleNationalCharacterType(object providerType) {
-		if (ProviderName != "Oracle.DataAccess.Client" && ProviderName != "Oracle.ManagedDataAccess.Client") return false;
-		var providerDbTypeName = Enum.ToObject(ProviderDbTypeType, Convert.ToInt32(providerType)).ToString();
-		return providerDbTypeName == "NChar" || providerDbTypeName == "NVarchar2" || providerDbTypeName == "NClob";	
+
+	bool ShouldUseProviderType(object providerType) {
+		if (ProviderName == "Oracle.DataAccess.Client" || ProviderName == "Oracle.ManagedDataAccess.Client" || ProviderName == "Devart.Data.Oracle")
+		{
+			var providerDbTypeName = Enum.ToObject(ProviderDbTypeType, Convert.ToInt32(providerType)).ToString();
+			return providerDbTypeName == "NChar" || providerDbTypeName == "NVarchar2" || providerDbTypeName == "NClob" 
+				|| providerDbTypeName == "NVarChar" || providerDbTypeName == "Raw" || providerDbTypeName == "Long" || providerDbTypeName == "LongRaw";	
+		}
+		return false;
 	}
 }
 #>

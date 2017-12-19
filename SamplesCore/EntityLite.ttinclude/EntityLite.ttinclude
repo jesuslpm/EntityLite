@@ -30,6 +30,7 @@
 <#@ include file ="ProcedureResultSetKind.ttinclude" #>
 <#@ include file ="ProcedureSetting.ttinclude" #>
 <#@ include file ="TypeScriptAttributeGeneration.ttinclude" #>
+<#@ include file ="RoundDateJsonConverterGeneration.ttinclude" #>
 <#+ 
 	void Render(DataLayerGeneration generation)
 	{
@@ -41,6 +42,7 @@
             DataServiceGeneration_Render(generation);
             ProcedureGeneration_Render(generation);
 			TypeScriptAttributeGeneration_Render(generation);
+			RoundDateJsonConverterGeneration_Render(generation);
         }
 	}
 #>

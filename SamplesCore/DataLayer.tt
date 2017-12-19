@@ -108,6 +108,11 @@ To generate the datalayer for MySQL you need  to:
 				EntityName = "MetadataItem",
 				BaseTableName = "Metadata"
 			},
+			new EntitySetting 
+			{
+				EntityName = "ProcessTask",
+				BaseTableName = "tasks"
+			}
 			/* new EntitySetting 
 			{
 				EntityName = "Element",
