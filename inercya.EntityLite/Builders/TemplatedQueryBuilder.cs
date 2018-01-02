@@ -34,14 +34,20 @@ namespace inercya.EntityLite.Builders
 
         private string sql;
 
-        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
+        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             ISqlTemplate template = ((ITemplatedQueryLite)this.QueryLite).Template;
             string parameterPrefix = this.QueryLite.DataService.EntityLiteProvider.ParameterPrefix;
             template.AddParametersToCommand(selectCommand, this.QueryLite.DataService);
             if (string.IsNullOrEmpty(sql))
             {
-                sql = "(\n" + template.GetSql(parameterPrefix) + "\n) TQ";
+                var sb = new StringBuilder();
+                sb.NewIndentedLine(++indentation);
+                var indentedLine = sb.ToString();
+                var sql = template.GetSql(parameterPrefix).Replace("\r\n", indentedLine);
+                sb = new StringBuilder();
+                sb.Append('(').Append("\n").Append(sql).NewIndentedLine(--indentation).Append(") TQ");
+                sql = sb.ToString();
             }
             return sql;
         }

@@ -32,6 +32,8 @@ namespace inercya.EntityLite
 			this.QueryBuilder =  new FunctionQueryBuilder(this);
         }
 
+       
+
 
 		public FunctionQueryLite(DataService dataAccess, string functionName, params object[] parameterValues) : this()
 		{

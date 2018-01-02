@@ -89,6 +89,9 @@ namespace inercya.EntityLite
         public int CommandTimeout { get; set; }
 
         public DateTimeKind AuditDateTimeKind { get; set; }
+        public string SequencePrefix { get; set; }
+        public string SequenceSuffix { get; set; }
+        public string ViewPrefix { get; set; }
 
         public IEntityLiteProvider EntityLiteProvider
         {

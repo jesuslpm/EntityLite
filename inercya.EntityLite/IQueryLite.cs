@@ -47,6 +47,7 @@ namespace inercya.EntityLite
         DataTable Pivot(params PivotTransform[] pivotTransforms);
         DataTable Pivot(Comparison<PivotedColumn> pivotedColumnComparison, params PivotTransform[] pivotTransforms);
         int CommandTimeout { get; set; }
+        Alias Alias { get; set; }
 
 #if NET452 || NETSTANDARD2_0
         Task<IEnumerable> ToEnumerableAsync();

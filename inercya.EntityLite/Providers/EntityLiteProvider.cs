@@ -99,7 +99,7 @@ namespace inercya.EntityLite.Providers
         protected string GetLimitOffsetSelectQuery(AbstractQueryBuilder builder, DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
         {
             StringBuilder commandText = new StringBuilder();
-            builder.GetSelectQuery(selectCommand, ref paramIndex, commandText);
+            builder.GetSelectQuery(selectCommand, ref paramIndex, commandText, 0);
             string limitParameterName;
             var limitParam = builder.CreateIn32Parameter(toRowIndex - fromRowIndex + 1, ref paramIndex, out limitParameterName);
             selectCommand.Parameters.Add(limitParam);

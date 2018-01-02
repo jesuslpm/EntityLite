@@ -52,6 +52,7 @@ namespace inercya.EntityLite
         public ICollection<ConditionLite> Filter { get; set; }
         public ICollection<SortDescriptor> Sort { get; set; }
 		public ICollection<string> Options { get; set; }
+        public Alias Alias { get; set; }
 
         [NonSerialized]
         private DataService _dataService;
@@ -94,7 +95,7 @@ namespace inercya.EntityLite
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;
-            selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex);
+            selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex, 0);
             return selectCommand;
         }
 
@@ -102,7 +103,7 @@ namespace inercya.EntityLite
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;
-            selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex, fromIndex, toIndex);
+            selectCommand.CommandText = QueryBuilder.GetSelectQuery(selectCommand, ref paramIndex, fromIndex, toIndex, 0);
             return selectCommand;
         }
 
@@ -260,6 +261,8 @@ namespace inercya.EntityLite
                 return logger;
             }
         }
+
+
 
         protected AbstractQueryLite() : base()
         {

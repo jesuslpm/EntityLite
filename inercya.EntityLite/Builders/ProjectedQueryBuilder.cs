@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
 using System.Data.Common;
+using System.Reflection;
 
 namespace inercya.EntityLite.Builders
 {
@@ -38,8 +39,20 @@ namespace inercya.EntityLite.Builders
                 return ((IProjectedQueryLite)this.QueryLite).ProjectionName;
             }
         }
- 
-        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
+
+        public override string GetColumnList()
+        {
+            if (QueryLite.FieldList == null || QueryLite.FieldList.Count == 0)
+            {
+                FieldInfo fi = this.QueryLite.EntityType.GetField(ProjectionName + "ProjectionColumnList", BindingFlags.Public | BindingFlags.Static);
+                if (fi == null) return "*";
+                var columnList = (string)fi.GetRawConstantValue();
+                return columnList;
+            }
+            return base.GetColumnList();
+        }
+
+        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             Type entityType = this.QueryLite.EntityType;
             EntityMetadata entityMetadata = entityType.GetEntityMetadata();
@@ -62,10 +75,17 @@ namespace inercya.EntityLite.Builders
             else
             {
                 tableOrViewName = (entityType.Name  + "_" + this.ProjectionName).Transform(QueryLite.DataService.EntityNameToEntityViewTransform);
+                if (!string.IsNullOrEmpty(this.QueryLite.DataService.ViewPrefix))
+                {
+                    tableOrViewName = this.QueryLite.DataService.ViewPrefix + tableOrViewName;
+                }
             }
             string startQuote =  this.QueryLite.DataService.EntityLiteProvider.StartQuote;
             string endQuote =  this.QueryLite.DataService.EntityLiteProvider.EndQuote;
-            return string.IsNullOrEmpty(schema) ? ( startQuote + tableOrViewName + endQuote): startQuote + schema + endQuote + "." + startQuote + tableOrViewName + endQuote;           
+            var quotedObjectName = string.IsNullOrEmpty(schema) ? (startQuote + tableOrViewName + endQuote) : startQuote + schema + endQuote + "." + startQuote + tableOrViewName + endQuote;
+            string fromContent = quotedObjectName;
+            if (this.QueryLite.Alias != null) fromContent += " " + this.QueryLite.Alias.Name;
+            return fromContent;
         }
     }
 }

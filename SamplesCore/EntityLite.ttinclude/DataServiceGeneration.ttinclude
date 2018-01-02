@@ -33,6 +33,15 @@ namespace <#= generation.RootNamespace #>
 <#+	if (generation.AuditDateTimeKind != DateTimeKind.Unspecified) { #>
 			AuditDateTimeKind = DateTimeKind.<#= generation.AuditDateTimeKind.ToString() #>;
 <#+	} #>
+<#+ if (!string.IsNullOrEmpty(generation.ViewPrefix)) { #>
+			ViewPrefix = "<#= generation.ViewPrefix #>";
+<#+ } #>
+<#+ if (!string.IsNullOrEmpty(generation.SequencePrefix)) { #>
+			SequencePrefix = "<#= generation.SequencePrefix #>";
+<#+ } #>
+<#+ if (!string.IsNullOrEmpty(generation.SequenceSuffix)) { #>
+			SequenceSuffix = "<#= generation.SequenceSuffix #>";
+<#+ } #>
 			OnCreated();
 		}
 

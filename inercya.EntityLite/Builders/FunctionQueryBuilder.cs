@@ -40,10 +40,10 @@ namespace inercya.EntityLite.Builders
 		}
 
 
-        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex)
+        public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             var sb = new StringBuilder();
-            sb.Append(" ").Append(this.QueryLite.FunctionName).Append("(");
+            sb.Append(this.QueryLite.FunctionName).Append("(");
             bool first = true;
             foreach (object parameterValue in this.QueryLite.ParameterValues)
             {

@@ -95,10 +95,10 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)  where TEntity: class, new()
-		{
-			return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper);
-		}
+		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)  where TEntity: class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper);
+		//}
 
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> existingFilter, ICollection<ConditionLite> filter)
 		{
@@ -116,10 +116,10 @@ namespace inercya.EntityLite
 			return filter.Where(fieldName, oper);
 		}
 
-		public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>) filter.And(selector.GetMemberName(), oper);
-		}
+		//public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>) filter.And(selector.GetMemberName(), oper);
+		//}
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper)
 		{
@@ -127,10 +127,10 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
-		{
-			return query.Where(selector.GetMemberName(), oper);
-		}
+		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
+		//{
+		//	return query.Where(selector.GetMemberName(), oper);
+		//}
 
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue)
@@ -138,10 +138,10 @@ namespace inercya.EntityLite
 			return query.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue)
-		{
-			return query.Where(selector.GetMemberName(), fieldValue);
-		}
+		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue)
+		//{
+		//	return query.Where(selector.GetMemberName(), fieldValue);
+		//}
 
 		public static IQueryLite<TEntity> Option<TEntity>(this IQueryLite<TEntity> query, string option)
 		{
@@ -154,10 +154,10 @@ namespace inercya.EntityLite
 			return filter.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), fieldValue);
-		}
+		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), fieldValue);
+		//}
 
 		public static ICollection<ConditionLite> Where(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue)
 		{
@@ -175,10 +175,10 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper, fieldValue);
-		}
+		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper, fieldValue);
+		//}
 
 		public static ICollection<ConditionLite> Where(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
@@ -195,10 +195,10 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper, fieldValue, param);
-		}
+		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper, fieldValue, param);
+		//}
 
 
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> filter, string fieldName, object fieldValue)
@@ -206,20 +206,20 @@ namespace inercya.EntityLite
 			return filter.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.And(selector.GetMemberName(), fieldValue);
-		}
+		//public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.And(selector.GetMemberName(), fieldValue);
+		//}
 
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue)
 		{
 			return filter.Where(fieldName, oper, fieldValue);
 		}
 
-		public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.And(selector.GetMemberName(), oper, fieldValue);
-		}
+		//public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.And(selector.GetMemberName(), oper, fieldValue);
+		//}
 
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, ICollection<ConditionLite> filter)
@@ -235,10 +235,10 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
-		{
-			return query.Where(selector.GetMemberName(), oper, (object) fieldValue);
-		}
+		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
+		//{
+		//	return query.Where(selector.GetMemberName(), oper, (object) fieldValue);
+		//}
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
@@ -246,10 +246,10 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
-		{
-			return query.Where(selector.GetMemberName(), oper, (object)fieldValue, param);
-		}
+		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
+		//{
+		//	return query.Where(selector.GetMemberName(), oper, (object)fieldValue, param);
+		//}
 
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, ICollection<ConditionLite> filter)
 		{
@@ -262,40 +262,40 @@ namespace inercya.EntityLite
 			return query.Where(fieldName, oper);
 		}
 
-		public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
-		{
-			return query.And(selector.GetMemberName(), oper);
-		}
+		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
+		//{
+		//	return query.And(selector.GetMemberName(), oper);
+		//}
 
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue)
 		{
 			return query.Where(fieldName, oper, fieldValue);
 		}
 
-		public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
-		{
-			return query.And(selector.GetMemberName(), oper, (object) fieldValue);
-		}
+		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
+		//{
+		//	return query.And(selector.GetMemberName(), oper, (object) fieldValue);
+		//}
 
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
 			return query.Where(fieldName, oper, fieldValue, param);
 		}
 
-		public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
-		{
-			return query.And(selector.GetMemberName(), oper, (object)fieldValue, param);
-		}
+		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
+		//{
+		//	return query.And(selector.GetMemberName(), oper, (object)fieldValue, param);
+		//}
 
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue)
 		{
 			return query.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue)
-		{
-			return query.And(selector.GetMemberName(), (object)fieldValue);
-		}
+		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue)
+		//{
+		//	return query.And(selector.GetMemberName(), (object)fieldValue);
+		//}
 
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> existingFilter, ICollection<ConditionLite> filter)
 		{
@@ -320,10 +320,10 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper);
-		}
+		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper);
+		//}
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper)
 		{
@@ -332,20 +332,20 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
-		{
-			return query.Or(selector.GetMemberName(), oper);
-		}
+		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
+		//{
+		//	return query.Or(selector.GetMemberName(), oper);
+		//}
 
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, object fieldValue)
 		{
 			return filter.Or(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), fieldValue);
-		}
+		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), fieldValue);
+		//}
 
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue)
 		{
@@ -362,10 +362,10 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper, fieldValue);
-		}
+		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper, fieldValue);
+		//}
 
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
@@ -381,10 +381,10 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper, fieldValue, param);
-		}
+		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param) where TEntity : class, new()
+		//{
+		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper, fieldValue, param);
+		//}
 
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, ICollection<ConditionLite> filter)
@@ -399,10 +399,10 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
-		{
-			return query.Or(selector.GetMemberName(), oper, (object) fieldValue);
-		}
+		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
+		//{
+		//	return query.Or(selector.GetMemberName(), oper, (object) fieldValue);
+		//}
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
@@ -410,20 +410,20 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
-		{
-			return query.Or(selector.GetMemberName(), oper, (object)fieldValue, param);
-		}
+		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
+		//{
+		//	return query.Or(selector.GetMemberName(), oper, (object)fieldValue, param);
+		//}
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue)
 		{
 			return query.Or(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector,  TProperty fieldValue)
-		{
-			return query.Or(selector.GetMemberName(), (object)fieldValue);
-		}	
+		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector,  TProperty fieldValue)
+		//{
+		//	return query.Or(selector.GetMemberName(), (object)fieldValue);
+		//}	
 
 
 		public static IQueryLite<TEntity> OrderBy<TEntity>(this IQueryLite<TEntity> query, params string[] sortFieldNames)
@@ -435,10 +435,10 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> OrderBy<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector)
-		{
-			return query.OrderBy(selector.GetMemberName());
-		}
+		//public static IQueryLite<TEntity> OrderBy<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector)
+		//{
+		//	return query.OrderBy(selector.GetMemberName());
+		//}
 
 		public static IQueryLite<TEntity> OrderByDesc<TEntity>(this IQueryLite<TEntity> query, params string[] sortFieldNames)
 		{
@@ -449,10 +449,10 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		public static IQueryLite<TEntity> OrderByDesc<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector)
-		{
-			return query.OrderByDesc(selector.GetMemberName());
-		}
+		//public static IQueryLite<TEntity> OrderByDesc<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector)
+		//{
+		//	return query.OrderByDesc(selector.GetMemberName());
+		//}
 
 		public static object Get(this IQueryLite query, object ID)
 		{
@@ -549,6 +549,7 @@ namespace inercya.EntityLite
             var metadata = typeof(TEntity).GetEntityMetadata();
 
             var invalidField = fields.FirstOrDefault(x => {
+                if (x == "*") return false;
                 PropertyMetadata propMetadata;
                 if (metadata.Properties.TryGetValue(x, out propMetadata))
                 {
@@ -593,6 +594,22 @@ namespace inercya.EntityLite
         public static IQueryLite<TEntity> Fields<TEntity>(this IQueryLite<TEntity> query, params string[] fields)
         {
             return query.Fields(FieldsOption.IncludeBoth, fields);
+        }
+
+        public static IQueryLite<TEntity> WithAlias<TEntity>(this IQueryLite<TEntity> query, Alias alias)
+        {
+            if (query.EntityType != alias.EntityType)
+            {
+                throw new ArgumentException("The entity type of the alias must be the same as the entity type of the query");
+            }
+            query.Alias = alias;
+            return query;
+        }
+
+        public static IQueryLite<TEntity> WithAlias<TEntity>(this IQueryLite<TEntity> query, string aliasName)
+        {
+            query.Alias = new Alias(aliasName, typeof(TEntity));
+            return query;
         }
 
         public static IQueryLite<TEntity> WithTimeout<TEntity>(this IQueryLite<TEntity> query, int timeout)

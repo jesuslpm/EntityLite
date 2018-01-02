@@ -58,7 +58,7 @@ namespace Samples
 
         static void Main(string[] args)
         {
-            TestHttp();
+            //TestHttp();
             ConfigurationLite.DbProviderFactories.Register("System.Data.SQLite", Microsoft.Data.Sqlite.SqliteFactory.Instance);
             ////for (int i =0; i < 100; i++) TestQueue();
             profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
@@ -70,14 +70,14 @@ namespace Samples
             profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
-                TestEnums();
+                //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
                 //QueryByPrimaryKey();
                 //ShowSomeProducts();
                 //ShowOrderDetails();
                 //ShowQuesoCabralesOrders();
-                //ShowPagedProducts();
+                ShowPagedProducts();
                 //ShowLondonAndewFullerSubtree();
                 //SearchOrderDetails();
                 //ShowProductSales();

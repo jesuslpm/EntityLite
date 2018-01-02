@@ -52,24 +52,6 @@ namespace <#= namespaceName #>
 			RenderEntityRepositoryClass(generation, entity);
 			RenderEntityFieldsClass(generation, entity);
 		}
-        if (generation.GenerateEntityTypeId) 
-        {
-#>
-	[TypeScript]
-	public enum EntityTypeId
-	{
-		WholeSystem = 0,
-<#+
-            foreach (var entity in g)
-            {
-#>
-		<#= entity.EntityName #> = <#= entity.EntityTypeId #>,
-<#+ 
-            }
-#>
-	}
-<#+
-        }
 #>
 }
 <#+
@@ -152,6 +134,15 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
 			}
         }
 
+<#+
+				}
+			}
+			if (generation.GenerateProjectionColumnLists)
+			{
+				foreach(var kv in generation.ProjectionColumnListsByEntity[entity])
+				{
+#>
+		public const string <#= kv.Key #>ProjectionColumnList = "<#= kv.Value #>";
 <#+
 				}
 			}

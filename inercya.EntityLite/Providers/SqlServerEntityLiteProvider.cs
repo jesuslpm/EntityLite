@@ -101,26 +101,36 @@ WHERE C.Country = 'USA'
 WHERE __RowNumber__ BETWEEN 1 AND 5
 ORDER BY __RowNumber__
  */
-
-            commandText.Append("\nSELECT ").Append(builder.GetColumnList()).Append("\n")
-                       .Append("FROM (\n")
-                       .Append("SELECT *, ROW_NUMBER() OVER (ORDER BY ").Append(builder.GetSort()).Append(") AS __RowNumber__\n")
-                       .Append("FROM ").Append(builder.GetFromClauseContent(selectCommand, ref paramIndex)).Append("\n");
+            string columnList = builder.GetColumnList();
+            bool isStar = columnList == "*";
+            commandText.Append("SELECT ");
+            if (isStar) commandText.Append("*");
+            else commandText.NewIndentedLine(1).Append(columnList);
+            commandText.Append("\nFROM")
+                       .NewIndentedLine(1).Append('(')
+                       .NewIndentedLine(2).Append("SELECT")
+                       .NewIndentedLine(3).Append(" *, ROW_NUMBER() OVER (ORDER BY ").Append(builder.GetSort()).Append(") AS __RowNumber__")
+                       .NewIndentedLine(2).Append("FROM")
+                       .NewIndentedLine(3).Append(builder.GetFromClauseContent(selectCommand, ref paramIndex, 3));
             bool hasWhereClause = builder.QueryLite.Filter != null && !builder.QueryLite.Filter.IsEmpty();
             if (hasWhereClause)
             {
-                commandText.Append("\nWHERE\n    ").Append(builder.GetFilter(selectCommand, ref paramIndex, builder.QueryLite.Filter));
+                commandText.NewIndentedLine(2)
+                    .Append("WHERE")
+                    .NewIndentedLine(3).Append(builder.GetFilter(selectCommand, ref paramIndex, builder.QueryLite.Filter, 3, false));
             }
-            commandText.Append("\n) T\n");
+            commandText.NewIndentedLine(1).Append(") T");
             string fromParameterName;
             IDbDataParameter fromParameter = builder.CreateIn32Parameter(fromRowIndex + 1, ref paramIndex, out fromParameterName);
             selectCommand.Parameters.Add(fromParameter);
             string toParameterName;
             IDbDataParameter toParameter = builder.CreateIn32Parameter(toRowIndex + 1, ref paramIndex, out toParameterName);
             selectCommand.Parameters.Add(toParameter);
-            commandText.Append("WHERE __RowNumber__ BETWEEN ").Append(fromParameterName).Append(" AND ").Append(toParameterName);
-            commandText.Append("\nORDER BY __RowNumber__;");
-
+            commandText.Append("\nWHERE")
+                .NewIndentedLine(1).Append( "__RowNumber__ BETWEEN ")
+                .Append(fromParameterName).Append(" AND ").Append(toParameterName);
+            commandText.Append("\nORDER BY")
+                .NewIndentedLine(1).Append("__RowNumber__");
             builder.SetOptions(commandText);
             return commandText.ToString();
         }

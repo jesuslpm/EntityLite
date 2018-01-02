@@ -370,7 +370,16 @@ namespace inercya.EntityLite.Builders
 
         private string GetDbChangeNumberFullSequenceName()
         {
-            var sequenceName = (DataService.SpecialFieldNames.DbChangeNumberFieldName + "_Seq").Transform(DataService.EntityNameToEntityViewTransform);
+            var sequenceName = DataService.SpecialFieldNames.DbChangeNumberFieldName;
+            if (!string.IsNullOrEmpty(DataService.SequencePrefix))
+            {
+                sequenceName = DataService.SequencePrefix + sequenceName;
+            }
+            else if (!string.IsNullOrEmpty(DataService.SequenceSuffix))
+            {
+                sequenceName = sequenceName + DataService.SequenceSuffix;
+            }
+            sequenceName = sequenceName.Transform(DataService.EntityNameToEntityViewTransform);
             if (!string.IsNullOrEmpty(DataService.EntityLiteProvider.DefaultSchema))
             {
                 sequenceName = DataService.EntityLiteProvider.DefaultSchema + "." + sequenceName;

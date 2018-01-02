@@ -134,5 +134,20 @@ namespace inercya.EntityLite.Extensions
                     throw new NotImplementedException();
             }
         }
+
+        public static StringBuilder Indent(this StringBuilder builder, int indentation)
+        {
+            var chars = indentation * 3;
+            for(int i =0; i < chars; i++)
+            {
+                builder.Append(' ');
+            }
+            return builder;
+        }
+
+        public static StringBuilder NewIndentedLine(this StringBuilder builder, int indentation)
+        {
+            return builder.Append('\n').Indent(indentation);
+        }
     }
 }

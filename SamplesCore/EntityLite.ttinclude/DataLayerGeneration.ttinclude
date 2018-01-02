@@ -30,6 +30,7 @@ public class DataLayerGeneration : IDisposable
 	public bool ImplementINotifyPropertyChanged {get; set;}
 	public bool GenerateTypeScript { get; set;}
 	public bool GenerateAsyncMethods {get; set;}
+	public bool GenerateProjectionColumnLists {get; set;}
 
 	public string EntityTypesTableName {get; set;}
 	public string EntityTypeNameColumnName {get; set;}
@@ -40,11 +41,14 @@ public class DataLayerGeneration : IDisposable
     public List<ProcedureSetting> ProcedureSettings { get; set; }
 	public List<EnumSetting> EnumSettings {get; set;}
 	public JsonType JsonType { get; set; }
-	public string ViewNamePrefix {get; set;}
+	public string ViewPrefix {get; set;}
+	public string SequencePrefix {get; set;}
+	public string SequenceSuffix {get; set;}
 
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
 
     private Dictionary<EntitySetting, List<string>> ViewsByEntity;
+	public Dictionary<EntitySetting, List<KeyValuePair<string,string>>> ProjectionColumnListsByEntity = new  Dictionary<EntitySetting, List<KeyValuePair<string,string>>>();
 
     public DataLayerGeneration()
     {
@@ -189,64 +193,37 @@ public class DataLayerGeneration : IDisposable
         return cmd;
     }
 
-    public class EntityType
-    {
-        public int EntityTypeId { get; set; }
-        public string EntityTypeName { get; set; }
-
-    }
-
     private void GenerateEntityTypes()
     {
         using (var db = this.OpenConnection())
-        using (var getlock = db.CreateCommand())
-        using (var releaseLock = db.CreateCommand())
         using (var cmd = db.CreateCommand())
-        using (var insert = db.CreateCommand())
+        using (var adapter = Factory.CreateDataAdapter())
         {
-            getlock.CommandText = "EXEC sp_getapplock N'DataLayer_EntityTypes', 'Exclusive', 'Session'";
-            getlock.ExecuteNonQuery();
-            try
+            cmd.CommandText = "SELECT * FROM " + EntityTypesTableName;
+            var dt = new DataTable(EntityTypesTableName);
+            adapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            adapter.SelectCommand = cmd;
+            adapter.Fill(dt);
+            var idColumnName = dt.Columns[0].ColumnName;
+            object lastIdObj = dt.Compute($"max([{idColumnName}])", string.Empty);
+            int lastId = Convert.IsDBNull(lastIdObj) ? 0 : Convert.ToInt32(lastIdObj);
+            var existingEntityTypes = new SortedSet<string>(dt.Rows.Cast<DataRow>().Select(x => (string)x[1]));
+            bool areThereNewEntities = false;
+            foreach (var entitySetting in EntitySettings.Where( x => !existingEntityTypes.Contains(x.EntityName)))
             {
-                cmd.CommandText = "SELECT * FROM " + this.EntityTypesTableName;
-				IList<EntityType> entityTypes = new List<EntityType>();
-                using (var reader = cmd.ExecuteReader())
-                {
-					while (reader.Read()) 
-					{
-						entityTypes.Add(new EntityType {
-							EntityTypeId = reader.GetInt32(0),
-							EntityTypeName = reader.GetString(1)
-						});
-					}
-                }
-                var entityTypesDic = entityTypes.ToDictionary(x => x.EntityTypeName);
-                insert.CommandText = "INSERT INTO " + this.EntityTypesTableName + "(" + EntityTypeNameColumnName + ") VALUES (@EntityTypeName); SELECT CONVERT(int, SCOPE_IDENTITY())";
-                var entityTypeNameParam = insert.CreateParameter();
-                entityTypeNameParam.ParameterName = "@EntityTypeName";
-                entityTypeNameParam.DbType = DbType.AnsiString;
-                entityTypeNameParam.Size = 128;
-                insert.Parameters.Add(entityTypeNameParam);
-
-                foreach (var e in this.EntitySettings)
-                {
-                    EntityType et = null;
-                    if (entityTypesDic.TryGetValue(e.EntityName, out et))
-                    {
-                        e.EntityTypeId = et.EntityTypeId;
-                    }
-                    else
-                    {
-                        entityTypeNameParam.Value = e.EntityName;
-                        e.EntityTypeId = (int) insert.ExecuteScalar();
-                    }
-                }
-                    
+                dt.Rows.Add(++lastId, entitySetting.EntityName);
+                areThereNewEntities = true;
             }
-            finally
+            if (areThereNewEntities)
             {
-                releaseLock.CommandText = "EXEC sp_releaseapplock N'DataLayer_EntityTypes', 'Session'";
-                releaseLock.ExecuteNonQuery();
+                using (var tx = db.BeginTransaction())
+                {
+                    cmd.Transaction = tx;
+                    var builder = Factory.CreateCommandBuilder();
+                    builder.DataAdapter = adapter;
+                    adapter.Update(dt);
+                    tx.Commit();
+                }
             }
         }
     }
@@ -269,13 +246,6 @@ public class DataLayerGeneration : IDisposable
 	private void SetEnumSettigsByIdField() 
 	{
 		EnumSettingsByIdField = this.EnumSettings.ToDictionary(x => Extensions.ToPascalNamingConvention(x.IdField));
-		if (GenerateEntityTypeId) {
-			EnumSettingsByIdField.Add("EntityTypeId", new EnumSetting {
-				BaseTableName = EntityTypesTableName,
-				IdField = "entity_type_id",
-				NameField = EntityTypeNameColumnName
-			});
-		}
 	}
 
 	private static Dictionary<Type, DbType> DataTypeToDbType = new Dictionary<Type, DbType>() {
@@ -456,18 +426,29 @@ public class DataLayerGeneration : IDisposable
 					var pkfieldMetadata = primaryKey[0];
 					string schemaName = GetSchemaName(entity);
 					string fullSequenceName = null;
+					string  sequenceName = null;
 					if (!string.IsNullOrEmpty(entity.SequenceName))
 					{
-						fullSequenceName = string.IsNullOrEmpty(schemaName) ? entity.SequenceName : schemaName + "." + entity.SequenceName;
+						sequenceName = entity.SequenceName;
 					}
-					else if (ProviderName == "Oracle.DataAccess.Client" || ProviderName == "Oracle.ManagedDataAccess.Client")
+					else 
 					{
-						fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseColumnName) + "_SEQ";
+						if (ProviderName == "Oracle.DataAccess.Client" || ProviderName == "Oracle.ManagedDataAccess.Client" || ProviderName == "Devart.Data.Oracle")
+						{
+							sequenceName = pkfieldMetadata.BaseColumnName;
+						}
+						else
+						{
+							sequenceName = pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName;
+						}
+						if (!string.IsNullOrEmpty(SequencePrefix)) {
+							sequenceName = SequencePrefix + sequenceName;
+						}
+						if (!string.IsNullOrEmpty(SequenceSuffix)) {
+							sequenceName = sequenceName + SequenceSuffix;
+						}
 					}
-					else
-					{
-						fullSequenceName = (string.IsNullOrEmpty(schemaName) ? pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName : schemaName + "." + pkfieldMetadata.BaseTableName + "_" + pkfieldMetadata.BaseColumnName) + "_SEQ";
-					}
+					fullSequenceName = string.IsNullOrEmpty(schemaName) ? sequenceName : schemaName + "." + sequenceName;
 					Sequence seq = null;
 					if (Sequences.TryGetValue(fullSequenceName, out seq))
 					{
@@ -547,6 +528,32 @@ public class DataLayerGeneration : IDisposable
         }
     }
 
+	private void AddProjectionColumnList(EntitySetting entity, string projectionName, DataTable schema)
+	{
+		List<KeyValuePair<string, string>> projectionColumnLists;
+		if (!ProjectionColumnListsByEntity.TryGetValue(entity, out projectionColumnLists)) 
+		{
+			projectionColumnLists = new List<KeyValuePair<string, string>>();
+			ProjectionColumnListsByEntity.Add(entity, projectionColumnLists);
+		}
+		var escapedQuotePrefix = CommandBuilder.QuotePrefix.Replace("\"", "\\\"");
+		var escapedQuoteSuffix = CommandBuilder.QuoteSuffix.Replace("\"", "\\\"");
+		var columns = schema.Rows.Cast<DataRow>()
+			.Where(x => !schema.Columns.Contains("IsHidden") || x["IsHidden"].GetType() != typeof(bool) || !(bool) x["IsHidden"])
+			.Select(x => escapedQuotePrefix + (string) x["ColumnName"] + escapedQuoteSuffix);
+		var columnList = string.Join(", ", columns);
+		projectionColumnLists.Add(new KeyValuePair<string, string>(projectionName, columnList));
+	}
+
+	private string DeriveProjectionName(string entityName, string viewName)
+	{
+		var tokens = viewName.Split('.');
+		viewName = tokens[tokens.Length - 1];
+		var transformedEntityName = Extensions.Transform(entityName, EntityNameToEntityViewTransform);
+		var prefixedTransformedEntityName = string.IsNullOrEmpty(ViewPrefix) ? transformedEntityName + "_" : ViewPrefix.ToLower() +  transformedEntityName + "_";
+		return Extensions.ToPascalNamingConvention(viewName.Substring(prefixedTransformedEntityName.Length));
+	}
+
 
     private DataTable GetSchemaUnion(EntitySetting entitySetting, DbConnection cn)
     {
@@ -556,6 +563,7 @@ public class DataLayerGeneration : IDisposable
         if (!string.IsNullOrEmpty(entitySetting.BaseTableName))
         {
             baseTableSchema = GetSchema(entitySetting.GetFullObjectName(DefaultSchema, CommandBuilder.QuotePrefix, CommandBuilder.QuoteSuffix), cn);
+			if (GenerateProjectionColumnLists) AddProjectionColumnList(entitySetting, "BaseTable", baseTableSchema);
             if ((entitySetting.FieldGeneration & FieldGeneration.ForBaseTable) == FieldGeneration.ForBaseTable)
             {
                 schemaUnion = baseTableSchema.Copy();
@@ -566,7 +574,7 @@ public class DataLayerGeneration : IDisposable
         {
           
             DataTable schema = GetSchema(viewName, cn);
-                
+            if (GenerateProjectionColumnLists) AddProjectionColumnList(entitySetting, DeriveProjectionName(entitySetting.EntityName, viewName), schema);    
             if (schemaUnion == null)
             {
                 schemaUnion = schema.Clone();
@@ -627,8 +635,10 @@ public class DataLayerGeneration : IDisposable
                 {
                     string viewName = (string)row[nameColumn];
                     string viewSchema = Convert.IsDBNull(row[schemaColumn]) ? null : (string)row[schemaColumn];
-                    string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;   
-                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(Extensions.Transform(entity.EntityName, EntityNameToEntityViewTransform).ToLower() + "_"))
+                    string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;  
+					var transformedEntityName = Extensions.Transform(entity.EntityName, EntityNameToEntityViewTransform).ToLower();
+					var prefixedTransformedEntityName = string.IsNullOrEmpty(ViewPrefix) ? transformedEntityName + "_" : ViewPrefix.ToLower() +  transformedEntityName + "_";
+                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(prefixedTransformedEntityName))
                     {
                         views.Add(fullViewName);
 						rowsToDelete.Add(row);

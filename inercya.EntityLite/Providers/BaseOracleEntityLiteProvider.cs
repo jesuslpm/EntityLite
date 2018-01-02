@@ -21,6 +21,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
+using inercya.EntityLite.Extensions;
 
 namespace inercya.EntityLite.Providers
 {
@@ -55,23 +56,37 @@ WHERE RowNumber__ between 10 and 19;
              */
 
             var commandText = new StringBuilder();
-            commandText.Append("\nSELECT ").Append(builder.GetColumnList()).Append("\n")
-                       .Append("FROM (\n")
-                       .Append("SELECT IT.*, rownum AS row_number__\n")
-                       .Append("FROM ").Append(builder.GetFromClauseContent(selectCommand, ref paramIndex)).Append(" IT\n");
+            if (builder.QueryLite.Alias == null) builder.QueryLite.Alias = new Alias("IT", builder.QueryLite.EntityType);
+            var aliasName = builder.QueryLite.Alias.Name;
+            string columnList = builder.GetColumnList();
+            bool isStar = columnList == "*";
+            commandText.Append("SELECT ");
+            if (isStar) commandText.Append("*");
+            else commandText.NewIndentedLine(1).Append(columnList);
+            commandText.Append("\n")
+                       .Append("FROM")
+                       .NewIndentedLine(1).Append('(')
+                       .NewIndentedLine(2).Append("SELECT ").Append(aliasName).Append(".*, rownum AS row_number__")
+                       .NewIndentedLine(2).Append("FROM ")
+                       .NewIndentedLine(3).Append(builder.GetFromClauseContent(selectCommand, ref paramIndex, 3));
             bool hasWhereClause = builder.QueryLite.Filter != null && !builder.QueryLite.Filter.IsEmpty();
             if (hasWhereClause)
             {
-                commandText.Append("\nWHERE\n    ").Append(builder.GetFilter(selectCommand, ref paramIndex, builder.QueryLite.Filter));
+                commandText.NewIndentedLine(2).Append("WHERE").NewIndentedLine(3).Append(builder.GetFilter(selectCommand, ref paramIndex, builder.QueryLite.Filter, 3, false));
             }
-            commandText.Append("\n) T\n");
+            if (builder.QueryLite.Sort != null && builder.QueryLite.Sort.Count > 0)
+            {
+                commandText.NewIndentedLine(2).Append("ORDER BY").NewIndentedLine(3).Append(builder.GetSort());
+            }
+            commandText.NewIndentedLine(1).Append(") T\n");
             string fromParameterName;
             IDbDataParameter fromParameter = builder.CreateIn32Parameter(fromRowIndex + 1, ref paramIndex, out fromParameterName);
             selectCommand.Parameters.Add(fromParameter);
             string toParameterName;
             IDbDataParameter toParameter = builder.CreateIn32Parameter(toRowIndex + 1, ref paramIndex, out toParameterName);
             selectCommand.Parameters.Add(toParameter);
-            commandText.Append("WHERE row_number__ BETWEEN ")
+            commandText.Append("WHERE")
+                .NewIndentedLine(1).Append("row_number__ BETWEEN ")
                 .Append(fromParameterName)
                 .Append(" AND ").Append(toParameterName);
             return commandText.ToString();

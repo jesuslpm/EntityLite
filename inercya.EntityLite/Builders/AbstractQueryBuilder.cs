@@ -54,9 +54,9 @@ namespace inercya.EntityLite.Builders
 			}
 		}
 
-        public string GetColumnList()
+        public virtual string GetColumnList()
         {
-            if (QueryLite.FieldList == null || QueryLite.FieldList.Count == 0) return "*";
+            if (QueryLite.FieldList == null || QueryLite.FieldList.Count == 0 || QueryLite.FieldList[0] == "*") return "*";
 
             StringBuilder sb = new StringBuilder();
             bool firstTime = true;
@@ -77,31 +77,46 @@ namespace inercya.EntityLite.Builders
             return sb.ToString();
         }
 
-        public void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText)
+
+
+        public void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation)
         {
-            commandText.Append("\nSELECT ").Append(GetColumnList()).Append("\nFROM \n    ").Append(GetFromClauseContent(selectCommand, ref paramIndex));
+            commandText.Indent(indentation);
+            var columnList = GetColumnList();
+            bool isStar = columnList == "*";
+            commandText.Append("SELECT ");
+            if (isStar) commandText.Append("*");
+            else commandText.NewIndentedLine(++indentation).Append(columnList);
+            if (!isStar) indentation--;    
+            commandText.NewIndentedLine(indentation).Append("FROM ")
+                .NewIndentedLine(++indentation).Append(GetFromClauseContent(selectCommand, ref paramIndex, indentation));
+            indentation--;
             bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
             if (hasWhereClause)
             {
-                commandText.Append("\nWHERE\n    ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter));
+                commandText.NewIndentedLine(indentation).Append("WHERE");
+                commandText.NewIndentedLine(++indentation).Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter, indentation, false));
+                indentation--;
             }
             bool hasOrderbyClause = QueryLite.Sort != null && QueryLite.Sort.Count > 0;
             if (hasOrderbyClause)
             {
-                commandText.Append("\nORDER BY\n    ").Append(GetSort());
+                commandText.NewIndentedLine(indentation).Append("ORDER BY");
+                commandText.NewIndentedLine(++indentation).Append(GetSort());
+                indentation--;
             }
         }
 
-        public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex)
+        public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             StringBuilder commandText = new StringBuilder();
-            GetSelectQuery(selectCommand, ref paramIndex, commandText);
+            GetSelectQuery(selectCommand, ref paramIndex, commandText, indentation);
 			SetOptions(commandText);
             return commandText.ToString();
         }
 
 
-        string IQueryBuilder.GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
+        string IQueryBuilder.GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex, int indentation)
         {
             return this.QueryLite.DataService.EntityLiteProvider.GetPagedQuery(this, selectCommand, ref paramIndex, fromRowIndex, toRowIndex);
         }
@@ -109,11 +124,11 @@ namespace inercya.EntityLite.Builders
         string IQueryBuilder.GetCountQuery(DbCommand selectCommand, ref int paramIndex)
         {
             StringBuilder commandText = new StringBuilder();
-            commandText.Append("\nSELECT COUNT(*) \nFROM \n    ").Append(GetFromClauseContent(selectCommand, ref paramIndex));
+            commandText.Append("SELECT COUNT(*) \nFROM \n   ").Append(GetFromClauseContent(selectCommand, ref paramIndex, 1));
             bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
             if (hasWhereClause)
             {
-                commandText.Append("\nWHERE\n    ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter));
+                commandText.Append("\nWHERE\n   ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter, 1, false));
             }
             SetOptions(commandText);
             return commandText.ToString();
@@ -122,11 +137,11 @@ namespace inercya.EntityLite.Builders
         string IQueryBuilder.GetAnyQuery(DbCommand selectCommand, ref int paramIndex)
         {
             StringBuilder commandText = new StringBuilder();
-            commandText.Append("\nSELECT CASE WHEN EXISTS (SELECT * FROM ").Append(GetFromClauseContent(selectCommand, ref paramIndex));
+            commandText.Append("\nSELECT CASE WHEN EXISTS (SELECT * FROM ").Append(GetFromClauseContent(selectCommand, ref paramIndex, 1));
             bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
             if (hasWhereClause)
             {
-                commandText.Append("\nWHERE\n    ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter));
+                commandText.Append("\nWHERE\n   ").Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter, 1, false));
             }
             commandText.Append(") THEN 1 ELSE 0 END AS HasAnyRow");
             var dualTable = this.QueryLite.DataService.EntityLiteProvider.DualTable;
@@ -233,20 +248,48 @@ namespace inercya.EntityLite.Builders
             return parameter;
         }
 
+        private PropertyMetadata GetPropertyMetadata(Type entityType, string fieldName)
+        {
+            PropertyMetadata propertyMetadata;
+            EntityMetadata entityMetadata = entityType.GetEntityMetadata();
+            if (!entityMetadata.Properties.TryGetValue(fieldName, out propertyMetadata))
+            {
+                throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it is not a property of " + entityType.Name);
+            }
+            if (propertyMetadata.IsLocalizedFiled)
+            {
+                fieldName = CurrentLanguageService.GetSufixedLocalizedFieldName(fieldName);
 
-        protected virtual void GenerateFilterForCondition(DbCommand cmd, ConditionLite condition, StringBuilder sb, ref int paramIndex, ref bool firstCondition)
+                if (string.IsNullOrEmpty(fieldName))
+                {
+                    throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + CurrentLanguageService.CurrentLanguageCode);
+                }
+                if (!entityMetadata.Properties.TryGetValue(fieldName, out propertyMetadata))
+                {
+                    throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it is not a property of " + entityType.Name);
+                }
+            }
+            if (propertyMetadata.SqlField == null)
+            {
+                throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it has no metadata");
+            }
+            return propertyMetadata;
+        }
+
+
+        protected virtual void GenerateFilterForCondition(DbCommand cmd, ConditionLite condition, StringBuilder sb, ref int paramIndex, ref bool firstCondition, int indentation)
         {
             string parameterName = null;
             if (condition.Filter != null && condition.Filter.IsEmpty()) return;
             if (firstCondition) { ;}
-            else if (condition.LogicalOperator == LogicalOperatorLite.And) sb.Append("\n    AND ");
-            else if (condition.LogicalOperator == LogicalOperatorLite.Or) sb.Append("\n    OR");
+            else if (condition.LogicalOperator == LogicalOperatorLite.And) sb.NewIndentedLine(indentation).Append("AND ");
+            else if (condition.LogicalOperator == LogicalOperatorLite.Or)  sb.NewIndentedLine(indentation).Append("OR ");
             else throw new NotImplementedException("Logical operator " + condition.LogicalOperator.ToString() + " not implemented");
             firstCondition = false;
 
             if (condition.Filter != null)
             {
-                sb.Append(GetFilter(cmd, ref paramIndex, condition.Filter));
+                sb.Append(GetFilter(cmd, ref paramIndex, condition.Filter, indentation, true));
                 return;
             }
 
@@ -254,7 +297,7 @@ namespace inercya.EntityLite.Builders
             IQueryBuilder queryBuilder = condition.SubQuery == null ? null : condition.SubQuery.QueryBuilder;
             if (condition.Operator == OperatorLite.In || condition.Operator == OperatorLite.NotIn)
             {
-                if (values == null && queryBuilder == null) throw new ArgumentException("The value for In and NotIn operators must be enumerable or a query builder", "expression");
+                if (values == null && queryBuilder == null) throw new ArgumentException("The value for In and NotIn operators must be enumerable or a subquery", "expression");
                 int count;
                 if (values != null)
                 {
@@ -279,29 +322,17 @@ namespace inercya.EntityLite.Builders
             }
             PropertyMetadata propertyMetadata = null;
 			string fieldName = condition.FieldName;
-            if (!QueryLite.EntityType.GetEntityMetadata().Properties.TryGetValue(fieldName, out propertyMetadata))
+
+            if (fieldName == null && condition.Operator != OperatorLite.Exists && condition.Operator != OperatorLite.NotExists)
             {
-                throw new ArgumentException("Field " + condition.FieldName + " cannot be used in a filter because it is not a property of " + QueryLite.EntityType.Name);
+                throw new InvalidOperationException("Field Name must be not null for condition");
             }
-			if (propertyMetadata.IsLocalizedFiled)
-			{
-				fieldName = CurrentLanguageService.GetSufixedLocalizedFieldName(fieldName);
+            if (fieldName != null)
+            {
+                propertyMetadata = GetPropertyMetadata(this.QueryLite.EntityType, fieldName);
+                sb.Append(this.QueryLite.DataService.EntityLiteProvider.StartQuote).Append(propertyMetadata.SqlField.ColumnName).Append(this.QueryLite.DataService.EntityLiteProvider.EndQuote);
+            }
 
-				if (string.IsNullOrEmpty(fieldName))
-				{
-					throw new InvalidOperationException("Cannot sort by localized property " + fieldName + " because no field name has been found for the current language: " + CurrentLanguageService.CurrentLanguageCode);
-				}
-				if (!QueryLite.EntityType.GetEntityMetadata().Properties.TryGetValue(fieldName, out propertyMetadata))
-				{
-					throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it is not a property of " + QueryLite.EntityType.Name);
-				}
-			}
-			if (propertyMetadata.SqlField == null)
-			{
-				throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it has no metadata");
-			}
-
-			sb.Append(this.QueryLite.DataService.EntityLiteProvider.StartQuote).Append(propertyMetadata.SqlField.ColumnName).Append(this.QueryLite.DataService.EntityLiteProvider.EndQuote);
             if (condition.Operator == OperatorLite.IsNull)
             {
                 sb.Append(" IS NULL");
@@ -332,14 +363,39 @@ namespace inercya.EntityLite.Builders
                 }
                 else
                 {
-                    sb.Append(queryBuilder.GetSelectQuery(cmd, ref paramIndex));
+                    sb.Append('\n').Append(queryBuilder.GetSelectQuery(cmd, ref paramIndex, ++indentation));
+                    sb.NewIndentedLine(--indentation);
                 }
                 sb.Append(")");
                 return;
             }
+            else if (condition.Operator == OperatorLite.Exists || condition.Operator == OperatorLite.NotExists)
+            {
+                if (condition.Operator == OperatorLite.Exists) sb.Append("EXISTS (\n");
+                else sb.Append("NOT EXISTS (\n");
+                sb.Append(queryBuilder.GetSelectQuery(cmd, ref paramIndex, ++indentation));
+                sb.NewIndentedLine(--indentation).Append(')');
+                return;
+            }
 
-            var parameter = CreateParameter(propertyMetadata, condition.FieldValue, ref paramIndex, out parameterName);
-            cmd.Parameters.Add(parameter);
+            var fieldReference = condition.FieldValue as FieldReference;
+
+            if (fieldReference == null)
+            {
+                var parameter = CreateParameter(propertyMetadata, condition.FieldValue, ref paramIndex, out parameterName);
+                cmd.Parameters.Add(parameter);
+            }
+            else
+            {
+                var fieldReferenceEntityType = fieldReference.Alias?.EntityType ?? this.QueryLite.EntityType;
+                string fieldReferenceName = fieldReference.FieldName;
+                PropertyMetadata fieldReferencePropertyMetadata = GetPropertyMetadata(fieldReferenceEntityType, fieldReferenceName);
+                var aliasName = fieldReference.Alias?.Name ?? this.QueryLite.Alias?.Name;
+                if (!string.IsNullOrEmpty(aliasName)) parameterName = aliasName + ".";
+                else parameterName = string.Empty;
+                parameterName += this.QueryLite.DataService.EntityLiteProvider.StartQuote + fieldReferencePropertyMetadata.SqlField.ColumnName + this.QueryLite.DataService.EntityLiteProvider.EndQuote;
+            }
+
 
             switch (condition.Operator)
             {
@@ -398,21 +454,22 @@ namespace inercya.EntityLite.Builders
                     paramIndex++;
                     sb.Append(".STDistance(" + parameterName + ") " + (condition.Operator == OperatorLite.STDistanceLess ? "< " : "<= ") + pname);
                     break;
+                
                 default:
                     throw new NotImplementedException("operator " + condition.Operator.ToString() + " not implemented yet");
             }
         }
 
-        public virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter)
+        public virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter, int indentation, bool parenthesis)
         {
             StringBuilder sb = new StringBuilder();
             bool firstCondition = true;
-            sb.Append('(');
+            if (parenthesis) sb.Append('(').NewIndentedLine(++indentation);
             foreach (var simpleCondition in filter)
             {
-                GenerateFilterForCondition(selectCommand, simpleCondition, sb, ref paramIndex, ref firstCondition);
+                GenerateFilterForCondition(selectCommand, simpleCondition, sb, ref paramIndex, ref firstCondition, indentation);
             }
-            sb.Append(')');
+            if (parenthesis) sb.NewIndentedLine(--indentation).Append(')');
             return sb.ToString();
         }
 
@@ -427,7 +484,7 @@ namespace inercya.EntityLite.Builders
             return sb.ToString();
         }
 
-        public abstract string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex);
+        public abstract string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex, int indentation);
 
         protected bool IsFieldValid(string fieldName)
         {
@@ -452,7 +509,7 @@ namespace inercya.EntityLite.Builders
             }
             else
             {
-                commandText.Append(",\n    ");
+                commandText.Append(", ");
             }
 
 			string fieldName = sortDescriptor.FieldName;
