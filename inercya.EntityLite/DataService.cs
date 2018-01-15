@@ -80,7 +80,7 @@ namespace inercya.EntityLite
         }
 #endif
 
-		public int MaxRetries { get; protected set; }
+		public int MaxRetries { get; set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }
 		public SpecialFieldNames SpecialFieldNames { get; set; }
 
