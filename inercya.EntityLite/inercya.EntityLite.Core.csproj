@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net452;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net452;net35</TargetFrameworks>
     <Version>2.4</Version>
     <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>

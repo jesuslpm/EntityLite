@@ -56,6 +56,7 @@ namespace inercya.EntityLite
     {
         public string BaseTableName { get; set; }
         public string SchemaName { get; set; }
+        public bool IsAuditable { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Class)]

@@ -650,7 +650,7 @@ namespace inercya.EntityLite
             return Guid.NewGuid();
         }
 
-        protected internal virtual void Insert(object entity)
+        protected internal void Insert(object entity)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -682,6 +682,12 @@ namespace inercya.EntityLite
             }
 
             DbCommand cmd = null;
+            var audit = this as IAudit;
+            bool isAuditableEntity = audit != null && entityMetadata.IsAuditable;
+            if (isAuditableEntity)
+            {
+                this.BeginTransaction();
+            }
 
             var cmdExecutor = new CommandExecutor(this, false)
             {
@@ -736,6 +742,11 @@ namespace inercya.EntityLite
             {
                 entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType));
             }
+            if (isAuditableEntity)
+            {
+                audit.LogChange(null, entity, null, entityMetadata);
+                this.Commit();
+            }
 		}
 
 #if (NET452 || NETSTANDARD2_0)
@@ -764,7 +775,12 @@ namespace inercya.EntityLite
             }
 
             DbCommand cmd = null;
-
+            var audit = this as IAudit;
+            bool isAuditableEntity = audit != null && entityMetadata.IsAuditable;
+            if (isAuditableEntity)
+            {
+                this.BeginTransaction();
+            }
             var cmdExecutor = new CommandExecutor(this, false)
             {
                 GetCommandFunc = () => cmd = this.commandBuilder.GetInsertCommand(entity, entityMetadata)
@@ -784,7 +800,6 @@ namespace inercya.EntityLite
                         entity.SetPropertyValue(entityMetadata.PrimaryKeyPropertyName, cmd.Parameters[EntityLiteProvider.ParameterPrefix + entityMetadata.PrimaryKeyPropertyName].Value);
                     }
                 }
-
             }
             else
             {
@@ -819,6 +834,10 @@ namespace inercya.EntityLite
             {
                 entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType));
             }
+            if (isAuditableEntity)
+            {
+                await audit.LogChangeAsync(null, entity, null, entityMetadata).ConfigureAwait(false);
+            }
         }
 #endif
 
@@ -846,24 +865,35 @@ namespace inercya.EntityLite
             return UpdateAsync(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 #endif
-        private object GeByPrimaryKeyIncludingJustPkAndRowVersionFields(Type entityType, object entity)
+        private object GeByPrimaryKeyIncludingJustPkAndRowVersionFields(EntityMetadata metadata, object entity)
         {
-            IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(entityType, entity);
+            IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(metadata, entity);
+            return q.FirstOrDefault();
+        }
+
+        private object GetByPrimaryKey(EntityMetadata metadata, object entity)
+        {
+            IQueryLite q = GetByPrimaryKeyQuery(metadata, entity);
             return q.FirstOrDefault();
         }
 
 #if (NET452 || NETSTANDARD2_0)
-        private Task<object> GeByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(Type entityType, object entity)
+        private Task<object> GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(EntityMetadata metadata, object entity)
         {
-            IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(entityType, entity);
+            IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(metadata, entity);
+            return q.FirstOrDefaultAsync();
+        }
+
+        private Task<object> GetByPrimaryKeyAsync(EntityMetadata metadata, object entity)
+        {
+            IQueryLite q = GetByPrimaryKeyQuery(metadata, entity);
             return q.FirstOrDefaultAsync();
         }
 #endif
 
-        private IQueryLite GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(Type entityType, object entity)
+        private IQueryLite GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(EntityMetadata metadata, object entity)
         {
-            var q = this.CreateQueryLite(entityType, Projection.BaseTable);
-            var metadata = entityType.GetEntityMetadata();
+            var q = this.CreateQueryLite(metadata.EntityType, Projection.BaseTable);
             foreach (var pkf in metadata.PrimaryKeyPropertyNames)
             {
                 var prop = metadata.Properties[pkf];
@@ -879,6 +909,24 @@ namespace inercya.EntityLite
             if (metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName))
             {
                 q.FieldList.Add(SpecialFieldNames.EntityRowVersionFieldName);
+            }
+            return q;
+        }
+
+        private IQueryLite GetByPrimaryKeyQuery(EntityMetadata metadata, object entity)
+        {
+            var q = this.CreateQueryLite(metadata.EntityType, Projection.BaseTable);
+            foreach (var pkf in metadata.PrimaryKeyPropertyNames)
+            {
+                var prop = metadata.Properties[pkf];
+                q.Filter.Add(new ConditionLite
+                {
+                    FieldName = pkf,
+                    LogicalOperator = LogicalOperatorLite.And,
+                    Operator = OperatorLite.Equals,
+                    FieldValue = entity.GetPropertyValue(pkf)
+                });
+                q.FieldList.Add(pkf);
             }
             return q;
         }
@@ -904,40 +952,64 @@ namespace inercya.EntityLite
             {
                 GetCommandFunc = () => this.commandBuilder.GetUpdateCommand(entity, sortedFields, metadata)
             };
+            bool hasEntityRowVersion = metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName);
+            object entityRowVersion = null;
+            if (hasEntityRowVersion) entityRowVersion = entity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+
+            var audit = this as IAudit;
+            var isAuditableEntity = audit != null && metadata.IsAuditable;
+            object previousEntity = null;
+            
+            if (isAuditableEntity)
+            {
+                this.BeginTransaction();
+                previousEntity = this.GetByPrimaryKey(metadata, entity);
+                if (previousEntity == null)
+                {
+                    throw new RowNotFoundException("Attempt to update an inexistent row");
+                }
+                if (hasEntityRowVersion)
+                {
+                    object previousEntityRowVersion = previousEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+                    if (!object.Equals(previousEntityRowVersion, entityRowVersion))
+                    {
+                        entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, previousEntityRowVersion);
+                        throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
+                    }
+                }
+            }
+
             var affectedRecords = cmd.ExecuteNonQuery();
             var identity = entity.TryGetId();
             if (identity != null) IdentityMap.Remove(entityType, identity);
-            bool hasEntityRowVersion = metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName);
-            object freshEntity = hasEntityRowVersion ?  GeByPrimaryKeyIncludingJustPkAndRowVersionFields(entityType, entity) : null;
-            try
+            object freshEntity = null; 
+            if (affectedRecords == 0)
             {
-                if (affectedRecords == 0)
+                freshEntity = GeByPrimaryKeyIncludingJustPkAndRowVersionFields(metadata, entity);
+                if (previousModifiedBy.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy.PreviousValue);
+                if (previousModifiedDate.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate.PreviousValue);
+                if (isAuditableEntity) Commit();
+                if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
+                if (!hasEntityRowVersion) return false;
+                object freshEntityRowVersion = previousEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+                if (!object.Equals(freshEntityRowVersion, entityRowVersion))
                 {
-                    if (previousModifiedBy.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy.PreviousValue);
-                    if (previousModifiedDate.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate.PreviousValue);
-
-                    if (!hasEntityRowVersion) freshEntity = GeByPrimaryKeyIncludingJustPkAndRowVersionFields(entityType, entity);
-                    if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
-                    if (hasEntityRowVersion && freshEntity != null &&
-                        !object.Equals(entity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName), 
-                        freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName)))
-                    {
-                        throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntityRowVersion);
+                    throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
                 }
+                return false;
             }
-            finally
+            if (hasEntityRowVersion)
             {
-                if (freshEntity != null && hasEntityRowVersion)
-                {
-                    entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName));
-                }
+                var entityRowVersionFieldMetadata = metadata.Properties[SpecialFieldNames.EntityRowVersionFieldName];
+                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, Convert.ChangeType(Convert.ToInt64(entityRowVersion) + 1, entityRowVersionFieldMetadata.PropertyInfo.PropertyType));
             }
-            return affectedRecords > 0;
+            if (isAuditableEntity)
+            {
+                audit.LogChange(previousEntity, entity, sortedFields, metadata);
+                Commit();
+            }
+            return true;
         }
 
 #if (NET452 || NETSTANDARD2_0)
@@ -946,6 +1018,7 @@ namespace inercya.EntityLite
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
+
             SetAuditObjectResult previousModifiedBy = default(SetAuditObjectResult);
             SetAuditObjectResult previousModifiedDate = default(SetAuditObjectResult);
 
@@ -953,7 +1026,7 @@ namespace inercya.EntityLite
             {
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
-                     previousModifiedBy = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+                    previousModifiedBy = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
                 }
                 else
                 {
@@ -968,40 +1041,64 @@ namespace inercya.EntityLite
             {
                 GetCommandFunc = () => this.commandBuilder.GetUpdateCommand(entity, sortedFields, metadata)
             };
+            bool hasEntityRowVersion = metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName);
+            object entityRowVersion = null;
+            if (hasEntityRowVersion) entityRowVersion = entity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+
+            var audit = this as IAudit;
+            var isAuditableEntity = audit != null && metadata.IsAuditable;
+            object previousEntity = null;
+
+            if (isAuditableEntity)
+            {
+                this.BeginTransaction();
+                previousEntity = await this.GetByPrimaryKeyAsync(metadata, entity).ConfigureAwait(false);
+                if (previousEntity == null)
+                {
+                    throw new RowNotFoundException("Attempt to update an inexistent row");
+                }
+                if (hasEntityRowVersion)
+                {
+                    object previousEntityRowVersion = previousEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+                    if (!object.Equals(previousEntityRowVersion, entityRowVersion))
+                    {
+                        entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, previousEntityRowVersion);
+                        throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
+                    }
+                }
+            }
+
             var affectedRecords = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
             var identity = entity.TryGetId();
             if (identity != null) IdentityMap.Remove(entityType, identity);
-            bool hasEntityRowVersion = metadata.Properties.ContainsKey(this.SpecialFieldNames.EntityRowVersionFieldName);
-            object freshEntity = hasEntityRowVersion ? await GeByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(entityType, entity).ConfigureAwait(false) : null;
-            try
+            object freshEntity = null;
+            if (affectedRecords == 0)
             {
-                if (affectedRecords == 0)
+                freshEntity = await GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(metadata, entity).ConfigureAwait(false);
+                if (previousModifiedBy.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy.PreviousValue);
+                if (previousModifiedDate.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate.PreviousValue);
+                if (isAuditableEntity) Commit();
+                if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
+                if (!hasEntityRowVersion) return false;
+                object freshEntityRowVersion = previousEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+                if (!object.Equals(freshEntityRowVersion, entityRowVersion))
                 {
-                    if (previousModifiedBy.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedByFieldName, previousModifiedBy.PreviousValue);
-                    if (previousModifiedDate.IsSet) entity.SetPropertyValue(SpecialFieldNames.ModifiedDateFieldName, previousModifiedDate.PreviousValue);
-
-                    if (!hasEntityRowVersion) freshEntity = await GeByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(entityType, entity).ConfigureAwait(false);
-                    if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
-                    if (hasEntityRowVersion && freshEntity != null &&
-                        !object.Equals(entity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName),
-                        freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName)))
-                    {
-                        throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntityRowVersion);
+                    throw new DBConcurrencyException("Concurrency conflict detected. The row has been modified after it was read");
                 }
+                return false;
             }
-            finally
+            if (hasEntityRowVersion)
             {
-                if (freshEntity != null && hasEntityRowVersion)
-                {
-                    entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName));
-                }
+                var entityRowVersionFieldMetadata = metadata.Properties[SpecialFieldNames.EntityRowVersionFieldName];
+                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, Convert.ChangeType(Convert.ToInt64(entityRowVersion) + 1, entityRowVersionFieldMetadata.PropertyInfo.PropertyType));
             }
-            return affectedRecords > 0;
+            if (isAuditableEntity)
+            {
+                await audit.LogChangeAsync(previousEntity, entity, sortedFields, metadata);
+                Commit();
+            }
+            return true;
         }
 #endif
 
