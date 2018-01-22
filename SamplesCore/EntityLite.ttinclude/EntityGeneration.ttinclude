@@ -202,9 +202,14 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 		p.SourceColumn = sourceColumn;
 		string argumentName = Extensions.EscapeKeyword(Extensions.ToParameterName(Extensions.ToPascalNamingConvention(sourceColumn)));
 		if ((p.Direction & ParameterDirection.Output) == ParameterDirection.Output) argumentName += "Param";
+
+		if (generation.ProviderName == "Devart.Data.Oracle") {
 #>
+					proc.Parameters["<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+<#+		} else { #>
 					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
-<#+
+<#+		
+		}
 	}
 #>
                     return proc;
@@ -323,9 +328,13 @@ void RenderProcedureAsyncMethodInRepository(DataLayerGeneration generation, Enti
 		p.SourceColumn = sourceColumn;
 		string argumentName = Extensions.EscapeKeyword(Extensions.ToParameterName(Extensions.ToPascalNamingConvention(sourceColumn)));
 		if ((p.Direction & ParameterDirection.Output) == ParameterDirection.Output) argumentName += "Param";
+		if (generation.ProviderName == "Devart.Data.Oracle") {
 #>
+					proc.Parameters["<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
+<#+		} else { #>
 					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "<#= sourceColumn #>"].Value = <#= argumentName #> == null ? (object) DBNull.Value : <#= argumentName #><#= DataLayerGeneration.GetTypeFromDbType(p.DbType).IsValueType ? ".Value" : string.Empty #>;
-<#+
+<#+		
+		}
 	}
 #>
                     return proc;

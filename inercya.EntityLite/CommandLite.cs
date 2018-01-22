@@ -138,12 +138,14 @@ namespace inercya.EntityLite
 
         private void LogQueryExecution(DbCommand cmd, TimeSpan timeTaken)
         {
-            Log.LogInformation("Query completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
+            if (this.DataService is SqliteProfiler.Entities.SqliteProfilerDataService) return;
+            Log.LogDebug("Query completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
         private void LogCommandExecution(DbCommand cmd, TimeSpan timeTaken)
         {
-            Log.LogInformation("Command completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
+            if (this.DataService is SqliteProfiler.Entities.SqliteProfilerDataService) return;
+            Log.LogDebug("Command completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
         public IList<T> ToList<T>() where T : class, new()

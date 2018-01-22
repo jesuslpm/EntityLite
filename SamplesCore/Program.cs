@@ -103,18 +103,18 @@ namespace Samples
         }
 
 
-        static void TestEnums()
-        {
-            var t = new ProcessTask
-            {
-                TaskTemplateId = TaskTemplates.DealProcessCancel
-            };
-            ds.ProcessTaskRepository.Insert(t);
+        //static void TestEnums()
+        //{
+        //    var t = new ProcessTask
+        //    {
+        //        TaskTemplateId = TaskTemplates.DealProcessCancel
+        //    };
+        //    ds.ProcessTaskRepository.Insert(t);
 
-            var tasks = ds.ProcessTaskRepository.Query(Projection.BaseTable)
-                .Where(nameof(ProcessTask.TaskTemplateId), OperatorLite.Equals, TaskTemplates.DealProcessCancel)
-                .ToList();
-        }
+        //    var tasks = ds.ProcessTaskRepository.Query(Projection.BaseTable)
+        //        .Where(nameof(ProcessTask.TaskTemplateId), OperatorLite.Equals, TaskTemplates.DealProcessCancel)
+        //        .ToList();
+        //}
 
         //static void SynonymTest()
         //{

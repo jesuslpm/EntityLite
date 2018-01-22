@@ -25,6 +25,7 @@ public class EntitySetting
 	public string SynonymName {get; set;}
 	public string SynonymSchema {get; set;}
 	public string RoundDateFields {get; set;}
+	public bool IsAuditable {get; set;}
 
     public int EntityTypeId { get; internal set; }
 
@@ -51,6 +52,7 @@ public class EntitySetting
 			if (!string.IsNullOrEmpty(parameters)) parameters += ", ";
 			parameters += "SchemaName=\"" + Schema + "\"";
 		}
+		if (IsAuditable) parameters += ", IsAuditable = true";
 		return parameters;
 	}
 

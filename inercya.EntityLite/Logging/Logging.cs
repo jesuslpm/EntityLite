@@ -10,6 +10,7 @@ namespace Microsoft.Extensions.Logging
     {
         void LogError(Exception ex, string message);
         void LogInformation(string format, params object[] parameters);
+        void LogDebug(string format, params object[] parameters);
     }
 
     public interface ILoggerFactory
@@ -48,6 +49,11 @@ namespace Microsoft.Extensions.Logging
         public void LogInformation(string format, params object[] args)
         {
             this.logger.Info(format, args);
+        }
+
+        public void LogDebug(string format, params object[] args)
+        {
+            this.logger.Debug(format, args);
         }
     }
 

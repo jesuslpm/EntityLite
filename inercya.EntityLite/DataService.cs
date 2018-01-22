@@ -522,6 +522,18 @@ namespace inercya.EntityLite
 		{
 			if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
+            var metadata = entityType.GetEntityMetadata();
+
+            var audit = this as IAudit;
+            var isAuditableEntity = audit != null && metadata.IsAuditable;
+            object previousEntity = null;
+
+            if (isAuditableEntity)
+            {
+                previousEntity = this.GetByPrimaryKey(metadata, entity);
+                if (previousEntity == null) return false;
+                BeginTransaction();
+            }
 
             var cmd = new CommandExecutor(this, false)
             {
@@ -531,6 +543,11 @@ namespace inercya.EntityLite
 
 			var identity = entity.TryGetId();
             if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
+            if (isAuditableEntity)
+            {
+                if (affectedRecords > 0) audit.LogChange(previousEntity, null, null, metadata);
+                Commit();
+            }
             return affectedRecords > 0;
 		}
 
@@ -539,7 +556,18 @@ namespace inercya.EntityLite
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
+            var metadata = entityType.GetEntityMetadata();
 
+            var audit = this as IAudit;
+            var isAuditableEntity = audit != null && metadata.IsAuditable;
+            object previousEntity = null;
+
+            if (isAuditableEntity)
+            {
+                previousEntity = await this.GetByPrimaryKeyAsync(metadata, entity);
+                if (previousEntity == null) return false;
+                BeginTransaction();
+            }
             var cmd = new CommandExecutor(this, false)
             {
                 GetCommandFunc = () => this.commandBuilder.GetDeleteCommand(entity, EntityMetadata.GetEntityMetadata(entityType))
@@ -548,6 +576,11 @@ namespace inercya.EntityLite
 
             var identity = entity.TryGetId();
             if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
+            if (isAuditableEntity)
+            {
+                if (affectedRecords > 0) await audit.LogChangeAsync(previousEntity, null, null, metadata);
+                Commit();
+            }
             return affectedRecords > 0;
         }
 #endif
@@ -837,6 +870,7 @@ namespace inercya.EntityLite
             if (isAuditableEntity)
             {
                 await audit.LogChangeAsync(null, entity, null, entityMetadata).ConfigureAwait(false);
+                Commit();
             }
         }
 #endif
@@ -926,7 +960,6 @@ namespace inercya.EntityLite
                     Operator = OperatorLite.Equals,
                     FieldValue = entity.GetPropertyValue(pkf)
                 });
-                q.FieldList.Add(pkf);
             }
             return q;
         }
@@ -1118,7 +1151,7 @@ namespace inercya.EntityLite
             {
                 return metadata.UpdatableProperties
                     .Select(kv => kv.Key)
-                    .Where(x => !metadata.PrimaryKeyPropertyNames.Contains(x, StringComparer.InvariantCultureIgnoreCase))
+                    .Where(x => !metadata.PrimaryKeyPropertyNames.Contains(x, StringComparer.InvariantCultureIgnoreCase) && x != SpecialFieldNames.CreatedByFieldName && x != SpecialFieldNames.CreatedDateFieldName)
                     .OrderBy(x => x, StringComparer.InvariantCultureIgnoreCase).ToList();
             }
 
@@ -1135,7 +1168,7 @@ namespace inercya.EntityLite
                 {
                     throw new NotSupportedException(string.Format("Updating primary key fields is an unsupported operation. And you are trying to update the primary key field \"{0}\"", field));
                 }
-                if (!metadata.UpdatableProperties.ContainsKey(field))
+                if (!metadata.UpdatableProperties.ContainsKey(field) || field == SpecialFieldNames.CreatedDateFieldName || field == SpecialFieldNames.CreatedByFieldName)
                 {
                     throw new InvalidOperationException(string.Format("\"{0}\" is not an updatable field of table \"{0}\"", field, metadata.BaseTableName));
                 }
