@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{A632C4A4-E33E-4C29-A084-CA91A0C0E494}"
 	ProjectSection(SolutionItems) = preProject
@@ -68,7 +68,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inercya.EntityLite.Core", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayerItemTemplate", "DataLayerItemTemplate\DataLayerItemTemplate.csproj", "{01BF724E-D70B-427B-BDD2-4A7774649A9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLite", "EntityLite\EntityLite.csproj", "{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLite.VSIX", "EntityLite\EntityLite.VSIX.csproj", "{7ADC7B9C-56D0-43A8-A07B-2AEBE54C4E4C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesFx", "SamplesFx\SamplesFx.csproj", "{27444030-B98D-4ECD-A27B-A41518305AC8}"
 EndProject

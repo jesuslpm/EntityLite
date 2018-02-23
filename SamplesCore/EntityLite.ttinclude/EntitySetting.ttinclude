@@ -81,7 +81,7 @@ public class EntitySetting
         }
         else
         {
-            return schema + "." + entityName;
+            return Extensions.ToPascalNamingConvention(schema) + "." + entityName;
         }
     }
 

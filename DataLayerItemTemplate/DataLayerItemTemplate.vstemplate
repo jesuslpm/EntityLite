@@ -24,6 +24,7 @@
     <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\ProcedureGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\ProcedureGeneration.ttinclude</ProjectItem>
     <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\ProcedureResultSetKind.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\ProcedureResultSetKind.ttinclude</ProjectItem>
     <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\ProcedureSetting.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\ProcedureSetting.ttinclude</ProjectItem>
+    <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\RoundDateJsonConverterGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\RoundDateJsonConverterGeneration.ttinclude</ProjectItem>
     <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\Sequence.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\Sequence.ttinclude</ProjectItem>
     <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\TextTransform.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\TextTransform.ttinclude</ProjectItem>
     <ProjectItem SubType="" TargetFileName="$fileinputname$.ttinclude\TypeScriptAttributeGeneration.ttinclude" ReplaceParameters="true">EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude</ProjectItem>
@@ -35,7 +36,7 @@
   </WizardExtension>
   <WizardData>
     <packages>
-      <package id="EntityLite.Core" version="2.1.1" />
+      <package id="EntityLite.Core" version="2.5.1" />
     </packages>
   </WizardData>
 </VSTemplate>

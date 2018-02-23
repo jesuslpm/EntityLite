@@ -209,9 +209,9 @@ public class DataLayerGeneration : IDisposable
             int lastId = Convert.IsDBNull(lastIdObj) ? 0 : Convert.ToInt32(lastIdObj);
             var existingEntityTypes = new SortedSet<string>(dt.Rows.Cast<DataRow>().Select(x => (string)x[1]));
             bool areThereNewEntities = false;
-            foreach (var entitySetting in EntitySettings.Where( x => !existingEntityTypes.Contains(x.EntityName)))
+            foreach (var entitySetting in EntitySettings.Where( x => !existingEntityTypes.Contains(EntitySetting.GetFullEntityName(x.EntityName, x.Schema, DefaultSchema))))
             {
-                dt.Rows.Add(++lastId, entitySetting.EntityName);
+                dt.Rows.Add(++lastId, EntitySetting.GetFullEntityName(entitySetting.EntityName, entitySetting.Schema, DefaultSchema));
                 areThereNewEntities = true;
             }
             if (areThereNewEntities)
@@ -245,7 +245,7 @@ public class DataLayerGeneration : IDisposable
 
 	private void SetEnumSettigsByIdField() 
 	{
-		EnumSettingsByIdField = this.EnumSettings.ToDictionary(x => Extensions.ToPascalNamingConvention(x.IdField));
+		EnumSettingsByIdField = this.EnumSettings.ToDictionary(x => x.GetFullIdField());
 	}
 
 	private static Dictionary<Type, DbType> DataTypeToDbType = new Dictionary<Type, DbType>() {
@@ -361,7 +361,8 @@ public class DataLayerGeneration : IDisposable
 						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
 					}
 					EnumSetting enumSetting;
-					if (EnumSettingsByIdField.TryGetValue(fieldMetadata.PropertyName, out enumSetting))
+					var fullPropertyName = EntitySetting.GetFullEntityName(fieldMetadata.PropertyName, entity.Schema, DefaultSchema);
+					if (EnumSettingsByIdField.TryGetValue(fullPropertyName, out enumSetting))
 					{
 						fieldMetadata.PropertyTypeName = fieldMetadata.IsNullable ? enumSetting.TypeName + "?" : enumSetting.TypeName;
 						fieldMetadata.PropertyName = enumSetting.TypeName;

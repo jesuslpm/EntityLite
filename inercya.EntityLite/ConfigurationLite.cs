@@ -12,7 +12,7 @@ namespace inercya.EntityLite
         static ConfigurationLite()
         {
             Profiler = new NullProfilerLite();
-#if NET452
+#if NET452 || NET35
             LoggerFactory = new NLogFactory();
 #elif NETSTANDARD2_0
             LoggerFactory = new NullLoggerFactory();

@@ -32,10 +32,11 @@ namespace <#= namespaceName #>
 		{
 			RenderEnumType(generation, enumSetting);
 		}
-	}
+	
 #>
 }
 <#+
+	}
 }
 #>
 
@@ -60,7 +61,10 @@ public void RenderEnumType(DataLayerGeneration generation, EnumSetting enumSetti
 			while (reader.Read())
 			{
 				var memberValue = reader.GetValue(0);
-				var memberName = Extensions.EscapeKeyword(Extensions.ToPascalNamingConvention(reader.GetString(1)));
+				var memberName = reader.GetString(1);
+				if (!enumSetting.Predicate(memberName)) continue;
+				memberName = enumSetting.StringFilter(memberName);
+				memberName = Extensions.EscapeKeyword(Extensions.ToPascalNamingConvention(memberName));
 #>
 		<#= memberName #> = <#= memberValue.ToString() #>,
 <#+			}

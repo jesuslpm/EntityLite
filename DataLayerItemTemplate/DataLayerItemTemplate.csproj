@@ -73,6 +73,7 @@
     <None Include="EntityLite.ttinclude\ProcedureGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureResultSetKind.ttinclude" />
     <None Include="EntityLite.ttinclude\ProcedureSetting.ttinclude" />
+    <None Include="EntityLite.ttinclude\RoundDateJsonConverterGeneration.ttinclude" />
     <None Include="EntityLite.ttinclude\Sequence.ttinclude" />
     <None Include="EntityLite.ttinclude\TextTransform.ttinclude" />
     <None Include="EntityLite.ttinclude\TypeScriptAttributeGeneration.ttinclude" />

@@ -20,6 +20,11 @@ public class EnumSetting
     public string Schema { get; set; }
 	public string IdField { get; set;}
 	public string NameField { get; set;}
+	public string Namespace {get; set;}
+
+	public Func<string, bool> Predicate;
+
+	public Func<string, string> StringFilter;
 
 	private string _typeName;
 	public string TypeName { 
@@ -34,6 +39,12 @@ public class EnumSetting
 		}
 	}
 
+	public EnumSetting() 
+	{
+		Predicate = _ => true;
+		StringFilter = name => name;
+	}
+
 
     public string GetFullTableName(string defaultSchema, string  quotePrefix, string quoteSufix)
     {
@@ -46,12 +57,36 @@ public class EnumSetting
     public string GetNamespaceName(string rootNamespace)
     {
         string namespaceName = rootNamespace;
-        if (!string.IsNullOrEmpty(this.Schema))
+		if (this.Namespace != null)
+		{
+		    if (this.Namespace != String.Empty)
+			{
+				namespaceName += "." + Extensions.ToPascalNamingConvention(this.Namespace);
+			}
+		}
+        else if (!string.IsNullOrEmpty(this.Schema))
         {
             namespaceName += "." + Extensions.ToPascalNamingConvention(this.Schema);
         }
         return namespaceName;
     }
+
+	public string GetFullIdField() 
+	{
+		string prefix = string.Empty;
+		if (this.Namespace != null)
+		{
+			if (this.Namespace != String.Empty)
+			{
+				prefix = Extensions.ToPascalNamingConvention(this.Namespace) + ".";
+			}
+		}
+        else if (!string.IsNullOrEmpty(this.Schema))
+        {
+            prefix = Extensions.ToPascalNamingConvention(this.Schema) + ".";
+        }
+		return prefix + Extensions.ToPascalNamingConvention(IdField);
+	}
 }
 #>
 
