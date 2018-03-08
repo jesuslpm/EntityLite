@@ -77,12 +77,12 @@ namespace Samples
                 //ShowSomeProducts();
                 //ShowOrderDetails();
                 //ShowQuesoCabralesOrders();
-                ShowPagedProducts();
+                //ShowPagedProducts();
                 //ShowLondonAndewFullerSubtree();
                 //SearchOrderDetails();
                 //ShowProductSales();
                 //RaiseProductPrices();
-                //InsertUpdateDeleteProduct();
+                InsertUpdateDeleteProduct();
                 //RaiseProductPrices2();
                 //HandCraftedSql();
                 //Localization();
@@ -656,6 +656,11 @@ namespace Samples
             // Retrieves the product from the database and shows the product category name
             p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
             Console.WriteLine("CategoryName:" + p.CategoryName);
+
+            p.CategoryId = 1;
+            ds.ProductRepository.Save(p);
+
+            p = ds.ProductRepository.Get(Projection.Detailed, p.ProductId);
 
             // deletes the product
             ds.ProductRepository.Delete(p.ProductId);

@@ -190,8 +190,12 @@ void RenderProcedureMethodInRepository(DataLayerGeneration generation, EntitySet
 <#+ } #>
                 GetCommandFunc = () =>
                 {
+<#+ if (string.IsNullOrEmpty(procedure.ProcedureSchema) || procedure.ProcedureSchema == generation.DefaultSchema) { #>
+                    var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix, this.DataService.EntityLiteProvider.DefaultSchema);
+<#+ } else { #>
                     var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);
 <#+
+	}
 	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Input) == ParameterDirection.Input))
 	{ 
 		string sourceColumn = p.ParameterName;
@@ -316,8 +320,12 @@ void RenderProcedureAsyncMethodInRepository(DataLayerGeneration generation, Enti
 <#+ } #>
                 GetCommandFunc = () =>
                 {
+<#+ if (string.IsNullOrEmpty(procedure.ProcedureSchema) || procedure.ProcedureSchema == generation.DefaultSchema) { #>
+                    var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix, this.DataService.EntityLiteProvider.DefaultSchema);
+<#+ } else { #>
                     var proc =  <#= generation.RootNamespace #>.<#= generation.ProceduresClassName #>.<#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);
-<#+
+<#+ 
+	}
 	foreach (var p in proc.Parameters.Cast<IDbDataParameter>().Where( x => (x.Direction & ParameterDirection.Input) == ParameterDirection.Input))
 	{ 
 		string sourceColumn = p.ParameterName;

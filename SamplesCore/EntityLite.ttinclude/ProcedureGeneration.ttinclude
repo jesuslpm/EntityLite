@@ -27,10 +27,10 @@ namespace <#= generation.RootNamespace #>
 	{
 		var proc = generation.GetProcedure(procedure);
 #>
-		public static DbCommand <#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(DbConnection connection, string parameterPrefix)
+		public static DbCommand <#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(DbConnection connection, string parameterPrefix, string schema = "<#= string.IsNullOrEmpty(procedure.ProcedureSchema) ? string.Empty : procedure.ProcedureSchema #>")
 		{
 			var cmd = connection.CreateCommand();
-			cmd.CommandText = "<#= procedure.GetFullProcedureName() #>";
+			cmd.CommandText = string.IsNullOrEmpty(schema) ? "<#= procedure.ProcedureName #>" : schema + "." + "<#= procedure.ProcedureName #>";
 			cmd.CommandType = CommandType.StoredProcedure;
 			IDbDataParameter p = null;
 <#+

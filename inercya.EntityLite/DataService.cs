@@ -1014,7 +1014,10 @@ namespace inercya.EntityLite
 
             var affectedRecords = cmd.ExecuteNonQuery();
             var identity = entity.TryGetId();
-            if (identity != null) IdentityMap.Remove(entityType, identity);
+            if (identity != null)
+            {
+                IdentityMap.Remove(entityType, identity);
+            }
             object freshEntity = null; 
             if (affectedRecords == 0)
             {
