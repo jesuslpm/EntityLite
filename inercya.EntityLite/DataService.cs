@@ -1027,7 +1027,7 @@ namespace inercya.EntityLite
                 if (isAuditableEntity) Commit();
                 if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
                 if (!hasEntityRowVersion) return false;
-                object freshEntityRowVersion = previousEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+                object freshEntityRowVersion = freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
                 if (!object.Equals(freshEntityRowVersion, entityRowVersion))
                 {
                     entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntityRowVersion);
@@ -1116,7 +1116,7 @@ namespace inercya.EntityLite
                 if (isAuditableEntity) Commit();
                 if (freshEntity == null) throw new RowNotFoundException("Attempt to update an inexistent row");
                 if (!hasEntityRowVersion) return false;
-                object freshEntityRowVersion = previousEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
+                object freshEntityRowVersion = freshEntity.GetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName);
                 if (!object.Equals(freshEntityRowVersion, entityRowVersion))
                 {
                     entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, freshEntityRowVersion);
