@@ -123,6 +123,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
                 exec.ExecutionDate = DateTime.Now;
                 exec.ExecutionTime = item.ExecutionTime.TotalMilliseconds;
                 exec.StatementId = statement.StatementId;
+                exec.DataServiceInstanceId = item.DataServiceInstanceId.ToString("N");
+                exec.ApplicationContext = item.ApplicationContext;
                 this.Insert(exec);
             }
         }

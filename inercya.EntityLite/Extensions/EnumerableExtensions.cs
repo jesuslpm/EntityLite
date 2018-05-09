@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using inercya.EntityLite.Collections;
+using System.Collections;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -196,5 +197,31 @@ namespace inercya.EntityLite.Extensions
         {
             return new CollectionDataReader<T>(collection);
         }
-	}
+
+        public static bool AreThereMoreThan(this IEnumerable enumerable, int n)
+        {
+            ICollection collection = enumerable as ICollection;
+            if (collection != null) return collection.Count > n;
+            var count = 0;
+            foreach (var item in enumerable)
+            {
+                count++;
+                if (count > n) return true;
+            }
+            return count > n;
+        }
+
+        public static bool AreThereMoreThan<T>(this IEnumerable<T> enumerable, int n)
+        {
+            ICollection<T> collection = enumerable as ICollection<T>;
+            if (collection != null) return collection.Count > n;
+            var count = 0;
+            foreach (var item in enumerable)
+            {
+                count++;
+                if (count > n) return true;
+            }
+            return count > n;
+        }
+    }
 }

@@ -112,7 +112,8 @@ namespace inercya.EntityLite.Builders
             StringBuilder commandText = new StringBuilder();
             GetSelectQuery(selectCommand, ref paramIndex, commandText, indentation);
 			SetOptions(commandText);
-            return commandText.ToString();
+            var query = commandText.ToString();
+            return query;
         }
 
 
@@ -298,15 +299,10 @@ namespace inercya.EntityLite.Builders
             if (condition.Operator == OperatorLite.In || condition.Operator == OperatorLite.NotIn)
             {
                 if (values == null && queryBuilder == null) throw new ArgumentException("The value for In and NotIn operators must be enumerable or a subquery", "expression");
-                int count;
                 if (values != null)
                 {
-                    ICollection collection = values as ICollection;
-                    Array array = values as Array;
-                    if (collection != null) count = collection.Count;
-                    else if (array != null) count = array.Length;
-                    else count = values.Cast<object>().Count();
-                    if (count == 0)
+                    bool hasAnyValue = values.AreThereMoreThan(0);
+                    if (!hasAnyValue)
                     {
                         if (condition.Operator == OperatorLite.In)
                         {
@@ -322,6 +318,7 @@ namespace inercya.EntityLite.Builders
             }
             PropertyMetadata propertyMetadata = null;
 			string fieldName = condition.FieldName;
+            string quotedColumnName = null;
 
             if (fieldName == null && condition.Operator != OperatorLite.Exists && condition.Operator != OperatorLite.NotExists)
             {
@@ -330,7 +327,8 @@ namespace inercya.EntityLite.Builders
             if (fieldName != null)
             {
                 propertyMetadata = GetPropertyMetadata(this.QueryLite.EntityType, fieldName);
-                sb.Append(this.QueryLite.DataService.EntityLiteProvider.StartQuote).Append(propertyMetadata.SqlField.ColumnName).Append(this.QueryLite.DataService.EntityLiteProvider.EndQuote);
+                quotedColumnName = this.QueryLite.DataService.EntityLiteProvider.StartQuote + propertyMetadata.SqlField.ColumnName + this.QueryLite.DataService.EntityLiteProvider.EndQuote;
+                if (condition.Operator != OperatorLite.In && condition.Operator != OperatorLite.NotIn) sb.Append(quotedColumnName);
             }
 
             if (condition.Operator == OperatorLite.IsNull)
@@ -346,27 +344,7 @@ namespace inercya.EntityLite.Builders
 
             if (condition.Operator == OperatorLite.In || condition.Operator == OperatorLite.NotIn)
             {
-                if (condition.Operator == OperatorLite.In) sb.Append(" IN (");
-                else sb.Append(" NOT IN (");
-                if (values != null)
-                {
-                    bool firstValue = true;
-                    foreach (object value in values)
-                    {
-                        
-                        var param = CreateParameter(propertyMetadata, value, ref paramIndex, out parameterName);
-                        cmd.Parameters.Add(param);
-                        if (firstValue) firstValue = false;
-                        else sb.Append(", ");
-                        sb.Append(parameterName);
-                    }
-                }
-                else
-                {
-                    sb.Append('\n').Append(queryBuilder.GetSelectQuery(cmd, ref paramIndex, ++indentation));
-                    sb.NewIndentedLine(--indentation);
-                }
-                sb.Append(")");
+                AddListCondition(cmd, condition, sb, ref paramIndex, ref indentation,  values, queryBuilder, propertyMetadata, quotedColumnName);
                 return;
             }
             else if (condition.Operator == OperatorLite.Exists || condition.Operator == OperatorLite.NotExists)
@@ -458,6 +436,77 @@ namespace inercya.EntityLite.Builders
                 default:
                     throw new NotImplementedException("operator " + condition.Operator.ToString() + " not implemented yet");
             }
+        }
+
+        private void AddListCondition(DbCommand cmd, ConditionLite condition, StringBuilder sb, ref int paramIndex, ref int indentation, IEnumerable values, IQueryBuilder queryBuilder, PropertyMetadata propertyMetadata, string quotedColumnName)
+        {
+            if (values != null)
+            {
+                bool firstValue = true;
+                var isNumericField = propertyMetadata.PropertyInfo.PropertyType.IsNumericType();
+                var isStringField = propertyMetadata.PropertyInfo.PropertyType == typeof(string);
+                if ((isNumericField || isStringField) && values.AreThereMoreThan(8))
+                {
+                    bool firstChunk = true;
+                    int valueCount = 0;
+                    sb.Append("(");
+                    foreach (object value in values)
+                    {
+                        if (valueCount % 1000 == 0)
+                        {
+                            firstValue = true;
+                            if (firstChunk) firstChunk = false;
+                            else
+                            {
+                                sb.Append(") ").Append(condition.Operator == OperatorLite.In ? " OR " : " AND ");
+                            }
+                            sb.Append(quotedColumnName).Append(condition.Operator == OperatorLite.In ? " IN (" : " NOT IN (");
+                        }
+                        string valueStr = null;
+                        if (value == null)
+                        {
+                            valueStr = "NULL";
+                        }
+                        else
+                        {
+                            if (isNumericField && !value.IsNumeric()) { throw new ArgumentException($"A non numeric value has been found for {condition.Operator} operator and field {propertyMetadata.PropertyInfo.Name}"); }
+                            valueStr = Convert.ToString(value, CultureInfo.InvariantCulture);
+                            if (isStringField)
+                            {
+                                valueStr = "'" + valueStr.Replace("'", "''");
+                            }
+                        }
+                        if (firstValue) firstValue = false;
+                        else sb.Append(", ");
+                        sb.Append(valueStr);
+                        valueCount++;
+                    }
+                    sb.Append("))");
+                }
+                else
+                {
+                    sb.Append(quotedColumnName).Append(condition.Operator == OperatorLite.In ? " IN (": " NOT IN (");
+                    string parameterName;
+                    foreach (object value in values)
+                    {
+
+                        var param = CreateParameter(propertyMetadata, value, ref paramIndex, out parameterName);
+                        cmd.Parameters.Add(param);
+                        if (firstValue) firstValue = false;
+                        else sb.Append(", ");
+                        sb.Append(parameterName);
+                    }
+                    sb.Append(")");
+                }
+            }
+            else
+            {
+                sb.Append(quotedColumnName).Append(condition.Operator == OperatorLite.In ? " IN (" : " NOT IN (");
+                sb.Append('\n').Append(queryBuilder.GetSelectQuery(cmd, ref paramIndex, ++indentation));
+                sb.NewIndentedLine(--indentation);
+                sb.Append(")");
+            }
+            
         }
 
         public virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter, int indentation, bool parenthesis)

@@ -19,6 +19,8 @@ namespace inercya.EntityLite.SqliteProfiler
         public string CommandText;
         public TimeSpan ExecutionTime;
         public string Params;
+        public string ApplicationContext;
+        public Guid DataServiceInstanceId;
     }
 
     public enum ProfileFileFrecuency
@@ -116,6 +118,7 @@ namespace inercya.EntityLite.SqliteProfiler
         }
 
 
+
         public void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
         {
             if (!IsRunning || dataService is SqliteProfilerDataService) return;
@@ -123,7 +126,9 @@ namespace inercya.EntityLite.SqliteProfiler
             {
                 CommandText = command.CommandText,
                 ExecutionTime = executionTime,
-                Params = command.GetParamsAsString()
+                Params = command.GetParamsAsString(),
+                ApplicationContext = dataService.ApplicationContextGetter?.Invoke(),
+                DataServiceInstanceId = dataService.InstanceId
             };
             logItems.Enqueue(item);
             signal.Set();
@@ -150,7 +155,7 @@ namespace inercya.EntityLite.SqliteProfiler
             {
                 while (true)
                 {
-                   signal.WaitOne();
+                    signal.WaitOne();
                     dataService = EnsureDataServiceAndDeleteOldFiles(dataService);
                     try
                     {

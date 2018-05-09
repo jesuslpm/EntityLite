@@ -42,6 +42,7 @@ namespace inercya.EntityLite.Templates
         public DbParameterSerieAttribute()
         {
             Direction = ParameterDirection.Input;
+            ProviderType = int.MaxValue;
         }
     }
 }

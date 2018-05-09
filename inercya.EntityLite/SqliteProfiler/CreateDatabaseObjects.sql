@@ -20,7 +20,9 @@ CREATE TABLE Executions
 	ExecutionId INTEGER PRIMARY KEY AUTOINCREMENT,
 	StatementId INTEGER NOT NULL,
 	ExecutionDate DATETIME NOT NULL,
-	ExecutionTime REAL NOT NULL
+	ExecutionTime REAL NOT NULL,
+	DataServiceInstanceId TEXT NULL,
+	ApplicationContext TEXT NULL
 );
 
 CREATE VIEW Statement_Basic 

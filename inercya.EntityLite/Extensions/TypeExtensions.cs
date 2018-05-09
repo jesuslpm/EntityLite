@@ -55,6 +55,28 @@ namespace inercya.EntityLite.Extensions
 			}
 		}
 
+        public static bool IsNumericType(this Type type)
+        {
+            var undelyingType = type.UndelyingType();
+            switch (Type.GetTypeCode(undelyingType))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
 		public static IEnumerable<SortDescriptor> GetDefaultSort(this Type entityType)
 		{
 			DefaultOrderAttribute defaultOrder = (DefaultOrderAttribute)entityType.GetCustomAttributes(typeof(DefaultOrderAttribute), true).FirstOrDefault();

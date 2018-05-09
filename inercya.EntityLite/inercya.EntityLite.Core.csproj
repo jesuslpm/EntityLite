@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;netstandard2.0;net452</TargetFrameworks>
-    <Version>2.5.3</Version>
+    <Version>2.6.1</Version>
     <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EntityLite.Core</PackageId>
@@ -12,8 +12,8 @@
     <Product>i-nercya EntityLite</Product>
     <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
-    <AssemblyVersion>2.5.3.0</AssemblyVersion>
-    <FileVersion>2.5.3.0</FileVersion>
+    <AssemblyVersion>2.6.1.0</AssemblyVersion>
+    <FileVersion>2.6.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">

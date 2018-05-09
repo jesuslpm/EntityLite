@@ -72,6 +72,8 @@ namespace inercya.EntityLite
             }
         }
 
+
+
 #if (NET452 || NETSTANDARD2_0)
         public Task<object> GetCurrentUserIdAsync()
         {
@@ -79,6 +81,8 @@ namespace inercya.EntityLite
             return Task.FromResult(CurrentUserId);
         }
 #endif
+
+        public Func<string> ApplicationContextGetter { get; set; }
 
 		public int MaxRetries { get; set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }
@@ -119,6 +123,8 @@ namespace inercya.EntityLite
 		private CommandBuilder commandBuilder;
 
         private static ILogger logger;
+
+        public readonly Guid InstanceId = Guid.NewGuid();
 
         private static ILogger Log
         {

@@ -70,19 +70,20 @@ namespace Samples
             profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
+                ds.ApplicationContextGetter = () => "EntityLite.Tests";
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
                 //QueryByPrimaryKey();
-                //ShowSomeProducts();
+                ShowSomeProducts();
                 //ShowOrderDetails();
-                //ShowQuesoCabralesOrders();
+                ShowQuesoCabralesOrders();
                 //ShowPagedProducts();
                 //ShowLondonAndewFullerSubtree();
                 //SearchOrderDetails();
                 //ShowProductSales();
                 //RaiseProductPrices();
-                InsertUpdateDeleteProduct();
+                //InsertUpdateDeleteProduct();
                 //RaiseProductPrices2();
                 //HandCraftedSql();
                 //Localization();
@@ -395,12 +396,27 @@ namespace Samples
 
         static void ShowSomeProducts()
         {
+            //Console.WriteLine("\nShowSomeProducts\n");
+            //IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
+            //    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
+            //    .Where(ProductFields.Discontinued, false)
+            //    .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
+            //    .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
+            //    .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+            //    .ToEnumerable();
+
+            //foreach (Product p in products)
+            //{
+            //    Console.WriteLine("CategoryName: {0}, ProductName: {1}", p.CategoryName, p.ProductName);
+            //}
+
             Console.WriteLine("\nShowSomeProducts\n");
             IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
                 .Fields(ProductFields.CategoryName, ProductFields.ProductName)
                 .Where(ProductFields.Discontinued, false)
                 .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
                 .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
+                .And(ProductFields.ProductId, OperatorLite.In, Enumerable.Range(1, 1100))
                 .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
                 .ToEnumerable();
 

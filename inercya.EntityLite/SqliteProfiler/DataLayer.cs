@@ -282,6 +282,30 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			}
         }
 
+		private String _dataServiceInstanceId;
+		[DataMember]
+		[SqlField(DbType.String, 2147483647, ColumnName ="DataServiceInstanceId", BaseColumnName ="DataServiceInstanceId", BaseTableName = "Executions" )]		
+		public String DataServiceInstanceId 
+		{ 
+		    get { return _dataServiceInstanceId; } 
+			set 
+			{
+			    _dataServiceInstanceId = value;
+			}
+        }
+
+		private String _applicationContext;
+		[DataMember]
+		[SqlField(DbType.String, 2147483647, ColumnName ="ApplicationContext", BaseColumnName ="ApplicationContext", BaseTableName = "Executions" )]		
+		public String ApplicationContext 
+		{ 
+		    get { return _applicationContext; } 
+			set 
+			{
+			    _applicationContext = value;
+			}
+        }
+
 
 	}
 
@@ -341,6 +365,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		public const string StatementId = "StatementId";
 		public const string ExecutionDate = "ExecutionDate";
 		public const string ExecutionTime = "ExecutionTime";
+		public const string DataServiceInstanceId = "DataServiceInstanceId";
+		public const string ApplicationContext = "ApplicationContext";
 	}
 
 }
