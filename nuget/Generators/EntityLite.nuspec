@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EntityLite</id>
-    <version>2.6.1</version>
+    <version>2.6.2</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
@@ -30,13 +30,13 @@ https://visualstudiogallery.msdn.microsoft.com/36ce38a1-49f9-4b97-933b-ad47c7173
     <copyright>Copyright 2013-2017</copyright>
     <dependencies>
       <group targetFramework="netstandard2.0">
-        <dependency id="EntityLite.Core" version="2.6.1" />
+        <dependency id="EntityLite.Core" version="2.6.2" />
       </group>
       <group targetFramework="net452">
-        <dependency id="EntityLite.Core" version="2.6.1" />
+        <dependency id="EntityLite.Core" version="2.6.2" />
       </group>
       <group targetFramework="net35">
-        <dependency id="EntityLite.Core" version="2.6.1" />
+        <dependency id="EntityLite.Core" version="2.6.2" />
       </group>
     </dependencies>
     <references></references>

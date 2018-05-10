@@ -444,14 +444,16 @@ namespace inercya.EntityLite.Builders
             {
                 bool firstValue = true;
                 var isNumericField = propertyMetadata.PropertyInfo.PropertyType.IsNumericType();
+                var undelyingFieldType = propertyMetadata.PropertyInfo.PropertyType.UndelyingType();
                 var isStringField = propertyMetadata.PropertyInfo.PropertyType == typeof(string);
                 if ((isNumericField || isStringField) && values.AreThereMoreThan(8))
                 {
                     bool firstChunk = true;
                     int valueCount = 0;
                     sb.Append("(");
-                    foreach (object value in values)
+                    foreach (object v in values)
                     {
+                        object value = v;
                         if (valueCount % 1000 == 0)
                         {
                             firstValue = true;
@@ -469,7 +471,17 @@ namespace inercya.EntityLite.Builders
                         }
                         else
                         {
-                            if (isNumericField && !value.IsNumeric()) { throw new ArgumentException($"A non numeric value has been found for {condition.Operator} operator and field {propertyMetadata.PropertyInfo.Name}"); }
+                            if (isNumericField && !value.IsNumeric())
+                            {
+                                try
+                                {
+                                    value = Convert.ChangeType(value, undelyingFieldType, CultureInfo.InvariantCulture);
+                                }
+                                catch( Exception ex)
+                                {
+                                    throw new ArgumentException($"A non numeric value has been found for {condition.Operator} operator and field {propertyMetadata.PropertyInfo.Name}", ex);
+                                }
+                            }
                             valueStr = Convert.ToString(value, CultureInfo.InvariantCulture);
                             if (isStringField)
                             {
