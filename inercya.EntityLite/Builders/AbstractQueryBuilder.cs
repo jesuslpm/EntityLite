@@ -485,7 +485,7 @@ namespace inercya.EntityLite.Builders
                             valueStr = Convert.ToString(value, CultureInfo.InvariantCulture);
                             if (isStringField)
                             {
-                                valueStr = "'" + valueStr.Replace("'", "''");
+                                valueStr = "'" + valueStr.Replace("'", "''") + "'";
                             }
                         }
                         if (firstValue) firstValue = false;
