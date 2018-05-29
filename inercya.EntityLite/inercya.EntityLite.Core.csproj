@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;netstandard2.0;net452</TargetFrameworks>
-    <Version>2.6.2</Version>
+    <Version>2.6.5</Version>
     <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EntityLite.Core</PackageId>
@@ -12,8 +12,8 @@
     <Product>i-nercya EntityLite</Product>
     <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
-    <AssemblyVersion>2.6.3.0</AssemblyVersion>
-    <FileVersion>2.6.3.0</FileVersion>
+    <AssemblyVersion>2.6.5.0</AssemblyVersion>
+    <FileVersion>2.6.5.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
@@ -60,7 +60,8 @@
       <LastGenOutput>DataLayer.cs</LastGenOutput>
     </None>
     <None Update="SqliteProfiler\EntityLite.ttinclude\ProcedureGeneration.ttinclude">
-      <Generator></Generator>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ProcedureGeneration.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

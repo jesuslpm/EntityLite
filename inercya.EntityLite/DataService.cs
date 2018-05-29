@@ -779,7 +779,7 @@ namespace inercya.EntityLite
             }
             if (entityMetadata.Properties.ContainsKey(SpecialFieldNames.EntityRowVersionFieldName))
             {
-                entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType));
+                entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType.UndelyingType()));
             }
             if (isAuditableEntity)
             {

@@ -43,8 +43,31 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
                     cmd.CommandText = "PRAGMA journal_mode = OFF;";
                     cmd.ExecuteNonQuery();
                 }
+                if (IsOdlSchema()) UpgradeSchema();
             }
         }
+
+        private bool IsOdlSchema()
+        {
+            using (var selectCmd = this.Connection.CreateCommand())
+            {
+                selectCmd.CommandText = "SELECT * FROM Executions WHERE 1=0";
+                using (var reader = selectCmd.ExecuteReader())
+                {
+                    return reader.FieldCount < 6;
+                }
+            }
+        }
+
+        private void UpgradeSchema()
+        {
+            using (var cmd = this.Connection.CreateCommand())
+            {
+                cmd.CommandText = "ALTER TABLE Executions ADD DataServiceInstanceId TEXT NULL; ALTER TABLE Executions ADD ApplicationContext TEXT NULL;";
+                cmd.ExecuteNonQuery();
+            }
+        }
+
 
         private  void CreateProfileDatabase()
         {
