@@ -91,7 +91,7 @@ namespace inercya.EntityLite
         private Type _entityType;
         public virtual Type EntityType { get { return _entityType; } set { _entityType = value; } }
 
-        protected DbCommand GetSelectCommand()
+        protected internal DbCommand GetSelectCommand()
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
             int paramIndex = 0;

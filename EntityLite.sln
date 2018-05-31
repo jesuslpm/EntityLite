@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLite.VSIX", "EntityLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesFx", "SamplesFx\SamplesFx.csproj", "{27444030-B98D-4ECD-A27B-A41518305AC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntLibLogging", "EntLibLogging\EntLibLogging.csproj", "{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +130,14 @@ Global
 		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|x86.ActiveCfg = Release|Any CPU
 		{27444030-B98D-4ECD-A27B-A41518305AC8}.Release|x86.Build.0 = Release|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Debug|x86.Build.0 = Debug|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Release|x86.ActiveCfg = Release|Any CPU
+		{E3A8BA88-1D72-4DDE-B7C6-A86C67E4BBF6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -140,6 +150,7 @@ Global
 		{BCEE35A4-CA5B-489E-B1BE-E3AD44F04C81} = {F926993D-D441-4457-9A74-E1BC8A746B52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.Logging.6.0.1304.0\lib\NET45
 		SolutionGuid = {782DA5B6-532A-472F-AD6B-13C67BF701CF}
 	EndGlobalSection
 EndGlobal

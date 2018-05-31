@@ -80,6 +80,8 @@ namespace inercya.EntityLite.Providers
             bool hasOrderbyClause = builder.QueryLite.Sort != null && builder.QueryLite.Sort.Count > 0;
             if (!hasOrderbyClause)
             {
+                var metadata = builder.QueryLite.EntityType.GetEntityMetadata();
+                if (metadata == null) throw new InvalidOperationException("Entity " + builder.QueryLite.EntityType.Name + " has no metadata");
                 foreach (var primaryKey in builder.QueryLite.EntityType.GetEntityMetadata().PrimaryKeyPropertyNames)
                 {
                     if (builder.QueryLite.Sort == null) builder.QueryLite.Sort = new List<SortDescriptor>();

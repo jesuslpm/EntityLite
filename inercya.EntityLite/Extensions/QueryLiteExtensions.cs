@@ -235,6 +235,11 @@ namespace inercya.EntityLite
 			return query;
 		}
 
+        public static DbCommand GetSelectCommandForDebuggingPurposes(this IQueryLite query)
+        {
+            return ((AbstractQueryLite)query).GetSelectCommand();
+        }
+
 		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
 		//{
 		//	return query.Where(selector.GetMemberName(), oper, (object) fieldValue);

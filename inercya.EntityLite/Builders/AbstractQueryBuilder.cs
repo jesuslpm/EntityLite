@@ -253,6 +253,7 @@ namespace inercya.EntityLite.Builders
         {
             PropertyMetadata propertyMetadata;
             EntityMetadata entityMetadata = entityType.GetEntityMetadata();
+            if (entityMetadata == null) throw new InvalidOperationException("Entity " + entityType.Name + " has no metadata");
             if (!entityMetadata.Properties.TryGetValue(fieldName, out propertyMetadata))
             {
                 throw new ArgumentException("Field " + fieldName + " cannot be used in a filter because it is not a property of " + entityType.Name);
@@ -557,6 +558,7 @@ namespace inercya.EntityLite.Builders
         {
 			PropertyMetadata propertyMetadata = null;
             var entityMetadata = QueryLite.EntityType.GetEntityMetadata();
+            if (entityMetadata == null) throw new InvalidOperationException("Entity " + QueryLite.EntityType.Name + " has no metadata");
 			entityMetadata.Properties.TryGetValue(sortDescriptor.FieldName, out propertyMetadata);
 
             if (propertyMetadata == null || (propertyMetadata.SqlField == null && !propertyMetadata.IsLocalizedFiled))
