@@ -204,10 +204,10 @@ public class DataLayerGeneration : IDisposable
             adapter.MissingSchemaAction = MissingSchemaAction.AddWithKey;
             adapter.SelectCommand = cmd;
             adapter.Fill(dt);
-            var idColumnName = dt.Columns[0].ColumnName;
+            var idColumnName = dt.PrimaryKey[0].ColumnName;
             object lastIdObj = dt.Compute($"max([{idColumnName}])", string.Empty);
             int lastId = Convert.IsDBNull(lastIdObj) ? 0 : Convert.ToInt32(lastIdObj);
-            var existingEntityTypes = new SortedSet<string>(dt.Rows.Cast<DataRow>().Select(x => (string)x[1]));
+            var existingEntityTypes = new SortedSet<string>(dt.Rows.Cast<DataRow>().Select(x => (string)x[EntityTypeNameColumnName]));
             bool areThereNewEntities = false;
             foreach (var entitySetting in EntitySettings.Where( x => !existingEntityTypes.Contains(EntitySetting.GetFullEntityName(x.EntityName, x.Schema, DefaultSchema))))
             {
