@@ -11,26 +11,13 @@ namespace Microsoft.Extensions.Logging
         void LogError(Exception ex, string message);
         void LogInformation(string format, params object[] parameters);
         void LogDebug(string format, params object[] parameters);
+        void LogTrace(string format, params object[] parameters);
     }
 
     public interface ILoggerFactory
     {
         ILogger CreateLogger(string categoryName);
         ILogger CreateLogger<T>();
-    }
-
-    public static class LoggerFactoryExtensions 
-    {
-        public static ILogger CreateLogger<T>(this ILoggerFactory loggerFactory)
-        {
-            return null;
-        }
-
-    }
-
-    namespace Abstractions
-    {
-
     }
 
     internal class NLogLogger : ILogger
@@ -54,6 +41,11 @@ namespace Microsoft.Extensions.Logging
         public void LogDebug(string format, params object[] args)
         {
             this.logger.Debug(format, args);
+        }
+
+        public void LogTrace(string format, params object[] args)
+        {
+            this.logger.Trace(format, args);
         }
     }
 

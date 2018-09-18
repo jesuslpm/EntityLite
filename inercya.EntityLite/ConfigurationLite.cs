@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Data.Common;
-using Microsoft.Extensions.Logging.Abstractions;
+//using Microsoft.Extensions.Logging.Abstractions;
 
 namespace inercya.EntityLite
 {
@@ -15,7 +15,7 @@ namespace inercya.EntityLite
 #if NET452 || NET35
             LoggerFactory = new NLogFactory();
 #elif NETSTANDARD2_0
-            LoggerFactory = new NullLoggerFactory();
+            LoggerFactory = new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory();
 #endif
 
             DbProviderFactories = new inercya.EntityLite.DefaultDbProviderFactories();

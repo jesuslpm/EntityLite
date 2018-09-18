@@ -42,6 +42,7 @@ namespace inercya.EntityLite
         public string ColumnName { get; set; }
         public string SequenceName { get; set; }
         public int ProviderType { get; set; }
+        public bool IsEncrypted { get; set; }
 
         public SqlFieldAttribute(DbType dbType, int size)
         {

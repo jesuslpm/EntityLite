@@ -18,6 +18,11 @@
 			{
 				EntityName = "Execution",
                 BaseTableName = "Executions"
+			},
+			new EntitySetting 
+			{
+				EntityName = "SchemaVersion",
+                BaseTableName = "SchemaVersion"
 			}
 		}
 	};

@@ -52,6 +52,18 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 			}
         }
 
+		private String _sampleCommandText;
+		[DataMember]
+		[SqlField(DbType.String, 2147483647, ColumnName ="SampleCommandText", BaseColumnName ="SampleCommandText", BaseTableName = "Statements" )]		
+		public String SampleCommandText 
+		{ 
+		    get { return _sampleCommandText; } 
+			set 
+			{
+			    _sampleCommandText = value;
+			}
+        }
+
 		private Double _maxTime;
 		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 53, ColumnName ="MaxTime", BaseColumnName ="MaxTime", BaseTableName = "Statements" )]		
@@ -218,6 +230,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		public const string StatementId = "StatementId";
 		public const string CommandTextHash = "CommandTextHash";
 		public const string CommandText = "CommandText";
+		public const string SampleCommandText = "SampleCommandText";
 		public const string MaxTime = "MaxTime";
 		public const string MinTime = "MinTime";
 		public const string TotalTime = "TotalTime";
@@ -369,6 +382,45 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		public const string ApplicationContext = "ApplicationContext";
 	}
 
+	[Serializable]
+	[DataContract]
+	[SqlEntity(BaseTableName="SchemaVersion")]
+	public partial class SchemaVersion
+	{
+		private String _version;
+		[DataMember]
+		[SqlField(DbType.String, 2147483647, ColumnName ="Version", BaseColumnName ="Version", BaseTableName = "SchemaVersion" )]		
+		public String Version 
+		{ 
+		    get { return _version; } 
+			set 
+			{
+			    _version = value;
+			}
+        }
+
+
+	}
+
+	public partial class SchemaVersionRepository : Repository<SchemaVersion> 
+	{
+		public SchemaVersionRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new SqliteProfilerDataService  DataService  
+		{
+			get { return (SqliteProfilerDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+	}
+	[Obsolete("Use nameof instead")]
+	public static partial class SchemaVersionFields
+	{
+		public const string Version = "Version";
+	}
+
 }
 
 namespace inercya.EntityLite.SqliteProfiler.Entities
@@ -421,6 +473,19 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 					_ExecutionRepository = new inercya.EntityLite.SqliteProfiler.Entities.ExecutionRepository(this);
 				}
 				return _ExecutionRepository;
+			}
+		}
+
+		private inercya.EntityLite.SqliteProfiler.Entities.SchemaVersionRepository _SchemaVersionRepository;
+		public inercya.EntityLite.SqliteProfiler.Entities.SchemaVersionRepository SchemaVersionRepository
+		{
+			get 
+			{
+				if ( _SchemaVersionRepository == null)
+				{
+					_SchemaVersionRepository = new inercya.EntityLite.SqliteProfiler.Entities.SchemaVersionRepository(this);
+				}
+				return _SchemaVersionRepository;
 			}
 		}
 	}

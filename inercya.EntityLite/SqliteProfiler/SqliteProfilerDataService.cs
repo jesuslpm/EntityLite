@@ -9,6 +9,7 @@ using inercya.EntityLite.SqliteProfiler;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace inercya.EntityLite.SqliteProfiler.Entities
 {
@@ -16,6 +17,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
     {
 
         public string FilePath { get; private set; }
+
+        private static Regex listOfValuesRegex = new Regex(@"\((?:(?:[:@]P)*\d+(?:,\s*(?:[:@]P)*\d+)*)\)", RegexOptions.Compiled);
 
 
         public static SqliteProfilerDataService Create(string filePath)
@@ -38,34 +41,38 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
                     CreateProfileDatabase();
                 }
                 base.OpenConnection();
-                using (var cmd = this.Connection.CreateCommand())
-                {
-                    cmd.CommandText = "PRAGMA journal_mode = OFF;";
-                    cmd.ExecuteNonQuery();
-                }
+                TurnOffJournalMode();
                 if (IsOdlSchema()) UpgradeSchema();
+            }
+        }
+
+        private void TurnOffJournalMode()
+        {
+            using (var cmd = this.Connection.CreateCommand())
+            {
+                cmd.CommandText = "PRAGMA journal_mode = OFF;";
+                cmd.ExecuteNonQuery();
             }
         }
 
         private bool IsOdlSchema()
         {
-            using (var selectCmd = this.Connection.CreateCommand())
+            try
             {
-                selectCmd.CommandText = "SELECT * FROM Executions WHERE 1=0";
-                using (var reader = selectCmd.ExecuteReader())
-                {
-                    return reader.FieldCount < 6;
-                }
+                return this.SchemaVersionRepository.Query(Projection.BaseTable).FirstOrDefault().Version != "1.0.0";
+            }
+            catch
+            {
+                return true;
             }
         }
 
         private void UpgradeSchema()
         {
-            using (var cmd = this.Connection.CreateCommand())
-            {
-                cmd.CommandText = "ALTER TABLE Executions ADD DataServiceInstanceId TEXT NULL; ALTER TABLE Executions ADD ApplicationContext TEXT NULL;";
-                cmd.ExecuteNonQuery();
-            }
+            this.Connection.Close();
+            CreateProfileDatabase();
+            base.OpenConnection();
+            TurnOffJournalMode();
         }
 
 
@@ -89,19 +96,22 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
         public void LogCommandExecution(LogItem item, bool fullLogging)
         {
-            byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(item.CommandText);
+
+            var normalizedCommandText = listOfValuesRegex.Replace(item.CommandText, "( #ListOfValues# )");
+            byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(normalizedCommandText);
             byte[] hash = md5.ComputeHash(inputBytes);
             long commandTextHash = BitConverter.ToInt64(hash, 0);
             var statement = this.StatementRepository.Query(Projection.BaseTable)
                 .Where(nameof(Statement.CommandTextHash), commandTextHash)
-                .And(nameof(Statement.CommandText), item.CommandText).ToList().FirstOrDefault();
+                .And(nameof(Statement.CommandText), normalizedCommandText).ToList().FirstOrDefault();
 
             string parametersAsString = item.Params;
             if (statement == null)
             {
                 statement = new Statement();
-                statement.CommandText = item.CommandText;
+                statement.CommandText = normalizedCommandText;
                 statement.CommandTextHash = commandTextHash;
+                statement.SampleCommandText = item.CommandText;
                 statement.ExecutionCount = 1;
                 statement.MaxTime = item.ExecutionTime.TotalMilliseconds;
                 statement.MaxTimeParams = parametersAsString;
@@ -135,6 +145,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
                 {
                     statement.SampleTime = item.ExecutionTime.TotalMilliseconds;
                     statement.SampleParams = parametersAsString;
+                    statement.SampleCommandText = item.CommandText;
                 }
 
                 this.Update(statement);

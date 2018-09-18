@@ -536,6 +536,8 @@ namespace Samples
                 .Fields(FieldsOption.None, OrderDetailFields.OrderId)
                 .Where(OrderDetailFields.ProductId, 11);
 
+            var orderIds = orderDetailSubQuery.ToEnumerable().Select(x => x.OrderId).ToList();
+
             // SELECT OrderId, OrderDate, CustomerId
             // FROM dbo.Orders
             // WHERE OrderId IN (
@@ -543,9 +545,13 @@ namespace Samples
             //       FROM dbo.OrderDetails
             //       WHERE ProductId = 11
             //    )
+            //IQueryLite<Order> orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
+            //    .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
+            //    .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+
             IQueryLite<Order> orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
-                .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
-                .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+    .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
+    .Where(OrderFields.OrderId, OperatorLite.In, orderIds);
 
             foreach (var order in orderQuery.ToEnumerable())
             {
