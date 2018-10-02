@@ -74,7 +74,7 @@ namespace inercya.EntityLite.Builders
             }
             else
             {
-                tableOrViewName = (entityType.Name  + "_" + this.ProjectionName).Transform(QueryLite.DataService.EntityNameToEntityViewTransform);
+                tableOrViewName = (entityType.Name.Transform(QueryLite.DataService.EntityNameToEntityViewTransform) + "_" + this.ProjectionName.Transform(QueryLite.DataService.EntityNameToEntityViewTransform));
                 if (!string.IsNullOrEmpty(this.QueryLite.DataService.ViewPrefix))
                 {
                     tableOrViewName = this.QueryLite.DataService.ViewPrefix + tableOrViewName;
