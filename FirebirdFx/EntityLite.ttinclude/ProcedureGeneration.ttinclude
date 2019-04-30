@@ -1,0 +1,114 @@
+﻿<#+ 
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+void ProcedureGeneration_Render(DataLayerGeneration generation)
+{	
+    if (generation.ProcedureSettings == null || generation.ProcedureSettings.Count == 0) return;
+#>
+namespace <#= generation.RootNamespace #>
+{
+	public static partial class <#= generation.ProceduresClassName #>
+	{
+<#+
+	foreach(var procedure in generation.ProcedureSettings)
+	{
+		var proc = generation.GetProcedure(procedure);
+#>
+		public static DbCommand <#= procedure.GetCreateProcedureMethodName(generation.DefaultSchema) #>(DbConnection connection, string parameterPrefix, string schema = "<#= string.IsNullOrEmpty(procedure.ProcedureSchema) ? string.Empty : procedure.ProcedureSchema #>")
+		{
+			var cmd = connection.CreateCommand();
+			cmd.CommandText = string.IsNullOrEmpty(schema) ? "<#= procedure.ProcedureName #>" : schema + "." + "<#= procedure.ProcedureName #>";
+			cmd.CommandType = CommandType.StoredProcedure;
+			IDbDataParameter p = null;
+<#+
+        bool isFirstRefCursor= true;
+		foreach(IDbDataParameter p in proc.Parameters)
+		{
+			string sourceColumn = p.ParameterName;
+			if (!string.IsNullOrEmpty(sourceColumn) && (sourceColumn[0] == '@' || sourceColumn[0] == ':'))
+			{
+				sourceColumn = sourceColumn.Substring(1);
+			}
+            var oracleDbTypeProp = p.GetType().GetProperty("OracleDbType");
+            bool isRefCursor = oracleDbTypeProp != null && oracleDbTypeProp.GetValue(p, null).ToString() == "RefCursor";
+            if (isFirstRefCursor && isRefCursor)
+            {
+                    isFirstRefCursor = false;
+ #>
+
+            Type paramType = p.GetType();
+            var oracleDbTypeProperty = paramType.GetProperty("OracleDbType");
+            var refCursorValue = Enum.Parse(oracleDbTypeProperty.PropertyType, "RefCursor");
+<#+         
+            }  
+#>
+
+			p = cmd.CreateParameter();
+			p.ParameterName = parameterPrefix + "<#= sourceColumn #>";
+<#+ 
+            if (isRefCursor)
+            {
+#>
+            oracleDbTypeProperty.SetValue(p, refCursorValue, null);
+<#+         } 
+            else {
+#>
+			p.DbType = DbType.<#= p.DbType.ToString() #>;
+<#+         
+            } #>
+            p.Direction = ParameterDirection.<#= p.Direction.ToString() #>;
+<#+
+			if (p.Size != 0) 
+			{
+#>
+			p.Size = <#= p.Size.ToString() #>;
+<#+
+			}
+			if (p.Precision != 0)
+			{
+#>
+			p.Precision = <#= p.Precision.ToString() #>;
+<#+
+			}
+			if (p.Scale != 0)
+			{
+#>
+			p.Scale = <#= p.Scale.ToString() #>;
+<#+
+			}
+			if (!string.IsNullOrEmpty(sourceColumn))
+			{
+#>
+			p.SourceColumn = "<#= sourceColumn #>";
+<#+
+			}
+#>
+			cmd.Parameters.Add(p);
+<#+
+		}
+#>
+
+			return cmd;
+		}
+
+<#+
+	}
+#>
+	}
+}
+<#+
+}
+#>

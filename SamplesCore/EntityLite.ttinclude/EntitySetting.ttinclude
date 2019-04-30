@@ -26,6 +26,7 @@ public class EntitySetting
 	public string SynonymSchema {get; set;}
 	public string RoundDateFields {get; set;}
 	public bool IsAuditable {get; set;}
+	public Dictionary<string, string> ColumnToPropertyMap {get; set;}
 
     public int EntityTypeId { get; internal set; }
 

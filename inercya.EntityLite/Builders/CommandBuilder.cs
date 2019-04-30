@@ -327,7 +327,8 @@ namespace inercya.EntityLite.Builders
             {
                 SqlFieldAttribute field = kv.Value.SqlField;
                 //en PostgeSQL se manejan las secuencias de otra manera, como un autonumérico.
-                if (field.SequenceName != null && sequenceVariable == null) continue; 
+                //
+                //if (field.SequenceName != null && sequenceVariable == null) continue; 
                 string propertyName = kv.Key;
                 if (firstTime)
                 {
@@ -352,7 +353,14 @@ namespace inercya.EntityLite.Builders
                 }
                 else if (field.SequenceName != null)
                 {
-                    valuesText.Append(DataService.EntityLiteProvider.SequenceVariable);
+                    if (DataService.EntityLiteProvider.SequenceVariable != null)
+                    {
+                        valuesText.Append(DataService.EntityLiteProvider.SequenceVariable);
+                    }
+                    else
+                    {
+                        valuesText.Append(DataService.EntityLiteProvider.GetNextValExpression(field.SequenceName));
+                    }
                 }
                 else
                 {

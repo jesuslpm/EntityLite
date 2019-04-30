@@ -21,6 +21,7 @@
 		EntityNameToEntityViewTransform = TextTransform.ToUnderscoreLowerCaseNamingConvention,
 		AuditDateTimeKind = DateTimeKind.Utc,
 		JsonType = JsonType.JToken,
+		GenerateProjectionColumnLists = true,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 

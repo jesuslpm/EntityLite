@@ -1,0 +1,158 @@
+﻿<#+
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+public class EntitySetting
+{
+    public string BaseTableName { get; set; }
+    public string Schema { get; set; }
+    public string ReadOnlyFields { get; set; }
+    public string EntityName { get; set; }
+	public string SequenceName { get; set;}
+	public bool? GenerateTypeScript { get; set;}
+	public string SynonymName {get; set;}
+	public string SynonymSchema {get; set;}
+	public string RoundDateFields {get; set;}
+	public bool IsAuditable {get; set;}
+	public Dictionary<string, string> ColumnToPropertyMap {get; set;}
+
+    public int EntityTypeId { get; internal set; }
+
+    private string _parentPropertyName;
+    public string ParentPropertyName
+    {
+        get { return _parentPropertyName; }
+        set
+        {
+            if (value == "Application") _parentPropertyName = "__Application__";
+            else { _parentPropertyName = value; }
+        }
+    }
+
+	public string GetSqlEntityParameters(string defaultSchema)
+	{
+		string parameters = string.Empty;
+		if (!string.IsNullOrEmpty(BaseTableName))
+		{
+			parameters = "BaseTableName=\"" + BaseTableName + "\"";
+		}
+		if (!string.IsNullOrEmpty(Schema) && Schema != defaultSchema )
+		{
+			if (!string.IsNullOrEmpty(parameters)) parameters += ", ";
+			parameters += "SchemaName=\"" + Schema + "\"";
+		}
+		if (IsAuditable) parameters += ", IsAuditable = true";
+		return parameters;
+	}
+
+    public string GetFullTableName(string defaultSchema, string  quotePrefix, string quoteSufix)
+    {
+        if (string.IsNullOrEmpty(BaseTableName)) return string.Empty;
+		string schema = this.Schema;
+		if (string.IsNullOrEmpty(schema)) schema = defaultSchema;
+		return string.IsNullOrEmpty(schema) ? quotePrefix + BaseTableName + quoteSufix: quotePrefix +  schema + quoteSufix + "." + quotePrefix + BaseTableName + quoteSufix ;
+    }
+
+	public string GetFullObjectName(string defaultSchema, string  quotePrefix, string quoteSufix)
+	{
+		if (string.IsNullOrEmpty(SynonymName)) return GetFullTableName(defaultSchema, quotePrefix, quoteSufix);
+		string schema = this.SynonymSchema;
+		if (string.IsNullOrEmpty(schema)) schema = defaultSchema;
+		return string.IsNullOrEmpty(schema) ? quotePrefix + SynonymName + quoteSufix: quotePrefix +  schema + quoteSufix + "." + quotePrefix + SynonymName + quoteSufix ;
+	}
+
+    public static string GetFullEntityName(string entityName, string schema, string defaultSchema)
+    {
+		
+        if (string.IsNullOrEmpty(schema) || schema == defaultSchema)
+        {
+            return entityName;
+        }
+        else
+        {
+            return Extensions.ToPascalNamingConvention(schema) + "." + entityName;
+        }
+    }
+
+    public string FullEntityName
+    {
+        get
+        {
+            return GetFullEntityName(EntityName, Schema, null);
+        }
+    }
+
+    public string GetNamespaceName(string rootNamespace)
+    {
+        string namespaceName = rootNamespace;
+        if (!string.IsNullOrEmpty(this.Schema))
+        {
+            namespaceName += "." + Extensions.ToPascalNamingConvention(this.Schema);
+        }
+        return namespaceName;
+    }
+
+    public string GetRepositoryPropertyName()
+    {
+        if (!string.IsNullOrEmpty(this.Schema))
+        {
+            return Extensions.ToPascalNamingConvention(this.Schema) + this.EntityName + "Repository";
+        }
+        else
+        {
+            return this.EntityName + "Repository";
+        }
+    }
+
+    public HashSet<string> GetReadOnlyFields()
+    {
+        HashSet<string> readOnlyFields = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        if (this.ReadOnlyFields == null) return readOnlyFields;
+        foreach (string token in this.ReadOnlyFields.Split(','))
+        {
+            string fieldName = token.Trim();
+            if (!string.IsNullOrEmpty(fieldName))
+            {
+                readOnlyFields.Add(fieldName);
+            }
+        }
+        return readOnlyFields;
+    }
+
+	public HashSet<string> GetRoundDateFields()
+	{
+        HashSet<string> roundDateFields = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        if (this.RoundDateFields == null) return roundDateFields;
+        foreach (string token in this.RoundDateFields.Split(','))
+        {
+            string fieldName = token.Trim();
+            if (!string.IsNullOrEmpty(fieldName))
+            {
+                roundDateFields.Add(fieldName);
+            }
+        }
+        return roundDateFields;		
+	}
+
+
+    public FieldGeneration FieldGeneration { get; set; }
+
+    public EntitySetting()
+    {
+        FieldGeneration = FieldGeneration.ForBaseTableAndViews;
+    }
+}
+#>
+

@@ -206,6 +206,8 @@ namespace inercya.EntityLite
             }
             finally
             {
+                
+                //if (command != null && DisposeCommand && this.DataService.ProviderName != "FirebirdSql.Data.FirebirdClient") command.Dispose();
                 if (command != null && DisposeCommand) command.Dispose();
             }
         }

@@ -16,14 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="DataLayer.cs">
-      <DependentUpon>DataLayer.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update=".dockerignore">
       <DependentUpon>Dockerfile</DependentUpon>
     </None>
@@ -38,6 +30,14 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataLayer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DataLayer.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

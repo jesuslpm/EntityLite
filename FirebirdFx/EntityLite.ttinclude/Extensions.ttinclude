@@ -1,0 +1,252 @@
+﻿<#+
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+public static class Extensions
+{
+		public static IDictionary<TKey, IList<TItem>> ToListDictionary<TKey, TItem>( IEnumerable<TItem> itemsSource, Func<TItem, TKey> keySelector)
+		{
+            IDictionary<TKey, IList<TItem>> dic;
+            if (typeof(TKey) == typeof(string))
+            {
+                dic =  new Dictionary<TKey, IList<TItem>>((IEqualityComparer<TKey>) StringComparer.CurrentCultureIgnoreCase);
+            }
+            else
+            {
+                dic = new Dictionary<TKey, IList<TItem>>();
+            }
+			
+			foreach (var item in itemsSource)
+			{
+				IList<TItem> list = null;
+				TKey key = keySelector(item);
+				if (!dic.TryGetValue(key, out list))
+				{
+					list = new List<TItem>();
+					dic.Add(key, list);
+				}
+				list.Add(item);
+
+			}
+			return dic;
+		}
+
+		public static void SetPropertyValue( object obj, string propertyName, object value) {
+			var type = obj.GetType();
+			var prop = type.GetProperty(propertyName);
+			prop.SetValue(obj, value);
+		}
+
+		        public static string ToPascalNamingConvention( string str)
+        {
+            StringBuilder sb = new StringBuilder(str.Length);
+            bool isPreviousLower = false;
+            bool isNewWord = true;
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                if (c == ' ' || c == '_' || c == '.')
+                {
+                    isNewWord = true;
+                    continue;
+                }
+                bool isUpper = char.IsUpper(c);
+                bool isLower = char.IsLower(c);
+                bool isNextLower = i < str.Length -1 &&  char.IsLower(str[i+1]);
+
+                if ( isUpper && (isPreviousLower || isNextLower))
+                {
+                    isNewWord = true;
+                }
+                if (isNewWord)
+                {
+                    isNewWord = false;
+                    if (isLower) c = char.ToUpper(c);
+                }
+                else
+                {
+                    if (isUpper) c = char.ToLower(c);
+                }
+                isPreviousLower = isLower;
+                sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+
+        public static string ToUnderscoreLowerCaseNamingConvention( string str)
+        {
+            StringBuilder sb = new StringBuilder(str.Length + 6);
+            bool isPreviousCharLowerCase = false;
+            for (int i = 0; i < str.Length; i++ )
+            {
+                char c = str[i];
+                bool isUpper = char.IsUpper(c);
+                if (isPreviousCharLowerCase && isUpper)
+                {
+                    sb.Append('_');
+                }
+                if (c == ' ') c = '_';
+                isPreviousCharLowerCase = char.IsLower(c);
+                if (isUpper) c = char.ToLower(c);
+                sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+        public static string ToUnderscoreUpperCaseNamingConvention( string str)
+        {
+            StringBuilder sb = new StringBuilder(str.Length + 8);
+            bool isPreviousCharLowerCase = false;
+            for (int i = 0; i < str.Length; i++)
+            {
+                char c = str[i];
+                bool isLower = char.IsLower(c);
+                if (isPreviousCharLowerCase && char.IsUpper(c))
+                {
+                    sb.Append('_');
+                }
+                if (c == ' ') c = '_';
+                isPreviousCharLowerCase = isLower;
+                if (isLower) c = char.ToUpper(c);
+                sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+        public static bool HasUpperAndLowerCaseChars( string str)
+        {
+            bool hasLower = false;
+            bool hasUpper = false;
+            foreach(char c in str)
+            {
+                if (!hasLower && char.IsLower(c)) hasLower = true;
+                if (!hasUpper && char.IsUpper(c)) hasUpper = true;
+                if (hasLower && hasUpper) return true;
+            }
+            return false;
+        }
+
+        public static string Transform( string str, TextTransform textTransform)
+        {
+            switch (textTransform)
+            {
+                case TextTransform.None:
+                    return str;
+                case TextTransform.ToLower:
+                    return str.ToLower();
+                case TextTransform.ToUpper:
+                    return str.ToUpper();
+                case TextTransform.ToPascalNamingConvention:
+                    return ToPascalNamingConvention(str);
+                case TextTransform.ToUnderscoreLowerCaseNamingConvention:
+                    return ToUnderscoreLowerCaseNamingConvention(str);
+                case TextTransform.ToUnderscoreUpperCaseNamingConvention:
+                    return ToUnderscoreUpperCaseNamingConvention(str);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+		        private static readonly HashSet<string> Keywords = new HashSet<string>
+		{
+			"abstract", "add", "alias", "as", "ascending", "async", "await", "base", 
+			"bool", "break", "byte", "case", "catch", "char", "checked", "class", 
+			"const", "continue", "decimal", "default", "delegate", "descending",
+			"do", "double", "dynamic", "else", "enum", "event", "explicit", "extern", 
+			"false", "finally", "fixed", "float", "for", "foreach", "from", "get", 
+			"global", "goto", "group", "if", "implicit", "into","in", "int", 
+			"interface", "internal", "is", "join", "let", "lock", "long", "namespace", 
+			"new", "null", "object", "operator", "out", "orderby", "override", "params", 
+			"partial", "private", "protected", "public", "readonly", "ref",  "remove", 
+			"return", "sbyte", "sealed", "select", "set", "short", "sizeof", "stackalloc", 
+			"static", "string", "struct", "switch", "this", "throw", "true", "try", 
+			"typeof", "uint", "ulong", "unckecked", "unsafe", "ushort", "using", 
+			"value", "var", "where", "virtual", "void", "volatile", "while", "yield"
+		};
+
+        public static string EscapeKeyword( string str)
+        {
+            if (Keywords.Contains(str))
+            {
+                return "@" + str;
+            }
+            else
+            {
+                return str;
+            }
+        }
+
+        public static string ActualName( Type type)
+        {
+            if (!type.IsGenericType)
+                return type.Name;
+            string genericTypeName = type.GetGenericTypeDefinition().Name;
+            genericTypeName = genericTypeName.Substring(0,
+                genericTypeName.IndexOf('`'));
+            string genericArgs = string.Join(",",
+                type.GetGenericArguments()
+                    .Select(ta => ActualName(ta)).ToArray());
+            return genericTypeName + "<" + genericArgs + ">";
+        }
+
+        public static bool IsNullableValueType( Type type)
+        {
+            return (type.IsGenericType && type.IsValueType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+        }
+
+
+        public static string ToParameterName( string self)
+        {
+            if (string.IsNullOrEmpty(self)) throw new ArgumentException("parameter cannot be null nor empty", "self");
+
+            string firstCharacter = self.Substring(0, 1).ToLower();
+            if (self.Length > 1)
+            {
+                return firstCharacter + self.Substring(1);
+            }
+            else
+            {
+                return firstCharacter;
+            }
+        }
+
+		/*
+        static readonly System.Text.RegularExpressions.Regex parameterRegex = new System.Text.RegularExpressions.Regex(@"\$\((\S)+\)",  System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        internal static string GetSql( ISqlTemplate template, string parameterPrefix)
+        {
+            var sql = parameterRegex.Replace(template.TransformText(),
+                (match) => parameterPrefix + match.Value.Substring(2, match.Value.Length - 3));
+
+            return sql;
+        }
+		*/
+
+
+
+		public static Type UndelyingType( Type type)
+		{
+			if (IsNullableValueType(type))
+			{
+				return type.GetGenericArguments()[0];
+			}
+			else
+			{
+				return type;
+			}
+		}
+}
+#>

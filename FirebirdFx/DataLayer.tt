@@ -1,0 +1,98 @@
+﻿<#@ include file ="EntityLite.ttinclude\EntityLite.ttinclude" #>
+<#
+	var generation = new DataLayerGeneration
+	{
+		ImplementINotifyPropertyChanged = false,
+        ProviderName = "FirebirdSql.Data.FirebirdClient",
+		ConnectionString = @"Data Source=localhost;Database=C:\Program Files\Firebird\Firebird_2_5\examples\empbuild\EMPLOYEE.FDB;User=SYSDBA;Password=masterkey",
+		DefaultSchema = string.Empty,
+		
+		JsonType = JsonType.JToken,
+		ConnectionStringName = "Employees",
+		RootNamespace = "Samples.Entities",
+		DataServiceName = "EmployeesDataService",
+		GenerateTypeScript = false,
+		GenerateProjectionColumnLists = true,
+		EntitySettings = new List<EntitySetting>
+		{
+			new EntitySetting 
+			{
+				BaseTableName = "COUNTRY",
+				EntityName = "Country",
+				ColumnToPropertyMap = new Dictionary<string, string> {
+					["COUNTRY"] = "CountryName"
+				}
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "JOB",
+				EntityName = "Job"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "DEPARTMENT",
+				EntityName = "Department",
+				ColumnToPropertyMap = new Dictionary<string, string> {
+					["DEPARTMENT"] = "DepartmentName"
+				}
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "EMPLOYEE",
+				EntityName = "Employee",
+				SequenceName = "EMP_NO_GEN"
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "SALES",
+				EntityName = "Sale"  
+			},
+			new EntitySetting 
+			{
+				EntityName = "Phone"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "PROJECT",
+				EntityName = "Project"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "EMPLOYEE_PROJECT",
+				EntityName = "EmployeeProject"  
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "PROJ_DEPT_BUDGET",
+				EntityName = "ProjDeptBudget"
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "SALARY_HISTORY" ,
+				EntityName = "SalaryHistoryItem"
+			},
+			new EntitySetting 
+			{
+				BaseTableName = "CUSTOMER",
+				EntityName = "Customer",
+				ColumnToPropertyMap = new Dictionary<string, string> {
+					["CUSTOMER"] = "CustomerName"
+				},
+				SequenceName = "CUST_NO_GEN"
+			}
+		},
+		ProcedureSettings = new List<ProcedureSetting>
+		{
+			new ProcedureSetting 
+			{
+				ProcedureName = "ORG_CHART",
+				RelatedEntityName = "Department",
+				ResultSetKind = ProcedureResultSetKind.MultipleRows
+			}
+		},
+		EnumSettings = new List<EnumSetting>
+		{
+		}
+	};
+	Render(generation);
+#>

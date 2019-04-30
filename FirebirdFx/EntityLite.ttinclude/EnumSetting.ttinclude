@@ -1,0 +1,92 @@
+﻿<#+
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+public class EnumSetting
+{
+    public string BaseTableName { get; set; }
+    public string Schema { get; set; }
+	public string IdField { get; set;}
+	public string NameField { get; set;}
+	public string Namespace {get; set;}
+
+	public Func<string, bool> Predicate;
+
+	public Func<string, string> StringFilter;
+
+	private string _typeName;
+	public string TypeName { 
+		get {
+			if (_typeName == null && IdField != null) {
+				_typeName = Extensions.ToPascalNamingConvention(IdField);
+			}
+			return _typeName;
+		}
+		set {
+			_typeName = value;
+		}
+	}
+
+	public EnumSetting() 
+	{
+		Predicate = _ => true;
+		StringFilter = name => name;
+	}
+
+
+    public string GetFullTableName(string defaultSchema, string  quotePrefix, string quoteSufix)
+    {
+        if (string.IsNullOrEmpty(BaseTableName)) return string.Empty;
+		string schema = this.Schema;
+		if (string.IsNullOrEmpty(schema)) schema = defaultSchema;
+		return string.IsNullOrEmpty(schema) ? quotePrefix + BaseTableName + quoteSufix: quotePrefix +  schema + quoteSufix + "." + quotePrefix + BaseTableName + quoteSufix ;
+    }
+
+    public string GetNamespaceName(string rootNamespace)
+    {
+        string namespaceName = rootNamespace;
+		if (this.Namespace != null)
+		{
+		    if (this.Namespace != String.Empty)
+			{
+				namespaceName += "." + Extensions.ToPascalNamingConvention(this.Namespace);
+			}
+		}
+        else if (!string.IsNullOrEmpty(this.Schema))
+        {
+            namespaceName += "." + Extensions.ToPascalNamingConvention(this.Schema);
+        }
+        return namespaceName;
+    }
+
+	public string GetFullIdField() 
+	{
+		string prefix = string.Empty;
+		if (this.Namespace != null)
+		{
+			if (this.Namespace != String.Empty)
+			{
+				prefix = Extensions.ToPascalNamingConvention(this.Namespace) + ".";
+			}
+		}
+        else if (!string.IsNullOrEmpty(this.Schema))
+        {
+            prefix = Extensions.ToPascalNamingConvention(this.Schema) + ".";
+        }
+		return prefix + Extensions.ToPascalNamingConvention(IdField);
+	}
+}
+#>
+

@@ -1,0 +1,15 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+EXECUTE BLOCK (pcust_no INTEGER = $(CustomerNumber))
+RETURNS (affected_rows INTEGER, error_count INTEGER)
+AS
+BEGIN
+	UPDATE CUSTOMER SET ADDRESS_LINE2 = 'Calle Hospital'
+	WHERE CUST_NO = :pcust_no;
+	affected_rows = ROW_COUNT;
+	error_count = 0;
+	suspend;
+END

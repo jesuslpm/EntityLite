@@ -286,8 +286,13 @@ namespace inercya.EntityLite.Builders
             }
         }
 
-        private bool TryFindMappingProperty(Dictionary<string, PropertyInfo> properties, string fieldName, out PropertyInfo pi )
+        private bool TryFindMappingProperty(Dictionary<string, PropertyMetadata> columnToPropertyMap, Dictionary<string, PropertyInfo> properties, string fieldName, out PropertyInfo pi )
         {
+            if (columnToPropertyMap != null && columnToPropertyMap.TryGetValue(fieldName, out var propertyMetadata) && propertyMetadata.PropertyInfo != null)
+            {
+                pi = propertyMetadata.PropertyInfo;
+                return true;
+            }
             string candidatePropertyName = fieldName;
             if (properties.TryGetValue(candidatePropertyName, out pi)) return true;
             candidatePropertyName = fieldName.ToPascalNamingConvention();
@@ -314,12 +319,12 @@ namespace inercya.EntityLite.Builders
             cil.Emit(OpCodes.Stloc_0);
 
             var properties = entityType.GetProperties().ToDictionary(x => x.Name);
+            var columnToPropertyMap = EntityMetadata.GetEntityMetadata(entityType)?.ColumnToPropertyMap;
             int fieldCount = reader.FieldCount;
             for (int fieldOrdinal = 0; fieldOrdinal < fieldCount; fieldOrdinal++)
             {
-                PropertyInfo pi;
                 string fieldName = reader.GetName(fieldOrdinal);
-                if (TryFindMappingProperty(properties, fieldName, out pi))
+                if (TryFindMappingProperty(columnToPropertyMap, properties, fieldName, out PropertyInfo pi))
                 {
                     EmitCilForOneField(fieldOrdinal, pi);
                 }

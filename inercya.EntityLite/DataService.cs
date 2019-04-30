@@ -84,6 +84,8 @@ namespace inercya.EntityLite
 
         public Func<string> ApplicationContextGetter { get; set; }
 
+        public Func<string> CorrelationIdGetter { get; set; }
+
 		public int MaxRetries { get; set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }
 		public SpecialFieldNames SpecialFieldNames { get; set; }
@@ -278,6 +280,7 @@ namespace inercya.EntityLite
             EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ManagedProviderName, (ds) => new OracleEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(DevArtEntityLiteProvider.ProviderName, (ds) => new DevArtEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(NpgsqlEntityLiteProvider.ProviderName, (ds) => new NpgsqlEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add(FirebirdEntityLiteProvider.ProviderName, (ds) => new FirebirdEntityLiteProvider(ds));
         }
 
         private DbProviderFactory _dbProviderFactory;
@@ -521,10 +524,35 @@ namespace inercya.EntityLite
 
 #endregion
 
-#region Modification methods
-		
 
-		protected internal virtual bool Delete(object entity)
+        public virtual object GetPreviousEntity(EntityMetadata metadata, object entity)
+        {
+            return this.GetByPrimaryKey(metadata, entity);
+        }
+
+
+
+        public virtual object GetCurrentEntity(EntityMetadata metadata, object entity)
+        {
+            return entity;
+        }
+
+#if (NET452 || NETSTANDARD2_0)
+        public virtual Task<object> GetPreviousEntityAsync(EntityMetadata metadata, object entity)
+        {
+            return this.GetByPrimaryKeyAsync(metadata, entity);
+        }
+
+        public virtual Task<object> GetCurrentEntityAsync(EntityMetadata metadata, object entity)
+        {
+            return Task.FromResult<object>(entity);
+        }
+#endif
+
+        #region Modification methods
+
+
+        protected internal virtual bool Delete(object entity)
 		{
 			if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -536,7 +564,7 @@ namespace inercya.EntityLite
 
             if (isAuditableEntity)
             {
-                previousEntity = this.GetByPrimaryKey(metadata, entity);
+                previousEntity = this.GetPreviousEntity(metadata, entity);
                 if (previousEntity == null) return false;
                 BeginTransaction();
             }
@@ -570,7 +598,7 @@ namespace inercya.EntityLite
 
             if (isAuditableEntity)
             {
-                previousEntity = await this.GetByPrimaryKeyAsync(metadata, entity);
+                previousEntity = await this.GetPreviousEntityAsync(metadata, entity).ConfigureAwait(false);
                 if (previousEntity == null) return false;
                 BeginTransaction();
             }
@@ -584,7 +612,7 @@ namespace inercya.EntityLite
             if (identity != null) IdentityMap.Remove(entity.GetType(), identity);
             if (isAuditableEntity)
             {
-                if (affectedRecords > 0) await audit.LogChangeAsync(previousEntity, null, null, metadata);
+                if (affectedRecords > 0) await audit.LogChangeAsync(previousEntity, null, null, metadata).ConfigureAwait(false);
                 Commit();
             }
             return affectedRecords > 0;
@@ -783,7 +811,7 @@ namespace inercya.EntityLite
             }
             if (isAuditableEntity)
             {
-                audit.LogChange(null, entity, null, entityMetadata);
+                audit.LogChange(null, this.GetCurrentEntity(entityMetadata, entity), null, entityMetadata);
                 this.Commit();
             }
 		}
@@ -875,7 +903,7 @@ namespace inercya.EntityLite
             }
             if (isAuditableEntity)
             {
-                await audit.LogChangeAsync(null, entity, null, entityMetadata).ConfigureAwait(false);
+                await audit.LogChangeAsync(null, await this.GetCurrentEntityAsync(entityMetadata, entity).ConfigureAwait(false), null, entityMetadata).ConfigureAwait(false);
                 Commit();
             }
         }
@@ -953,9 +981,9 @@ namespace inercya.EntityLite
             return q;
         }
 
-        private IQueryLite GetByPrimaryKeyQuery(EntityMetadata metadata, object entity)
+        protected IQueryLite GetByPrimaryKeyQuery(EntityMetadata metadata, object entity, string projectionName = "BaseTable" )
         {
-            var q = this.CreateQueryLite(metadata.EntityType, Projection.BaseTable);
+            var q = this.CreateQueryLite(metadata.EntityType, projectionName);
             foreach (var pkf in metadata.PrimaryKeyPropertyNames)
             {
                 var prop = metadata.Properties[pkf];
@@ -1002,7 +1030,7 @@ namespace inercya.EntityLite
             if (isAuditableEntity)
             {
                 this.BeginTransaction();
-                previousEntity = this.GetByPrimaryKey(metadata, entity);
+                previousEntity = this.GetPreviousEntity(metadata, entity);
                 if (previousEntity == null)
                 {
                     throw new RowNotFoundException("Attempt to update an inexistent row");
@@ -1048,7 +1076,7 @@ namespace inercya.EntityLite
             }
             if (isAuditableEntity)
             {
-                audit.LogChange(previousEntity, entity, sortedFields, metadata);
+                audit.LogChange(previousEntity, this.GetCurrentEntity(metadata, entity), sortedFields, metadata);
                 Commit();
             }
             return true;
@@ -1094,7 +1122,7 @@ namespace inercya.EntityLite
             if (isAuditableEntity)
             {
                 this.BeginTransaction();
-                previousEntity = await this.GetByPrimaryKeyAsync(metadata, entity).ConfigureAwait(false);
+                previousEntity = await this.GetPreviousEntityAsync(metadata, entity).ConfigureAwait(false);
                 if (previousEntity == null)
                 {
                     throw new RowNotFoundException("Attempt to update an inexistent row");
@@ -1137,7 +1165,7 @@ namespace inercya.EntityLite
             }
             if (isAuditableEntity)
             {
-                await audit.LogChangeAsync(previousEntity, entity, sortedFields, metadata);
+                await audit.LogChangeAsync(previousEntity, await this.GetCurrentEntityAsync(metadata, entity).ConfigureAwait(false), sortedFields, metadata);
                 Commit();
             }
             return true;

@@ -43,7 +43,10 @@ namespace inercya.EntityLite.Builders
         public override string GetFromClauseContent(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             var sb = new StringBuilder();
-            sb.Append(this.QueryLite.FunctionName).Append("(");
+            if (this.QueryLite.ParameterValues.Length > 0 || this.QueryLite.DataService.ProviderName != "FirebirdSql.Data.FirebirdClient")
+            {
+                sb.Append(this.QueryLite.FunctionName).Append("(");
+            }
             bool first = true;
             foreach (object parameterValue in this.QueryLite.ParameterValues)
             {
@@ -54,7 +57,11 @@ namespace inercya.EntityLite.Builders
                 sb.Append(paramName);
 				paramIndex++;
             }
-            sb.Append(") ");
+            if (this.QueryLite.ParameterValues.Length > 0 || this.QueryLite.DataService.ProviderName != "FirebirdSql.Data.FirebirdClient")
+            {
+                sb.Append(")");
+            }
+            sb.Append(' ');
             return sb.ToString();
 
         }

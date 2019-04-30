@@ -51,6 +51,7 @@ namespace <#= namespaceName #>
 			RenderEntityClass(generation, entity);
 			RenderEntityRepositoryClass(generation, entity);
 			RenderEntityFieldsClass(generation, entity);
+			RenderProjectionClass(generation, entity);
 		}
 #>
 }
@@ -541,6 +542,25 @@ void RenderEntityFieldsClass(DataLayerGeneration generation, EntitySetting entit
 #>
 	}
 
+<#+
+}
+#>
+
+<#+ /****************************************************************************************************************************/
+void RenderProjectionClass(DataLayerGeneration generation, EntitySetting entity)
+{
+#>
+	public static partial class <#= entity.EntityName #>Projections
+	{
+<#+
+		foreach(var kv in generation.ProjectionColumnListsByEntity[entity])
+		{
+#>
+		public const string <#= kv.Key #> = "<#= kv.Key #>";
+<#+
+		}
+#>
+	}
 <#+
 }
 #>

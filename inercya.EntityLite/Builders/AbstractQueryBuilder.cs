@@ -26,6 +26,7 @@ using System.Data.SqlTypes;
 using System.Collections;
 using System.Data.SqlClient;
 
+
 namespace inercya.EntityLite.Builders
 {
     public abstract class AbstractQueryBuilder : IQueryBuilder 
@@ -79,12 +80,12 @@ namespace inercya.EntityLite.Builders
 
 
 
-        public void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation)
+        public void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation, bool addSelectKeyword = true)
         {
             commandText.Indent(indentation);
             var columnList = GetColumnList();
             bool isStar = columnList == "*";
-            commandText.Append("SELECT ");
+            if (addSelectKeyword) commandText.Append("SELECT ");
             if (isStar) commandText.Append("*");
             else commandText.NewIndentedLine(++indentation).Append(columnList);
             if (!isStar) indentation--;    

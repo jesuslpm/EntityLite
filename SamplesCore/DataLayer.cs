@@ -103,6 +103,7 @@ namespace Samples.Entities
 				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
 			} 
 		}
+		public const string BaseTableProjectionColumnList = "[CategoryID], [CategoryNameLang1], [Description], [Picture], [CategoryNameLang2]";
 
 	}
 
@@ -166,6 +167,10 @@ namespace Samples.Entities
 		public const string CategoryName = "CategoryName";
 	}
 
+	public static partial class CategoryProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -326,6 +331,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[CustomerID], [CompanyName], [ContactName], [ContactTitle], [Address], [City], [Region], [PostalCode], [Country], [Phone], [Fax]";
 
 	}
 
@@ -394,6 +400,10 @@ namespace Samples.Entities
 		public const string Fax = "Fax";
 	}
 
+	public static partial class CustomerProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -645,6 +655,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[EmployeeID], [LastName], [FirstName], [Title], [TitleOfCourtesy], [BirthDate], [HireDate], [Address], [City], [Region], [PostalCode], [Country], [HomePhone], [Extension], [Photo], [Notes], [ReportsTo], [PhotoPath]";
 
 	}
 
@@ -720,6 +731,10 @@ namespace Samples.Entities
 		public const string PhotoPath = "PhotoPath";
 	}
 
+	public static partial class EmployeeProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -1019,6 +1034,9 @@ namespace Samples.Entities
 				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
 			} 
 		}
+		public const string BaseTableProjectionColumnList = "[OrderDetailID], [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]";
+		public const string DetailedProjectionColumnList = "[OrderDetailID], [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount], [SubTotal], [ProductName], [CategoryNameLang1], [CategoryNameLang2]";
+		public const string ExtendedProjectionColumnList = "[OrderDate], [CustomerID], [CustomerName], [Address], [City], [Region], [PostalCode], [Country], [Phone], [OrderDetailID], [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount], [SubTotal], [ProductName], [UnitsInStock], [UnitsOnOrder], [CategoryNameLang1], [CategoryNameLang2]";
 
 	}
 
@@ -1098,6 +1116,12 @@ namespace Samples.Entities
 		public const string CategoryName = "CategoryName";
 	}
 
+	public static partial class OrderDetailProjections
+	{
+		public const string BaseTable = "BaseTable";
+		public const string Detailed = "Detailed";
+		public const string Extended = "Extended";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -1375,6 +1399,8 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[OrderID], [CustomerID], [EmployeeID], [OrderDate], [RequiredDate], [ShippedDate], [ShipVia], [Freight], [ShipName], [ShipAddress], [ShipCity], [ShipRegion], [ShipPostalCode], [ShipCountry]";
+		public const string ExtendedProjectionColumnList = "[OrderID], [CustomerID], [EmployeeID], [OrderDate], [RequiredDate], [ShippedDate], [ShipVia], [Freight], [ShipName], [ShipAddress], [ShipCity], [ShipRegion], [ShipPostalCode], [ShipCountry], [CustomerCompanyName], [EmployeeFirstName], [EmployeeLastName], [ShipperCompanyName], [OrderTotal], [LineCount]";
 
 	}
 
@@ -1452,6 +1478,11 @@ namespace Samples.Entities
 		public const string LineCount = "LineCount";
 	}
 
+	public static partial class OrderProjections
+	{
+		public const string BaseTable = "BaseTable";
+		public const string Extended = "Extended";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -1660,6 +1691,8 @@ namespace Samples.Entities
 				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
 			} 
 		}
+		public const string BaseTableProjectionColumnList = "[ProductID], [ProductName], [SupplierID], [CategoryID], [QuantityPerUnit], [UnitPrice], [UnitsInStock], [UnitsOnOrder], [ReorderLevel], [Discontinued], [EntityRowVersion]";
+		public const string DetailedProjectionColumnList = "[ProductID], [ProductName], [SupplierID], [CategoryID], [QuantityPerUnit], [UnitPrice], [UnitsInStock], [UnitsOnOrder], [ReorderLevel], [Discontinued], [EntityRowVersion], [CategoryNameLang1], [CategoryNameLang2], [SupplierName]";
 
 	}
 
@@ -1719,7 +1752,7 @@ namespace Samples.Entities
                 CommandTimeout = 10,
                 GetCommandFunc = () =>
                 {
-                    var proc =  Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix);
+                    var proc =  Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix, this.DataService.EntityLiteProvider.DefaultSchema);
 					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "rate"].Value = rate == null ? (object) DBNull.Value : rate.Value;
                     return proc;
                 }
@@ -1748,6 +1781,11 @@ namespace Samples.Entities
 		public const string CategoryName = "CategoryName";
 	}
 
+	public static partial class ProductProjections
+	{
+		public const string BaseTable = "BaseTable";
+		public const string Detailed = "Detailed";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -1804,6 +1842,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[ShipperID], [CompanyName], [Phone]";
 
 	}
 
@@ -1864,6 +1903,10 @@ namespace Samples.Entities
 		public const string Phone = "Phone";
 	}
 
+	public static partial class ShipperProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -2037,6 +2080,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[SupplierID], [CompanyName], [ContactName], [ContactTitle], [Address], [City], [Region], [PostalCode], [Country], [Phone], [Fax], [HomePage]";
 
 	}
 
@@ -2106,6 +2150,10 @@ namespace Samples.Entities
 		public const string HomePage = "HomePage";
 	}
 
+	public static partial class SupplierProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -2149,6 +2197,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[entity_id], [value]";
 
 	}
 
@@ -2208,6 +2257,10 @@ namespace Samples.Entities
 		public const string Value = "Value";
 	}
 
+	public static partial class MyEntityProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -2351,6 +2404,8 @@ namespace Samples.Entities
 				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
 			} 
 		}
+		public const string QuarterProjectionColumnList = "[CategoryID], [CategoryNameLang1], [CategoryNameLang2], [ProductID], [ProductName], [Year], [Quarter], [Sales], [OrderCount]";
+		public const string YearProjectionColumnList = "[CategoryID], [CategoryNameLang1], [CategoryNameLang2], [ProductID], [ProductName], [Year], [Sales], [OrderCount]";
 
 	}
 
@@ -2382,6 +2437,11 @@ namespace Samples.Entities
 		public const string CategoryName = "CategoryName";
 	}
 
+	public static partial class ProductSaleProjections
+	{
+		public const string Quarter = "Quarter";
+		public const string Year = "Year";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -2477,6 +2537,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[ItemId], [Field1], [Field2], [Field3], [Field4], [DbChangeNumber]";
 
 	}
 
@@ -2540,6 +2601,10 @@ namespace Samples.Entities
 		public const string DbChangeNumber = "DbChangeNumber";
 	}
 
+	public static partial class ItemProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -2583,6 +2648,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[MetadataId], [DataJson]";
 
 	}
 
@@ -2642,6 +2708,10 @@ namespace Samples.Entities
 		public const string Data = "Data";
 	}
 
+	public static partial class MetadataItemProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 	[Serializable]
 	[DataContract]
     [TypeScript] 
@@ -2685,6 +2755,7 @@ namespace Samples.Entities
 			}
         }
 
+		public const string BaseTableProjectionColumnList = "[task_id], [task_template_id]";
 
 	}
 
@@ -2744,6 +2815,10 @@ namespace Samples.Entities
 		public const string TaskTemplates = "TaskTemplates";
 	}
 
+	public static partial class ProcessTaskProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 }
 
 namespace Samples.Entities
@@ -2983,10 +3058,10 @@ namespace Samples.Entities
 {
 	public static partial class StoredProcedures
 	{
-		public static DbCommand CreateRaiseProductPricesProcedure(DbConnection connection, string parameterPrefix)
+		public static DbCommand CreateRaiseProductPricesProcedure(DbConnection connection, string parameterPrefix, string schema = "")
 		{
 			var cmd = connection.CreateCommand();
-			cmd.CommandText = "RaiseProductPrices";
+			cmd.CommandText = string.IsNullOrEmpty(schema) ? "RaiseProductPrices" : schema + "." + "RaiseProductPrices";
 			cmd.CommandType = CommandType.StoredProcedure;
 			IDbDataParameter p = null;
 

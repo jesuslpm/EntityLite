@@ -1,0 +1,46 @@
+﻿<#+
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+public class FieldMetadata
+{
+    public bool IsNullable { get; set; }
+    public string PropertyName { get; set; }
+    public DbType DbType { get; set; }
+    public Type PropertyType { get; set; }
+    public bool IsAutoIncrement { get; set; }
+    public bool IsReadOnly { get; set; }
+    public bool IsKey { get; set; }
+    public byte Precision { get; set; }
+    public byte Scale { get; set; }
+    public string BaseColumnName { get; set; }
+    public string BaseSchemaName { get; set; }
+    public string BaseTableName { get; set; }
+	public string ColumnName {get; set;}
+    public int ColumnSize { get; set; }
+    public bool IsLocalizedField { get; set; }
+	public string SequenceName { get; set;}
+	public string PropertyTypeName { get; set;}
+	public int? ProviderType {get; set;}
+	public bool IsRoundDate {get; set;}
+
+    public string FullTableName(string quotePrefix, string quoteSufix)
+    {
+        if ( string.IsNullOrEmpty(BaseTableName)) return null;
+        if (!string.IsNullOrEmpty(BaseSchemaName)) return quotePrefix + BaseSchemaName + quoteSufix + "." + quotePrefix + BaseTableName + quoteSufix;
+        return quotePrefix + BaseTableName + quoteSufix;
+    }
+}
+#>

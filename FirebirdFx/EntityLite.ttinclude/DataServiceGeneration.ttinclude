@@ -1,0 +1,86 @@
+﻿<#+ 
+/*
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+void DataServiceGeneration_Render(DataLayerGeneration generation)
+{			
+#>
+
+namespace <#= generation.RootNamespace #>
+{
+	public partial class <#= generation.DataServiceName #> : DataService
+	{
+		partial void OnCreated();
+
+		private void Init()
+		{
+			EntityNameToEntityViewTransform = TextTransform.<#= generation.EntityNameToEntityViewTransform #>;
+<#+	if (! string.IsNullOrEmpty(generation.DefaultSchema)) { #>
+			EntityLiteProvider.DefaultSchema = "<#= generation.DefaultSchema #>";
+<#+	} #>
+<#+	if (generation.AuditDateTimeKind != DateTimeKind.Unspecified) { #>
+			AuditDateTimeKind = DateTimeKind.<#= generation.AuditDateTimeKind.ToString() #>;
+<#+	} #>
+<#+ if (!string.IsNullOrEmpty(generation.ViewPrefix)) { #>
+			ViewPrefix = "<#= generation.ViewPrefix #>";
+<#+ } #>
+<#+ if (!string.IsNullOrEmpty(generation.SequencePrefix)) { #>
+			SequencePrefix = "<#= generation.SequencePrefix #>";
+<#+ } #>
+<#+ if (!string.IsNullOrEmpty(generation.SequenceSuffix)) { #>
+			SequenceSuffix = "<#= generation.SequenceSuffix #>";
+<#+ } #>
+			OnCreated();
+		}
+
+        public <#= generation.DataServiceName #>() : base("<#= generation.ConnectionStringName #>")
+        {
+			Init();
+        }
+
+        public <#= generation.DataServiceName #>(string connectionStringName) : base(connectionStringName)
+        {
+			Init();
+        }
+
+        public <#= generation.DataServiceName #>(string connectionString, string providerName) : base(connectionString, providerName)
+        {
+			Init();
+        }
+<#+
+	foreach (var entity in generation.EntitySettings)
+    {
+#>
+
+		private <#= entity.GetNamespaceName(generation.RootNamespace) + "." + entity.EntityName #>Repository _<#= entity.GetRepositoryPropertyName() #>;
+		public <#= entity.GetNamespaceName(generation.RootNamespace) + "." + entity.EntityName #>Repository <#= entity.GetRepositoryPropertyName() #>
+		{
+			get 
+			{
+				if ( _<#= entity.GetRepositoryPropertyName() #> == null)
+				{
+					_<#= entity.GetRepositoryPropertyName() #> = new <#= entity.GetNamespaceName(generation.RootNamespace) + "." + entity.EntityName #>Repository(this);
+				}
+				return _<#= entity.GetRepositoryPropertyName() #>;
+			}
+		}
+<#+
+    }
+#>
+	}
+}
+<#+ 
+}
+#>

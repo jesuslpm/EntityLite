@@ -79,6 +79,8 @@ namespace inercya.EntityLite
 
         public Type PrimaryKeyType { get; private set; }
 
+        public Dictionary<string, PropertyMetadata> ColumnToPropertyMap { get; private set; } = new Dictionary<string, PropertyMetadata>();
+
         public EntityMetadata()
         {
             _primaryKeyProperties = new Collection<string>();
@@ -139,13 +141,12 @@ namespace inercya.EntityLite
 				propertyMetadata.PropertyInfo = pi;
 				entityMetadata.Properties.Add(pi.Name, propertyMetadata);
 
-                
-
 				attributes = pi.GetCustomAttributes(typeof(SqlFieldAttribute), false);
 				if (attributes.Length > 0)
 				{
 					SqlFieldAttribute field = (SqlFieldAttribute)attributes[0];
 					propertyMetadata.SqlField = field;
+                    entityMetadata.ColumnToPropertyMap.Add(field.ColumnName, propertyMetadata);
 					if (field.IsKey && !string.IsNullOrEmpty(field.BaseTableName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
 					{
 						// propiedad con la misma columna base

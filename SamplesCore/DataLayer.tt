@@ -47,6 +47,7 @@ To generate the datalayer for MySQL you need  to:
 		RootNamespace = "Samples.Entities",
 		DataServiceName = "NorthwindDataService",
 		GenerateTypeScript = true,
+		GenerateProjectionColumnLists = true,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 

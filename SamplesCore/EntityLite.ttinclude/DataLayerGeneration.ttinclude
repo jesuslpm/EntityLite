@@ -173,6 +173,17 @@ public class DataLayerGeneration : IDisposable
 					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
 					mi.Invoke(null, new object[] {cmd});				
 				}
+				else if (ProviderName == "FirebirdSql.Data.FirebirdClient")
+				{
+					var commandBuilderType = Type.GetType("FirebirdSql.Data.FirebirdClient.FbCommandBuilder, " + Factory.GetType().Assembly.FullName, true);
+					var mi = commandBuilderType.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
+					mi.Invoke(null, new object[] {cmd});
+					var outputParameters = cmd.Parameters.Cast<DbParameter>().Where(x => x.Direction == ParameterDirection.Output).ToList();
+					foreach(var p in outputParameters)
+					{
+						cmd.Parameters.Remove(p);
+					}
+				}
                 else
                 {
                     throw new NotSupportedException("Stored procedures aren't supported for " + ProviderName);
@@ -300,7 +311,12 @@ public class DataLayerGeneration : IDisposable
 				dynamic devartParam = Factory.CreateParameter();
 				Type devartDbTypeType = devartParam.OracleDbType.GetType();
 				Extensions.SetPropertyValue(devartParam, "OracleDbType", Enum.ToObject(devartDbTypeType, providerType));
-				return (DbType) devartParam.DbType; 				
+				return (DbType) devartParam.DbType; 
+			case "FirebirdSql.Data.FirebirdClient":
+				dynamic firebirdParam = Factory.CreateParameter();
+				Type firebirdDbTypeType = firebirdParam.FbDbType.GetType();
+				Extensions.SetPropertyValue(firebirdParam, "FbDbType", Enum.ToObject(firebirdDbTypeType, providerType));
+				return (DbType) firebirdParam.DbType;
             default:
                 throw new NotSupportedException("provider " + ProviderName + " is not supported");
         }
@@ -354,6 +370,7 @@ public class DataLayerGeneration : IDisposable
                         ColumnSize = (int) row["ColumnSize"],
 						ProviderType = ShouldUseProviderType(row["ProviderType"]) ? (int?) Convert.ToInt32(row["ProviderType"]) : (int?) null
                     };
+
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
 					{
@@ -367,13 +384,18 @@ public class DataLayerGeneration : IDisposable
 						fieldMetadata.PropertyTypeName = fieldMetadata.IsNullable ? enumSetting.TypeName + "?" : enumSetting.TypeName;
 						fieldMetadata.PropertyName = enumSetting.TypeName;
 					}
+					string mappedPropertyName = null;
+					if (entity.ColumnToPropertyMap != null && entity.ColumnToPropertyMap.TryGetValue((string)row["ColumnName"], out mappedPropertyName))
+					{
+						fieldMetadata.PropertyName = mappedPropertyName;
+					}
 					if (fieldMetadata.BaseSchemaName == "sqlite_default_schema" && ProviderName == "System.Data.SQLite")
 					{
 						fieldMetadata.BaseSchemaName = null;
 					}
 					if (string.IsNullOrEmpty(entity.BaseTableName) 
 						|| !string.Equals(fieldMetadata.BaseTableName, entity.BaseTableName, StringComparison.InvariantCultureIgnoreCase)
-						|| ! (string.Equals(fieldMetadata.BaseSchemaName, entity.Schema, StringComparison.InvariantCultureIgnoreCase) || entity.Schema == null && string.Equals(fieldMetadata.BaseSchemaName, DefaultSchema, StringComparison.InvariantCultureIgnoreCase))
+						|| ! (string.Equals(fieldMetadata.BaseSchemaName ?? string.Empty, entity.Schema ?? string.Empty, StringComparison.InvariantCultureIgnoreCase) || entity.Schema == null && string.Equals(fieldMetadata.BaseSchemaName ?? string.Empty, DefaultSchema ?? string.Empty, StringComparison.InvariantCultureIgnoreCase))
 						)
 					{
 						fieldMetadata.BaseSchemaName = null;
@@ -564,7 +586,7 @@ public class DataLayerGeneration : IDisposable
         if (!string.IsNullOrEmpty(entitySetting.BaseTableName))
         {
             baseTableSchema = GetSchema(entitySetting.GetFullObjectName(DefaultSchema, CommandBuilder.QuotePrefix, CommandBuilder.QuoteSuffix), cn);
-			if (GenerateProjectionColumnLists) AddProjectionColumnList(entitySetting, "BaseTable", baseTableSchema);
+			AddProjectionColumnList(entitySetting, "BaseTable", baseTableSchema);
             if ((entitySetting.FieldGeneration & FieldGeneration.ForBaseTable) == FieldGeneration.ForBaseTable)
             {
                 schemaUnion = baseTableSchema.Copy();
@@ -575,7 +597,7 @@ public class DataLayerGeneration : IDisposable
         {
           
             DataTable schema = GetSchema(viewName, cn);
-            if (GenerateProjectionColumnLists) AddProjectionColumnList(entitySetting, DeriveProjectionName(entitySetting.EntityName, viewName), schema);    
+            AddProjectionColumnList(entitySetting, DeriveProjectionName(entitySetting.EntityName, viewName), schema);    
             if (schemaUnion == null)
             {
                 schemaUnion = schema.Clone();
@@ -592,7 +614,7 @@ public class DataLayerGeneration : IDisposable
                             
                         if (string.Equals(columnBaseTableName, entitySetting.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            if (string.Equals(GetSchemaName(entitySetting), columnBaseSchemaName, StringComparison.CurrentCultureIgnoreCase))
+                            if (string.Equals(GetSchemaName(entitySetting) ?? string.Empty, columnBaseSchemaName ?? string.Empty, StringComparison.CurrentCultureIgnoreCase))
                             {
                                 DataRow baseTableRow = baseTableSchema.Rows.Find(baseColumnName);
                                 row["IsAutoIncrement"] = baseTableRow["IsAutoIncrement"];
@@ -628,6 +650,11 @@ public class DataLayerGeneration : IDisposable
 				nameColumn = "Name";
 				schemaColumn = "Schema";
 			}
+			else if (ProviderName == "FirebirdSql.Data.FirebirdClient")
+			{
+				nameColumn = "VIEW_NAME";
+				schemaColumn = "VIEW_SCHEMA";
+			}
             foreach (var entity in this.EntitySettings.OrderByDescending(x => x.EntityName.Length))
             {
                 var views = new List<string>();
@@ -639,7 +666,7 @@ public class DataLayerGeneration : IDisposable
                     string fullViewName = viewSchema == null ? viewName : viewSchema + "." + viewName;  
 					var transformedEntityName = Extensions.Transform(entity.EntityName, EntityNameToEntityViewTransform).ToLower();
 					var prefixedTransformedEntityName = string.IsNullOrEmpty(ViewPrefix) ? transformedEntityName + "_" : ViewPrefix.ToLower() +  transformedEntityName + "_";
-                    if (string.Equals(GetSchemaName(entity), viewSchema, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(prefixedTransformedEntityName))
+                    if (string.Equals(GetSchemaName(entity) ?? string.Empty, viewSchema ?? string.Empty, StringComparison.InvariantCultureIgnoreCase) && viewName.ToLower().StartsWith(prefixedTransformedEntityName))
                     {
                         views.Add(fullViewName);
 						rowsToDelete.Add(row);
@@ -726,6 +753,10 @@ public class DataLayerGeneration : IDisposable
 		{
 			commandText = "SELECT SEQUENCE_OWNER AS SEQUENCE_SCHEMA, SEQUENCE_NAME FROM ALL_SEQUENCES";
 		}
+		else if (ProviderName == "FirebirdSql.Data.FirebirdClient")
+		{
+			commandText = "SELECT '' AS SEQUENCE_SCHEMA, RDB$GENERATOR_NAME AS SEQUENCE_NAME FROM RDB$GENERATORS";
+		}
 		else if (ProviderName == "System.Data.SqlClient")
 		{
 			commandText = @"
@@ -757,8 +788,8 @@ FROM
 							while(reader.Read())
 							{
 								var sequence = new Sequence {
-									SequenceSchema = reader.GetString(0),
-									SequenceName = reader.GetString(1)
+									SequenceSchema = reader.GetString(0).Trim(),
+									SequenceName = reader.GetString(1).Trim()
 								};
 								Sequences.Add(sequence.FullSequenceName, sequence);
 							}

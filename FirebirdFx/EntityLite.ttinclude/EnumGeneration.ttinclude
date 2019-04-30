@@ -1,0 +1,77 @@
+﻿<#+
+/**
+Copyright 2014 i-nercya intelligent software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+**/
+void EnumGeneration_Render(DataLayerGeneration generation)
+{	
+	if (generation.EnumSettings == null || generation.EnumSettings.Count == 0) return;
+	var nsgs = from enumSetting in generation.EnumSettings
+			group enumSetting by enumSetting.GetNamespaceName(generation.RootNamespace) into g
+			select g;
+	foreach (var g in nsgs)
+    {
+		string namespaceName = g.Key;
+#>
+
+namespace <#= namespaceName #>
+{
+<#+
+		foreach (var enumSetting in g)
+		{
+			RenderEnumType(generation, enumSetting);
+		}
+	
+#>
+}
+<#+
+	}
+}
+#>
+
+
+<#+ /** ************************************************************************************************************************ **/
+public void RenderEnumType(DataLayerGeneration generation, EnumSetting enumSetting)
+{
+	if (generation.GenerateTypeScript) {
+#>
+	[TypeScript] 
+<#+ } #>
+	public enum <#= Extensions.EscapeKeyword(enumSetting.TypeName) #>
+	{
+<#+ using (var cn = generation.OpenConnection())
+	using (var cmd = cn.CreateCommand())
+	{
+		var prefix = generation.CommandBuilder.QuotePrefix;
+		var sufix = generation.CommandBuilder.QuoteSuffix;
+		cmd.CommandText = "SELECT " + prefix + enumSetting.IdField + sufix + ", " + prefix + enumSetting.NameField + sufix + " FROM " + enumSetting.GetFullTableName(generation.DefaultSchema, prefix, sufix);
+		using (var reader = cmd.ExecuteReader())
+		{
+			while (reader.Read())
+			{
+				var memberValue = reader.GetValue(0);
+				var memberName = reader.GetString(1);
+				if (!enumSetting.Predicate(memberName)) continue;
+				memberName = enumSetting.StringFilter(memberName);
+				memberName = Extensions.EscapeKeyword(Extensions.ToPascalNamingConvention(memberName));
+#>
+		<#= memberName #> = <#= memberValue.ToString() #>,
+<#+			}
+		}
+	}
+#>
+	}
+<#+
+}
+#>
