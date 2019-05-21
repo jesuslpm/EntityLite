@@ -739,13 +739,13 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                TrySetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata);
-                TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata);
+                TrySetAuditDate(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata);
+                TrySetAuditDate(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata);
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                TrySetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
-                TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
+                TrySetAuditUser(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
+                TrySetAuditUser(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
             }
 
             DbCommand cmd = null;
@@ -824,20 +824,20 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                TrySetAuditDate(this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata);
-                TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata);
+                TrySetAuditDate(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedDateFieldName, entity, entityMetadata);
+                TrySetAuditDate(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedDateFieldName, entity, entityMetadata);
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
-                    TrySetAuditUser(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
-                    TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
+                    TrySetAuditUser(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
+                    TrySetAuditUser(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
                 }
                 else
                 {
-                    await TrySetAuditUserAsync(this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata).ConfigureAwait(false);
-                    await TrySetAuditUserAsync(this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata).ConfigureAwait(false);
+                    await TrySetAuditUserAsync(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata).ConfigureAwait(false);
+                    await TrySetAuditUserAsync(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata).ConfigureAwait(false);
                 }
             }
 
@@ -924,12 +924,14 @@ namespace inercya.EntityLite
 
         protected internal bool Update(object entity, params string[] fieldsToUpdate)
         {
+            if (fieldsToUpdate != null && fieldsToUpdate.Length == 0) return false;
             return Update(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
 #if (NET452 || NETSTANDARD2_0)        
         protected internal Task<bool> UpdateAsync(object entity, params string[] fieldsToUpdate)
         {
+            if (fieldsToUpdate != null && fieldsToUpdate.Length == 0) return Task.FromResult(false);
             return UpdateAsync(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 #endif
@@ -1009,11 +1011,11 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
-                previousModifiedBy = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+                previousModifiedBy = TrySetAuditUser(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                previousModifiedDate = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
+                previousModifiedDate = TrySetAuditDate(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
             }
             var cmd = new CommandExecutor(this, false)
             {
@@ -1096,16 +1098,16 @@ namespace inercya.EntityLite
             {
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
-                    previousModifiedBy = TrySetAuditUser(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+                    previousModifiedBy = TrySetAuditUser(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
                 }
                 else
                 {
-                    previousModifiedBy = await TrySetAuditUserAsync(this.SpecialFieldNames.ModifiedByFieldName, entity, metadata).ConfigureAwait(false);
+                    previousModifiedBy = await TrySetAuditUserAsync(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, metadata).ConfigureAwait(false);
                 }
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
-                previousModifiedDate = TrySetAuditDate(this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
+                previousModifiedDate = TrySetAuditDate(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedDateFieldName, entity, metadata);
             }
             var cmd = new CommandExecutor(this, false)
             {

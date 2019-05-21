@@ -154,6 +154,23 @@ namespace inercya.EntityLite
             return SaveResult.NotModified;
         }
 
+        public virtual SaveResult Save(TEntity entity, params string[] fieldsToUpdate)
+        {
+            bool isNew = IsNew(entity);
+
+            if (isNew)
+            {
+                this.Insert(entity);
+                return SaveResult.Inserted;
+            }
+
+            if (this.Update(entity, fieldsToUpdate))
+            {
+                return SaveResult.Updated;
+            }
+            return SaveResult.NotModified;
+        }
+
         private static bool IsNew(TEntity entity)
         {
             if (entity == null) throw new ArgumentNullException("entity");
@@ -226,6 +243,22 @@ namespace inercya.EntityLite
             }
             return SaveResult.NotModified;
         }
+
+        public virtual async Task<SaveResult> SaveAsync(TEntity entity, params string[] fieldsToUpdate)
+        {
+            bool isNew = IsNew(entity);
+            if (isNew)
+            {
+                await this.InsertAsync(entity).ConfigureAwait(false);
+                return SaveResult.Inserted;
+            }
+
+            if (await this.UpdateAsync(entity, fieldsToUpdate).ConfigureAwait(false))
+            {
+                return SaveResult.Updated;
+            }
+            return SaveResult.NotModified;
+        }
 #endif
 
         public virtual void Insert(TEntity entity)
@@ -253,6 +286,7 @@ namespace inercya.EntityLite
 
         public bool Update(TEntity entity, params string[] fieldsToUpdate)
         {
+            if (fieldsToUpdate != null && fieldsToUpdate.Length == 0) return false;
             return this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
@@ -269,6 +303,7 @@ namespace inercya.EntityLite
 
         public Task<bool> UpdateAsync(TEntity entity, params string[] fieldsToUpdate)
         {
+            if (fieldsToUpdate != null && fieldsToUpdate.Length == 0) return Task.FromResult(false);
             return this.UpdateAsync(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 #endif

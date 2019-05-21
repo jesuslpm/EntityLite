@@ -173,6 +173,8 @@ namespace inercya.EntityLite.Builders
                 }
             }
 
+            if (propertiesMetadata.Count == 0) return;
+
             bool firstTime = true;
             commandText.Append("\n    AND (");
 
