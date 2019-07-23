@@ -16,16 +16,30 @@ limitations under the License.
 */
 public class DataLayerGeneration : IDisposable
 {
+	private string _connectionString;
 
-
+	public string UserSecretsId {get; set;}
     public string ProviderName { get; set; }
-    public string ConnectionString { get; set; }
+    public string ConnectionString 	{
+		get
+		{
+			if (!string.IsNullOrEmpty(_connectionString)) return _connectionString;
+			return GetConnectionStringFromSecrets();
+		}
+		set
+		{
+			_connectionString = value;
+		}
+	}
 	public string ConnectionStringName {get; set;}
+
     public string RootNamespace { get; set; }
     public string DataServiceName { get; set; }
     public string ProceduresClassName { get; set; }
 	public string DefaultSchema { get; set;}
     public bool GenerateEntityTypeId { get; set; }
+	public bool GenerateDataContractAttributes {get; set;} = true;
+	public bool GenerateMessagePackAttributes {get; set;} = false;
 	public TextTransform EntityNameToEntityViewTransform {get; set;}
 	public bool ImplementINotifyPropertyChanged {get; set;}
 	public bool GenerateTypeScript { get; set;}
@@ -95,6 +109,35 @@ public class DataLayerGeneration : IDisposable
 			}
 			return _commandBuilder;
 		}
+	}
+
+	private string GetConnectionStringFromSecrets() 
+	{
+	        
+            var secretsFilePath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Microsoft", "UserSecrets", UserSecretsId, "secrets.json");
+            if (!System.IO.File.Exists(secretsFilePath))
+            {
+                throw new System.IO.FileNotFoundException("secrets.json file doesn't exist", secretsFilePath);
+            }
+            var json = System.IO.File.ReadAllText(secretsFilePath);
+
+            var newtonSoftNugetFolder = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".nuget", "packages", "newtonsoft.json");
+
+            var lastJsonNugetFolder = System.IO.Directory.GetDirectories(newtonSoftNugetFolder).OrderByDescending(x => x).FirstOrDefault();
+
+            var jsonAssemblyPath = System.IO.Path.Combine(lastJsonNugetFolder, "lib", "net45", "Newtonsoft.Json.dll");
+            var asm = Assembly.LoadFrom(jsonAssemblyPath);
+            var jtokenType = asm.GetType("Newtonsoft.Json.Linq.JToken", true);
+            var parseMethod = jtokenType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(string) }, null);
+            var token = parseMethod.Invoke(null, new object[] { json });
+
+            var indexerProperty = jtokenType.GetProperty("Item");
+            return indexerProperty.GetMethod.Invoke(token, new object[] { "ConnectionStrings:" + ConnectionStringName }).ToString();
+
 	}
 
 
@@ -385,6 +428,18 @@ public class DataLayerGeneration : IDisposable
 						fieldMetadata.PropertyName = enumSetting.TypeName;
 					}
 					string mappedPropertyName = null;
+
+					if (entity.RemoveFieldPrefixes != null) {
+						var removeFieldPrefixes = entity.RemoveFieldPrefixes.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+						foreach (var removeFieldPrefix in removeFieldPrefixes)
+						{
+							var fieldPrefix = removeFieldPrefix.Trim();
+							if (!string.IsNullOrEmpty(fieldPrefix) && fieldMetadata.PropertyName.StartsWith(fieldPrefix) && fieldMetadata.PropertyName.Length > fieldPrefix.Length && char.IsUpper(fieldMetadata.PropertyName[fieldPrefix.Length]))
+							{
+								fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(fieldPrefix.Length);
+							}
+						}
+					}
 					if (entity.ColumnToPropertyMap != null && entity.ColumnToPropertyMap.TryGetValue((string)row["ColumnName"], out mappedPropertyName))
 					{
 						fieldMetadata.PropertyName = mappedPropertyName;
@@ -459,6 +514,10 @@ public class DataLayerGeneration : IDisposable
 						if (ProviderName == "Oracle.DataAccess.Client" || ProviderName == "Oracle.ManagedDataAccess.Client" || ProviderName == "Devart.Data.Oracle")
 						{
 							sequenceName = pkfieldMetadata.BaseColumnName;
+						}
+						else if (ProviderName == "FirebirdSql.Data.FirebirdClient")
+						{
+							sequenceName = entity.BaseTableName;
 						}
 						else
 						{

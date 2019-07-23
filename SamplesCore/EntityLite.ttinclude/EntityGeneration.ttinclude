@@ -30,7 +30,15 @@ if (generation.ProviderName == "System.Data.SqlClient")
 <#+
 }
 #>
+<#+
+if (generation.GenerateDataContractAttributes)
+{
+#>
 using System.Runtime.Serialization;
+<#+
+}
+#>
+
 using System.ComponentModel;
 using inercya.EntityLite;	
 using inercya.EntityLite.Extensions;	
@@ -65,8 +73,23 @@ namespace <#= namespaceName #>
 public void RenderEntityClass(DataLayerGeneration generation, EntitySetting entity)
 {
 #>
+<#+
+if (generation.GenerateDataContractAttributes)
+{
+#>
 	[Serializable]
 	[DataContract]
+<#+
+}
+#>
+<#+
+if (generation.GenerateMessagePackAttributes)
+{
+#>
+	[MessagePack.MessagePackObject()]
+<#+
+}
+#>
 <#+ if (entity.GenerateTypeScript.HasValue ? entity.GenerateTypeScript.Value : generation.GenerateTypeScript) { #>
     [TypeScript] 
 <#+ }#>
@@ -93,15 +116,32 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
         }				
 		
 <#+         } 
+			int fieldIndex = -1;
 			foreach (var field in generation.GetFieldsMetadata(entity))
             {
+				fieldIndex++;
 				string propertyName = Extensions.EscapeKeyword(field.PropertyName);
 				string fieldName = "_" + Extensions.ToParameterName(propertyName);
 				if (field.IsLocalizedField)
                 {
 #>
 		[LocalizedField]
+<#+
+if (generation.GenerateDataContractAttributes)
+{
+#>
 		[DataMember]
+<#+
+}
+#>
+<#+
+if (generation.GenerateMessagePackAttributes)
+{
+#>
+		[MessagePack.Key(<#= fieldIndex #>)]
+<#+
+}
+#>
 <#+					if (field.IsRoundDate) { #>
 		[Newtonsoft.Json.JsonConverter(typeof(RoundDateJsonConverter))]
 <#+					} #>
@@ -118,7 +158,22 @@ public void RenderEntityClass(DataLayerGeneration generation, EntitySetting enti
                 {
 #>
 		private <#= field.PropertyTypeName #> <#= fieldName #>;
+<#+
+if (generation.GenerateDataContractAttributes)
+{
+#>
 		[DataMember]
+<#+
+}
+#>
+<#+
+if (generation.GenerateMessagePackAttributes)
+{
+#>
+		[MessagePack.Key(<#= fieldIndex #>)]
+<#+
+}
+#>
 <#+					if (field.IsRoundDate) { #>
 		[Newtonsoft.Json.JsonConverter(typeof(RoundDateJsonConverter))]
 <#+					} #>
