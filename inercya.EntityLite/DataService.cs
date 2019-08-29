@@ -374,9 +374,29 @@ namespace inercya.EntityLite
             OpenConnection();
             if (!IsActiveTransaction)
             {
-                _transaction = this.Connection.BeginTransaction();
+                _transaction = this.CreateTransaction(); ;
             }
             TransactionCount++;
+        }
+
+        public void BeginTransaction(IsolationLevel isolationLevel)
+        {
+            OpenConnection();
+            if (!IsActiveTransaction)
+            {
+                _transaction = this.CreateTransaction(isolationLevel); ;
+            }
+            TransactionCount++;
+        }
+
+        protected virtual DbTransaction CreateTransaction()
+        {
+            return this.Connection.BeginTransaction();
+        }
+
+        protected virtual DbTransaction CreateTransaction(IsolationLevel isolationLevel)
+        {
+            return this.Connection.BeginTransaction(isolationLevel);
         }
 
         public bool IsActiveTransaction
