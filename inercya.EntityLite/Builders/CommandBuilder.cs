@@ -143,7 +143,10 @@ namespace inercya.EntityLite.Builders
             bool hasEntityRowVersionField = false;
             GenerateUpdateSetClause(entity, fieldsToUpdate, entityMetadata, getters, cmd, commandText, ref hasEntityRowVersionField);
             GenerateUpdateWhereClauseWithPrimaryKeyAndEntityRowVersion(entity, entityMetadata, getters, cmd, commandText, hasEntityRowVersionField);
-            AddModifiedFieldsPredicateToToUpdateWhereClause(fieldsToUpdate, entityMetadata, commandText);
+            if (this.DataService.IsPreventingSuperflousUpdatesEnabled)
+            {
+                AddModifiedFieldsPredicateToToUpdateWhereClause(fieldsToUpdate, entityMetadata, commandText);
+            }
             cmd.CommandText = commandText.ToString();
             return cmd;
         }
