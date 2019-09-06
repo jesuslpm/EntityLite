@@ -82,6 +82,11 @@ namespace inercya.EntityLite
         string ProjectionName { get; set; }
     }
 
+    public interface ITableOrViewQueryLite: IQueryLite
+    {
+        string FullyQualifiedTableOrViewName { get; set; }
+    }
+
     public interface IParameterizedQueryLite : IQueryLite
     {
         object[] ParameterValues { get; set; }

@@ -663,24 +663,16 @@ public class DataLayerGeneration : IDisposable
             }
             foreach (DataRow row in schema.Rows)
             {
-                if (schemaUnion.Rows.Find(row["ColumnName"]) == null)
+				string columnName = (string)row["ColumnName"];
+                if (schemaUnion.Rows.Find(columnName) == null)
                 {
+					DataRow rowToImport = row;
                     if (baseTableSchema != null)
                     {
-                        string baseColumnName = Convert.IsDBNull(row["BaseColumnName"]) ? null : (string)row["BaseColumnName"];
-                        string columnBaseSchemaName = Convert.IsDBNull(row["BaseSchemaName"]) ? null : (string)row["BaseSchemaName"];
-                        string columnBaseTableName = Convert.IsDBNull(row["BaseTableName"]) ? string.Empty : (string)row["BaseTableName"];
-                            
-                        if (string.Equals(columnBaseTableName, entitySetting.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            if (string.Equals(GetSchemaName(entitySetting) ?? string.Empty, columnBaseSchemaName ?? string.Empty, StringComparison.CurrentCultureIgnoreCase))
-                            {
-                                DataRow baseTableRow = baseTableSchema.Rows.Find(baseColumnName);
-                                row["IsAutoIncrement"] = baseTableRow["IsAutoIncrement"];
-                            }
-                        }
+						DataRow baseTableRow = baseTableSchema.Rows.Find(columnName);
+						if (baseTableRow != null) rowToImport = baseTableRow;
                     }
-                    schemaUnion.ImportRow(row);
+                    schemaUnion.ImportRow(rowToImport);
                 }
             }
         }

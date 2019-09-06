@@ -99,7 +99,7 @@ namespace inercya.EntityLite
         public string SequenceSuffix { get; set; }
         public string ViewPrefix { get; set; }
 
-        public bool IsPreventingSuperflousUpdatesEnabled { get; set; } = true;
+        public bool IsPreventingSuperfluousUpdatesEnabled { get; set; } = true;
 
         public IEntityLiteProvider EntityLiteProvider
         {

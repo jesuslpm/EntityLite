@@ -140,7 +140,52 @@ namespace inercya.EntityLite.Extensions
 		}
 
 
-		public static void AssignPropertiesFrom(this object target, object source)
+        private static Func<object, object, bool> IsModifiedFunctionProducer(Type entityType)
+        {
+            if (entityType == null) throw new ArgumentNullException(nameof(entityType));
+            var metadata = entityType.GetEntityMetadata();
+            if (metadata == null) throw new InvalidOperationException("No metadata for entity " + entityType.Name);
+            if (metadata.UpdatableProperties == null || metadata.UpdatableProperties.Count == 0)
+            {
+                throw new InvalidOperationException("No updatable properties for entity " + entityType.Name);
+            }
+            var updatablePropertyGetters = new PropertyGetter[metadata.UpdatableProperties.Count];
+            var getters = entityType.GetPropertyGetters();
+            int index = 0;
+            foreach (var propertyName in metadata.UpdatableProperties.Keys)
+            {
+                updatablePropertyGetters[index++] = getters[propertyName];
+            }
+
+            Func<object, object, bool> result = (currentEntity, originalEntity) =>
+            {
+                if (currentEntity == null) throw new ArgumentNullException(nameof(currentEntity));
+                if (originalEntity == null) throw new ArgumentNullException(nameof(originalEntity));
+                for (int i = 0; i < updatablePropertyGetters.Length; i++)
+                {
+                    var getter = updatablePropertyGetters[i];
+                    if (!object.Equals(getter(currentEntity),getter(originalEntity))) return true;
+                }
+                return false;
+            };
+
+            return result;
+        }
+
+        static CacheLite<Type, Func<object, object, bool>> isModifiedFunctionCache = new CacheLite<Type, Func<object, object, bool>>(IsModifiedFunctionProducer);
+
+        private static Func<object, object, bool> GetIsModifiedFunction(this Type entityType)
+        {
+            return isModifiedFunctionCache.GetItem(entityType);
+        }
+
+        public static bool IsModifiedFrom<T>(this T currentEntity, T originalEntity) where T : class
+        {
+            return GetIsModifiedFunction(typeof(T))(currentEntity, originalEntity);
+        }
+
+
+        public static void AssignPropertiesFrom(this object target, object source)
 		{
 			if (target == null) throw new ArgumentNullException("target");
 			if (source == null) throw new ArgumentNullException("source");

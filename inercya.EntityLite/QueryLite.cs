@@ -55,4 +55,23 @@ namespace inercya.EntityLite
             this.FieldList = new List<string>();
         }
     }
+
+    [Serializable]
+    public class TableOrViewQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITableOrViewQueryLite where TEntity : class, new()
+    {
+
+
+        public TableOrViewQueryLite() : base()
+        {
+            this.QueryBuilder = new TableOrViewQueryBuilder(this);
+        }
+        public string FullyQualifiedTableOrViewName { get; set; }
+
+        public TableOrViewQueryLite(string fullyQualifiedTableOrViewName, DataService dataAccess) : this()
+        {
+            this.FullyQualifiedTableOrViewName = fullyQualifiedTableOrViewName;
+            this.DataService = dataAccess;
+            this.FieldList = new List<string>();
+        }
+    }
 }
