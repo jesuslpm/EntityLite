@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
+using System.Reflection;
 #if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
 #endif
@@ -57,6 +58,7 @@ namespace inercya.EntityLite
     public interface IRepository<TEntity> : IRepository 
     {
         SaveResult Save(TEntity entity);
+        SaveCollectionResult<TEntity> Save(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities);
         void Insert(TEntity entity);
         bool Update(TEntity entity);
         bool Update(TEntity entity, params string[] fieldsToUpdate);
@@ -79,10 +81,11 @@ namespace inercya.EntityLite
         new Task<TEntity> GetAsync(Projection projection, object entityId, string[] fields);
         new Task<TEntity> GetAsync(string projectionName, object entityId, string[] fields);
 
+        Task<SaveCollectionResult<TEntity>> SaveAsync(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities);
+
 #endif
 
     }
-
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity: class, new()
     {
@@ -130,6 +133,32 @@ namespace inercya.EntityLite
         }
 
 
+
+        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>> saveCollection;
+
+#if (NET452 || NETSTANDARD2_0)
+        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>> saveCollectionAsync;
+#endif
+
+        static Repository()
+        {
+            if (EntityMetadata != null && EntityMetadata.PrimaryKeyType != null)
+            {
+
+                var mi = typeof(Repository<TEntity>).GetMethod("SaveCollection", BindingFlags.NonPublic | BindingFlags.Static);
+                mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
+                saveCollection = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>>), mi);
+
+#if (NET452 || NETSTANDARD2_0)
+                mi = typeof(Repository<TEntity>).GetMethod("SaveCollectionAsync", BindingFlags.NonPublic | BindingFlags.Static);
+                mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
+                saveCollectionAsync = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>), mi);
+#endif
+
+            }
+        }
+
+
         public Repository(DataService dataService)
         {
             this.DataService = dataService;
@@ -171,7 +200,61 @@ namespace inercya.EntityLite
             return SaveResult.NotModified;
         }
 
-        private static bool IsNew(TEntity entity)
+        private static SaveCollectionResult<TEntity> SaveCollection<TKey>(Repository<TEntity> repository, IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities)
+        {
+            var getId = typeof(TEntity).GetIdGetter();
+            var currentEntityById = currentEntities.ToDictionary(x => (TKey)getId(x));
+            var entitySet = new HashSet<TKey>(entities.Select(x => (TKey)getId(x)));
+
+            var result = new SaveCollectionResult<TEntity>();
+
+            repository.DataService.BeginTransaction();
+            try
+            {
+                result.Deleted = currentEntities.Where(current => getId(current) != null && !entitySet.Contains((TKey)getId(current))).ToList();
+                foreach (var deletedEntity in result.Deleted)
+                {
+                    repository.Delete(deletedEntity);
+                }
+
+                result.Updated = new List<TEntity>();
+                foreach (var entity in entities)
+                {
+                    object id = getId(entity);
+                    if (id != null && currentEntityById.TryGetValue((TKey)id, out var current) && entity.IsModifiedFrom(current))
+                    {
+                        repository.Update(entity);
+                        result.Updated.Add(entity);
+                    }
+                }
+
+                result.Inserted = entities.Where(entity => getId(entity) == null || !currentEntityById.ContainsKey((TKey)getId(entity))).ToList();
+                foreach (var newEntity in result.Inserted)
+                {
+                    repository.Insert(newEntity);
+                }
+
+                repository.DataService.Commit();
+                return result;
+            }
+            catch
+            {
+                if (repository.DataService.IsActiveTransaction) repository.DataService.Rollback();
+                throw;
+            }
+        }
+
+
+        public SaveCollectionResult<TEntity> Save(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities)
+        {
+            if (saveCollection == null)
+            {
+                throw new NotImplementedException($"Entity {typeof(TEntity).Name} has no single primary key");
+            }
+            return saveCollection(this, entities, currentEntities);
+        }
+
+        public static bool IsNew(TEntity entity)
         {
             if (entity == null) throw new ArgumentNullException("entity");
             Type entityType = entity.GetType();
@@ -243,6 +326,70 @@ namespace inercya.EntityLite
             }
             return SaveResult.NotModified;
         }
+
+
+
+
+
+
+
+        public Task<SaveCollectionResult<TEntity>> SaveAsync(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities)
+        {
+            if (saveCollectionAsync == null)
+            {
+                throw new NotImplementedException($"Entity {typeof(TEntity).Name} has no single primary key");
+            }
+            return saveCollectionAsync(this, entities, currentEntities);
+        }
+
+
+        private static async Task<SaveCollectionResult<TEntity>> SaveCollectionAsync<TKey>(Repository<TEntity> repository, IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities)
+        {
+            var getId = typeof(TEntity).GetIdGetter();
+            var currentEntityById = currentEntities.ToDictionary(x => (TKey)getId(x));
+            var entitySet = new HashSet<TKey>(entities.Select(x => (TKey)getId(x)));
+
+            var result = new SaveCollectionResult<TEntity>();
+
+            repository.DataService.BeginTransaction();
+            try
+            {
+                result.Deleted = currentEntities.Where(current => getId(current) != null && !entitySet.Contains((TKey)getId(current))).ToList();
+                foreach (var deletedEntity in result.Deleted)
+                {
+                    await repository.DeleteAsync(deletedEntity).ConfigureAwait(false);
+                }
+
+                result.Updated = new List<TEntity>();
+                foreach (var entity in entities)
+                {
+                    object id = getId(entity);
+                    if (id != null && currentEntityById.TryGetValue((TKey)id, out var current) && entity.IsModifiedFrom(current))
+                    {
+                        await repository.UpdateAsync(entity).ConfigureAwait(false);
+                        result.Updated.Add(entity);
+                    }
+                }
+
+                result.Inserted = entities.Where(entity => getId(entity) == null || !currentEntityById.ContainsKey((TKey)getId(entity))).ToList();
+                foreach (var newEntity in result.Inserted)
+                {
+                    await repository.InsertAsync(newEntity).ConfigureAwait(false);
+                }
+
+                repository.DataService.Commit();
+                return result;
+            }
+            catch
+            {
+                if (repository.DataService.IsActiveTransaction) repository.DataService.Rollback();
+                throw;
+            }
+        }
+
+ 
+
+
 
         public virtual async Task<SaveResult> SaveAsync(TEntity entity, params string[] fieldsToUpdate)
         {
@@ -535,4 +682,6 @@ namespace inercya.EntityLite
 
 #endregion
     }
+
+
 }

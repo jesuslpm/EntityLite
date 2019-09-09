@@ -11,4 +11,11 @@ namespace inercya.EntityLite
         Updated,
         Inserted
     }
+
+    public class SaveCollectionResult<TEntity>
+    {
+        public List<TEntity> Updated { get; set; }
+        public List<TEntity> Inserted { get; set; }
+        public List<TEntity> Deleted { get; set; }
+    }
 }

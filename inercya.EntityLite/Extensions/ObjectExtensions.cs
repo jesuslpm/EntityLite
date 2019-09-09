@@ -86,6 +86,23 @@ namespace inercya.EntityLite.Extensions
 			}
 		}
 
+        public static PropertyGetter GetIdGetter(this Type entityType)
+        {
+            EntityMetadata entityMetadata = entityType.GetEntityMetadata();
+            ICollection<string> primaryKeyFieldNames = entityMetadata.PrimaryKeyPropertyNames;
+            if (primaryKeyFieldNames.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("cannot get {0} ID, because it has no primary key", entityType.Name));
+            }
+            if (primaryKeyFieldNames.Count > 1)
+            {
+                throw new InvalidOperationException(string.Format("cannot get {0} ID,, because its primary key is multiple", entityType.Name));
+            }
+            string primaryKeyFieldName = primaryKeyFieldNames.First();
+            var propertyGetters = PropertyHelper.GetPropertyGetters(entityType);
+            return propertyGetters[primaryKeyFieldName];
+        }
+
 		public static object GetId(this object entity)
 		{
 			if (entity == null) throw new ArgumentNullException("entity");
