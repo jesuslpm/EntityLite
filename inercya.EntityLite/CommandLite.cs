@@ -102,8 +102,13 @@ namespace inercya.EntityLite
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = ConfigureCommandAndOpenConnection();
-                Func<DbDataReader> func = command.ExecuteReader;
+                command = GetCommand();
+
+                Func<DbDataReader> func = () =>
+                {
+                    ConfigureCommandAndOpenConnection(command);
+                    return command.ExecuteReader();
+                };
                 watch = Stopwatch.StartNew();
                 reader = func.ExecuteWithRetries(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
@@ -153,9 +158,9 @@ namespace inercya.EntityLite
             return this.ToEnumerable<T>().ToList();
         }
 
-        private DbCommand ConfigureCommand()
+
+        private void ConfigureCommandAndOpenConnection(DbCommand command)
         {
-            var command = GetCommand();
             command.Connection = this.DataService.Connection;
             if (this.CommandTimeout >= 0) command.CommandTimeout = this.CommandTimeout;
             else if (this.DataService.CommandTimeout >= 0) command.CommandTimeout = this.DataService.CommandTimeout;
@@ -163,14 +168,7 @@ namespace inercya.EntityLite
             {
                 command.Transaction = DataService.Transaction;
             }
-            return command;
-        }
-
-        private DbCommand ConfigureCommandAndOpenConnection()
-        {
-            var cmd = ConfigureCommand();
             this.DataService.OpenConnection();
-            return cmd;
         }
 
         private T ExecuteCommand<T>(Func<DbCommand, T> executeCommandFunc)
@@ -179,9 +177,10 @@ namespace inercya.EntityLite
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = ConfigureCommandAndOpenConnection();
+                command = GetCommand();
                 Func<T> func = () =>
                 {
+                    ConfigureCommandAndOpenConnection(command);
                     return executeCommandFunc(command);
                 };
                 var watch = Stopwatch.StartNew();
@@ -251,8 +250,11 @@ namespace inercya.EntityLite
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = await ConfigureCommandAndOpenConnectionAsync().ConfigureAwait(false);
-                Func<Task<DbDataReader>> func = command.ExecuteReaderAsync;
+                command = GetCommand();
+                Func<Task<DbDataReader>> func = async() => {
+                    await ConfigureCommandAndOpenConnectionAsync(command).ConfigureAwait(false);
+                    return await command.ExecuteReaderAsync().ConfigureAwait(false);
+                };
                 watch = Stopwatch.StartNew();
                 reader = await func.ExecuteWithRetriesAsync(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
@@ -294,8 +296,13 @@ namespace inercya.EntityLite
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = await ConfigureCommandAndOpenConnectionAsync().ConfigureAwait(false);
-                Func<Task<DbDataReader>> func = command.ExecuteReaderAsync;
+                command = GetCommand();
+
+                Func<Task<DbDataReader>> func = async () =>
+                {
+                    await ConfigureCommandAndOpenConnectionAsync(command).ConfigureAwait(false);
+                    return await command.ExecuteReaderAsync().ConfigureAwait(false);
+                };
                 watch = Stopwatch.StartNew();
                 reader = await func.ExecuteWithRetriesAsync(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,
@@ -329,21 +336,30 @@ namespace inercya.EntityLite
             }).ConfigureAwait(false);
         }
 
-        private async Task<DbCommand> ConfigureCommandAndOpenConnectionAsync()
+        private async Task ConfigureCommandAndOpenConnectionAsync(DbCommand command)
         {
-            var cmd = ConfigureCommand();
+            command.Connection = this.DataService.Connection;
+            if (this.CommandTimeout >= 0) command.CommandTimeout = this.CommandTimeout;
+            else if (this.DataService.CommandTimeout >= 0) command.CommandTimeout = this.DataService.CommandTimeout;
+            if (DataService.IsActiveTransaction)
+            {
+                command.Transaction = DataService.Transaction;
+            }
             await this.DataService.OpenConnectionAsync().ConfigureAwait(false);
-            return cmd;
+
         }
 
-               private async Task<T> ExecuteCommandAsync<T>(Func<DbCommand, Task<T>> executeCommandAsyncFunc)
+        private async Task<T> ExecuteCommandAsync<T>(Func<DbCommand, Task<T>> executeCommandAsyncFunc)
         {
             DbCommand command = null;
             try
             {
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
-                command = await ConfigureCommandAndOpenConnectionAsync().ConfigureAwait(false);
-                Func<Task<T>> func = () => executeCommandAsyncFunc(command);
+                command = GetCommand();
+                Func<Task<T>> func = async () => {
+                    await ConfigureCommandAndOpenConnectionAsync(command);
+                    return await executeCommandAsyncFunc(command).ConfigureAwait(false);
+                };
                 var watch = Stopwatch.StartNew();
                 var result = await func.ExecuteWithRetriesAsync(
                         maxRetries, DataService.InitialMillisecondsRetryDelay,

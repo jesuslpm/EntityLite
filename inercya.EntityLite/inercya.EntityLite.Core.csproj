@@ -12,8 +12,8 @@
     <Product>i-nercya EntityLite</Product>
     <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
-    <AssemblyVersion>2.11.0.0</AssemblyVersion>
-    <FileVersion>2.11.0.0</FileVersion>
+    <AssemblyVersion>2.11.1.0</AssemblyVersion>
+    <FileVersion>2.11.10.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
