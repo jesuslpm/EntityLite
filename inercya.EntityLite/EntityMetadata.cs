@@ -111,7 +111,9 @@ namespace inercya.EntityLite
 
         public string GetFullSequenceName(string defaultSchemaName)
         {
+            
             if (string.IsNullOrEmpty(this.SequenceName)) return null;
+            if (this.SequenceName.IndexOf('.') >= 0) return this.SequenceName;
             string schemaName = string.IsNullOrEmpty(this.SchemaName) ? defaultSchemaName : this.SchemaName;
             return string.IsNullOrEmpty(schemaName) ? this.SequenceName : schemaName + "." + this.SequenceName;
         }
