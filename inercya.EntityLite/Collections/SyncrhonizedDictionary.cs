@@ -105,22 +105,30 @@ namespace inercya.EntityLite.Collections
             {
 				loops++;
                 version = this.version;
-                var result = func();
-                bool isWriterInProgress = this.isWriterInProgress;
+                bool isWriterInProgress = false;
+                TResult result = default(TResult);
+                try
+                {
+                    result = func();
+                    isWriterInProgress = this.isWriterInProgress;
+                }
+                catch
+                {
+                    isWriterInProgress = true;
+                }
 				if (isWriterInProgress)
 				{
-					if (Environment.ProcessorCount == 1 || loops % 100 == 0)
+					if (Environment.ProcessorCount == 1 || (loops & 0x3F) == 0)
 					{
 						Thread.Sleep(1);
 					}
-					else if (loops % 20 == 0)
+					else if ( (loops & 0xF) == 0)
 					{
 						Thread.Sleep(0);
 					}
 					else
 					{
-						// Roughly equals to (insert time) / 6
-						Thread.SpinWait(20);
+						Thread.SpinWait(16);
 					}
 				}
 				else if (version != this.version)
@@ -144,6 +152,7 @@ namespace inercya.EntityLite.Collections
 
         public bool ContainsKey(TKey key)
         {
+            if (key == null) throw new ArgumentNullException(nameof(key));
             return SyncrhonizedReadFunction(delegate { return dictionary.ContainsKey(key); });
         }
 
@@ -166,6 +175,7 @@ namespace inercya.EntityLite.Collections
 
         public bool TryGetValue(TKey key, out TValue value)
         {
+            if (key == null) throw new ArgumentNullException(nameof(key));
 			TValue resultValue = default(TValue);
 			bool result = this.SyncrhonizedReadFunction(delegate
 			{
@@ -223,6 +233,7 @@ namespace inercya.EntityLite.Collections
 
         bool ICollection<KeyValuePair<TKey,TValue>>.Contains(KeyValuePair<TKey, TValue> item)
         {
+            if (item.Key == null) throw new ArgumentNullException("item.key");
             return SyncrhonizedReadFunction(delegate { return dictionary.Contains(item); });
         }
 
