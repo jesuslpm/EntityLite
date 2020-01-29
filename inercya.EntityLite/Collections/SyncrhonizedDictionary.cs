@@ -100,10 +100,15 @@ namespace inercya.EntityLite.Collections
         private TResult SyncrhonizedReadFunction<TResult>(Func<TResult> func)
         {
             int version;
-			int loops = 0;
+            int loops = 0;
+            //int totalLoops = 0;
+            int attempts = 1;
+            //int exceptions = 0;
             while (true)
             {
-				loops++;
+                loops++;
+                //totalLoops++;
+
                 version = this.version;
                 bool isWriterInProgress = false;
                 TResult result = default(TResult);
@@ -114,32 +119,44 @@ namespace inercya.EntityLite.Collections
                 }
                 catch
                 {
+                    //exceptions++;
                     isWriterInProgress = true;
                 }
-				if (isWriterInProgress)
-				{
-					if (Environment.ProcessorCount == 1 || (loops & 0x3F) == 0)
-					{
-						Thread.Sleep(1);
-					}
-					else if ( (loops & 0xF) == 0)
-					{
-						Thread.Sleep(0);
-					}
-					else
-					{
-						Thread.SpinWait(16);
-					}
-				}
-				else if (version != this.version)
-				{
-					loops = 0;
-				}
+                if (attempts > 5)
+                {
+                    lock (dictionary)
+                    {
+                        //Console.WriteLine($"Locked read, loops: {totalLoops}, exceptions: {exceptions}");
+                        return func();
+                    }
+                }
+                if (isWriterInProgress)
+                {
+                    if (Environment.ProcessorCount == 1 || (loops & 0x3F) == 0)
+                    {
+                        attempts++;
+                        Thread.Sleep(1);
+                    }
+                    else if ((loops & 0xF) == 0)
+                    {
+                        attempts++;
+                        Thread.Sleep(0);
+                    }
+                    else
+                    {
+                        Thread.SpinWait(16);
+                    }
+                }
+                else if (version != this.version)
+                {
+                    loops = 0;
+                    attempts++;
+                }
                 else
                 {
                     return result;
                 }
-            } 
+            }
         }
 
 

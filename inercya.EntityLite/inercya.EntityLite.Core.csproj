@@ -12,8 +12,8 @@
     <Product>i-nercya EntityLite</Product>
     <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
-    <AssemblyVersion>2.11.1.0</AssemblyVersion>
-    <FileVersion>2.11.10.0</FileVersion>
+    <AssemblyVersion>2.11.2.0</AssemblyVersion>
+    <FileVersion>2.11.2.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
@@ -60,8 +60,7 @@
       <LastGenOutput>DataLayer.cs</LastGenOutput>
     </None>
     <None Update="SqliteProfiler\EntityLite.ttinclude\ProcedureGeneration.ttinclude">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>ProcedureGeneration.cs</LastGenOutput>
+      <Generator></Generator>
     </None>
   </ItemGroup>
 
