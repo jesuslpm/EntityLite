@@ -63,6 +63,45 @@ namespace inercya.EntityLite.Extensions
 			return hashSet;
 		}
 
+		public static void FillDetails<TMaster, TDetail, TKey>(this IEnumerable<TMaster> masterItems, Func<TMaster, TKey> keySelector,  Func<TMaster, IList<TDetail>> detailsSelector,  IEnumerable<TDetail> allDetails, Func<TDetail, TKey> foreignKeySelector )
+		{
+			var dic = masterItems.ToDictionary(keySelector);
+			foreach (var detail in allDetails)
+			{
+				if (dic.TryGetValue(foreignKeySelector(detail), out TMaster masterItem))
+				{
+					var details = detailsSelector(masterItem);
+					if (details == null)
+					{
+						throw new ArgumentException("All master items must have the details property initialized to a list of detail items, but it is null. Please intilize all details to an empty list before calling this method or call the FillDetails overlod that has detailesInitializer argument");
+					}
+					details.Add(detail);
+				}
+			}
+		}
+
+		public static void FillDetails<TMaster, TDetail, TKey>(this IEnumerable<TMaster> masterItems, Func<TMaster, TKey> keySelector, Func<TMaster, IList<TDetail>> detailsSelector, Action<TMaster> detailsInitializer, IEnumerable<TDetail> allDetails, Func<TDetail, TKey> foreignKeySelector)
+		{
+			var dic = masterItems.ToDictionary(keySelector);
+			foreach (var detail in allDetails)
+			{
+				if (dic.TryGetValue(foreignKeySelector(detail), out TMaster masterItem))
+				{
+					var details = detailsSelector(masterItem);
+					if (details == null)
+					{
+						detailsInitializer(masterItem);
+						details = detailsSelector(masterItem);
+						if (details == null)
+						{
+							throw new ArgumentException("Invalid details initializer, it doesn't initialize the details property. The details property is still null after calling the details initializer");
+						}
+					}
+					details.Add(detail);
+				}
+			}
+		}
+
 		public static IList<MasterDetail<M, D>> JoinMasterDetail<M, TKey, D>(IEnumerable<M> masters, Func<M, TKey> GetKey, IEnumerable<D> details, Func<D, TKey> GetMasterKey)
 		{
 			var masterDetails = new List<MasterDetail<M, D>>();
