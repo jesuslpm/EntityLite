@@ -382,6 +382,12 @@ namespace inercya.EntityLite.Builders
                 case OperatorLite.Contains:
                     sb.Append(" LIKE " + QueryLite.DataService.EntityLiteProvider.Concat("'%'", parameterName, "'%'"));
                     break;
+                case OperatorLite.FbContaining:
+                    sb.Append(" CONTAINING ").Append(parameterName);
+                    break;
+                case OperatorLite.FbNotContaining:
+                    sb.Append(" NOT CONTAINING ").Append(parameterName);
+                    break;
                 case OperatorLite.Equals:
                     sb.Append(" = ").Append(parameterName);
                     break;

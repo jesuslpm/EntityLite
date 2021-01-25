@@ -47,7 +47,9 @@ namespace inercya.EntityLite
         STDistanceLess,
         STDistanceLessOrEquals,
         Exists,
-        NotExists
+        NotExists,
+        FbContaining,
+        FbNotContaining
     }
 
     public enum LogicalOperatorLite

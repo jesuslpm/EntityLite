@@ -75,7 +75,7 @@ namespace inercya.EntityLite
         public void Remove(Type entityType, object identity)
         {
             Dictionary<object, Dictionary<string, object>> dicIdentity = null;
-            if (Map.TryGetValue(typeof(Type), out dicIdentity))
+            if (Map.TryGetValue(entityType, out dicIdentity))
             {
                 dicIdentity.Remove(identity);
             }
