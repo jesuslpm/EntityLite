@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net452;net35</TargetFrameworks>
-    <Version>2.11.0</Version>
+    <Version>2.12.1</Version>
     <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>EntityLite.Core</PackageId>
@@ -12,8 +12,8 @@
     <Product>i-nercya EntityLite</Product>
     <Copyright></Copyright>
     <AssemblyName>EntityLite</AssemblyName>
-    <AssemblyVersion>2.11.2.0</AssemblyVersion>
-    <FileVersion>2.11.2.0</FileVersion>
+    <AssemblyVersion>2.12.1.0</AssemblyVersion>
+    <FileVersion>2.12.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
@@ -37,11 +37,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
