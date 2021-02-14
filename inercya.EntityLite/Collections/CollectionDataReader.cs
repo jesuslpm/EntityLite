@@ -31,6 +31,11 @@ namespace inercya.EntityLite.Collections
             buffer = new object[this.FieldCount];
         }
 
+        PropertyGetter ToStringGetter(PropertyGetter getter)
+        {
+            return (value) => getter(value)?.ToString();
+        }
+
         private PropertyGetter[] GetPropertyGetters()
         {
             PropertyGetter[] getters = new PropertyGetter[this.properties.Length];
@@ -38,7 +43,13 @@ namespace inercya.EntityLite.Collections
             int propertyCount = this.properties.Length;
             for (int index = 0; index < propertyCount; index++)
             {
-                getters[index] = propertyGetters[properties[index].Name];
+                var property = properties[index];
+                getters[index] = propertyGetters[property.Name];
+                var propertyTypeName = property.PropertyType.Name;
+                if (propertyTypeName == "JToken" || propertyTypeName == "JObject")
+                {
+                    getters[index] = ToStringGetter(getters[index]);
+                }
             }
             return getters;
         }
@@ -146,12 +157,7 @@ namespace inercya.EntityLite.Collections
 
         public string GetDataTypeName(int i)
         {
-            Type propertyType = properties[i].PropertyType;
-            if (propertyType.IsValueType && propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                propertyType = propertyType.GetGenericArguments()[0];
-            }
-            return propertyType.FullName;
+            return GetFieldType(i).FullName;
         }
 
         public DateTime GetDateTime(int i)
@@ -176,8 +182,12 @@ namespace inercya.EntityLite.Collections
             {
                 return propertyType.GetGenericArguments()[0];
             }
-            else
+            else if (propertyType.Name == "JToken" || propertyType.Name == "JObject")
             {
+                return typeof(string);
+            }
+            else 
+            { 
                 return propertyType;
             }
         }
