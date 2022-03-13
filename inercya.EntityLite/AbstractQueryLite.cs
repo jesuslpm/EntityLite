@@ -36,14 +36,20 @@ namespace inercya.EntityLite
     {
 
         private static ILogger logger;
+        private static bool isLoggerInitialized = false;
 
         private static ILogger Log
         {
             get
             {
-                if (logger == null)
+                if (!isLoggerInitialized)
                 {
-                    logger = ConfigurationLite.LoggerFactory.CreateLogger<AbstractQueryLite>();
+                    isLoggerInitialized = true;
+                    try
+                    {
+                        logger = ConfigurationLite.LoggerFactory?.CreateLogger<AbstractQueryLite>();
+                    }
+                    catch { }
                 }
                 return logger;
             }
@@ -256,7 +262,7 @@ namespace inercya.EntityLite
             {
                 if (logger == null)
                 {
-                    logger = ConfigurationLite.LoggerFactory.CreateLogger("inercya.EntityLite.QueryLite<" + typeof(TEntity).Name + ">");
+                    logger = ConfigurationLite.LoggerFactory?.CreateLogger("inercya.EntityLite.QueryLite<" + typeof(TEntity).Name + ">");
                 }
                 return logger;
             }

@@ -35,13 +35,19 @@ namespace inercya.EntityLite.SqliteProfiler
     {
         private static ILogger logger;
 
+        private static bool isLoggerInitialized = false;
         private static ILogger Log
         {
             get
             {
-                if (logger == null)
+                if (!isLoggerInitialized)
                 {
-                    logger = ConfigurationLite.LoggerFactory.CreateLogger<Profiler>();
+                    isLoggerInitialized = true;
+                    try
+                    {
+                        logger = ConfigurationLite.LoggerFactory.CreateLogger<Profiler>();
+                    }
+                    catch { }
                 }
                 return logger;
             }
@@ -163,7 +169,7 @@ namespace inercya.EntityLite.SqliteProfiler
                     }
                     catch (Exception ex)
                     {
-                        Log.LogError(ex, "Error Profiling");
+                        Log?.LogError(ex, "Error Profiling");
                     }
                     if (!IsRunning)
                     {
@@ -175,7 +181,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error Profiling");
+                Log?.LogError(ex, "Error Profiling");
             }
             finally
             {
@@ -211,7 +217,7 @@ namespace inercya.EntityLite.SqliteProfiler
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError(ex, "Error disposing data service");
+                    Log?.LogError(ex, "Error disposing data service");
                 }
                 dataService = null;
             }
@@ -251,7 +257,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error deleting old profiler database files");
+                Log?.LogError(ex, "Error deleting old profiler database files");
             }
         }
     }

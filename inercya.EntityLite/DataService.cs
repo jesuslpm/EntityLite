@@ -129,14 +129,19 @@ namespace inercya.EntityLite
         private static ILogger logger;
 
         public readonly Guid InstanceId = Guid.NewGuid();
-
+        private static bool isLoggerInitialized = false;
         private static ILogger Log
         {
             get
             {
-                if (logger == null)
+                if (!isLoggerInitialized)
                 {
-                    logger = ConfigurationLite.LoggerFactory.CreateLogger<DataService>();
+                    isLoggerInitialized = true;
+                    try
+                    {
+                        logger = ConfigurationLite.LoggerFactory.CreateLogger<DataService>();
+                    }
+                    catch { }
                 }
                 return logger;
             }
@@ -438,7 +443,7 @@ namespace inercya.EntityLite
 			}
 			catch (Exception ex)
 			{
-				Log.LogError(ex, "Error on commit");
+				Log?.LogError(ex, "Error on commit");
 				throw;
 			}
         }
@@ -463,7 +468,7 @@ namespace inercya.EntityLite
 			}
 			catch (Exception ex)
 			{
-				Log.LogError(ex, "Error on Rollback");
+				Log?.LogError(ex, "Error on Rollback");
 				throw;
 			}
         }

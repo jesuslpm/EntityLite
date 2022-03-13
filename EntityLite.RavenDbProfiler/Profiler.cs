@@ -170,7 +170,7 @@ namespace EntityLite.RavenDbProfiler
                                 Id = normalizedSqlStatementId,
                                 Sql = normalizedCommandText
                             };
-                            await bulkInsert.StoreAsync(normalizedSqlStatementId, normalizedSqlStatementId);
+                            await bulkInsert.StoreAsync(normalizedSqlStatement, normalizedSqlStatementId);
                         }
                     }
 

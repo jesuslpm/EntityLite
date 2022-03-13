@@ -33,19 +33,26 @@ namespace inercya.EntityLite.Builders
 	{
         private static ILogger logger;
 
-		private static ILogger Log
+
+        private static bool isLoggerInitialized = false;
+        private static ILogger Log
         {
             get
             {
-                if (logger == null)
+                if (!isLoggerInitialized)
                 {
-                    logger = ConfigurationLite.LoggerFactory.CreateLogger<CommandBuilder>();
+                    isLoggerInitialized = true;
+                    try
+                    {
+                        logger = ConfigurationLite.LoggerFactory.CreateLogger<CommandBuilder>();
+                    }
+                    catch { }
                 }
                 return logger;
             }
-        } 
+        }
 
-		public readonly DataService DataService;
+        public readonly DataService DataService;
 
 		public CommandBuilder(DataService dataService)
 		{
@@ -544,11 +551,11 @@ namespace inercya.EntityLite.Builders
 			{
 				if (entity == null)
 				{
-					Log.LogError(ex, "Error generating delete command");
+					Log?.LogError(ex, "Error generating delete command");
 				}
 				else
 				{
-					Log.LogError(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"));
+					Log?.LogError(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"));
 				}
 				throw;
 			}
