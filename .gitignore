@@ -111,7 +111,6 @@ nuget/Core/lib/
 *.dll
 packages/
 nuget/Generators/content/EntityLite.ttinclude/
-!nuget/Generators/content/EntityLite.ttinclude/Dummy.txt
 inercya.EntityLite/SqliteProfiler/EntityLite.ttinclude/
 DataLayerItemTemplate/EntityLite.ttinclude/
 SamplesFx
