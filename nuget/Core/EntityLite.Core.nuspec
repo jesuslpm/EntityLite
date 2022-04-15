@@ -1,50 +1,51 @@
 <?xml version="1.0"?>
 <package >
-  <metadata>
-    <id>EntityLite.Core</id>
-    <version>2.12.2</version>
-    <title>i-nercya EntityLite Core</title>
-    <authors>Jesús López</authors>
-    <owners>i-nercya intelligent software</owners>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
-    <repository url="https://github.com/jesuslpm/EntityLite" />
-    <iconUrl>http://www.i-nercya.com/EntityLite.png</iconUrl>
-    <description>
-      A lightweight, database first, micro ORM
-    </description>
-    <releaseNotes>
-      see http://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M
-      for an introduction to EntityLite
-    </releaseNotes>
-    <summary>
-      The EntityLite core assembly
-    </summary>
-    <language>en-US</language>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright 2013-2017</copyright>
-    <dependencies>
-      <group targetFramework="netstandard2.0">
-        <dependency id="System.Reflection.Emit.Lightweight" version="4.3.0" exclude="Build,Analyzers" />
-        <dependency id="System.Data.SqlClient" version="4.8.2" exclude="Build,Analyzers" />
-        <dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
-        <dependency id="System.Configuration.ConfigurationManager" version="4.4.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.0.0" exclude="Build,Analyzers" />
-      </group>
-      <group targetFramework="net452">
-        <dependency id="NLog" version="4.4.12" />
-      </group>
-      <group targetFramework="net35">
-        <dependency id="NLog" version="4.4.12" />
-      </group>
-    </dependencies>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.Data" targetFramework="net452"/>
-      <frameworkAssembly assemblyName="System.Runtime.Serialization"  targetFramework="net452" />
-    </frameworkAssemblies>
-    <tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
-  </metadata>
-  <files>
-    <file src="lib\" target="lib" />
-  </files>
+	<metadata>
+		<id>EntityLite.Core</id>
+		<version>2.12.3</version>
+		<title>i-nercya EntityLite Core</title>
+		<authors>Jesús López</authors>
+		<owners>i-nercya intelligent software</owners>
+		<license type="expression">Apache-2.0</license>
+		<projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
+		<repository url="https://github.com/jesuslpm/EntityLite" />
+		<icon>EntityLite.png</icon>
+		<description>
+			A lightweight, database first, micro ORM
+		</description>
+		<releaseNotes>
+			see http://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M
+			for an introduction to EntityLite
+		</releaseNotes>
+		<summary>
+			The EntityLite core assembly
+		</summary>
+		<language>en-US</language>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<copyright>Copyright 2013-2022</copyright>
+		<dependencies>
+			<group targetFramework="netstandard2.0">
+				<dependency id="System.Reflection.Emit.Lightweight" version="4.3.0" exclude="Build,Analyzers" />
+				<dependency id="System.Data.SqlClient" version="4.8.2" exclude="Build,Analyzers" />
+				<dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
+				<dependency id="System.Configuration.ConfigurationManager" version="4.4.0" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="2.0.0" exclude="Build,Analyzers" />
+			</group>
+			<group targetFramework="net452">
+				<dependency id="NLog" version="4.4.12" />
+			</group>
+			<group targetFramework="net35">
+				<dependency id="NLog" version="4.4.12" />
+			</group>
+		</dependencies>
+		<frameworkAssemblies>
+			<frameworkAssembly assemblyName="System.Data" targetFramework="net452"/>
+			<frameworkAssembly assemblyName="System.Runtime.Serialization"  targetFramework="net452" />
+		</frameworkAssemblies>
+		<tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
+	</metadata>
+	<files>
+		<file src="lib\" target="lib" />
+		<file src="EntityLite.png" target="" />
+	</files>
 </package>

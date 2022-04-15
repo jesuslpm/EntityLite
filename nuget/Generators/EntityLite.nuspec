@@ -2,26 +2,26 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>EntityLite</id>
-    <version>2.12.2</version>
+    <version>2.12.3</version>
     <title>i-nercya EntityLite</title>
     <authors>Jesús López</authors>
     <owners>i-nercya intelligent software</owners>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+	<license type="expression">Apache-2.0</license>
     <projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
     <repository url="https://github.com/jesuslpm/EntityLite" />
-    <iconUrl>http://www.i-nercya.com/EntityLite.png</iconUrl>
+	<icon>EntityLite.png</icon>
     <description>
       A lightweight, database first, micro ORM
     </description>
     <releaseNotes>
-see http://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M for an introduction to EntityLite.
+		see http://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M for an introduction to EntityLite.
 
-IMPORTANT NOTE for .NET Core and .NET Stanadard users:
-Content files are no longer copied to project folder. You need to copy C:\Users\your.user.name\.nuget\packages\entitylite\2.0.0-Beta42\content to your project folder manually.
+		IMPORTANT NOTE for .NET Core and .NET Stanadard users:
+		Content files are no longer copied to project folder. You need to copy C:\Users\your.user.name\.nuget\packages\entitylite\2.12.3\content to your project folder manually.
 
-Alternatively you can download the EntityLite Code Generators item template from Visual Studio Gallery:
-https://visualstudiogallery.msdn.microsoft.com/36ce38a1-49f9-4b97-933b-ad47c7173ada/file/285803/1/EntityLite.vsix
-    </releaseNotes>
+		Alternatively you can download the EntityLite Code Generators item template from Visual Studio Gallery:
+		https://visualstudiogallery.msdn.microsoft.com/36ce38a1-49f9-4b97-933b-ad47c7173ada/file/285803/1/EntityLite.vsix
+	</releaseNotes>
     <summary>
       The EntityLite code generators and core library
     </summary>
@@ -30,13 +30,13 @@ https://visualstudiogallery.msdn.microsoft.com/36ce38a1-49f9-4b97-933b-ad47c7173
     <copyright>Copyright 2013-2017</copyright>
     <dependencies>
       <group targetFramework="netstandard2.0">
-        <dependency id="EntityLite.Core" version="2.12.2" />
+        <dependency id="EntityLite.Core" version="2.12.3" />
       </group>
       <group targetFramework="net452">
-        <dependency id="EntityLite.Core" version="2.12.2" />
+        <dependency id="EntityLite.Core" version="2.12.3" />
       </group>
       <group targetFramework="net35">
-        <dependency id="EntityLite.Core" version="2.12.2" />
+        <dependency id="EntityLite.Core" version="2.12.3" />
       </group>
     </dependencies>
     <references></references>
@@ -47,6 +47,8 @@ https://visualstudiogallery.msdn.microsoft.com/36ce38a1-49f9-4b97-933b-ad47c7173
     </contentFiles>
   </metadata>
   <files>
-    <file src="content\" target="content\" />
+    <file src="content\DataLayer.tt" target="content\" />
+	<file src="content\EntityLite.ttinclude\*.ttinclude" target="content\EntityLite.ttinclude\" />
+	<file src="EntityLite.png" target="" />
   </files>
 </package>
