@@ -29,7 +29,7 @@ namespace inercya.EntityLite.Collections
         private volatile bool isWriterInProgress = false;
         private volatile int version = 0;
 
-        private IDictionary<TKey, TValue> dictionary;
+        private Dictionary<TKey, TValue> dictionary;
 
         public SynchronizedDictionary()
         {
@@ -48,7 +48,7 @@ namespace inercya.EntityLite.Collections
 
         public SynchronizedDictionary(IDictionary<TKey, TValue> dictionary)
         {
-            dictionary = new Dictionary<TKey,TValue>(dictionary);
+            this.dictionary = new Dictionary<TKey,TValue>(dictionary);
         }
 
         public SynchronizedDictionary(int capacity, IEqualityComparer<TKey> comparer)
@@ -59,7 +59,7 @@ namespace inercya.EntityLite.Collections
 
         public SynchronizedDictionary(IDictionary<TKey,TValue> dictionary, IEqualityComparer<TKey> comparer)
         {
-            dictionary = new Dictionary<TKey, TValue>(dictionary, comparer);
+            this.dictionary = new Dictionary<TKey, TValue>(dictionary, comparer);
         }
 
         private void SynchronizedWriteAction(Action action)

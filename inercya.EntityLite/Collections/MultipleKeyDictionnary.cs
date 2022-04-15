@@ -54,7 +54,7 @@ namespace inercya.EntityLite.Collections
         {
             int hash1 = Key1 == null ? 0 : Key1.GetHashCode();
             int hash2 = Key2 == null ? 0 : Key2.GetHashCode();
-            return hash1 ^ hash2;
+            return HashCode.Combine(hash1, hash2);
         }
 
         public static bool operator ==(DoubleKey<TKey1, TKey2> dk1, DoubleKey<TKey1, TKey2> dk2)
@@ -181,7 +181,7 @@ namespace inercya.EntityLite.Collections
             int hash1 = Key1 == null ? 0 : Key1.GetHashCode();
             int hash2 = Key2 == null ? 0 : Key2.GetHashCode();
             int hash3 = Key3 == null ? 0 : Key3.GetHashCode();
-            return hash1 ^ hash2 ^ hash3;
+            return HashCode.Combine(hash1, hash2, hash3);
         }
 
         public static bool operator ==(TripleKey<TKey1, TKey2, TKey3> tk1, TripleKey<TKey1, TKey2, TKey3> tk2)

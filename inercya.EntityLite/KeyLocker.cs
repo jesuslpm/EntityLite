@@ -23,7 +23,7 @@ namespace inercya.EntityLite
     {
         private class KeyLock
         {
-            public int Count;
+            public volatile int Count;
         }
 
         private readonly Dictionary<TKey, KeyLock> keyLocks = new Dictionary<TKey, KeyLock>();
