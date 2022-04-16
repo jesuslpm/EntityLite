@@ -129,12 +129,63 @@ namespace inercya.EntityLite.Builders
             return query;
         }
 
+        public void GetSelectIntoQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation, string destinationTableName)
+        {
+            commandText.Indent(indentation);
+            var columnList = GetColumnList();
+            bool isStar = columnList == "*";
+            commandText.Append("SELECT ");
+            if (isStar) commandText.Append("*");
+            else commandText.NewIndentedLine(++indentation).Append(columnList);
+            if (!isStar) indentation--;
+
+           
+            string startQuote = this.QueryLite.DataService.EntityLiteProvider.StartQuote;
+            string endQuote = this.QueryLite.DataService.EntityLiteProvider.EndQuote;
+            string quotedObjectName = null;
+            if (destinationTableName.StartsWith(startQuote) && destinationTableName.EndsWith(endQuote))
+            {
+                quotedObjectName = destinationTableName;
+            }
+            else
+            {
+                var tokens = destinationTableName.Split('.');
+                quotedObjectName = string.Join(".", tokens.Select(x => startQuote + x + endQuote).ToArray());
+            }
+            commandText.NewIndentedLine(indentation).Append("INTO ").Append(quotedObjectName);
+            commandText.NewIndentedLine(indentation).Append("FROM ")
+                .NewIndentedLine(++indentation).Append(GetFromClauseContent(selectCommand, ref paramIndex, indentation));
+            indentation--;
+            bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
+            if (hasWhereClause)
+            {
+                commandText.NewIndentedLine(indentation).Append("WHERE");
+                commandText.NewIndentedLine(++indentation).Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter, indentation, false));
+                indentation--;
+            }
+            bool hasOrderbyClause = QueryLite.Sort != null && QueryLite.Sort.Count > 0;
+            if (hasOrderbyClause)
+            {
+                commandText.NewIndentedLine(indentation).Append("ORDER BY");
+                commandText.NewIndentedLine(++indentation).Append(GetSort());
+                indentation--;
+            }
+        }
+
+        public string GetSelectIntoQuery(DbCommand selectCommand, ref int paramIndex, int indentation, string destinationTableName)
+        {
+            StringBuilder commandText = new StringBuilder();
+            GetSelectIntoQuery(selectCommand, ref paramIndex, commandText, indentation, destinationTableName);
+            SetOptions(commandText);
+            var query = commandText.ToString();
+            return query;
+        }
 
         public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             StringBuilder commandText = new StringBuilder();
             GetSelectQuery(selectCommand, ref paramIndex, commandText, indentation);
-			SetOptions(commandText);
+            SetOptions(commandText);
             var query = commandText.ToString();
             return query;
         }

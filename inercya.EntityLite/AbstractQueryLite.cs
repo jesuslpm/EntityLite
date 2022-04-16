@@ -113,6 +113,14 @@ namespace inercya.EntityLite
             return cmd;
         }
 
+        protected internal DbCommand GetSelectIntoCommand(string destinationTableName)
+        {
+            DbCommand cmd = this.DataService.EntityLiteProvider.CreateCommand();
+            int paramIndex = 0;
+            cmd.CommandText = QueryBuilder.GetSelectIntoQuery(cmd, ref paramIndex, 0, destinationTableName);
+            return cmd;
+        }
+
         protected DbCommand GetSelectCommand(int fromIndex, int toIndex)
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
@@ -152,6 +160,16 @@ namespace inercya.EntityLite
             var cmd = new CommandExecutor(this.DataService, true)
             {
                 GetCommandFunc = GetDeleteCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQuery();
+        }
+
+        public int SelectInto(string destinationTableName)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => this.GetSelectIntoCommand(destinationTableName),
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ExecuteNonQuery();
@@ -260,6 +278,16 @@ namespace inercya.EntityLite
             var cmd = new CommandExecutor(this.DataService, true)
             {
                 GetCommandFunc = GetDeleteCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQueryAsync();
+        }
+
+        public Task<int> SelectIntoAsync(string destinationTableName)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => this.GetSelectIntoCommand(destinationTableName),
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ExecuteNonQueryAsync();

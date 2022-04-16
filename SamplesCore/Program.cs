@@ -72,7 +72,7 @@ namespace Samples
             using (ds = new NorthwindDataService())
             {
                 ds.ApplicationContextGetter = () => "EntityLite.Tests";
-                deleteAsyncTest().Wait();
+                SelectIntoAsyncTest().Wait();
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
@@ -123,7 +123,7 @@ namespace Samples
 
         }
 
-        static async Task deleteAsyncTest()
+        static async Task DeleteAsyncTest()
         {
             ds.BeginTransaction();
             var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
@@ -137,6 +137,22 @@ namespace Samples
 
             ds.Rollback();
 
+        }
+
+        static async Task SelectIntoAsyncTest()
+        {
+            ds.BeginTransaction();
+            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
+
+            var tableName = "##OrderDetails" + Guid.NewGuid().ToString("N");
+
+            var count = await q.SelectIntoAsync(tableName);
+
+            var q2 = new TableOrViewQueryLite<OrderDetail>(tableName, ds);
+            var orderDetails = await q2.ToListAsync();
+
+            ds.Commit();
         }
 
 

@@ -50,6 +50,8 @@ namespace inercya.EntityLite
         Alias Alias { get; set; }
         int Delete();
 
+        int SelectInto(string destinationTableName);
+
 #if NET452 || NETSTANDARD2_0
         Task<IEnumerable> ToEnumerableAsync();
         Task<IEnumerable> ToEnumerableAsync(int fromIndex, int toIndex);
@@ -59,6 +61,7 @@ namespace inercya.EntityLite
         Task<int> GetCountAsync();
         Task<bool> AnyAsync();
         Task<int> DeleteAsync();
+        Task<int> SelectIntoAsync(string destinationTableName);
 #endif
 
     }
