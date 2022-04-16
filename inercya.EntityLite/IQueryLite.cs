@@ -48,6 +48,7 @@ namespace inercya.EntityLite
         DataTable Pivot(Comparison<PivotedColumn> pivotedColumnComparison, params PivotTransform[] pivotTransforms);
         int CommandTimeout { get; set; }
         Alias Alias { get; set; }
+        int Delete();
 
 #if NET452 || NETSTANDARD2_0
         Task<IEnumerable> ToEnumerableAsync();
@@ -57,6 +58,7 @@ namespace inercya.EntityLite
         Task<object> FirstOrDefaultAsync();
         Task<int> GetCountAsync();
         Task<bool> AnyAsync();
+        Task<int> DeleteAsync();
 #endif
 
     }
@@ -68,12 +70,13 @@ namespace inercya.EntityLite
         new IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex);
         new List<TEntity> ToList();
         new List<TEntity> ToList(int fromIndex, int toIndex);
+
 #if NET452 || NETSTANDARD2_0
         new Task<TEntity> FirstOrDefaultAsync();
         new Task<IEnumerable<TEntity>> ToEnumerableAsync();
         new Task<IEnumerable<TEntity>> ToEnumerableAsync(int fromIndex, int toIndex);
-        new Task<IList<TEntity>> ToListAsync();
-        new Task<IList<TEntity>> ToListAsync(int fromIndex, int toIndex);
+        new Task<List<TEntity>> ToListAsync();
+        new Task<List<TEntity>> ToListAsync(int fromIndex, int toIndex);
 #endif
     }
 

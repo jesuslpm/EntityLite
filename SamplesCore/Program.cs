@@ -36,6 +36,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.IO;
 using System.Net.Http;
+using System.Security.Cryptography;
 
 namespace Samples
 {
@@ -71,13 +72,14 @@ namespace Samples
             using (ds = new NorthwindDataService())
             {
                 ds.ApplicationContextGetter = () => "EntityLite.Tests";
+                deleteAsyncTest().Wait();
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
                 //QueryByPrimaryKey();
-                ShowSomeProducts();
+                //ShowSomeProducts();
                 //ShowOrderDetails();
-                ShowQuesoCabralesOrders();
+                //ShowQuesoCabralesOrders();
                 //ShowPagedProducts();
                 //ShowLondonAndewFullerSubtree();
                 //SearchOrderDetails();
@@ -101,6 +103,40 @@ namespace Samples
             profiler.StopProfiling();
             //Console.WriteLine("Press enter to exit ...");
             //Console.ReadLine();
+
+            
+        }
+
+        static void deleteTest()
+        {
+            ds.BeginTransaction();
+            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
+
+            var count = q.GetCount();
+
+            var deletedCount = q.Delete();
+
+            var countAfterDelete = q.GetCount();
+
+            ds.Rollback();
+
+        }
+
+        static async Task deleteAsyncTest()
+        {
+            ds.BeginTransaction();
+            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
+
+            var count = await q.GetCountAsync();
+
+            var deletedCount = await q.DeleteAsync();
+
+            var countAfterDelete = await q.GetCountAsync();
+
+            ds.Rollback();
+
         }
 
 
@@ -134,42 +170,42 @@ namespace Samples
         //}
 
 
-        static void DbChangeNumberTest()
-        {
-            var item = new Item
-            {
-                Field1 = "Field 1",
-                Field2 = "Field 2"
-            };
+        //static void DbChangeNumberTest()
+        //{
+        //    var item = new Item
+        //    {
+        //        Field1 = "Field 1",
+        //        Field2 = "Field 2"
+        //    };
 
-            ds.ItemRepository.Insert(item);
-            ds.ItemRepository.Update(item);
-            item.Field1 = "Field something";
-            ds.ItemRepository.Update(item);
-        }
+        //    ds.ItemRepository.Insert(item);
+        //    ds.ItemRepository.Update(item);
+        //    item.Field1 = "Field something";
+        //    ds.ItemRepository.Update(item);
+        //}
 
-        static async Task JsonTest()
-        {
-            foreach( var item in ds.MetadataItemRepository.Query(Projection.BaseTable).ToList())
-            {
-                await ds.MetadataItemRepository.DeleteAsync(item);
-            }
+        //static async Task JsonTest()
+        //{
+        //    foreach( var item in ds.MetadataItemRepository.Query(Projection.BaseTable).ToList())
+        //    {
+        //        await ds.MetadataItemRepository.DeleteAsync(item);
+        //    }
 
-            var m = new MetadataItem
-            {
-                MetadataId = 1,
-                Data = JObject.Parse("{ \"id\": 1, name: \"Jesús\" }")
-            };
-            await ds.MetadataItemRepository.InsertAsync(m);
-            var ms = await ds.MetadataItemRepository.Query(Projection.BaseTable).ToListAsync();
-        }
+        //    var m = new MetadataItem
+        //    {
+        //        MetadataId = 1,
+        //        Data = JObject.Parse("{ \"id\": 1, name: \"Jesús\" }")
+        //    };
+        //    await ds.MetadataItemRepository.InsertAsync(m);
+        //    var ms = await ds.MetadataItemRepository.Query(Projection.BaseTable).ToListAsync();
+        //}
 
         //static void ShowAllEmployeesThatSoldSpecifiedProducts()
         //{
 
         //    var query = ds.EmployeeRepository.ThatSoldAllSpecifiedProductsQuery(Enumerable.Range(1, 6))
-        //        .Fields(EmployeeFields.EmployeeId, EmployeeFields.FirstName, EmployeeFields.LastName)
-        //        .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
+        //        .Fields(nameof(Employee.EmployeeId, nameof(Employee.FirstName, nameof(Employee.LastName)
+        //        .OrderBy(nameof(Employee.FirstName, nameof(Employee.LastName);
 
 
 
@@ -181,37 +217,37 @@ namespace Samples
         //    }
         //}
 
-        static void InsertMultipleItems(int itemCount)
-        {
-            ds.BeginTransaction();
-            for (int i = 1; i < itemCount; i++)
-            {
-                var item = new Entities.Item
-                {
-                    Field1 = "Field 1." + i.ToString(),
-                    Field2 = "Field 2." + i.ToString(),
-                    Field3 = "Field 3." + i.ToString(),
-                    Field4 = "Field 4." + i.ToString()
-                };
-                ds.ItemRepository.Insert(item);
-            }
-            ds.Commit();
-        }
+        //static void InsertMultipleItems(int itemCount)
+        //{
+        //    ds.BeginTransaction();
+        //    for (int i = 1; i < itemCount; i++)
+        //    {
+        //        var item = new Entities.Item
+        //        {
+        //            Field1 = "Field 1." + i.ToString(),
+        //            Field2 = "Field 2." + i.ToString(),
+        //            Field3 = "Field 3." + i.ToString(),
+        //            Field4 = "Field 4." + i.ToString()
+        //        };
+        //        ds.ItemRepository.Insert(item);
+        //    }
+        //    ds.Commit();
+        //}
 
-        static void InsertSingleItemEntityLite(int i)
-        {
-            using (var ds = new NorthwindDataService())
-            {
-                var item = new Entities.Item
-                {
-                    Field1 = "Field 1." + i.ToString(),
-                    Field2 = "Field 2." + i.ToString(),
-                    Field3 = "Field 3." + i.ToString(),
-                    Field4 = "Field 4." + i.ToString()
-                };
-                ds.ItemRepository.Insert(item);
-            }
-        }
+        //static void InsertSingleItemEntityLite(int i)
+        //{
+        //    using (var ds = new NorthwindDataService())
+        //    {
+        //        var item = new Entities.Item
+        //        {
+        //            Field1 = "Field 1." + i.ToString(),
+        //            Field2 = "Field 2." + i.ToString(),
+        //            Field3 = "Field 3." + i.ToString(),
+        //            Field4 = "Field 4." + i.ToString()
+        //        };
+        //        ds.ItemRepository.Insert(item);
+        //    }
+        //}
 
         //static void MultipleTest(int itemCount, Action<int> testAction)
         //{
@@ -238,16 +274,16 @@ namespace Samples
         //    Console.WriteLine((int)watch.Elapsed.TotalMilliseconds);
         //}
 
-        private static void SequenceTest()
-        {
-            for (int i = 0; i < 20; i++)
-            {
-                var e = new MyEntity { Value = "hola secuencias" };
-                ds.MyEntityRepository.Save(e);
-                Console.WriteLine(e.EntityId);
-            }
+        //private static void SequenceTest()
+        //{
+        //    for (int i = 0; i < 20; i++)
+        //    {
+        //        var e = new MyEntity { Value = "hola secuencias" };
+        //        ds.MyEntityRepository.Save(e);
+        //        Console.WriteLine(e.EntityId);
+        //    }
 
-        }
+        //}
 
         private static void WillFail()
         {
@@ -282,8 +318,8 @@ namespace Samples
                         if (yearComp != 0) return yearComp;
                         return c1.PivotTransformIndex.CompareTo(c2.PivotTransformIndex);
                     },
-                    new PivotTransform(ProductSaleFields.Year, ProductSaleFields.Sales, x => "Y" + x.ToString() + "Sales"),
-                    new PivotTransform(ProductSaleFields.Year, ProductSaleFields.OrderCount, x => "Y" + x.ToString() + "OrderCount")
+                    new PivotTransform(nameof(ProductSale.Year), nameof(ProductSale.Sales), x => "Y" + x.ToString() + "Sales"),
+                    new PivotTransform(nameof(ProductSale.Year), nameof(ProductSale.Orders), x => "Y" + x.ToString() + "OrderCount")
                 );
         }
 
@@ -312,9 +348,9 @@ namespace Samples
         //    };
 
         //    var orderDetails = ds.OrderDetailRepository.SearchQuery(criteria)
-        //        .Fields(OrderDetailFields.OrderId, OrderDetailFields.OrderDate, OrderDetailFields.ProductName, OrderDetailFields.SubTotal)
-        //        .OrderByDesc(OrderDetailFields.OrderDate)
-        //        .OrderBy(OrderDetailFields.ProductName)
+        //        .Fields(nameof(OrderDetail.OrderId, nameof(OrderDetail.OrderDate, nameof(OrderDetail.ProductName, nameof(OrderDetail.SubTotal)
+        //        .OrderByDesc(nameof(OrderDetail.OrderDate)
+        //        .OrderBy(nameof(OrderDetail.ProductName)
         //        .ToList(0, 9);
 
         //    foreach (var od in orderDetails)
@@ -375,7 +411,7 @@ namespace Samples
 
             // Loads the product with ProductId = 2 from the database
             // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = @P0
-            Product p = ds.ProductRepository.Get(Projection.Detailed, 2, ProductFields.CategoryName, ProductFields.ProductName);
+            Product p = ds.ProductRepository.Get(Projection.Detailed, 2, nameof(Product.CategoryName), nameof(Product.ProductName));
             Console.WriteLine("{0}, {1}", p.CategoryName, p.ProductName);
         }
 
@@ -383,12 +419,12 @@ namespace Samples
         {
 
             var subFilter = new FilterLite<Product>()
-                        .Where(ProductFields.SupplierId, 1)
-                        .Or(ProductFields.SupplierId, OperatorLite.IsNull);
+                        .Where(nameof(Product.SupplierId), 1)
+                        .Or(nameof(Product.SupplierId), OperatorLite.IsNull);
 
             // SELECT * FROM dbo.Products WHERE CategoryId = 1 AND (SupplierId = 1 OR SupplierId = 2)
             IList<Product> products = ds.ProductRepository.Query(Projection.BaseTable)
-                            .Where(ProductFields.CategoryId, 1)
+                            .Where(nameof(Product.CategoryId), 1)
                             .And(subFilter)
                             .ToList();
 
@@ -398,11 +434,11 @@ namespace Samples
         {
             //Console.WriteLine("\nShowSomeProducts\n");
             //IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
-            //    .Fields(ProductFields.CategoryName, ProductFields.ProductName)
-            //    .Where(ProductFields.Discontinued, false)
-            //    .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
-            //    .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
-            //    .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+            //    .Fields(nameof(Product.CategoryName, nameof(Product.ProductName)
+            //    .Where(nameof(Product.Discontinued, false)
+            //    .And(nameof(Product.SupplierId, OperatorLite.In, new int[] { 2, 3 })
+            //    .And(nameof(Product.UnitsInStock, OperatorLite.Greater, 0)
+            //    .OrderBy(nameof(Product.CategoryName, nameof(Product.ProductName)
             //    .ToEnumerable();
 
             //foreach (Product p in products)
@@ -412,12 +448,12 @@ namespace Samples
 
             Console.WriteLine("\nShowSomeProducts\n");
             IEnumerable<Product> products = ds.ProductRepository.Query(Projection.Detailed)
-                .Fields(ProductFields.CategoryName, ProductFields.ProductName)
-                .Where(ProductFields.Discontinued, false)
-                .And(ProductFields.SupplierId, OperatorLite.In, new int[] { 2, 3 })
-                .And(ProductFields.UnitsInStock, OperatorLite.Greater, 0)
-                .And(ProductFields.ProductId, OperatorLite.In, Enumerable.Range(1, 1100))
-                .OrderBy(ProductFields.CategoryName, ProductFields.ProductName)
+                .Fields(nameof(Product.CategoryName), nameof(Product.ProductName))
+                .Where(nameof(Product.Discontinued), false)
+                .And(nameof(Product.SupplierId), OperatorLite.In, new int[] { 2, 3 })
+                .And(nameof(Product.UnitsInStock), OperatorLite.Greater, 0)
+                .And(nameof(Product.ProductId), OperatorLite.In, Enumerable.Range(1, 1100))
+                .OrderBy(nameof(Product.CategoryName), nameof(Product.ProductName))
                 .ToEnumerable();
 
             foreach (Product p in products)
@@ -426,70 +462,68 @@ namespace Samples
             }
         }
 
-        static void Localization()
-        {
-            Console.WriteLine("\nLocalization\n");
+        //static void Localization()
+        //{
+        //    Console.WriteLine("\nLocalization\n");
 
-            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+        //    Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
-            // the filter must work, it shoud use WHERE CategoryNameLang1 = 'Beverages', because Lang1 is the current language;
-            // CategoryName is a magic field, it doesn't exist in the database, its is replaced by CategoryNameLang1 or CategoryNameLang2 
-            // depending on the current culture
-            var c1 = ds.CategoryRepository.Query(Projection.BaseTable)
-                        .Where(CategoryFields.CategoryName, "Beverages")
-                        .FirstOrDefault();
-
-
-            // CategoryName is a magic field, it doesn't exist in the database, it returns either CategoryNameLang1 or CategoryNameLang2
-            // depending on the current culture.
-            // It should show: Beverages, Beverages, Bebidas
-            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
-
-            // changing the current culture should change the ouptput
-            // it should show: Bebidas, Beverages, Bebidas
-            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
-            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+        //    // the filter must work, it shoud use WHERE CategoryNameLang1 = 'Beverages', because Lang1 is the current language;
+        //    // CategoryName is a magic field, it doesn't exist in the database, its is replaced by CategoryNameLang1 or CategoryNameLang2 
+        //    // depending on the current culture
+        //    var c1 = ds.CategoryRepository.Query(Projection.BaseTable)
+        //                .Where(CategoryFields.CategoryName, "Beverages")
+        //                .FirstOrDefault();
 
 
-            // it shoud use WHERE CategoryNameLang2 = 'Bebidas' because Lang2 is the current language
-            c1 = ds.CategoryRepository.Query(Projection.BaseTable)
-                        .Where(CategoryFields.CategoryName, "Bebidas")
-                        .FirstOrDefault();
+        //    // CategoryName is a magic field, it doesn't exist in the database, it returns either CategoryNameLang1 or CategoryNameLang2
+        //    // depending on the current culture.
+        //    // It should show: Beverages, Beverages, Bebidas
+        //    Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
 
-            // it should show: Bebidas, Beverages, Bebidas
-            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+        //    // changing the current culture should change the ouptput
+        //    // it should show: Bebidas, Beverages, Bebidas
+        //    Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
+        //    Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
 
 
-            // changing the current culture should change the ouptput
-            // it should show: Beverages, Beverages, Bebidas
-            Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-            Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+        //    // it shoud use WHERE CategoryNameLang2 = 'Bebidas' because Lang2 is the current language
+        //    c1 = ds.CategoryRepository.Query(Projection.BaseTable)
+        //                .Where(CategoryFields.CategoryName, "Bebidas")
+        //                .FirstOrDefault();
 
-        }
+        //    // it should show: Bebidas, Beverages, Bebidas
+        //    Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
+
+        //    // changing the current culture should change the ouptput
+        //    // it should show: Beverages, Beverages, Bebidas
+        //    Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+        //    Console.WriteLine("CurrentLanguage {0}, Lang1: {1}, Lang2: {2}", c1.CategoryName, c1.CategoryNameLang1, c1.CategoryNameLang2);
+
+        //}
 
 
         static byte[] GetSalt()
         {
-            var rng = System.Security.Cryptography.RNGCryptoServiceProvider.Create();
-            byte[] salt = new byte[32];
-            rng.GetBytes(salt);
+            var salt = RandomNumberGenerator.GetBytes(32); 
             return salt;
         }
 
-        static void RaiseProductPrices()
-        {
-            Console.WriteLine("\nRaiseProductPrices\n");
-            ds.ProductRepository.RaiseProductPrices(0.10m);
-            Console.WriteLine("Product prices raised");
-        }
+        //static void RaiseProductPrices()
+        //{
+        //    Console.WriteLine("\nRaiseProductPrices\n");
+        //    ds.ProductRepository.RaiseProductPrices(0.10m);
+        //    Console.WriteLine("Product prices raised");
+        //}
 
         static void ShowPagedProducts()
         {
             Console.WriteLine("\nShowPagedProducts\n");
             const int PageSize = 10;
             var query = ds.ProductRepository.Query(Projection.Detailed)
-                .Fields(ProductFields.CategoryName, ProductFields.ProductName)
-                .OrderBy(ProductFields.CategoryName, ProductFields.ProductName);
+                .Fields(nameof(Product.CategoryName), nameof(Product.ProductName))
+                .OrderBy(nameof(Product.CategoryName), nameof(Product.ProductName));
 
             var productCount = query.GetCount();
 
@@ -511,7 +545,7 @@ namespace Samples
         static void ShowOrderDetails()
         {
             var orderDetails = ds.OrderDetailRepository.Query(Projection.Detailed)
-                .Where(OrderDetailFields.OrderId, 10248)
+                .Where(nameof(OrderDetail.OrderId), 10248)
                 .ToEnumerable();
 
             foreach (var od in orderDetails)
@@ -533,8 +567,8 @@ namespace Samples
             Console.WriteLine("\nShowQuesoCabralesOrders\n");
 
             IQueryLite<OrderDetail> orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
-                .Fields(FieldsOption.None, OrderDetailFields.OrderId)
-                .Where(OrderDetailFields.ProductId, 11);
+                .Fields(FieldsOption.None, nameof(OrderDetail.OrderId))
+                .Where(nameof(OrderDetail.ProductId), 11);
 
             var orderIds = orderDetailSubQuery.ToEnumerable().Select(x => x.OrderId).ToList();
 
@@ -546,12 +580,12 @@ namespace Samples
             //       WHERE ProductId = 11
             //    )
             //IQueryLite<Order> orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
-            //    .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
-            //    .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+            //    .Fields(nameof(Order.OrderId, nameof(Order.OrderDate, nameof(Order.CustomerId)
+            //    .Where(nameof(Order.OrderId, OperatorLite.In, orderDetailSubQuery);
 
             IQueryLite<Order> orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
-    .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
-    .Where(OrderFields.OrderId, OperatorLite.In, orderIds);
+    .Fields(nameof(Order.OrderId), nameof(Order.OrderDate), nameof(Order.CustomerId))
+    .Where(nameof(Order.OrderId), OperatorLite.In, orderIds);
 
             foreach (var order in orderQuery.ToEnumerable())
             {
@@ -568,8 +602,8 @@ namespace Samples
             {
 
                 IQueryLite<OrderDetail> orderDetailSubQuery = ds.OrderDetailRepository.Query(Projection.BaseTable)
-                    .Fields(OrderDetailFields.OrderId)
-                    .Where(OrderDetailFields.ProductId, 11);
+                    .Fields(nameof(OrderDetail.OrderId))
+                    .Where(nameof(OrderDetail.ProductId), 11);
 
                 // SELECT OrderId, OrderDate, CustomerId
                 // FROM dbo.Orders
@@ -579,8 +613,8 @@ namespace Samples
                 //       WHERE ProductId = 11
                 //    )
                 IQueryLite<Order> orderQuery = ds.OrderRepository.Query(Projection.BaseTable)
-                    .Fields(OrderFields.OrderId, OrderFields.OrderDate, OrderFields.CustomerId)
-                    .Where(OrderFields.OrderId, OperatorLite.In, orderDetailSubQuery);
+                    .Fields(nameof(Order.OrderId), nameof(Order.OrderDate), nameof(Order.CustomerId))
+                    .Where(nameof(Order.OrderId), OperatorLite.In, orderDetailSubQuery);
 
                 foreach (var order in orderQuery.ToEnumerable())
                 {
@@ -604,9 +638,9 @@ namespace Samples
             // WHERE City = 'London'
             // ORDER BY FirstName, LastName
             IQueryLite<Employee> query = new FunctionQueryLite<Employee>(ds, "dbo.GetEmployeeSubTree", 2)
-                .Fields(EmployeeFields.FirstName, EmployeeFields.LastName)
-                .Where(EmployeeFields.City, "London")
-                .OrderBy(EmployeeFields.FirstName, EmployeeFields.LastName);
+                .Fields(nameof(Employee.FirstName), nameof(Employee.LastName))
+                .Where(nameof(Employee.City), "London")
+                .OrderBy(nameof(Employee.FirstName), nameof(Employee.LastName));
 
             foreach (var emp in query.ToEnumerable())
             {

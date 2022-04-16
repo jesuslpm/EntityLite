@@ -22,7 +22,7 @@ To generate the datalayer for MySQL you need  to:
 	{
 		ImplementINotifyPropertyChanged = true,
         ProviderName = "System.Data.SqlClient",
-		ConnectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=Northwind;Integrated Security=SSPI",
+		ConnectionString = @"Data Source=.;Initial Catalog=Northwind;Integrated Security=SSPI",
 		DefaultSchema = "dbo",
 
 		//ProviderName = "Oracle.DataAccess.Client",
@@ -67,7 +67,7 @@ To generate the datalayer for MySQL you need  to:
 			},
 			new EntitySetting 
 			{
-				BaseTableName = "OrderDetails",
+				BaseTableName = "Order Details",
 				EntityName = "OrderDetail"  
 			},
 			new EntitySetting 
@@ -92,13 +92,15 @@ To generate the datalayer for MySQL you need  to:
 			},
 			new EntitySetting 
 			{
+				EntityName = "ProductSale"  
+			},
+			/*
+			new EntitySetting 
+			{
 				BaseTableName = "my_table",
 				EntityName = "MyEntity"
 			},
-			new EntitySetting 
-			{
-				EntityName = "ProductSale"  
-			},
+
 			new EntitySetting 
 			{
 				EntityName = "Item" ,
@@ -113,8 +115,8 @@ To generate the datalayer for MySQL you need  to:
 			{
 				EntityName = "ProcessTask",
 				BaseTableName = "tasks"
-			}
-			/* new EntitySetting 
+			},
+			new EntitySetting 
 			{
 				EntityName = "Element",
 				BaseTableName = "Elements",
@@ -124,6 +126,7 @@ To generate the datalayer for MySQL you need  to:
 		},
 		ProcedureSettings = new List<ProcedureSetting>
 		{
+		    /*
 			new ProcedureSetting 
 			{
 				ProcedureName = "RaiseProductPrices",
@@ -138,9 +141,11 @@ To generate the datalayer for MySQL you need  to:
 				//RelatedEntityName = "Employee",
                 ////MemberVisibility = MemberVisibility.Private
 			//}
+			*/
 		},
 		EnumSettings = new List<EnumSetting>
 		{
+			/*
 			new EnumSetting
 			{
 				BaseTableName = "task_templates",
@@ -148,6 +153,7 @@ To generate the datalayer for MySQL you need  to:
 				NameField = "task_invariant_name",
 				TypeName = "TaskTemplates"
 			}
+			*/
 		}
 	};
 	Render(generation);

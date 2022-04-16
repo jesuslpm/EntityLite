@@ -105,6 +105,14 @@ namespace inercya.EntityLite
             return selectCommand;
         }
 
+        protected internal DbCommand GetDeleteCommand()
+        {
+            DbCommand cmd = this.DataService.EntityLiteProvider.CreateCommand();
+            int paramIndex = 0;
+            cmd.CommandText = QueryBuilder.GetDeleteQuery(cmd, ref paramIndex, 0);
+            return cmd;
+        }
+
         protected DbCommand GetSelectCommand(int fromIndex, int toIndex)
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
@@ -137,6 +145,16 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        public int Delete()
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetDeleteCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQuery();
         }
 
         public bool Any()
@@ -235,6 +253,16 @@ namespace inercya.EntityLite
             };
             object result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
             return Convert.ToInt32(result);
+        }
+
+        public Task<int> DeleteAsync()
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = GetDeleteCommand,
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQueryAsync();
         }
 
         public async Task<bool> AnyAsync()
@@ -367,7 +395,7 @@ namespace inercya.EntityLite
             return await this.FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public virtual Task<IList<TEntity>> ToListAsync()
+        public virtual Task<List<TEntity>> ToListAsync()
         {
             var cmd = new CommandExecutor(this.DataService, true)
             {
@@ -377,7 +405,7 @@ namespace inercya.EntityLite
             return cmd.ToListAsync<TEntity>();
         }
 
-        public virtual Task<IList<TEntity>> ToListAsync(int fromIndex, int toIndex)
+        public virtual Task<List<TEntity>> ToListAsync(int fromIndex, int toIndex)
         {
             var cmd = new CommandExecutor(this.DataService, true)
             {

@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 // using Microsoft.SqlServer.Types;
 using System.Runtime.Serialization;
+
 using System.ComponentModel;
 using inercya.EntityLite;	
 using inercya.EntityLite.Extensions;	
@@ -42,16 +43,16 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryNameLang1;
+		private String _categoryName;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1", BaseColumnName ="CategoryNameLang1", BaseTableName = "Categories" )]		
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName", BaseColumnName ="CategoryName", BaseTableName = "Categories" )]		
+		public String CategoryName 
 		{ 
-		    get { return _categoryNameLang1; } 
+		    get { return _categoryName; } 
 			set 
 			{
-			    _categoryNameLang1 = value;
-				NotifyPropertyChange("CategoryNameLang1");
+			    _categoryName = value;
+				NotifyPropertyChange("CategoryName");
 			}
         }
 
@@ -81,29 +82,7 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryNameLang2;
-		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2", BaseColumnName ="CategoryNameLang2", BaseTableName = "Categories" )]		
-		public String CategoryNameLang2 
-		{ 
-		    get { return _categoryNameLang2; } 
-			set 
-			{
-			    _categoryNameLang2 = value;
-				NotifyPropertyChange("CategoryNameLang2");
-			}
-        }
-
-		[LocalizedField]
-		[DataMember]
-		public string CategoryName 
-		{ 
-			get
-			{
-				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
-			} 
-		}
-		public const string BaseTableProjectionColumnList = "[CategoryID], [CategoryNameLang1], [Description], [Picture], [CategoryNameLang2]";
+		public const string BaseTableProjectionColumnList = "[CategoryID], [CategoryName], [Description], [Picture]";
 
 	}
 
@@ -160,11 +139,9 @@ namespace Samples.Entities
 	public static partial class CategoryFields
 	{
 		public const string CategoryId = "CategoryId";
-		public const string CategoryNameLang1 = "CategoryNameLang1";
+		public const string CategoryName = "CategoryName";
 		public const string Description = "Description";
 		public const string Picture = "Picture";
-		public const string CategoryNameLang2 = "CategoryNameLang2";
-		public const string CategoryName = "CategoryName";
 	}
 
 	public static partial class CategoryProjections
@@ -618,7 +595,7 @@ namespace Samples.Entities
 
 		private String _notes;
 		[DataMember]
-		[SqlField(DbType.String, 1073741823, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]		
+		[SqlField(DbType.String, 2147483647, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]		
 		public String Notes 
 		{ 
 		    get { return _notes; } 
@@ -738,7 +715,7 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
     [TypeScript] 
-	[SqlEntity(BaseTableName="OrderDetails")]
+	[SqlEntity(BaseTableName="Order Details")]
 	public partial class OrderDetail : INotifyPropertyChanged
 	{
         public event PropertyChangedEventHandler PropertyChanged;
@@ -752,22 +729,9 @@ namespace Samples.Entities
             }
         }				
 		
-		private Int32 _orderDetailId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderDetailID", BaseColumnName ="OrderDetailID", BaseTableName = "OrderDetails" )]		
-		public Int32 OrderDetailId 
-		{ 
-		    get { return _orderDetailId; } 
-			set 
-			{
-			    _orderDetailId = value;
-				NotifyPropertyChange("OrderDetailId");
-			}
-        }
-
 		private Int32 _orderId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetails" )]		
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Order Details" )]		
 		public Int32 OrderId 
 		{ 
 		    get { return _orderId; } 
@@ -780,7 +744,7 @@ namespace Samples.Entities
 
 		private Int32 _productId;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetails" )]		
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Order Details" )]		
 		public Int32 ProductId 
 		{ 
 		    get { return _productId; } 
@@ -793,7 +757,7 @@ namespace Samples.Entities
 
 		private Decimal _unitPrice;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetails" )]		
+		[SqlField(DbType.Currency, 8, Precision = 19, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Order Details" )]		
 		public Decimal UnitPrice 
 		{ 
 		    get { return _unitPrice; } 
@@ -806,7 +770,7 @@ namespace Samples.Entities
 
 		private Int16 _quantity;
 		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetails" )]		
+		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "Order Details" )]		
 		public Int16 Quantity 
 		{ 
 		    get { return _quantity; } 
@@ -817,29 +781,16 @@ namespace Samples.Entities
 			}
         }
 
-		private Decimal _discount;
+		private Single _discount;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 5, Scale=4, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetails" )]		
-		public Decimal Discount 
+		[SqlField(DbType.Single, 4, Precision = 7, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "Order Details" )]		
+		public Single Discount 
 		{ 
 		    get { return _discount; } 
 			set 
 			{
 			    _discount = value;
 				NotifyPropertyChange("Discount");
-			}
-        }
-
-		private Decimal? _subTotal;
-		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 32, Scale=8, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]		
-		public Decimal? SubTotal 
-		{ 
-		    get { return _subTotal; } 
-			set 
-			{
-			    _subTotal = value;
-				NotifyPropertyChange("SubTotal");
 			}
         }
 
@@ -856,42 +807,55 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryNameLang1;
+		private String _categoryName;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]		
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]		
+		public String CategoryName 
 		{ 
-		    get { return _categoryNameLang1; } 
+		    get { return _categoryName; } 
 			set 
 			{
-			    _categoryNameLang1 = value;
-				NotifyPropertyChange("CategoryNameLang1");
+			    _categoryName = value;
+				NotifyPropertyChange("CategoryName");
 			}
         }
 
-		private String _categoryNameLang2;
+		private Decimal? _subTotal;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]		
-		public String CategoryNameLang2 
+		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]		
+		public Decimal? SubTotal 
 		{ 
-		    get { return _categoryNameLang2; } 
+		    get { return _subTotal; } 
 			set 
 			{
-			    _categoryNameLang2 = value;
-				NotifyPropertyChange("CategoryNameLang2");
+			    _subTotal = value;
+				NotifyPropertyChange("SubTotal");
 			}
         }
 
-		private DateTime? _orderDate;
+		private String _city;
 		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]		
-		public DateTime? OrderDate 
+		[SqlField(DbType.String, 15, ColumnName ="City" )]		
+		public String City 
 		{ 
-		    get { return _orderDate; } 
+		    get { return _city; } 
 			set 
 			{
-			    _orderDate = value;
-				NotifyPropertyChange("OrderDate");
+			    _city = value;
+				NotifyPropertyChange("City");
+			}
+        }
+
+		private String _country;
+		[DataMember]
+		[SqlField(DbType.String, 15, ColumnName ="Country" )]		
+		public String Country 
+		{ 
+		    get { return _country; } 
+			set 
+			{
+			    _country = value;
+				NotifyPropertyChange("Country");
 			}
         }
 
@@ -921,32 +885,6 @@ namespace Samples.Entities
 			}
         }
 
-		private String _address;
-		[DataMember]
-		[SqlField(DbType.String, 60, ColumnName ="Address" )]		
-		public String Address 
-		{ 
-		    get { return _address; } 
-			set 
-			{
-			    _address = value;
-				NotifyPropertyChange("Address");
-			}
-        }
-
-		private String _city;
-		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="City" )]		
-		public String City 
-		{ 
-		    get { return _city; } 
-			set 
-			{
-			    _city = value;
-				NotifyPropertyChange("City");
-			}
-        }
-
 		private String _region;
 		[DataMember]
 		[SqlField(DbType.String, 15, ColumnName ="Region" )]		
@@ -960,83 +898,22 @@ namespace Samples.Entities
 			}
         }
 
-		private String _postalCode;
+		private DateTime? _orderDate;
 		[DataMember]
-		[SqlField(DbType.String, 10, ColumnName ="PostalCode" )]		
-		public String PostalCode 
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]		
+		public DateTime? OrderDate 
 		{ 
-		    get { return _postalCode; } 
+		    get { return _orderDate; } 
 			set 
 			{
-			    _postalCode = value;
-				NotifyPropertyChange("PostalCode");
+			    _orderDate = value;
+				NotifyPropertyChange("OrderDate");
 			}
         }
 
-		private String _country;
-		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="Country" )]		
-		public String Country 
-		{ 
-		    get { return _country; } 
-			set 
-			{
-			    _country = value;
-				NotifyPropertyChange("Country");
-			}
-        }
-
-		private String _phone;
-		[DataMember]
-		[SqlField(DbType.String, 24, ColumnName ="Phone" )]		
-		public String Phone 
-		{ 
-		    get { return _phone; } 
-			set 
-			{
-			    _phone = value;
-				NotifyPropertyChange("Phone");
-			}
-        }
-
-		private Int16? _unitsInStock;
-		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock" )]		
-		public Int16? UnitsInStock 
-		{ 
-		    get { return _unitsInStock; } 
-			set 
-			{
-			    _unitsInStock = value;
-				NotifyPropertyChange("UnitsInStock");
-			}
-        }
-
-		private Int16? _unitsOnOrder;
-		[DataMember]
-		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder" )]		
-		public Int16? UnitsOnOrder 
-		{ 
-		    get { return _unitsOnOrder; } 
-			set 
-			{
-			    _unitsOnOrder = value;
-				NotifyPropertyChange("UnitsOnOrder");
-			}
-        }
-
-		[LocalizedField]
-		[DataMember]
-		public string CategoryName 
-		{ 
-			get
-			{
-				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
-			} 
-		}
-		public const string BaseTableProjectionColumnList = "[OrderDetailID], [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]";
-		public const string DetailedProjectionColumnList = "[OrderDetailID], [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount], [SubTotal], [ProductName], [CategoryNameLang1], [CategoryNameLang2]";
-		public const string ExtendedProjectionColumnList = "[OrderDate], [CustomerID], [CustomerName], [Address], [City], [Region], [PostalCode], [Country], [Phone], [OrderDetailID], [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount], [SubTotal], [ProductName], [UnitsInStock], [UnitsOnOrder], [CategoryNameLang1], [CategoryNameLang2]";
+		public const string BaseTableProjectionColumnList = "[OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]";
+		public const string DetailedProjectionColumnList = "[OrderID], [ProductID], [UnitPrice], [Quantity], [Discount], [ProductName], [CategoryName], [SubTotal]";
+		public const string ExtendedProjectionColumnList = "[OrderID], [ProductID], [UnitPrice], [Quantity], [Discount], [ProductName], [CategoryName], [City], [Country], [CustomerID], [CustomerName], [Region], [OrderDate]";
 
 	}
 
@@ -1052,68 +929,24 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
-		public OrderDetail Get(string projectionName, Int32 orderDetailId)
-		{
-			return ((IRepository<OrderDetail>)this).Get(projectionName, orderDetailId, FetchMode.UseIdentityMap);
-		}
-
-		public OrderDetail Get(string projectionName, Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<OrderDetail>)this).Get(projectionName, orderDetailId, fetchMode);
-		}
-
-		public OrderDetail Get(Projection projection, Int32 orderDetailId)
-		{
-			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, FetchMode.UseIdentityMap);
-		}
-
-		public OrderDetail Get(Projection projection, Int32 orderDetailId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, fetchMode);
-		}
-
-		public OrderDetail Get(string projectionName, Int32 orderDetailId, params string[] fields)
-		{
-			return ((IRepository<OrderDetail>)this).Get(projectionName, orderDetailId, fields);
-		}
-
-		public OrderDetail Get(Projection projection, Int32 orderDetailId, params string[] fields)
-		{
-			return ((IRepository<OrderDetail>)this).Get(projection, orderDetailId, fields);
-		}
-
-		public bool Delete(Int32 orderDetailId)
-		{
-			var entity = new OrderDetail { OrderDetailId = orderDetailId };
-			return this.Delete(entity);
-		}
-
-			}
+	}
 	[Obsolete("Use nameof instead")]
 	public static partial class OrderDetailFields
 	{
-		public const string OrderDetailId = "OrderDetailId";
 		public const string OrderId = "OrderId";
 		public const string ProductId = "ProductId";
 		public const string UnitPrice = "UnitPrice";
 		public const string Quantity = "Quantity";
 		public const string Discount = "Discount";
-		public const string SubTotal = "SubTotal";
 		public const string ProductName = "ProductName";
-		public const string CategoryNameLang1 = "CategoryNameLang1";
-		public const string CategoryNameLang2 = "CategoryNameLang2";
-		public const string OrderDate = "OrderDate";
+		public const string CategoryName = "CategoryName";
+		public const string SubTotal = "SubTotal";
+		public const string City = "City";
+		public const string Country = "Country";
 		public const string CustomerId = "CustomerId";
 		public const string CustomerName = "CustomerName";
-		public const string Address = "Address";
-		public const string City = "City";
 		public const string Region = "Region";
-		public const string PostalCode = "PostalCode";
-		public const string Country = "Country";
-		public const string Phone = "Phone";
-		public const string UnitsInStock = "UnitsInStock";
-		public const string UnitsOnOrder = "UnitsOnOrder";
-		public const string CategoryName = "CategoryName";
+		public const string OrderDate = "OrderDate";
 	}
 
 	public static partial class OrderDetailProjections
@@ -1373,10 +1206,10 @@ namespace Samples.Entities
 			}
         }
 
-		private Decimal? _orderTotal;
+		private Double? _orderTotal;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="OrderTotal" )]		
-		public Decimal? OrderTotal 
+		[SqlField(DbType.Double, 8, Precision = 15, AllowNull = true, ColumnName ="OrderTotal" )]		
+		public Double? OrderTotal 
 		{ 
 		    get { return _orderTotal; } 
 			set 
@@ -1565,10 +1398,10 @@ namespace Samples.Entities
 			}
         }
 
-		private Decimal _unitPrice;
+		private Decimal? _unitPrice;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 19, Scale=4, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]		
-		public Decimal UnitPrice 
+		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]		
+		public Decimal? UnitPrice 
 		{ 
 		    get { return _unitPrice; } 
 			set 
@@ -1630,42 +1463,16 @@ namespace Samples.Entities
 			}
         }
 
-		private Int32 _entityRowVersion;
+		private String _categoryName;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="EntityRowVersion", BaseColumnName ="EntityRowVersion", BaseTableName = "Products" )]		
-		public Int32 EntityRowVersion 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]		
+		public String CategoryName 
 		{ 
-		    get { return _entityRowVersion; } 
+		    get { return _categoryName; } 
 			set 
 			{
-			    _entityRowVersion = value;
-				NotifyPropertyChange("EntityRowVersion");
-			}
-        }
-
-		private String _categoryNameLang1;
-		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]		
-		public String CategoryNameLang1 
-		{ 
-		    get { return _categoryNameLang1; } 
-			set 
-			{
-			    _categoryNameLang1 = value;
-				NotifyPropertyChange("CategoryNameLang1");
-			}
-        }
-
-		private String _categoryNameLang2;
-		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]		
-		public String CategoryNameLang2 
-		{ 
-		    get { return _categoryNameLang2; } 
-			set 
-			{
-			    _categoryNameLang2 = value;
-				NotifyPropertyChange("CategoryNameLang2");
+			    _categoryName = value;
+				NotifyPropertyChange("CategoryName");
 			}
         }
 
@@ -1682,17 +1489,8 @@ namespace Samples.Entities
 			}
         }
 
-		[LocalizedField]
-		[DataMember]
-		public string CategoryName 
-		{ 
-			get
-			{
-				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
-			} 
-		}
-		public const string BaseTableProjectionColumnList = "[ProductID], [ProductName], [SupplierID], [CategoryID], [QuantityPerUnit], [UnitPrice], [UnitsInStock], [UnitsOnOrder], [ReorderLevel], [Discontinued], [EntityRowVersion]";
-		public const string DetailedProjectionColumnList = "[ProductID], [ProductName], [SupplierID], [CategoryID], [QuantityPerUnit], [UnitPrice], [UnitsInStock], [UnitsOnOrder], [ReorderLevel], [Discontinued], [EntityRowVersion], [CategoryNameLang1], [CategoryNameLang2], [SupplierName]";
+		public const string BaseTableProjectionColumnList = "[ProductID], [ProductName], [SupplierID], [CategoryID], [QuantityPerUnit], [UnitPrice], [UnitsInStock], [UnitsOnOrder], [ReorderLevel], [Discontinued]";
+		public const string DetailedProjectionColumnList = "[ProductID], [ProductName], [SupplierID], [CategoryID], [QuantityPerUnit], [UnitPrice], [UnitsInStock], [UnitsOnOrder], [ReorderLevel], [Discontinued], [CategoryName], [SupplierName]";
 
 	}
 
@@ -1744,23 +1542,7 @@ namespace Samples.Entities
 			return this.Delete(entity);
 		}
 
-		
-		public void RaiseProductPrices(Decimal? rate)
-		{
-            var executor = new StoredProcedureExecutor(this.DataService, true)
-            {
-                CommandTimeout = 10,
-                GetCommandFunc = () =>
-                {
-                    var proc =  Samples.Entities.StoredProcedures.CreateRaiseProductPricesProcedure(this.DataService.Connection, this.DataService.EntityLiteProvider.ParameterPrefix, this.DataService.EntityLiteProvider.DefaultSchema);
-					proc.Parameters[this.DataService.EntityLiteProvider.ParameterPrefix + "rate"].Value = rate == null ? (object) DBNull.Value : rate.Value;
-                    return proc;
-                }
-            };
-
-			executor.ExecuteNonQuery();
-		}
-	}
+			}
 	[Obsolete("Use nameof instead")]
 	public static partial class ProductFields
 	{
@@ -1774,11 +1556,8 @@ namespace Samples.Entities
 		public const string UnitsOnOrder = "UnitsOnOrder";
 		public const string ReorderLevel = "ReorderLevel";
 		public const string Discontinued = "Discontinued";
-		public const string EntityRowVersion = "EntityRowVersion";
-		public const string CategoryNameLang1 = "CategoryNameLang1";
-		public const string CategoryNameLang2 = "CategoryNameLang2";
-		public const string SupplierName = "SupplierName";
 		public const string CategoryName = "CategoryName";
+		public const string SupplierName = "SupplierName";
 	}
 
 	public static partial class ProductProjections
@@ -2069,7 +1848,7 @@ namespace Samples.Entities
 
 		private String _homePage;
 		[DataMember]
-		[SqlField(DbType.String, 1073741823, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]		
+		[SqlField(DbType.String, 2147483647, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]		
 		public String HomePage 
 		{ 
 		    get { return _homePage; } 
@@ -2157,113 +1936,6 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
     [TypeScript] 
-	[SqlEntity(BaseTableName="my_table")]
-	public partial class MyEntity : INotifyPropertyChanged
-	{
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChange(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }				
-		
-		private Int32 _entityId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, SequenceName = "my_table_entity_id", ColumnName ="entity_id", BaseColumnName ="entity_id", BaseTableName = "my_table" )]		
-		public Int32 EntityId 
-		{ 
-		    get { return _entityId; } 
-			set 
-			{
-			    _entityId = value;
-				NotifyPropertyChange("EntityId");
-			}
-        }
-
-		private String _value;
-		[DataMember]
-		[SqlField(DbType.String, 128, ColumnName ="value", BaseColumnName ="value", BaseTableName = "my_table" )]		
-		public String Value 
-		{ 
-		    get { return _value; } 
-			set 
-			{
-			    _value = value;
-				NotifyPropertyChange("Value");
-			}
-        }
-
-		public const string BaseTableProjectionColumnList = "[entity_id], [value]";
-
-	}
-
-	public partial class MyEntityRepository : Repository<MyEntity> 
-	{
-		public MyEntityRepository(DataService DataService) : base(DataService)
-		{
-		}
-
-		public new NorthwindDataService  DataService  
-		{
-			get { return (NorthwindDataService) base.DataService; }
-			set { base.DataService = value; }
-		}
-
-		public MyEntity Get(string projectionName, Int32 entityId)
-		{
-			return ((IRepository<MyEntity>)this).Get(projectionName, entityId, FetchMode.UseIdentityMap);
-		}
-
-		public MyEntity Get(string projectionName, Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<MyEntity>)this).Get(projectionName, entityId, fetchMode);
-		}
-
-		public MyEntity Get(Projection projection, Int32 entityId)
-		{
-			return ((IRepository<MyEntity>)this).Get(projection, entityId, FetchMode.UseIdentityMap);
-		}
-
-		public MyEntity Get(Projection projection, Int32 entityId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<MyEntity>)this).Get(projection, entityId, fetchMode);
-		}
-
-		public MyEntity Get(string projectionName, Int32 entityId, params string[] fields)
-		{
-			return ((IRepository<MyEntity>)this).Get(projectionName, entityId, fields);
-		}
-
-		public MyEntity Get(Projection projection, Int32 entityId, params string[] fields)
-		{
-			return ((IRepository<MyEntity>)this).Get(projection, entityId, fields);
-		}
-
-		public bool Delete(Int32 entityId)
-		{
-			var entity = new MyEntity { EntityId = entityId };
-			return this.Delete(entity);
-		}
-
-			}
-	[Obsolete("Use nameof instead")]
-	public static partial class MyEntityFields
-	{
-		public const string EntityId = "EntityId";
-		public const string Value = "Value";
-	}
-
-	public static partial class MyEntityProjections
-	{
-		public const string BaseTable = "BaseTable";
-	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity()]
 	public partial class ProductSale : INotifyPropertyChanged
 	{
@@ -2291,29 +1963,16 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryNameLang1;
+		private String _categoryName;
 		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang1" )]		
-		public String CategoryNameLang1 
+		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]		
+		public String CategoryName 
 		{ 
-		    get { return _categoryNameLang1; } 
+		    get { return _categoryName; } 
 			set 
 			{
-			    _categoryNameLang1 = value;
-				NotifyPropertyChange("CategoryNameLang1");
-			}
-        }
-
-		private String _categoryNameLang2;
-		[DataMember]
-		[SqlField(DbType.String, 15, ColumnName ="CategoryNameLang2" )]		
-		public String CategoryNameLang2 
-		{ 
-		    get { return _categoryNameLang2; } 
-			set 
-			{
-			    _categoryNameLang2 = value;
-				NotifyPropertyChange("CategoryNameLang2");
+			    _categoryName = value;
+				NotifyPropertyChange("CategoryName");
 			}
         }
 
@@ -2369,10 +2028,10 @@ namespace Samples.Entities
 			}
         }
 
-		private Decimal? _sales;
+		private Double? _sales;
 		[DataMember]
-		[SqlField(DbType.Decimal, 17, Precision = 38, Scale=8, AllowNull = true, ColumnName ="Sales" )]		
-		public Decimal? Sales 
+		[SqlField(DbType.Double, 8, Precision = 15, AllowNull = true, ColumnName ="Sales" )]		
+		public Double? Sales 
 		{ 
 		    get { return _sales; } 
 			set 
@@ -2382,30 +2041,21 @@ namespace Samples.Entities
 			}
         }
 
-		private Int32? _orderCount;
+		private Int32? _orders;
 		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="OrderCount" )]		
-		public Int32? OrderCount 
+		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Orders" )]		
+		public Int32? Orders 
 		{ 
-		    get { return _orderCount; } 
+		    get { return _orders; } 
 			set 
 			{
-			    _orderCount = value;
-				NotifyPropertyChange("OrderCount");
+			    _orders = value;
+				NotifyPropertyChange("Orders");
 			}
         }
 
-		[LocalizedField]
-		[DataMember]
-		public string CategoryName 
-		{ 
-			get
-			{
-				return CurrentLanguageService.GetLocalizedValue(this, "CategoryName");
-			} 
-		}
-		public const string QuarterProjectionColumnList = "[CategoryID], [CategoryNameLang1], [CategoryNameLang2], [ProductID], [ProductName], [Year], [Quarter], [Sales], [OrderCount]";
-		public const string YearProjectionColumnList = "[CategoryID], [CategoryNameLang1], [CategoryNameLang2], [ProductID], [ProductName], [Year], [Sales], [OrderCount]";
+		public const string QuarterProjectionColumnList = "[CategoryID], [CategoryName], [ProductID], [ProductName], [Year], [Quarter], [Sales]";
+		public const string YearProjectionColumnList = "[ProductID], [ProductName], [Year], [Sales], [Orders]";
 
 	}
 
@@ -2426,433 +2076,19 @@ namespace Samples.Entities
 	public static partial class ProductSaleFields
 	{
 		public const string CategoryId = "CategoryId";
-		public const string CategoryNameLang1 = "CategoryNameLang1";
-		public const string CategoryNameLang2 = "CategoryNameLang2";
+		public const string CategoryName = "CategoryName";
 		public const string ProductId = "ProductId";
 		public const string ProductName = "ProductName";
 		public const string Year = "Year";
 		public const string Quarter = "Quarter";
 		public const string Sales = "Sales";
-		public const string OrderCount = "OrderCount";
-		public const string CategoryName = "CategoryName";
+		public const string Orders = "Orders";
 	}
 
 	public static partial class ProductSaleProjections
 	{
 		public const string Quarter = "Quarter";
 		public const string Year = "Year";
-	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
-	[SqlEntity(BaseTableName="Items")]
-	public partial class Item : INotifyPropertyChanged
-	{
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChange(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }				
-		
-		private Int32 _itemId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ItemId", BaseColumnName ="ItemId", BaseTableName = "Items" )]		
-		public Int32 ItemId 
-		{ 
-		    get { return _itemId; } 
-			set 
-			{
-			    _itemId = value;
-				NotifyPropertyChange("ItemId");
-			}
-        }
-
-		private String _field1;
-		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field1", BaseColumnName ="Field1", BaseTableName = "Items" )]		
-		public String Field1 
-		{ 
-		    get { return _field1; } 
-			set 
-			{
-			    _field1 = value;
-				NotifyPropertyChange("Field1");
-			}
-        }
-
-		private String _field2;
-		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field2", BaseColumnName ="Field2", BaseTableName = "Items" )]		
-		public String Field2 
-		{ 
-		    get { return _field2; } 
-			set 
-			{
-			    _field2 = value;
-				NotifyPropertyChange("Field2");
-			}
-        }
-
-		private String _field3;
-		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field3", BaseColumnName ="Field3", BaseTableName = "Items" )]		
-		public String Field3 
-		{ 
-		    get { return _field3; } 
-			set 
-			{
-			    _field3 = value;
-				NotifyPropertyChange("Field3");
-			}
-        }
-
-		private String _field4;
-		[DataMember]
-		[SqlField(DbType.String, 50, ColumnName ="Field4", BaseColumnName ="Field4", BaseTableName = "Items" )]		
-		public String Field4 
-		{ 
-		    get { return _field4; } 
-			set 
-			{
-			    _field4 = value;
-				NotifyPropertyChange("Field4");
-			}
-        }
-
-		private Int64 _dbChangeNumber;
-		[DataMember]
-		[SqlField(DbType.Int64, 8, Precision = 19, ColumnName ="DbChangeNumber", BaseColumnName ="DbChangeNumber", BaseTableName = "Items" )]		
-		public Int64 DbChangeNumber 
-		{ 
-		    get { return _dbChangeNumber; } 
-			set 
-			{
-			    _dbChangeNumber = value;
-				NotifyPropertyChange("DbChangeNumber");
-			}
-        }
-
-		public const string BaseTableProjectionColumnList = "[ItemId], [Field1], [Field2], [Field3], [Field4], [DbChangeNumber]";
-
-	}
-
-	public partial class ItemRepository : Repository<Item> 
-	{
-		public ItemRepository(DataService DataService) : base(DataService)
-		{
-		}
-
-		public new NorthwindDataService  DataService  
-		{
-			get { return (NorthwindDataService) base.DataService; }
-			set { base.DataService = value; }
-		}
-
-		public Item Get(string projectionName, Int32 itemId)
-		{
-			return ((IRepository<Item>)this).Get(projectionName, itemId, FetchMode.UseIdentityMap);
-		}
-
-		public Item Get(string projectionName, Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Item>)this).Get(projectionName, itemId, fetchMode);
-		}
-
-		public Item Get(Projection projection, Int32 itemId)
-		{
-			return ((IRepository<Item>)this).Get(projection, itemId, FetchMode.UseIdentityMap);
-		}
-
-		public Item Get(Projection projection, Int32 itemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<Item>)this).Get(projection, itemId, fetchMode);
-		}
-
-		public Item Get(string projectionName, Int32 itemId, params string[] fields)
-		{
-			return ((IRepository<Item>)this).Get(projectionName, itemId, fields);
-		}
-
-		public Item Get(Projection projection, Int32 itemId, params string[] fields)
-		{
-			return ((IRepository<Item>)this).Get(projection, itemId, fields);
-		}
-
-		public bool Delete(Int32 itemId)
-		{
-			var entity = new Item { ItemId = itemId };
-			return this.Delete(entity);
-		}
-
-			}
-	[Obsolete("Use nameof instead")]
-	public static partial class ItemFields
-	{
-		public const string ItemId = "ItemId";
-		public const string Field1 = "Field1";
-		public const string Field2 = "Field2";
-		public const string Field3 = "Field3";
-		public const string Field4 = "Field4";
-		public const string DbChangeNumber = "DbChangeNumber";
-	}
-
-	public static partial class ItemProjections
-	{
-		public const string BaseTable = "BaseTable";
-	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
-	[SqlEntity(BaseTableName="Metadata")]
-	public partial class MetadataItem : INotifyPropertyChanged
-	{
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChange(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }				
-		
-		private Int32 _metadataId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="MetadataId", BaseColumnName ="MetadataId", BaseTableName = "Metadata" )]		
-		public Int32 MetadataId 
-		{ 
-		    get { return _metadataId; } 
-			set 
-			{
-			    _metadataId = value;
-				NotifyPropertyChange("MetadataId");
-			}
-        }
-
-		private Newtonsoft.Json.Linq.JToken _data;
-		[DataMember]
-		[SqlField(DbType.AnsiString, 8000, ColumnName ="DataJson", BaseColumnName ="DataJson", BaseTableName = "Metadata" )]		
-		public Newtonsoft.Json.Linq.JToken Data 
-		{ 
-		    get { return _data; } 
-			set 
-			{
-			    _data = value;
-				NotifyPropertyChange("Data");
-			}
-        }
-
-		public const string BaseTableProjectionColumnList = "[MetadataId], [DataJson]";
-
-	}
-
-	public partial class MetadataItemRepository : Repository<MetadataItem> 
-	{
-		public MetadataItemRepository(DataService DataService) : base(DataService)
-		{
-		}
-
-		public new NorthwindDataService  DataService  
-		{
-			get { return (NorthwindDataService) base.DataService; }
-			set { base.DataService = value; }
-		}
-
-		public MetadataItem Get(string projectionName, Int32 metadataId)
-		{
-			return ((IRepository<MetadataItem>)this).Get(projectionName, metadataId, FetchMode.UseIdentityMap);
-		}
-
-		public MetadataItem Get(string projectionName, Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<MetadataItem>)this).Get(projectionName, metadataId, fetchMode);
-		}
-
-		public MetadataItem Get(Projection projection, Int32 metadataId)
-		{
-			return ((IRepository<MetadataItem>)this).Get(projection, metadataId, FetchMode.UseIdentityMap);
-		}
-
-		public MetadataItem Get(Projection projection, Int32 metadataId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<MetadataItem>)this).Get(projection, metadataId, fetchMode);
-		}
-
-		public MetadataItem Get(string projectionName, Int32 metadataId, params string[] fields)
-		{
-			return ((IRepository<MetadataItem>)this).Get(projectionName, metadataId, fields);
-		}
-
-		public MetadataItem Get(Projection projection, Int32 metadataId, params string[] fields)
-		{
-			return ((IRepository<MetadataItem>)this).Get(projection, metadataId, fields);
-		}
-
-		public bool Delete(Int32 metadataId)
-		{
-			var entity = new MetadataItem { MetadataId = metadataId };
-			return this.Delete(entity);
-		}
-
-			}
-	[Obsolete("Use nameof instead")]
-	public static partial class MetadataItemFields
-	{
-		public const string MetadataId = "MetadataId";
-		public const string Data = "Data";
-	}
-
-	public static partial class MetadataItemProjections
-	{
-		public const string BaseTable = "BaseTable";
-	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
-	[SqlEntity(BaseTableName="tasks")]
-	public partial class ProcessTask : INotifyPropertyChanged
-	{
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChange(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }				
-		
-		private Int32 _taskId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="task_id", BaseColumnName ="task_id", BaseTableName = "tasks" )]		
-		public Int32 TaskId 
-		{ 
-		    get { return _taskId; } 
-			set 
-			{
-			    _taskId = value;
-				NotifyPropertyChange("TaskId");
-			}
-        }
-
-		private TaskTemplates _taskTemplates;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="task_template_id", BaseColumnName ="task_template_id", BaseTableName = "tasks" )]		
-		public TaskTemplates TaskTemplates 
-		{ 
-		    get { return _taskTemplates; } 
-			set 
-			{
-			    _taskTemplates = value;
-				NotifyPropertyChange("TaskTemplates");
-			}
-        }
-
-		public const string BaseTableProjectionColumnList = "[task_id], [task_template_id]";
-
-	}
-
-	public partial class ProcessTaskRepository : Repository<ProcessTask> 
-	{
-		public ProcessTaskRepository(DataService DataService) : base(DataService)
-		{
-		}
-
-		public new NorthwindDataService  DataService  
-		{
-			get { return (NorthwindDataService) base.DataService; }
-			set { base.DataService = value; }
-		}
-
-		public ProcessTask Get(string projectionName, Int32 taskId)
-		{
-			return ((IRepository<ProcessTask>)this).Get(projectionName, taskId, FetchMode.UseIdentityMap);
-		}
-
-		public ProcessTask Get(string projectionName, Int32 taskId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<ProcessTask>)this).Get(projectionName, taskId, fetchMode);
-		}
-
-		public ProcessTask Get(Projection projection, Int32 taskId)
-		{
-			return ((IRepository<ProcessTask>)this).Get(projection, taskId, FetchMode.UseIdentityMap);
-		}
-
-		public ProcessTask Get(Projection projection, Int32 taskId, FetchMode fetchMode = FetchMode.UseIdentityMap)
-		{
-			return ((IRepository<ProcessTask>)this).Get(projection, taskId, fetchMode);
-		}
-
-		public ProcessTask Get(string projectionName, Int32 taskId, params string[] fields)
-		{
-			return ((IRepository<ProcessTask>)this).Get(projectionName, taskId, fields);
-		}
-
-		public ProcessTask Get(Projection projection, Int32 taskId, params string[] fields)
-		{
-			return ((IRepository<ProcessTask>)this).Get(projection, taskId, fields);
-		}
-
-		public bool Delete(Int32 taskId)
-		{
-			var entity = new ProcessTask { TaskId = taskId };
-			return this.Delete(entity);
-		}
-
-			}
-	[Obsolete("Use nameof instead")]
-	public static partial class ProcessTaskFields
-	{
-		public const string TaskId = "TaskId";
-		public const string TaskTemplates = "TaskTemplates";
-	}
-
-	public static partial class ProcessTaskProjections
-	{
-		public const string BaseTable = "BaseTable";
-	}
-}
-
-namespace Samples.Entities
-{
-	[TypeScript] 
-	public enum TaskTemplates
-	{
-		RebateProcessSubmit = 1,
-		RebateProcessCancel = 2,
-		RebateProcessTakeControl = 3,
-		RebateProcessRejectReview = 4,
-		RebateProcessAcceptReview = 5,
-		TenderProcessSendForConfiguration = 6,
-		DealProcessSubmit = 7,
-		DealProcessTakeControl = 8,
-		TenderProcessCancelByCreator = 9,
-		TenderProcessSubmitForReview = 10,
-		TenderProcessAgreePortfolio = 11,
-		TenderProcessReject = 12,
-		DealProcessAcceptReview = 13,
-		DealProcessRejectReview = 14,
-		DealProcessCancel = 15,
-		DealProcessSendBack = 16,
-		TenderProcessTakeControlAsCreator = 17,
-		TenderProcessTakeControlAsOwner = 18,
-		TenderProcessCancelByOwner = 19,
-		TenderProcessForcePortfolioAgreement = 20,
-		TenderProcessConfirmTenderSent = 21,
-		TenderProcessTenderDeclined = 22,
-		TenderProcessAdjudicationInformationReceived = 23,
-		TenderProcessDebriefInformationCompleted = 24,
-		RebateProcessCreditNoteUploaded = 25,
-		RebateProcessCreditNoteReleased = 26,
-		TenderProcessConfirmPortfolio = 27,
 	}
 }
 
@@ -2988,19 +2224,6 @@ namespace Samples.Entities
 			}
 		}
 
-		private Samples.Entities.MyEntityRepository _MyEntityRepository;
-		public Samples.Entities.MyEntityRepository MyEntityRepository
-		{
-			get 
-			{
-				if ( _MyEntityRepository == null)
-				{
-					_MyEntityRepository = new Samples.Entities.MyEntityRepository(this);
-				}
-				return _MyEntityRepository;
-			}
-		}
-
 		private Samples.Entities.ProductSaleRepository _ProductSaleRepository;
 		public Samples.Entities.ProductSaleRepository ProductSaleRepository
 		{
@@ -3013,77 +2236,6 @@ namespace Samples.Entities
 				return _ProductSaleRepository;
 			}
 		}
-
-		private Samples.Entities.ItemRepository _ItemRepository;
-		public Samples.Entities.ItemRepository ItemRepository
-		{
-			get 
-			{
-				if ( _ItemRepository == null)
-				{
-					_ItemRepository = new Samples.Entities.ItemRepository(this);
-				}
-				return _ItemRepository;
-			}
-		}
-
-		private Samples.Entities.MetadataItemRepository _MetadataItemRepository;
-		public Samples.Entities.MetadataItemRepository MetadataItemRepository
-		{
-			get 
-			{
-				if ( _MetadataItemRepository == null)
-				{
-					_MetadataItemRepository = new Samples.Entities.MetadataItemRepository(this);
-				}
-				return _MetadataItemRepository;
-			}
-		}
-
-		private Samples.Entities.ProcessTaskRepository _ProcessTaskRepository;
-		public Samples.Entities.ProcessTaskRepository ProcessTaskRepository
-		{
-			get 
-			{
-				if ( _ProcessTaskRepository == null)
-				{
-					_ProcessTaskRepository = new Samples.Entities.ProcessTaskRepository(this);
-				}
-				return _ProcessTaskRepository;
-			}
-		}
-	}
-}
-namespace Samples.Entities
-{
-	public static partial class StoredProcedures
-	{
-		public static DbCommand CreateRaiseProductPricesProcedure(DbConnection connection, string parameterPrefix, string schema = "")
-		{
-			var cmd = connection.CreateCommand();
-			cmd.CommandText = string.IsNullOrEmpty(schema) ? "RaiseProductPrices" : schema + "." + "RaiseProductPrices";
-			cmd.CommandType = CommandType.StoredProcedure;
-			IDbDataParameter p = null;
-
-			p = cmd.CreateParameter();
-			p.ParameterName = parameterPrefix + "RETURN_VALUE";
-			p.DbType = DbType.Int32;
-            p.Direction = ParameterDirection.ReturnValue;
-			p.SourceColumn = "RETURN_VALUE";
-			cmd.Parameters.Add(p);
-
-			p = cmd.CreateParameter();
-			p.ParameterName = parameterPrefix + "rate";
-			p.DbType = DbType.Decimal;
-            p.Direction = ParameterDirection.Input;
-			p.Precision = 5;
-			p.Scale = 4;
-			p.SourceColumn = "rate";
-			cmd.Parameters.Add(p);
-
-			return cmd;
-		}
-
 	}
 }
 namespace Samples.Entities

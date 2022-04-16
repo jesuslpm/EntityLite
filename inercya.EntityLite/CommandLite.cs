@@ -294,7 +294,7 @@ namespace inercya.EntityLite
             });
         }
 
-        public async Task<IList<T>> ToListAsync<T>() where T : class, new()
+        public async Task<List<T>> ToListAsync<T>() where T : class, new()
         {
             DbCommand command = null;
             Stopwatch watch;

@@ -108,6 +108,28 @@ namespace inercya.EntityLite.Builders
             }
         }
 
+        public void GetDeleteQuery(DbCommand cmd, ref int paramIndex, StringBuilder commandText, int indentation)
+        {
+            commandText.Indent(indentation);
+            commandText.Append("DELETE FROM ").Append(GetFromClauseContent(cmd, ref paramIndex, indentation));
+            bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
+            if (hasWhereClause)
+            {
+                commandText.NewIndentedLine(indentation).Append("WHERE");
+                commandText.NewIndentedLine(++indentation)
+                    .Append(GetFilter(cmd, ref paramIndex, QueryLite.Filter, indentation, false));
+            }
+        }
+
+        public string GetDeleteQuery(DbCommand cmd, ref int paramIndex, int indentation)
+        {
+            StringBuilder commandText = new StringBuilder();
+            GetDeleteQuery(cmd, ref paramIndex, commandText, indentation);
+            var query = commandText.ToString();
+            return query;
+        }
+
+
         public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             StringBuilder commandText = new StringBuilder();

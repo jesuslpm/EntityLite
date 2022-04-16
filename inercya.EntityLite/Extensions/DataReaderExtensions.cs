@@ -191,7 +191,7 @@ namespace inercya.EntityLite.Extensions
 		}
 
 #if (NET452 || NETSTANDARD2_0)
-        public static async Task<IList<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
+        public static async Task<List<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
         {
             if (reader == null) throw new ArgumentNullException("reader");
             var list = new List<T>();
