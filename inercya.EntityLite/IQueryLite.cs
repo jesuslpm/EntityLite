@@ -66,8 +66,8 @@ namespace inercya.EntityLite
 		new TEntity FirstOrDefault();
         new IEnumerable<TEntity> ToEnumerable();
         new IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex);
-        new IList<TEntity> ToList();
-        new IList<TEntity> ToList(int fromIndex, int toIndex);
+        new List<TEntity> ToList();
+        new List<TEntity> ToList(int fromIndex, int toIndex);
 #if NET452 || NETSTANDARD2_0
         new Task<TEntity> FirstOrDefaultAsync();
         new Task<IEnumerable<TEntity>> ToEnumerableAsync();

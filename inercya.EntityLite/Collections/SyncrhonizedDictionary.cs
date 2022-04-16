@@ -258,7 +258,7 @@ namespace inercya.EntityLite.Collections
         {
             lock (dictionary)
             {
-                dictionary.CopyTo(array, arrayIndex);
+                ((IDictionary<TKey, TValue>) dictionary).CopyTo(array, arrayIndex);
             }
         }
 
@@ -274,13 +274,13 @@ namespace inercya.EntityLite.Collections
         {
             get 
             { 
-                return dictionary.IsReadOnly; 
+                return ((IDictionary<TKey, TValue>) dictionary).IsReadOnly; 
             }
         }
 
         bool ICollection<KeyValuePair<TKey,TValue>>.Remove(KeyValuePair<TKey, TValue> item)
         {
-            return SynchronizedWriteFunction(delegate { return dictionary.Remove(item); });
+            return SynchronizedWriteFunction(delegate { return dictionary.Remove(item.Key); });
         }
 
         #endregion

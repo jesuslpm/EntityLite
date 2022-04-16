@@ -306,12 +306,12 @@ namespace inercya.EntityLite
 			return this.FirstOrDefault();
 		}
 
-        public virtual IList<TEntity> ToList()
+        public virtual List<TEntity> ToList()
 		{
 			return ToEnumerable().ToList();
 		}
 
-        public virtual IList<TEntity> ToList(int fromIndex, int toIndex)
+        public virtual List<TEntity> ToList(int fromIndex, int toIndex)
         {
 			return ToEnumerable(fromIndex, toIndex).ToList();
         }
