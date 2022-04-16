@@ -57,25 +57,25 @@ namespace inercya.EntityLite.Builders
 
         public virtual string GetColumnList()
         {
-            if (QueryLite.FieldList == null || QueryLite.FieldList.Count == 0 || QueryLite.FieldList[0] == "*") return "*";
+            return string.Join(", ", this.GetColumns(this.QueryLite.EntityType, QueryLite.FieldList).ToArray());
+        }
 
-            StringBuilder sb = new StringBuilder();
-            bool firstTime = true;
-            var properties = QueryLite.EntityType.GetEntityMetadata().Properties;
+        public virtual IEnumerable<string> GetColumns(Type entityType, IList<string> propertyNames)
+        {
+            if (propertyNames == null || propertyNames.Count == 0 || propertyNames[0] == "*") yield return "*";
+            var properties = entityType.GetEntityMetadata().Properties;
             string startQuote = QueryLite.DataService.EntityLiteProvider.StartQuote;
             string endQuote = QueryLite.DataService.EntityLiteProvider.EndQuote;
-            foreach (var fieldName in QueryLite.FieldList)
+            foreach (var fieldName in propertyNames)
             {
-                if (firstTime) firstTime = false;
-                else sb.Append(", ");
+               
                 var propertyMetadata = properties[fieldName];
                 if (propertyMetadata.IsLocalizedFiled)
                 {
                     propertyMetadata = properties[CurrentLanguageService.GetSufixedLocalizedFieldName(fieldName)];
                 }
-                sb.Append(startQuote).Append(propertyMetadata.SqlField.ColumnName).Append(endQuote);
+                yield return startQuote + propertyMetadata.SqlField.ColumnName + endQuote;
             }
-            return sb.ToString();
         }
 
 
@@ -248,6 +248,20 @@ namespace inercya.EntityLite.Builders
         public string GetInsertIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName, string[] columnNames)
         {
             StringBuilder commandText = new StringBuilder();
+            GetInsertIntoQuery(cmd, ref paramIndex, commandText, indentation, destinationTableName, columnNames);
+            SetOptions(commandText);
+            var query = commandText.ToString();
+            return query;
+        }
+
+        public string GetInsertIntoQuery<T>(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName, string[] propertyNames)
+        {
+            StringBuilder commandText = new StringBuilder();
+            string[] columnNames = null;
+            if (propertyNames != null && propertyNames.Length > 0)
+            {
+                columnNames = GetColumns(typeof(T), propertyNames).ToArray();
+            }
             GetInsertIntoQuery(cmd, ref paramIndex, commandText, indentation, destinationTableName, columnNames);
             SetOptions(commandText);
             var query = commandText.ToString();

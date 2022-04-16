@@ -129,6 +129,14 @@ namespace inercya.EntityLite
             return cmd;
         }
 
+        protected internal DbCommand GetInsertIntoCommand<T>(string destinationTableName, string[] columnNames)
+        {
+            DbCommand cmd = this.DataService.EntityLiteProvider.CreateCommand();
+            int paramIndex = 0;
+            cmd.CommandText = QueryBuilder.GetInsertIntoQuery<T>(cmd, ref paramIndex, 0, destinationTableName, columnNames);
+            return cmd;
+        }
+
         protected DbCommand GetSelectCommand(int fromIndex, int toIndex)
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
@@ -188,6 +196,16 @@ namespace inercya.EntityLite
             var cmd = new CommandExecutor(this.DataService, true)
             {
                 GetCommandFunc = () => this.GetInsertIntoCommand(destinationTableName, columnNames),
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQuery();
+        }
+
+        public int InsertInto<T>(string destinationTableName, params string[] columnNames)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => this.GetInsertIntoCommand<T>(destinationTableName, columnNames),
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ExecuteNonQuery();
@@ -327,6 +345,16 @@ namespace inercya.EntityLite
             var cmd = new CommandExecutor(this.DataService, true)
             {
                 GetCommandFunc = () => this.GetInsertIntoCommand(destinationTableName, columnNames),
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQueryAsync();
+        }
+
+        public Task<int> InsertIntoAsync<T>(string destinationTableName, params string[] columnNames)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => this.GetInsertIntoCommand<T>(destinationTableName, columnNames),
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ExecuteNonQueryAsync();

@@ -72,7 +72,7 @@ namespace Samples
             using (ds = new NorthwindDataService())
             {
                 ds.ApplicationContextGetter = () => "EntityLite.Tests";
-                InsertIntoTest();
+                InsertIntoAsyncTest().Wait();
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
@@ -157,22 +157,23 @@ namespace Samples
 
         static async Task InsertIntoAsyncTest()
         {
-            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
-                .Where(nameof(OrderDetail.ProductId), OperatorLite.In, Enumerable.Empty<int>());
-
             var tableName = "##OrderDetails" + Guid.NewGuid().ToString("N");
+            var count = await ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.In, Enumerable.Empty<int>())
+                .SelectIntoAsync(tableName);
 
-            var count = await q.SelectIntoAsync(tableName);
+            var orderDetails = await new TableOrViewQueryLite<OrderDetail>(tableName, ds).ToListAsync();
 
-            var q2 = new TableOrViewQueryLite<OrderDetail>(tableName, ds);
-            var orderDetails = await q2.ToListAsync();
+            var count2 = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+                .InsertIntoAsync<OrderDetail>(tableName,
+                    nameof(OrderDetail.OrderId), nameof(OrderDetail.ProductId), nameof(OrderDetail.UnitPrice),
+                    nameof(OrderDetail.Quantity), nameof(OrderDetail.Discount)
+                );
 
-            var q3 = ds.OrderDetailRepository.Query(Projection.BaseTable)
-                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
-
-            var count2 = await q3.InsertIntoAsync(tableName, "OrderID", "ProductID", "UnitPrice", "Quantity", "Discount");
-
-            orderDetails = await q2.ToListAsync();
+            orderDetails = await ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+                .ToListAsync();
 
         }
 

@@ -52,6 +52,7 @@ namespace inercya.EntityLite
 
         int SelectInto(string destinationTableName);
         int InsertInto(string destinationTableName, params string[] columnNames);
+        int InsertInto<T>(string destinationTableName, params string[] propertyNames);
 
 #if NET452 || NETSTANDARD2_0
         Task<IEnumerable> ToEnumerableAsync();
@@ -64,6 +65,7 @@ namespace inercya.EntityLite
         Task<int> DeleteAsync();
         Task<int> SelectIntoAsync(string destinationTableName);
         Task<int> InsertIntoAsync(string destinationTableName, params string[] columnNames);
+        Task<int> InsertIntoAsync<T>(string destinationTableName, params string[] propertyNames);
 #endif
 
     }
