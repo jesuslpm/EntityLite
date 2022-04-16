@@ -171,9 +171,14 @@ namespace Samples
                     nameof(OrderDetail.Quantity), nameof(OrderDetail.Discount)
                 );
 
-            orderDetails = await ds.OrderDetailRepository.Query(Projection.BaseTable)
-                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+            var subquery = new TableOrViewQueryLite<OrderDetail>(tableName, ds)
+                .Fields(FieldsOption.None, nameof(OrderDetail.OrderId));
+
+            var orders = await ds.OrderRepository.Query(OrderProjections.Extended)
+                .Where(nameof(Order.OrderId), OperatorLite.In, subquery)
                 .ToListAsync();
+
+
 
         }
 
