@@ -30,7 +30,7 @@ namespace inercya.EntityLite.Builders
         string GetAnyQuery(DbCommand selectCommand, ref int paramIndex);
         string GetDeleteQuery(DbCommand selectCommand, ref int paramIndex, int indentation);
         string GetSelectIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinatioTableName);
-
+        string GetInsertIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName, string[] columnNames);
         IQueryLite QueryLite { get; }
     }
 }

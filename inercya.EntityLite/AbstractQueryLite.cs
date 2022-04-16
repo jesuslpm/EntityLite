@@ -121,6 +121,14 @@ namespace inercya.EntityLite
             return cmd;
         }
 
+        protected internal DbCommand GetInsertIntoCommand(string destinationTableName, string[] columnNames)
+        {
+            DbCommand cmd = this.DataService.EntityLiteProvider.CreateCommand();
+            int paramIndex = 0;
+            cmd.CommandText = QueryBuilder.GetInsertIntoQuery(cmd, ref paramIndex, 0, destinationTableName, columnNames);
+            return cmd;
+        }
+
         protected DbCommand GetSelectCommand(int fromIndex, int toIndex)
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
@@ -170,6 +178,16 @@ namespace inercya.EntityLite
             var cmd = new CommandExecutor(this.DataService, true)
             {
                 GetCommandFunc = () => this.GetSelectIntoCommand(destinationTableName),
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQuery();
+        }
+
+        public int InsertInto(string destinationTableName, params string[] columnNames)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => this.GetInsertIntoCommand(destinationTableName, columnNames),
                 CommandTimeout = this.CommandTimeout
             };
             return cmd.ExecuteNonQuery();
@@ -302,6 +320,16 @@ namespace inercya.EntityLite
             };
             var result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
             return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
+        }
+
+        public Task<int> InsertIntoAsync(string destinationTableName, params string[] columnNames)
+        {
+            var cmd = new CommandExecutor(this.DataService, true)
+            {
+                GetCommandFunc = () => this.GetInsertIntoCommand(destinationTableName, columnNames),
+                CommandTimeout = this.CommandTimeout
+            };
+            return cmd.ExecuteNonQueryAsync();
         }
 #endif
 

@@ -72,7 +72,7 @@ namespace Samples
             using (ds = new NorthwindDataService())
             {
                 ds.ApplicationContextGetter = () => "EntityLite.Tests";
-                SelectIntoAsyncTest().Wait();
+                InsertIntoTest();
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
@@ -153,6 +153,48 @@ namespace Samples
             var orderDetails = await q2.ToListAsync();
 
             ds.Commit();
+        }
+
+        static async Task InsertIntoAsyncTest()
+        {
+            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.In, Enumerable.Empty<int>());
+
+            var tableName = "##OrderDetails" + Guid.NewGuid().ToString("N");
+
+            var count = await q.SelectIntoAsync(tableName);
+
+            var q2 = new TableOrViewQueryLite<OrderDetail>(tableName, ds);
+            var orderDetails = await q2.ToListAsync();
+
+            var q3 = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
+
+            var count2 = await q3.InsertIntoAsync(tableName, "OrderID", "ProductID", "UnitPrice", "Quantity", "Discount");
+
+            orderDetails = await q2.ToListAsync();
+
+        }
+
+        static void InsertIntoTest()
+        {
+            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.In, Enumerable.Empty<int>());
+
+            var tableName = "##OrderDetails" + Guid.NewGuid().ToString("N");
+
+            var count = q.SelectInto(tableName);
+
+            var q2 = new TableOrViewQueryLite<OrderDetail>(tableName, ds);
+            var orderDetails = q2.ToList();
+
+            var q3 = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
+
+            var count2 = q3.InsertInto(tableName, "OrderID", "ProductID", "UnitPrice", "Quantity", "Discount");
+
+            orderDetails = q2.ToList();
+
         }
 
 

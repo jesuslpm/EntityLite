@@ -181,6 +181,80 @@ namespace inercya.EntityLite.Builders
             return query;
         }
 
+        public void GetInsertIntoQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation, string destinationTableName, string[] columnNames)
+        {
+            string startQuote = this.QueryLite.DataService.EntityLiteProvider.StartQuote;
+            string endQuote = this.QueryLite.DataService.EntityLiteProvider.EndQuote;
+            string quotedObjectName = null;
+            if (destinationTableName.StartsWith(startQuote) && destinationTableName.EndsWith(endQuote))
+            {
+                quotedObjectName = destinationTableName;
+            }
+            else
+            {
+                var tokens = destinationTableName.Split('.');
+                quotedObjectName = string.Join(".", tokens.Select(x => startQuote + x + endQuote).ToArray());
+            }
+
+            commandText.Indent(indentation);
+            commandText.Append("INSERT INTO ").Append(quotedObjectName);
+            if (columnNames != null && columnNames.Length > 0)
+            {
+                commandText.Append("(");
+                var firstTime = true;
+                foreach (var column in columnNames)
+                {
+                    if (firstTime) firstTime = false;
+                    else commandText.Append(", ");
+                    if (column.StartsWith(startQuote) && column.EndsWith(endQuote))
+                    {
+                        commandText.Append(column);
+                    }
+                    else
+                    {
+                        commandText.Append(startQuote).Append(column).Append(endQuote);
+                    }
+                }
+                commandText.Append(")");
+            }
+
+            commandText.NewIndentedLine(indentation);
+            var columnList = GetColumnList();
+            bool isStar = columnList == "*";
+            commandText.Append("SELECT ");
+            if (isStar) commandText.Append("*");
+            else commandText.NewIndentedLine(++indentation).Append(columnList);
+            if (!isStar) indentation--;
+            commandText.NewIndentedLine(indentation).Append("FROM ")
+                .NewIndentedLine(++indentation).Append(GetFromClauseContent(selectCommand, ref paramIndex, indentation));
+            indentation--;
+            bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
+            if (hasWhereClause)
+            {
+                commandText.NewIndentedLine(indentation).Append("WHERE");
+                commandText.NewIndentedLine(++indentation).Append(GetFilter(selectCommand, ref paramIndex, QueryLite.Filter, indentation, false));
+                indentation--;
+            }
+            bool hasOrderbyClause = QueryLite.Sort != null && QueryLite.Sort.Count > 0;
+            if (hasOrderbyClause)
+            {
+                commandText.NewIndentedLine(indentation).Append("ORDER BY");
+                commandText.NewIndentedLine(++indentation).Append(GetSort());
+                indentation--;
+            }
+
+        }
+
+        public string GetInsertIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName, string[] columnNames)
+        {
+            StringBuilder commandText = new StringBuilder();
+            GetInsertIntoQuery(cmd, ref paramIndex, commandText, indentation, destinationTableName, columnNames);
+            SetOptions(commandText);
+            var query = commandText.ToString();
+            return query;
+        }
+
+
         public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int indentation)
         {
             StringBuilder commandText = new StringBuilder();
