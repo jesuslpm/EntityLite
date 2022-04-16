@@ -73,7 +73,9 @@ namespace inercya.EntityLite.Collections
             return BitConverter.ToUInt32(bytes, 0);
         }
 
+#if NET452 || NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         static uint RotateLeft(uint value, int offset) => (value << offset) | (value >> (32 - offset));
 
         public static int Combine<T1>(T1 value1)
@@ -257,7 +259,9 @@ namespace inercya.EntityLite.Collections
             return (int)hash;
         }
 
+#if NET452 || NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static void Initialize(out uint v1, out uint v2, out uint v3, out uint v4)
         {
             v1 = s_seed + Prime1 + Prime2;
@@ -266,19 +270,25 @@ namespace inercya.EntityLite.Collections
             v4 = s_seed - Prime1;
         }
 
+#if NET452 || NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static uint Round(uint hash, uint input)
         {
             return RotateLeft(hash + input * Prime2, 13) * Prime1;
         }
 
+#if NET452 || NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static uint QueueRound(uint hash, uint queuedValue)
         {
             return RotateLeft(hash + queuedValue * Prime3, 17) * Prime4;
         }
 
+#if NET452 || NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static uint MixState(uint v1, uint v2, uint v3, uint v4)
         {
             return RotateLeft(v1, 1) + RotateLeft(v2, 7) + RotateLeft(v3, 12) + RotateLeft(v4, 18);
@@ -289,7 +299,9 @@ namespace inercya.EntityLite.Collections
             return s_seed + Prime5;
         }
 
+#if NET452 || NETSTANDARD2_0
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static uint MixFinal(uint hash)
         {
             hash ^= hash >> 15;
@@ -305,7 +317,7 @@ namespace inercya.EntityLite.Collections
             Add(value?.GetHashCode() ?? 0);
         }
 
-        public void Add<T>(T value, IEqualityComparer<T>? comparer)
+        public void Add<T>(T value, IEqualityComparer<T> comparer)
         {
             Add(value == null ? 0 : (comparer?.GetHashCode(value) ?? value.GetHashCode()));
         }
