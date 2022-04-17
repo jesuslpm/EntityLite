@@ -141,6 +141,13 @@ FROM
 GROUP BY
     P.ProductID, P.ProductName,
     DATEPART(year, O.OrderDate)
+GO
+
+SELECT * INTO OrderDetailsCopy
+FROM [dbo].[Order Details]
+WHERE 1 = 0
+
+GO
 
 
 
