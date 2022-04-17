@@ -179,6 +179,26 @@ namespace Samples
                 .ToListAsync();
 
 
+            var count3 = await ds.OrderDetailRepository
+                .Query(OrderDetailProjections.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+                .OrderBy(nameof(OrderDetail.OrderId))
+                .InsertIntoBaseTableAsync<OrderDetailCopy>(
+                    nameof(OrderDetailCopy.OrderId), nameof(OrderDetailCopy.ProductId), 
+                    nameof(OrderDetailCopy.UnitPrice),nameof(OrderDetailCopy.Quantity), 
+                    nameof(OrderDetailCopy.Discount));
+
+            var count4 = await ds.OrderDetailCopyRepository
+                .Query(OrderDetailCopyProjections.BaseTable)
+                .Where(nameof(OrderDetailCopy.ProductId), OperatorLite.Equals, 9)
+                .OrderBy(nameof(OrderDetailCopy.OrderId))
+                .InsertIntoBaseTableAsync(
+                    nameof(OrderDetailCopy.OrderId), nameof(OrderDetailCopy.ProductId),
+                    nameof(OrderDetailCopy.UnitPrice), nameof(OrderDetailCopy.Quantity),
+                    nameof(OrderDetailCopy.Discount));
+
+
+
 
         }
 

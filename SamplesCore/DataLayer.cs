@@ -958,6 +958,119 @@ namespace Samples.Entities
 	[Serializable]
 	[DataContract]
     [TypeScript] 
+	[SqlEntity(BaseTableName="OrderDetailsCopy")]
+	public partial class OrderDetailCopy : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _orderId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetailsCopy" )]		
+		public Int32 OrderId 
+		{ 
+		    get { return _orderId; } 
+			set 
+			{
+			    _orderId = value;
+				NotifyPropertyChange("OrderId");
+			}
+        }
+
+		private Int32 _productId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetailsCopy" )]		
+		public Int32 ProductId 
+		{ 
+		    get { return _productId; } 
+			set 
+			{
+			    _productId = value;
+				NotifyPropertyChange("ProductId");
+			}
+        }
+
+		private Decimal _unitPrice;
+		[DataMember]
+		[SqlField(DbType.Currency, 8, Precision = 19, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetailsCopy" )]		
+		public Decimal UnitPrice 
+		{ 
+		    get { return _unitPrice; } 
+			set 
+			{
+			    _unitPrice = value;
+				NotifyPropertyChange("UnitPrice");
+			}
+        }
+
+		private Int16 _quantity;
+		[DataMember]
+		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetailsCopy" )]		
+		public Int16 Quantity 
+		{ 
+		    get { return _quantity; } 
+			set 
+			{
+			    _quantity = value;
+				NotifyPropertyChange("Quantity");
+			}
+        }
+
+		private Single _discount;
+		[DataMember]
+		[SqlField(DbType.Single, 4, Precision = 7, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetailsCopy" )]		
+		public Single Discount 
+		{ 
+		    get { return _discount; } 
+			set 
+			{
+			    _discount = value;
+				NotifyPropertyChange("Discount");
+			}
+        }
+
+		public const string BaseTableProjectionColumnList = "[OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]";
+
+	}
+
+	public partial class OrderDetailCopyRepository : Repository<OrderDetailCopy> 
+	{
+		public OrderDetailCopyRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+	}
+	[Obsolete("Use nameof instead")]
+	public static partial class OrderDetailCopyFields
+	{
+		public const string OrderId = "OrderId";
+		public const string ProductId = "ProductId";
+		public const string UnitPrice = "UnitPrice";
+		public const string Quantity = "Quantity";
+		public const string Discount = "Discount";
+	}
+
+	public static partial class OrderDetailCopyProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
+	[Serializable]
+	[DataContract]
+    [TypeScript] 
 	[SqlEntity(BaseTableName="Orders")]
 	public partial class Order : INotifyPropertyChanged
 	{
@@ -2169,6 +2282,19 @@ namespace Samples.Entities
 					_OrderDetailRepository = new Samples.Entities.OrderDetailRepository(this);
 				}
 				return _OrderDetailRepository;
+			}
+		}
+
+		private Samples.Entities.OrderDetailCopyRepository _OrderDetailCopyRepository;
+		public Samples.Entities.OrderDetailCopyRepository OrderDetailCopyRepository
+		{
+			get 
+			{
+				if ( _OrderDetailCopyRepository == null)
+				{
+					_OrderDetailCopyRepository = new Samples.Entities.OrderDetailCopyRepository(this);
+				}
+				return _OrderDetailCopyRepository;
 			}
 		}
 

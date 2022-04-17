@@ -72,6 +72,11 @@ To generate the datalayer for MySQL you need  to:
 			},
 			new EntitySetting 
 			{
+				BaseTableName = "OrderDetailsCopy",
+				EntityName = "OrderDetailCopy"  
+			},
+			new EntitySetting 
+			{
 				BaseTableName = "Orders",
 				EntityName = "Order"  
 			},

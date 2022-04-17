@@ -129,14 +129,6 @@ namespace inercya.EntityLite
             return cmd;
         }
 
-        protected internal DbCommand GetInsertIntoCommand<T>(string destinationTableName, string[] columnNames)
-        {
-            DbCommand cmd = this.DataService.EntityLiteProvider.CreateCommand();
-            int paramIndex = 0;
-            cmd.CommandText = QueryBuilder.GetInsertIntoQuery<T>(cmd, ref paramIndex, 0, destinationTableName, columnNames);
-            return cmd;
-        }
-
         protected DbCommand GetSelectCommand(int fromIndex, int toIndex)
         {
             DbCommand selectCommand = this.DataService.EntityLiteProvider.CreateCommand();
@@ -201,14 +193,28 @@ namespace inercya.EntityLite
             return cmd.ExecuteNonQuery();
         }
 
-        public int InsertInto<T>(string destinationTableName, params string[] columnNames)
+        public int InsertInto<T>(string destinationTableName, params string[] propertyNames)
         {
-            var cmd = new CommandExecutor(this.DataService, true)
-            {
-                GetCommandFunc = () => this.GetInsertIntoCommand<T>(destinationTableName, columnNames),
-                CommandTimeout = this.CommandTimeout
-            };
-            return cmd.ExecuteNonQuery();
+            var columnNames = this.QueryBuilder.GetColumns(typeof(T), propertyNames);
+            return InsertInto(destinationTableName, columnNames);
+        }
+
+        private int InsertIntoBaseTable(Type entityType, string[] propertyNames)
+        {
+            var metadata = this.EntityType.GetEntityMetadata();
+            var destinationTableName = metadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
+            var columnNames = this.QueryBuilder.GetColumns(entityType, propertyNames).ToArray();
+            return InsertInto(destinationTableName, columnNames);
+        }
+
+        public int InsertIntoBaseTable(params string[] propertyNames)
+        {
+            return InsertIntoBaseTable(this.EntityType, propertyNames);
+        }
+
+        public int InsertIntoBaseTable<T>(params string[] propertyNames)
+        {
+            return InsertIntoBaseTable(typeof(T), propertyNames);
         }
 
         public bool Any()
@@ -350,14 +356,28 @@ namespace inercya.EntityLite
             return cmd.ExecuteNonQueryAsync();
         }
 
-        public Task<int> InsertIntoAsync<T>(string destinationTableName, params string[] columnNames)
+        public Task<int> InsertIntoAsync<T>(string destinationTableName, params string[] propertyNames)
         {
-            var cmd = new CommandExecutor(this.DataService, true)
-            {
-                GetCommandFunc = () => this.GetInsertIntoCommand<T>(destinationTableName, columnNames),
-                CommandTimeout = this.CommandTimeout
-            };
-            return cmd.ExecuteNonQueryAsync();
+            var columnNames = this.QueryBuilder.GetColumns(typeof(T), propertyNames).ToArray();
+            return InsertIntoAsync(destinationTableName, columnNames);
+        }
+
+        private Task<int> InsertIntoBaseTableAsync(Type entityType, string[] propertyNames)
+        {
+            var metadata = entityType.GetEntityMetadata();
+            var destinationTableName = metadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
+            var columnNames = this.QueryBuilder.GetColumns(entityType, propertyNames).ToArray();
+            return InsertIntoAsync(destinationTableName, columnNames);
+        }
+
+        public Task<int> InsertIntoBaseTableAsync(params string[] propertyNames)
+        {
+            return InsertIntoBaseTableAsync(this.EntityType, propertyNames);
+        }
+
+        public Task<int> InsertIntoBaseTableAsync<T>(params string[] propertyNames)
+        {
+            return InsertIntoBaseTableAsync(typeof(T), propertyNames);
         }
 #endif
 
