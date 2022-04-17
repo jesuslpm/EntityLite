@@ -20,6 +20,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
         private static Regex listOfValuesRegex = new Regex(@"\((?:(?:[:@]P)*\d+(?:,\s*(?:[:@]P)*\d+)*)\)", RegexOptions.Compiled);
 
+        private static Regex guidRegex = new Regex("([0-9A-Fa-f]{32})|([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})", RegexOptions.Compiled);
+
 
         public static SqliteProfilerDataService Create(string filePath)
         {
@@ -97,7 +99,8 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
         public void LogCommandExecution(LogItem item, bool fullLogging)
         {
 
-            var normalizedCommandText = listOfValuesRegex.Replace(item.CommandText, "( #ListOfValues# )");
+            var normalizedCommandText = listOfValuesRegex.Replace(item.CommandText, "(#ListOfValues#)");
+            normalizedCommandText = guidRegex.Replace(normalizedCommandText, "#Guid#");
             byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(normalizedCommandText);
             byte[] hash = md5.ComputeHash(inputBytes);
             long commandTextHash = BitConverter.ToInt64(hash, 0);
