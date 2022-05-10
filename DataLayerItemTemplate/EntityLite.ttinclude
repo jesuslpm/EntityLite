@@ -677,9 +677,9 @@ public class DataLayerGeneration : IDisposable
 				else
 				{
 					DataRow existingRow = schemaUnion.Rows.Find(columnName);
-					if ((bool)existingRow["IsNullable"] == false  && (bool)row["IsNullable"] == true)
+					if ((bool)existingRow["AllowDBNull"] == false  && (bool)row["AllowDBNull"] == true)
 					{
-						existingRow["IsNullable"] = true;
+						existingRow["AllowDBNull"] = true;
 					}
 				}
             }

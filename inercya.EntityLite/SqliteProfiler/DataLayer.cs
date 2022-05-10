@@ -224,7 +224,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class StatementFields
 	{
 		public const string StatementId = "StatementId";
@@ -371,7 +371,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class ExecutionFields
 	{
 		public const string ExecutionId = "ExecutionId";
@@ -415,7 +415,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 		}
 
 	}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class SchemaVersionFields
 	{
 		public const string Version = "Version";
