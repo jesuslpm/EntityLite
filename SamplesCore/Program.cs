@@ -113,6 +113,7 @@ namespace Samples
             var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
                 .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
 
+
             var count = q.GetCount();
 
             var deletedCount = q.Delete();
@@ -129,6 +130,11 @@ namespace Samples
             var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
                 .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
 
+await ds.OrderDetailRepository
+    .Query(Projection.BaseTable)
+    .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+    .DeleteAsync();
+
             var count = await q.GetCountAsync();
 
             var deletedCount = await q.DeleteAsync();
@@ -142,15 +148,14 @@ namespace Samples
         static async Task SelectIntoAsyncTest()
         {
             ds.BeginTransaction();
-            var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
-                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
-
             var tableName = "##OrderDetails" + Guid.NewGuid().ToString("N");
 
-            var count = await q.SelectIntoAsync(tableName);
+            var createdRowCount = ds.OrderDetailRepository.Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+                .SelectIntoAsync(tableName);
 
             var q2 = new TableOrViewQueryLite<OrderDetail>(tableName, ds);
-            var orderDetails = await q2.ToListAsync();
+            var orderDetailsInTempTable = await q2.ToListAsync();
 
             ds.Commit();
         }

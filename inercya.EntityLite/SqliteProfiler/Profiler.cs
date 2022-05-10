@@ -153,7 +153,6 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
-
         private void ProcessLogItems()
         {
             SqliteProfilerDataService dataService = null;
@@ -223,17 +222,29 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
-        private  SqliteProfilerDataService EnsureDataServiceAndDeleteOldFiles(SqliteProfilerDataService dataService)
+        private SqliteProfilerDataService EnsureDataServiceAndDeleteOldFiles(SqliteProfilerDataService dataService)
         {
             string filePath = null;
             if (dataService == null || (DateTime.Today != this.lastDataServiceCreateDay && dataService.FilePath != (filePath = this.GetDatabaseFilePath())))
             {
                 TryDisposeDataService(dataService);
                 if (filePath == null) filePath = this.GetDatabaseFilePath();
-                dataService = SqliteProfilerDataService.Create(filePath);
-                lastDataServiceCreateDay = DateTime.Today;
-                dataService.OpenConnection();
-                ThreadPool.QueueUserWorkItem(DeleteOldFiles);
+                int attempt = 0;
+                while (true)
+                {
+                    try
+                    {
+                        dataService = SqliteProfilerDataService.Create(filePath);
+                        lastDataServiceCreateDay = DateTime.Today;
+                        dataService.OpenConnection();
+                    }
+                    catch
+                    {
+                        TryDisposeDataService(dataService);
+                        if (++attempt >= 20) throw;
+                        Thread.Sleep(250);
+                    }
+                }
             }
             return dataService;
         }

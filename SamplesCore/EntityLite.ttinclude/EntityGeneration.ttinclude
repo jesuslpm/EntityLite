@@ -584,7 +584,7 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 void RenderEntityFieldsClass(DataLayerGeneration generation, EntitySetting entity)
 {
 #>
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class <#= entity.EntityName #>Fields
 	{
 <#+ 

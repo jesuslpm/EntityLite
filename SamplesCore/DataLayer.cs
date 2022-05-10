@@ -135,7 +135,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class CategoryFields
 	{
 		public const string CategoryId = "CategoryId";
@@ -361,7 +361,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class CustomerFields
 	{
 		public const string CustomerId = "CustomerId";
@@ -685,7 +685,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class EmployeeFields
 	{
 		public const string EmployeeId = "EmployeeId";
@@ -930,7 +930,7 @@ namespace Samples.Entities
 		}
 
 	}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class OrderDetailFields
 	{
 		public const string OrderId = "OrderId";
@@ -1054,7 +1054,7 @@ namespace Samples.Entities
 		}
 
 	}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class OrderDetailCopyFields
 	{
 		public const string OrderId = "OrderId";
@@ -1399,7 +1399,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class OrderFields
 	{
 		public const string OrderId = "OrderId";
@@ -1656,7 +1656,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class ProductFields
 	{
 		public const string ProductId = "ProductId";
@@ -1787,7 +1787,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class ShipperFields
 	{
 		public const string ShipperId = "ShipperId";
@@ -2025,7 +2025,7 @@ namespace Samples.Entities
 		}
 
 			}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class SupplierFields
 	{
 		public const string SupplierId = "SupplierId";
@@ -2185,7 +2185,7 @@ namespace Samples.Entities
 		}
 
 	}
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class ProductSaleFields
 	{
 		public const string CategoryId = "CategoryId";

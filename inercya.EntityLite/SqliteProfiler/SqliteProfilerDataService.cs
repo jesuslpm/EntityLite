@@ -50,10 +50,19 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
 
         private void TurnOffJournalMode()
         {
-            using (var cmd = this.Connection.CreateCommand())
+            string journalMode = null;
+            using (var journalModeCmd = this.Connection.CreateCommand())
             {
-                cmd.CommandText = "PRAGMA journal_mode = OFF;";
-                cmd.ExecuteNonQuery();
+                journalModeCmd.CommandText = "PRAGMA journal_mode;";
+                journalMode = Convert.ToString(journalModeCmd.ExecuteScalar());
+            }
+            if (journalMode != "off")
+            {
+                using (var cmd = this.Connection.CreateCommand())
+                {
+                    cmd.CommandText = "PRAGMA journal_mode = OFF;";
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
