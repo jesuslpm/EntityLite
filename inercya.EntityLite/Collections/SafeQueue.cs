@@ -191,6 +191,11 @@ namespace inercya.EntityLite.Collections
  
 		}
  
+		public void Clear()
+        {
+			while (Dequeue(out T value)) ;
+        }
+	
 	}
 
 }

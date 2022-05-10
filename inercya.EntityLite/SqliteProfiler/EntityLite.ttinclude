@@ -674,6 +674,14 @@ public class DataLayerGeneration : IDisposable
                     }
                     schemaUnion.ImportRow(rowToImport);
                 }
+				else
+				{
+					DataRow existingRow = schemaUnion.Rows.Find(columnName);
+					if ((bool)existingRow["IsNullable"] == false  && (bool)row["IsNullable"] == true)
+					{
+						existingRow["IsNullable"] = true;
+					}
+				}
             }
         }
 		if (schemaUnion == null)
@@ -1644,7 +1652,7 @@ void RenderEntityRepositoryClass(DataLayerGeneration generation, EntitySetting e
 void RenderEntityFieldsClass(DataLayerGeneration generation, EntitySetting entity)
 {
 #>
-	[Obsolete("Use nameof instead")]
+	// [Obsolete("Use nameof instead")]
 	public static partial class <#= entity.EntityName #>Fields
 	{
 <#+ 

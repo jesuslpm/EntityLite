@@ -142,10 +142,10 @@ namespace inercya.EntityLite.SqliteProfiler
 
         public void StopProfiling()
         {
-            if (!IsRunning) throw new InvalidOperationException("Already stopped");
+            if (!IsRunning) return; ;
             lock (syncObject)
             {
-                if (!IsRunning) throw new InvalidOperationException("Already stopped");
+                if (!IsRunning) return;
                 IsRunning = false;
                 signal.Set();
                 workingThread.Join();
@@ -156,37 +156,43 @@ namespace inercya.EntityLite.SqliteProfiler
         private void ProcessLogItems()
         {
             SqliteProfilerDataService dataService = null;
-            try
+            var startTime = DateTime.UtcNow;
+            while (true)
             {
-                while (true)
+                signal.WaitOne();
+                try
                 {
-                    signal.WaitOne();
                     dataService = EnsureDataServiceAndDeleteOldFiles(dataService);
-                    try
+                    startTime = DateTime.UtcNow;
+                }
+                catch (Exception ex) 
+                {
+                    while (logItems.Count > 2000) logItems.Dequeue(out var logItem);
+                    if (DateTime.UtcNow.Subtract(startTime) > TimeSpan.FromMinutes(2))
                     {
-                        ProcessLogItems(dataService);
-                    }
-                    catch (Exception ex)
-                    {
+                        IsRunning = false;
                         Log?.LogError(ex, "Error Profiling");
-                    }
-                    if (!IsRunning)
-                    {
                         TryDisposeDataService(dataService);
-                        dataService = null;
+                        logItems.Clear();
                         return;
                     }
+                    continue;
                 }
-            }
-            catch (Exception ex)
-            {
-                Log?.LogError(ex, "Error Profiling");
-            }
-            finally
-            {
-                this.IsRunning = false;
-                TryDisposeDataService(dataService);
-                dataService = null;
+                try
+                {
+                    ProcessLogItems(dataService);
+                }
+                catch (Exception ex)
+                {
+                    Log?.LogError(ex, "Error Profiling");
+                }
+                if (!IsRunning)
+                {
+                    TryDisposeDataService(dataService);
+                    dataService = null;
+                    logItems.Clear();
+                    return;
+                }
             }
         }
 
@@ -237,6 +243,8 @@ namespace inercya.EntityLite.SqliteProfiler
                         dataService = SqliteProfilerDataService.Create(filePath);
                         lastDataServiceCreateDay = DateTime.Today;
                         dataService.OpenConnection();
+                        ThreadPool.QueueUserWorkItem(DeleteOldFiles);
+                        return dataService;
                     }
                     catch
                     {
