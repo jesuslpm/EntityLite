@@ -53,7 +53,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
-        SafeQueue<LogItem> logItems;
+        Queue<LogItem> logItemsQueue;
         private AutoResetEvent signal;
         private volatile bool _isRunning;
         private object syncObject = new object();
@@ -87,7 +87,7 @@ namespace inercya.EntityLite.SqliteProfiler
             this.ProfileDatabaseFileNamePrefix = profileDatabaseFileNamePrefix;
             this.FullLogging = fullLogging;
  
-            logItems = new SafeQueue<LogItem>();
+            logItemsQueue = new Queue<LogItem>();
             signal = new AutoResetEvent(false);
         }
 
@@ -123,11 +123,13 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
+        const int MaxAllowedQueueLength = 8192;
 
 
         public void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
         {
             if (!IsRunning || dataService is SqliteProfilerDataService) return;
+            if (logItemsQueue.Count >= MaxAllowedQueueLength) return;
             var item = new LogItem
             {
                 CommandText = command.CommandText,
@@ -136,7 +138,13 @@ namespace inercya.EntityLite.SqliteProfiler
                 ApplicationContext = dataService.ApplicationContextGetter?.Invoke(),
                 DataServiceInstanceId = dataService.InstanceId
             };
-            logItems.Enqueue(item);
+            lock (logItemsQueue)
+            {
+                var logItemCount = logItemsQueue.Count;
+                if (logItemCount >= MaxAllowedQueueLength) return;
+                if (logItemCount >= MaxQueueLength) MaxQueueLength = logItemCount + 1;
+                logItemsQueue.Enqueue(item);
+            }
             signal.Set();
         }
 
@@ -153,63 +161,96 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
+        public int MaxQueueLength = 0;
+
         private void ProcessLogItems()
         {
             SqliteProfilerDataService dataService = null;
             var startTime = DateTime.UtcNow;
-            while (true)
-            {
-                signal.WaitOne();
-                try
+            int attempt = 1;
+            try {
+                while (IsRunning)
                 {
-                    dataService = EnsureDataServiceAndDeleteOldFiles(dataService);
-                    startTime = DateTime.UtcNow;
-                }
-                catch (Exception ex) 
-                {
-                    while (logItems.Count > 2000) logItems.Dequeue(out var logItem);
-                    if (DateTime.UtcNow.Subtract(startTime) > TimeSpan.FromMinutes(2))
+                    signal.WaitOne();
+                   
+                    try
                     {
-                        IsRunning = false;
-                        Log?.LogError(ex, "Error Profiling");
-                        TryDisposeDataService(dataService);
-                        logItems.Clear();
-                        return;
+                        dataService = EnsureDataServiceAndDeleteOldFiles(dataService);
+                        // Log?.LogTrace("DataService Ensured");
+                        startTime = DateTime.UtcNow;
+                        attempt = 1;
                     }
-                    continue;
-                }
-                try
+                    catch (Exception ex)
+                    {
+                        if (++attempt > 10 && DateTime.UtcNow.Subtract(startTime) > TimeSpan.FromMinutes(2))
+                        {
+                            Log?.LogError(ex, "Error opening SqliteProfilerDataService");
+                            return;
+                        }
+                        continue;
+                    }
+                    var processLogItemsStartTime = DateTime.UtcNow;
+                    try
+                    {
+                        ProcessLogItems(dataService);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log?.LogError(ex, string.Format("Error processing log items after {0}", DateTime.UtcNow.Subtract(processLogItemsStartTime)));
+                        signal.Set();
+                    }
+                } 
+            }
+            finally
+            {
+                IsRunning = false;
+                TryDisposeDataService(dataService);
+                Log?.LogInformation("SqliteProfiler stoped");
+            }
+        }
+
+
+        private List<LogItem> logItemBuffer = new List<LogItem>(128);
+
+        private bool TryDequeue()
+        {
+            logItemBuffer.Clear();
+            lock (logItemsQueue)
+            {
+                while (logItemsQueue.Count > 0 && logItemBuffer.Count < 128)
                 {
-                    ProcessLogItems(dataService);
-                }
-                catch (Exception ex)
-                {
-                    Log?.LogError(ex, "Error Profiling");
-                }
-                if (!IsRunning)
-                {
-                    TryDisposeDataService(dataService);
-                    dataService = null;
-                    logItems.Clear();
-                    return;
+                    var item = logItemsQueue.Dequeue();
+                    logItemBuffer.Add(item);
                 }
             }
+            return logItemBuffer.Count > 0;
         }
 
         private void ProcessLogItems(SqliteProfilerDataService dataService)
         {
-            LogItem item = null;
-            while (!logItems.IsEmpty)
+            if (logItemsQueue.Count == 0) return;
+            var watch = Stopwatch.StartNew();
+            dataService.BeginTransaction();
+            try
             {
-                dataService.BeginTransaction();
                 int itemCount = 0;
-                while (logItems.Dequeue(out item))
+                while (TryDequeue())
                 {
-                    dataService.LogCommandExecution(item, this.FullLogging);
-                    itemCount++;
+                    foreach (var item in logItemBuffer)
+                    {
+                        dataService.LogCommandExecution(item, this.FullLogging);
+                        itemCount++;
+                    }
                 }
                 dataService.Commit();
+                Log?.LogTrace("Logged {Count} command executions in {Elapsed}", itemCount, watch.Elapsed);
             }
+            catch
+            {
+                try { dataService.Rollback(); } catch { }
+                throw;
+            }
+            watch.Stop();
         }
 
         private static void TryDisposeDataService(SqliteProfilerDataService dataService)
@@ -224,10 +265,10 @@ namespace inercya.EntityLite.SqliteProfiler
                 {
                     Log?.LogError(ex, "Error disposing data service");
                 }
-                dataService = null;
             }
         }
 
+        public int MaxDataServiceAttempts = 0;
         private SqliteProfilerDataService EnsureDataServiceAndDeleteOldFiles(SqliteProfilerDataService dataService)
         {
             string filePath = null;
@@ -235,7 +276,7 @@ namespace inercya.EntityLite.SqliteProfiler
             {
                 TryDisposeDataService(dataService);
                 if (filePath == null) filePath = this.GetDatabaseFilePath();
-                int attempt = 0;
+                int attempt = 1;
                 while (true)
                 {
                     try
@@ -249,8 +290,12 @@ namespace inercya.EntityLite.SqliteProfiler
                     catch
                     {
                         TryDisposeDataService(dataService);
-                        if (++attempt >= 20) throw;
-                        Thread.Sleep(250);
+                        if (++attempt > 20) throw;
+                        Thread.Sleep(200);
+                    }
+                    finally
+                    {
+                        if (attempt > MaxDataServiceAttempts) MaxDataServiceAttempts = attempt;
                     }
                 }
             }

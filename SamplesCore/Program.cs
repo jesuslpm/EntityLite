@@ -37,6 +37,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
+using Microsoft.Extensions.Logging;
 
 namespace Samples
 {
@@ -60,7 +61,16 @@ namespace Samples
         static void Main(string[] args)
         {
             //TestHttp();
-            ConfigurationLite.DbProviderFactories.Register("System.Data.SQLite", Microsoft.Data.Sqlite.SqliteFactory.Instance);
+            ConfigurationLite.DbProviderFactories.Register("System.Data.SQLite", System.Data.SQLite.SQLiteFactory.Instance);
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.SetMinimumLevel(LogLevel.Information)
+                    .AddFilter("inercya.EntityLite", LogLevel.Information)
+                    .AddFilter("inercya.EntityLite.SqliteProfiler", LogLevel.Trace)
+                    .AddFile($"SamplesCore-{DateTime.UtcNow.Ticks}.log", false);
+            });
+
+
             ////for (int i =0; i < 100; i++) TestQueue();
             profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
                 AppDomain.CurrentDomain.BaseDirectory,
@@ -68,15 +78,20 @@ namespace Samples
                 true
             );
             ConfigurationLite.Profiler = profiler;
+            ConfigurationLite.LoggerFactory = loggerFactory;
             profiler.StartProfiling();
             using (ds = new NorthwindDataService())
             {
-                ds.ApplicationContextGetter = () => "EntityLite.Tests";
-                InsertIntoAsyncTest().Wait();
+                //ds.ApplicationContextGetter = () => "EntityLite.Tests";
+                //InsertIntoAsyncTest().Wait();
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
-                //QueryByPrimaryKey();
+                for (int i = 0; i < 100_000; i++)
+                {
+                    // Console.WriteLine(i);
+                    QueryByPrimaryKey();
+                }
                 //ShowSomeProducts();
                 //ShowOrderDetails();
                 //ShowQuesoCabralesOrders();
@@ -101,10 +116,11 @@ namespace Samples
                 //SynonymTest();
             }
             profiler.StopProfiling();
+            Console.WriteLine("MaxQueueLength: {0}, DataServiceAttempts: {1}", profiler.MaxQueueLength, profiler.MaxDataServiceAttempts);
             //Console.WriteLine("Press enter to exit ...");
             //Console.ReadLine();
 
-            
+            loggerFactory.Dispose();
         }
 
         static void deleteTest()
@@ -491,17 +507,17 @@ await ds.OrderDetailRepository
 
         static void QueryByPrimaryKey()
         {
-            Console.WriteLine("\nQueryByPrimaryKey\n");
+            // Console.WriteLine("QueryByPrimaryKey");
 
             // reaads a category from the database by CategoryId
             // SELECT * FROM dbo.Categories WHERE CategoryId = @P0
-            Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1);
-            Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
+            Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1, FetchMode.DirectDatabaseAccess);
+            // Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
 
             // Loads the product with ProductId = 2 from the database
             // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = @P0
             Product p = ds.ProductRepository.Get(Projection.Detailed, 2, nameof(Product.CategoryName), nameof(Product.ProductName));
-            Console.WriteLine("{0}, {1}", p.CategoryName, p.ProductName);
+            // Console.WriteLine("{0}, {1}\n", p.CategoryName, p.ProductName);
         }
 
         static void SubFilter()

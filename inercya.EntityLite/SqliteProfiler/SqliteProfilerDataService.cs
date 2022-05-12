@@ -28,9 +28,11 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
             //string connectionString = string.Format("Data Source=\"{0}\";journal mode=Off;page size=4096;cache size=1024;synchronous=Off", filePath);
             //TODO: turn off journal mode.
             string connectionString = string.Format("Data Source=\"{0}\"", filePath);
-            var logger = new SqliteProfilerDataService(connectionString, "System.Data.SQLite");
-            logger.FilePath = filePath;
-            return logger;
+            var ds = new SqliteProfilerDataService(connectionString, "System.Data.SQLite");
+            ds.FilePath = filePath;
+            ds.CommandTimeout = 8;
+            ds.IsPreventingSuperfluousUpdatesEnabled = false;
+            return ds;
         }
 
 
@@ -51,17 +53,17 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
         private void TurnOffJournalMode()
         {
             string journalMode = null;
-            using (var journalModeCmd = this.Connection.CreateCommand())
+            using (var getJournalModeCmd = this.Connection.CreateCommand())
             {
-                journalModeCmd.CommandText = "PRAGMA journal_mode;";
-                journalMode = Convert.ToString(journalModeCmd.ExecuteScalar());
+                getJournalModeCmd.CommandText = "PRAGMA journal_mode;";
+                journalMode = Convert.ToString(getJournalModeCmd.ExecuteScalar());
             }
             if (journalMode != "off")
             {
-                using (var cmd = this.Connection.CreateCommand())
+                using (var turnOffJournalmodeCmd = this.Connection.CreateCommand())
                 {
-                    cmd.CommandText = "PRAGMA journal_mode = OFF;";
-                    cmd.ExecuteNonQuery();
+                    turnOffJournalmodeCmd.CommandText = "PRAGMA journal_mode = OFF;";
+                    turnOffJournalmodeCmd.ExecuteNonQuery();
                 }
             }
         }
