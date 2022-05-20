@@ -58,6 +58,7 @@ public class DataLayerGeneration : IDisposable
 	public string ViewPrefix {get; set;}
 	public string SequencePrefix {get; set;}
 	public string SequenceSuffix {get; set;}
+	public bool UseUtcDateJsonConverter {get; set;}
 
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
 

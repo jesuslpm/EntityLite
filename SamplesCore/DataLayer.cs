@@ -2203,6 +2203,142 @@ namespace Samples.Entities
 		public const string Quarter = "Quarter";
 		public const string Year = "Year";
 	}
+	[Serializable]
+	[DataContract]
+    [TypeScript] 
+	[SqlEntity(BaseTableName="BusinessEvents")]
+	public partial class BusinessEvent : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _businessEventId;
+		[DataMember]
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="BusinessEventId", BaseColumnName ="BusinessEventId", BaseTableName = "BusinessEvents" )]		
+		public Int32 BusinessEventId 
+		{ 
+		    get { return _businessEventId; } 
+			set 
+			{
+			    _businessEventId = value;
+				NotifyPropertyChange("BusinessEventId");
+			}
+        }
+
+		private String _eventName;
+		[DataMember]
+		[SqlField(DbType.AnsiString, 128, ColumnName ="EventName", BaseColumnName ="EventName", BaseTableName = "BusinessEvents" )]		
+		public String EventName 
+		{ 
+		    get { return _eventName; } 
+			set 
+			{
+			    _eventName = value;
+				NotifyPropertyChange("EventName");
+			}
+        }
+
+		private DateTime _eventDate;
+		[DataMember]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, ColumnName ="EventDate", BaseColumnName ="EventDate", BaseTableName = "BusinessEvents" )]		
+		public DateTime EventDate 
+		{ 
+		    get { return _eventDate; } 
+			set 
+			{
+			    _eventDate = value;
+				NotifyPropertyChange("EventDate");
+			}
+        }
+
+		private DateTime _eventDateUtc;
+		[DataMember]
+		[Newtonsoft.Json.JsonConverter(typeof(inercya.Newtonsoft.Json.Converters.UtcDateJsonConverter))]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, ColumnName ="EventDateUtc", BaseColumnName ="EventDateUtc", BaseTableName = "BusinessEvents" )]		
+		public DateTime EventDateUtc 
+		{ 
+		    get { return _eventDateUtc; } 
+			set 
+			{
+			    _eventDateUtc = value;
+				NotifyPropertyChange("EventDateUtc");
+			}
+        }
+
+		public const string BaseTableProjectionColumnList = "[BusinessEventId], [EventName], [EventDate], [EventDateUtc]";
+
+	}
+
+	public partial class BusinessEventRepository : Repository<BusinessEvent> 
+	{
+		public BusinessEventRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public BusinessEvent Get(string projectionName, Int32 businessEventId)
+		{
+			return ((IRepository<BusinessEvent>)this).Get(projectionName, businessEventId, FetchMode.UseIdentityMap);
+		}
+
+		public BusinessEvent Get(string projectionName, Int32 businessEventId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<BusinessEvent>)this).Get(projectionName, businessEventId, fetchMode);
+		}
+
+		public BusinessEvent Get(Projection projection, Int32 businessEventId)
+		{
+			return ((IRepository<BusinessEvent>)this).Get(projection, businessEventId, FetchMode.UseIdentityMap);
+		}
+
+		public BusinessEvent Get(Projection projection, Int32 businessEventId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<BusinessEvent>)this).Get(projection, businessEventId, fetchMode);
+		}
+
+		public BusinessEvent Get(string projectionName, Int32 businessEventId, params string[] fields)
+		{
+			return ((IRepository<BusinessEvent>)this).Get(projectionName, businessEventId, fields);
+		}
+
+		public BusinessEvent Get(Projection projection, Int32 businessEventId, params string[] fields)
+		{
+			return ((IRepository<BusinessEvent>)this).Get(projection, businessEventId, fields);
+		}
+
+		public bool Delete(Int32 businessEventId)
+		{
+			var entity = new BusinessEvent { BusinessEventId = businessEventId };
+			return this.Delete(entity);
+		}
+
+			}
+	// [Obsolete("Use nameof instead")]
+	public static partial class BusinessEventFields
+	{
+		public const string BusinessEventId = "BusinessEventId";
+		public const string EventName = "EventName";
+		public const string EventDate = "EventDate";
+		public const string EventDateUtc = "EventDateUtc";
+	}
+
+	public static partial class BusinessEventProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 }
 
 namespace Samples.Entities
@@ -2360,6 +2496,19 @@ namespace Samples.Entities
 					_ProductSaleRepository = new Samples.Entities.ProductSaleRepository(this);
 				}
 				return _ProductSaleRepository;
+			}
+		}
+
+		private Samples.Entities.BusinessEventRepository _BusinessEventRepository;
+		public Samples.Entities.BusinessEventRepository BusinessEventRepository
+		{
+			get 
+			{
+				if ( _BusinessEventRepository == null)
+				{
+					_BusinessEventRepository = new Samples.Entities.BusinessEventRepository(this);
+				}
+				return _BusinessEventRepository;
 			}
 		}
 	}

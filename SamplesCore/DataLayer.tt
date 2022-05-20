@@ -48,6 +48,7 @@ To generate the datalayer for MySQL you need  to:
 		DataServiceName = "NorthwindDataService",
 		GenerateTypeScript = true,
 		GenerateProjectionColumnLists = true,
+		UseUtcDateJsonConverter = true,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 
@@ -98,6 +99,11 @@ To generate the datalayer for MySQL you need  to:
 			new EntitySetting 
 			{
 				EntityName = "ProductSale"  
+			},
+			new EntitySetting 
+			{
+				EntityName = "BusinessEvent",
+				BaseTableName = "BusinessEvents"
 			},
 			/*
 			new EntitySetting 

@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-    <PackageReference Include="NewtonSoft.Json" Version="10.0.3" />
+    <PackageReference Include="NewtonSoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="5.0.0-beta10" />
     <PackageReference Include="NReco.Logging.File" Version="1.1.4" />
     <PackageReference Include="System.Data.Sqlite.Core" Version="1.0.115.5" />
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.Core.csproj" />
+    <ProjectReference Include="..\inercya.Newtonsoft.Json\inercya.Newtonsoft.Json.Converters.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>inercya.Newtonsoft.Json.Converters</id>
+		<version>1.0.0</version>
+		<title>inercya.Newtonsoft.Json.Converters</title>
+		<authors>Jesús López</authors>
+		<owners>i-nercya intelligent software</owners>
+		<license type="expression">Apache-2.0</license>
+		<projectUrl>https://github.com/jesuslpm/EntityLite</projectUrl>
+		<repository url="https://github.com/jesuslpm/EntityLite" />
+		<icon>EntityLite.png</icon>
+		<description>
+			RoundDateJsonConverter and UtcDateJsonConverter for Json.NET
+		</description>
+		<summary>
+			Some Json.NET converters 
+		</summary>
+		<language>en-US</language>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<copyright>Copyright 2013-2022</copyright>
+		<dependencies>
+			<group targetFramework="netstandard2.0">
+				<dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
+			</group>
+		</dependencies>
+		<tags>Date converter</tags>
+	</metadata>
+	<files>
+		<file src="lib\" target="lib" />
+		<file src="EntityLite.png" target="" />
+	</files>
+</package>

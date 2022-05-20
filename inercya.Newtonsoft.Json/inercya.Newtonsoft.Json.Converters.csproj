@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.0.0</Version>
+    <Authors>Jesús López</Authors>
+    <Company>i-nercya</Company>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="COPY $(TargetDir)inercya.Newtonsoft.Json.Converters.dll $(SolutionDir)nuget\Converters\lib\netstandard2.0\ /Y&#xD;&#xA;COPY $(TargetDir)inercya.Newtonsoft.Json.Converters.pdb $(SolutionDir)nuget\Converters\lib\netstandard2.0\ /Y" />
+  </Target>
+
+</Project>
