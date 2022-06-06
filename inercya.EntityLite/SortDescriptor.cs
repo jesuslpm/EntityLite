@@ -23,8 +23,7 @@ using System.Runtime.Serialization;
 
 namespace inercya.EntityLite
 {
-    [Serializable]
-    public class SortDescriptor : ISerializable
+    public class SortDescriptor
     {
         public string FieldName { get; set; }
         public SortOrder SortOrder { get; set; }
@@ -46,20 +45,5 @@ namespace inercya.EntityLite
             this.SortOrder = SortOrder.Ascending;
         }
 
-        #region ISerializable Members
-
-        protected SortDescriptor(SerializationInfo info, StreamingContext context)
-        {
-            this.FieldName = info.GetString("FN");
-            this.SortOrder = (System.Data.SqlClient.SortOrder)info.GetInt32("SO");
-        }
-
-        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("FN", this.FieldName);
-            info.AddValue("SO", (int)this.SortOrder);
-        }
-
-        #endregion
     }
 }

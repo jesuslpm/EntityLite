@@ -11,20 +11,21 @@ using System.Threading;
 
 namespace inercya.EntityLite.Collections
 {
-	///
-	/// A lock-free queue.
-	///
+    ///
+    /// A lock-free queue.
+    ///
     ///Usage Note: thread safe, fast performance
-	///
-	/// by jason swearingen, copyright novaleaf software.  all rights reserved.
-	///
+    ///
+    /// by jason swearingen, copyright novaleaf software.  all rights reserved.
+    ///
     ///Released under the MSPL: http://www.opensource.org/licenses/ms-pl
-	///
+    ///
     ///idea/core algorithm taken from http://www.research.ibm.com/people/m/michael/podc-1996.pdf
-	/// inline comments are direct transcriptions of this paper's psudocode (thus this queue is virtually a 1:1 implementation of this awesome paper)
-	///
-	///
-	public class SafeQueue<T>
+    /// inline comments are direct transcriptions of this paper's psudocode (thus this queue is virtually a 1:1 implementation of this awesome paper)
+    ///
+    ///
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "The suffix is correct")]
+    public class SafeQueue<T>
 	{
 		//structure pointer t fptr: pointer to node t, count: unsigned integerg
 		//structure node t fvalue: data type, next: pointer tg
@@ -55,7 +56,7 @@ namespace inercya.EntityLite.Collections
 			_head = _tail = new Node();
 		}
  
-		private volatile int _count = 0;
+		private volatile int _count;
  
 		public bool IsEmpty
 		{

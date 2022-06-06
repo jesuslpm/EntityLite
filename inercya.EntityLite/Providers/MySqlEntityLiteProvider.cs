@@ -55,6 +55,7 @@ namespace inercya.EntityLite.Providers
 
         protected override void AppendGetAutoincrementField(StringBuilder commandText, EntityMetadata entityMetadata)
         {
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
             commandText.Append(";\nSELECT LAST_INSERT_ID() AS AutoIncrementField;");
         }
 
@@ -75,11 +76,12 @@ namespace inercya.EntityLite.Providers
 
         public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
         {
+            if (parameter == null) throw new ArgumentNullException(nameof(parameter));
             if (MySqlDbTypeSetter == null)
             {
                 var parameterType = parameter.GetType();
                 var pi = parameterType.GetProperty("MySqlDbType");
-                if (pi == null) new InvalidOperationException("MySqlDbType property not found on type " + parameterType.FullName);
+                if (pi == null) throw new InvalidOperationException("MySqlDbType property not found on type " + parameterType.FullName);
                 MySqlDbTypeSetter = PropertyHelper.GetPropertySetter(pi);
             }
             MySqlDbTypeSetter(parameter, providerType);

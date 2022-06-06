@@ -21,7 +21,6 @@ using System.Text;
 
 namespace inercya.EntityLite
 {
-    [Serializable]
     public class ConditionLite
     {
         public LogicalOperatorLite LogicalOperator { get; set; }

@@ -21,17 +21,17 @@ using System.Text;
 
 namespace inercya.EntityLite.Extensions
 {
-	public class MasterDetail<M, D>
+	public class MasterDetail<TMaster, TDetail>
 	{
-		public M Master { get; set; }
-		public IList<D> Details { get; set; }
+		public TMaster Master { get; set; }
+		public IList<TDetail> Details { get; set; }
 	}
 
-	public class MasterDetail<M, D1, D2>
+	public class MasterDetail<TMaster, TDetail1, TDetail2>
 	{
-		public M Master { get; set; }
-		public IList<D1> Details1 { get; set; }
-		public IList<D2> Details2 { get; set; }
+		public TMaster Master { get; set; }
+		public IList<TDetail1> Details1 { get; set; }
+		public IList<TDetail2> Details2 { get; set; }
 	}
 
 }

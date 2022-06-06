@@ -46,12 +46,20 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
+#pragma warning disable CA1066 // Implement IEquatable when overriding Object.Equals
+#pragma warning disable CA1815 // Override equals and operator equals on value types
+#pragma warning disable CA2231 // Overload operator equals on overriding value type Equals
+#pragma warning disable 0809
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+
 namespace inercya.EntityLite.Collections
 {
     // xxHash32 is used for the hash code.
     // https://github.com/Cyan4973/xxHash
 
+
     public struct HashCode
+
     {
         private static readonly uint s_seed = GenerateGlobalSeed();
 
@@ -67,10 +75,25 @@ namespace inercya.EntityLite.Collections
 
         private static uint GenerateGlobalSeed()
         {
-            var rng = new RNGCryptoServiceProvider();
-            var bytes = new byte[4];
-            rng.GetBytes(bytes);
-            return BitConverter.ToUInt32(bytes, 0);
+            RandomNumberGenerator rng = null;
+            try
+            {
+// I'm disposing it in the finally block if it is disposable. It depends on the target framewok
+// in net framework 3.5 RandomNumberGenerator was not disposable. But it is in 4.5.2 and .net standard 2.0
+#pragma warning disable CA2000 
+                rng = RandomNumberGenerator.Create();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+                var bytes = new byte[4];
+                rng.GetBytes(bytes);
+                return BitConverter.ToUInt32(bytes, 0);
+            }
+            finally
+            {
+                var disposable = rng as IDisposable;
+#pragma warning disable CA1508 // It depends on the target framework
+                if (disposable != null) disposable.Dispose();
+#pragma warning restore CA1508 // Avoid dead conditional code
+            }
         }
 
 #if NET452 || NETSTANDARD2_0
@@ -413,7 +436,7 @@ namespace inercya.EntityLite.Collections
             return (int)hash;
         }
 
-#pragma warning disable 0809
+
         // Obsolete member 'memberA' overrides non-obsolete member 'memberB'.
         // Disallowing GetHashCode and Equals is by design
 
@@ -429,11 +452,19 @@ namespace inercya.EntityLite.Collections
 
         [Obsolete("HashCode is a mutable struct and should not be compared with other HashCodes. Use ToHashCode to retrieve the computed hash code.", error: true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
+
         public override int GetHashCode() => throw new NotSupportedException("Hash code not supportes");
+
 
         [Obsolete("HashCode is a mutable struct and should not be compared with other HashCodes.", error: true)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw new NotSupportedException("Equality not supported");
-#pragma warning restore 0809
+
     }
 }
+
+#pragma warning restore CA2231 // Overload operator equals on overriding value type Equals
+#pragma warning restore CA1815 // Override equals and operator equals on value types
+#pragma warning restore CA1066 // Implement IEquatable when overriding Object.Equals
+#pragma warning restore 0809
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations

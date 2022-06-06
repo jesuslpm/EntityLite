@@ -24,10 +24,11 @@ using System.Text.RegularExpressions;
 using inercya.EntityLite.Extensions;
 using System.Data;
 using System.Collections;
+using System.Globalization;
 
 namespace inercya.EntityLite.Templates
 {
-    public static class Extensions
+    public static class TemplateExtensions
     {
 
         private static readonly HashSet<string> Keywords = new HashSet<string>
@@ -61,6 +62,7 @@ namespace inercya.EntityLite.Templates
 
         public static string ActualName(this Type type)
         {
+            if (type == null) throw new ArgumentNullException(nameof(type));
             if (!type.IsGenericType)
                 return type.Name;
             string genericTypeName = type.GetGenericTypeDefinition().Name;
@@ -74,15 +76,18 @@ namespace inercya.EntityLite.Templates
 
         public static bool IsNullableValueType(this Type type)
         {
-            return (type.IsGenericType && type.IsValueType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            return type.IsGenericType && type.IsValueType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
 
         public static string ToParameterName(this string self)
         {
-            if (string.IsNullOrEmpty(self)) throw new ArgumentException("parameter cannot be null nor empty", "self");
+            if (string.IsNullOrEmpty(self)) throw new ArgumentException("parameter cannot be null nor empty", nameof(self));
 
-            string firstCharacter = self.Substring(0, 1).ToLower();
+#pragma warning disable CA1308 // Normalize strings to uppercase
+            string firstCharacter = self.Substring(0, 1).ToLowerInvariant();
+#pragma warning restore CA1308 // Normalize strings to uppercase
             if (self.Length > 1)
             {
                 return firstCharacter + self.Substring(1);
@@ -106,8 +111,8 @@ namespace inercya.EntityLite.Templates
 
         internal static void AddParametersToCommand(this ISqlTemplate template, DbCommand command, DataService dataService)
         {
-            if (template == null) throw new ArgumentNullException("template");
-            if (command == null) throw new ArgumentNullException("command");
+            if (template == null) throw new ArgumentNullException(nameof(template));
+            if (command == null) throw new ArgumentNullException(nameof(command));
             Type templateType = template.GetType();
             var getters = templateType.GetPropertyGetters();
             var parameterPrefix = dataService.EntityLiteProvider.ParameterPrefix;
@@ -153,8 +158,8 @@ namespace inercya.EntityLite.Templates
                         foreach (object item in items)
                         {
                             IDbDataParameter parameter = command.CreateParameter();
-                            parameter.ParameterName = parameterPrefix + pi.Name + i.ToString();
-                            parameter.SourceColumn = pi.Name + i.ToString();
+                            parameter.ParameterName = parameterPrefix + pi.Name + i.ToString(CultureInfo.InvariantCulture);
+                            parameter.SourceColumn = pi.Name + i.ToString(CultureInfo.InvariantCulture);
                             if (parameterAttr.ProviderType == int.MaxValue)
                             {
                                 parameter.DbType = parameterAttr.DbType;

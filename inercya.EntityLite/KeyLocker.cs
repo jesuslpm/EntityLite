@@ -30,6 +30,7 @@ namespace inercya.EntityLite
 
         public T ExecuteSynchronized<T>(TKey key, Func<TKey, T> function)
         {
+            if (function == null) throw new ArgumentNullException(nameof(function));
             KeyLock keyLock = null;
             try
             {

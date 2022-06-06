@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -23,11 +24,15 @@ namespace inercya.EntityLite.Extensions
 {
 	public static class DictionaryExtensions
 	{
-		public static string ToListString(this IDictionary<string, object> self)
+		public static string ToListString(this IDictionary<string, object> dictionary)
 		{
-			if (self == null) throw new ArgumentNullException("self");
-			var strings = self.Select(kv => string.Format("{0}: {1}", kv.Key, kv.Value));
+			if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
+			var strings = dictionary.Select(kv => string.Format(CultureInfo.InvariantCulture, "{0}: {1}", kv.Key, kv.Value));
+#if NET35
 			return string.Join(", ", strings.ToArray());
+#else
+			return string.Join(", ", strings);
+#endif
 		}
 	}
 }

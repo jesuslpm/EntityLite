@@ -47,6 +47,8 @@ namespace inercya.EntityLite
         DataTable Pivot(params PivotTransform[] pivotTransforms);
         DataTable Pivot(Comparison<PivotedColumn> pivotedColumnComparison, params PivotTransform[] pivotTransforms);
         int CommandTimeout { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "this is not a Keyword in c# and we need to be backward compatible")]
         Alias Alias { get; set; }
         int Delete();
 

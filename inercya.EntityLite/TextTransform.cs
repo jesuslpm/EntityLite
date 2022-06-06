@@ -22,6 +22,7 @@ using System.Text;
 namespace inercya.EntityLite
 {
 
+    [Flags]
     public enum TextTransform
     {
         None = 0,

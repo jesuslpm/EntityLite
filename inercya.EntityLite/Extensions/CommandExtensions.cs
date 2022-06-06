@@ -29,7 +29,7 @@ namespace inercya.EntityLite.Extensions
 	{
 		public static IDbDataParameter AddWithValue(this DbParameterCollection parameters, string parameterName, object parameterValue)
 		{
-			if (parameters == null) throw new ArgumentNullException("parameters");
+			if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 			if (parameterValue == null) parameterValue = DBNull.Value;
 			SqlParameterCollection sqlParameters = parameters as SqlParameterCollection;
 			if (sqlParameters != null)
@@ -39,7 +39,7 @@ namespace inercya.EntityLite.Extensions
 			var addWithValueMethod = parameters.GetType().GetMethod("AddWithValue");
 			if (addWithValueMethod == null)
 			{
-				throw new NotImplementedException(string.Format("{0} does not implement AddWithValue method", parameters.GetType().Name));
+				throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "{0} does not implement AddWithValue method", parameters.GetType().Name));
 			}
 			return (IDbDataParameter)addWithValueMethod.Invoke(parameters, new object[] { parameterName, parameterValue });
 
@@ -47,7 +47,7 @@ namespace inercya.EntityLite.Extensions
 
         public static string GetParamsAsString(this DbCommand command)
         {
-            if (command == null) throw new ArgumentNullException("command");
+            if (command == null) throw new ArgumentNullException(nameof(command));
             StringBuilder builder = new StringBuilder();
             bool firstTime = true;
 

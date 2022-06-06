@@ -46,7 +46,7 @@ namespace inercya.EntityLite.Builders
                 var indentedLine = sb.ToString();
                 sql = template.GetSql(parameterPrefix).Replace("\r\n", indentedLine);
                 sb = new StringBuilder();
-                sb.Append('(').Append("\n").Append(sql).NewIndentedLine(--indentation).Append(") TQ");
+                sb.Append('(').Append('\n').Append(sql).NewIndentedLine(--indentation).Append(") TQ");
                 sql = sb.ToString();
             }
             return sql;

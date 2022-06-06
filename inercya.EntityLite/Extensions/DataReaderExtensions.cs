@@ -19,22 +19,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
-//using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Collections;
+using System.Globalization;
 #if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
 #endif
 using System.Data.Common;
-//using Newtonsoft.Json.Linq;
 
+
+#pragma warning disable CA1062 // Validate arguments of public methods. Don't want to do it for performance reasons.
 namespace inercya.EntityLite.Extensions
 {
+
     public static class DataReaderExtensions
     {
         public static byte[] GetByteArray(this IDataRecord dataRecord, int fieldOrdinal)
         {
+
             return (byte[])dataRecord.GetValue(fieldOrdinal);
+
         }
 
         public static TimeSpan GetTimeSpan(this IDataRecord dataRecord, int fieldOrdinal)
@@ -84,7 +88,7 @@ namespace inercya.EntityLite.Extensions
 
         private static string GetMetadataSummary(this IDataReader reader)
         {
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			var builder = new StringBuilder(1024);
 			for (int i = 0; i < reader.FieldCount; i++)
 			{
@@ -96,11 +100,11 @@ namespace inercya.EntityLite.Extensions
 				{
 					if (string.IsNullOrEmpty(fieldName))
 					{
-						throw new InvalidOperationException(string.Format("data reader field ordinal {0} returned null data type. This might be caused by the lack of some assemblies such as Microsoft.SqlServer.Types.dll", i));
+						throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "data reader field ordinal {0} returned null data type. This might be caused by the lack of some assemblies such as Microsoft.SqlServer.Types.dll", i));
 					}
 					else
 					{
-						throw new InvalidOperationException(string.Format("data reader field ordinal {0}, name {1} returned null data type. This might be caused by the lack of some assemblies such as Microsoft.SqlServer.Types.dll", i, fieldName));
+						throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "data reader field ordinal {0}, name {1} returned null data type. This might be caused by the lack of some assemblies such as Microsoft.SqlServer.Types.dll", i, fieldName));
 					}
 				}
 				builder.Append(type.Name).Append('|');
@@ -108,16 +112,16 @@ namespace inercya.EntityLite.Extensions
 			return builder.ToString();
         }
 
-		private static KeyLocker<DoubleKey<Type, string>> keyLocker = new KeyLocker<DoubleKey<Type, string>>();
-        private static readonly SynchronizedDictionary<DoubleKey<Type, string>, Func<IDataReader, object>> factoryCache = 
-			new SynchronizedDictionary<DoubleKey<Type, string>, Func<IDataReader, object>>();
+		private static KeyLocker<TypeStringKey> keyLocker = new KeyLocker<TypeStringKey>();
+        private static readonly SynchronizedDictionary<TypeStringKey, Func<IDataReader, object>> factoryCache = 
+			new SynchronizedDictionary<TypeStringKey, Func<IDataReader, object>>();
 
         public static Func<IDataReader, object> GetFactory(this IDataReader reader, Type entityType)
         {
-			if (reader == null) throw new ArgumentNullException("reader");
-			if (entityType == null) throw new ArgumentNullException("entityType");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
             Func<IDataReader, object> factory1 = null;
-            DoubleKey<Type, string> key = new DoubleKey<Type, string>(entityType, reader.GetMetadataSummary());
+            var key = new TypeStringKey(entityType, reader.GetMetadataSummary());
 
             if (factoryCache.TryGetValue(key, out factory1))
             {
@@ -139,7 +143,7 @@ namespace inercya.EntityLite.Extensions
 
 		public static object GetScalar(this IDataReader reader)
 		{
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			if (reader.Read())
 			{
 				object result = reader[0];
@@ -156,7 +160,7 @@ namespace inercya.EntityLite.Extensions
 
 		public static T FirstOrDefault<T>(this IDataReader reader) where T : class, new()
 		{
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			using (reader)
 			{
 				if (reader.Read())
@@ -172,7 +176,7 @@ namespace inercya.EntityLite.Extensions
 
 		public static IEnumerable<T> ToEnumerable<T>(this IDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
 		{
-			if (reader == null) throw new ArgumentNullException("reader");
+			if (reader == null) throw new ArgumentNullException(nameof(reader));
             try
             {
                 using (reader)
@@ -193,7 +197,7 @@ namespace inercya.EntityLite.Extensions
 #if (NET452 || NETSTANDARD2_0)
         public static async Task<List<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
         {
-            if (reader == null) throw new ArgumentNullException("reader");
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
             var list = new List<T>();
             try
             {
@@ -223,3 +227,4 @@ namespace inercya.EntityLite.Extensions
 
     }
 }
+#pragma warning restore CA1062 // Validate arguments of public methods

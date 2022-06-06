@@ -27,12 +27,12 @@ namespace inercya.EntityLite
 {
     public class TemplatedCommand : AbstractCommand
     {
-        public readonly ISqlTemplate Template;
+        public ISqlTemplate Template { get; private set; }
 
         public TemplatedCommand(DataService dataService, ISqlTemplate template) : base(dataService, true)
         {
-            if (dataService == null) throw new ArgumentNullException("dataService");
-            if (template == null) throw new ArgumentNullException("template");
+            if (dataService == null) throw new ArgumentNullException(nameof(dataService));
+            if (template == null) throw new ArgumentNullException(nameof(template));
             this.Template = template;
         }
 
@@ -40,7 +40,9 @@ namespace inercya.EntityLite
         {
             DbCommand command = this.DataService.EntityLiteProvider.CreateCommand();
             string parameterPrefix = this.DataService.EntityLiteProvider.ParameterPrefix;
+#pragma warning disable CA2100 // I'm an ORM. I need to generate sql on the fly.
             command.CommandText = Template.GetSql(parameterPrefix);
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
             Template.AddParametersToCommand(command, this.DataService);
             return command;
         }
@@ -48,6 +50,7 @@ namespace inercya.EntityLite
 
         protected override void SetOutPutParameters(DbCommand command)
         {
+            if (command == null) throw new ArgumentNullException(nameof(command));
             var setters = this.Template.GetType().GetPropertySetters();
             foreach (var p in command.Parameters.Cast<DbParameter>().Where(x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output))
             {

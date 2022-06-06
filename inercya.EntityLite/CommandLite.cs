@@ -35,7 +35,7 @@ namespace inercya.EntityLite
 
         private static ILogger logger;
 
-        private static bool isLoggerInitialized = false;
+        private static bool isLoggerInitialized;
         private static ILogger Log
         {
             get
@@ -53,14 +53,14 @@ namespace inercya.EntityLite
             }
         }
 
-        public readonly DataService DataService;
-        public readonly bool DisposeCommand;
+        public DataService DataService { get; private set; }
+        public bool DisposeCommand { get; private set; }
 
         public int CommandTimeout { get; set; }
 
         protected AbstractCommand(DataService dataService, bool disposeCommand)
         {
-            if (dataService == null) throw new ArgumentNullException("dataService");
+            if (dataService == null) throw new ArgumentNullException(nameof(dataService));
             this.DataService = dataService;
             this.DisposeCommand = disposeCommand;
             this.CommandTimeout = -1;
@@ -128,7 +128,7 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    Log?.LogError(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log?.LogError(ex, "Couldn't get data reader from command\r\n{CommandText}\r\n{Parameters}\r\n", command.CommandText, command.GetParamsAsString());
                 }
                 throw;
             }
@@ -150,13 +150,13 @@ namespace inercya.EntityLite
         private void LogQueryExecution(DbCommand cmd, TimeSpan timeTaken)
         {
             if (this.DataService is SqliteProfiler.Entities.SqliteProfilerDataService) return;
-            Log?.LogDebug("Query completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
+            Log?.LogDebug("Query completed in {Elapsed}.\r\n{CommandText}\r\nParameters: {Parameters}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
         private void LogCommandExecution(DbCommand cmd, TimeSpan timeTaken)
         {
             if (this.DataService is SqliteProfiler.Entities.SqliteProfilerDataService) return;
-            Log?.LogDebug("Command completed in {0}.\r\n{1}\r\nParameters: {2}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
+            Log?.LogDebug("Command completed in {Elapsed}.\r\n{CommandText}\r\nParameters: {Parameters}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
         public IList<T> ToList<T>() where T : class, new()
@@ -205,7 +205,7 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    Log?.LogError(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log?.LogError(ex, "Couldn't execute command\r\n{CommandText}\r\n{Parameters}\r\n", command.CommandText, command.GetParamsAsString());
                 }
                 throw;
             }
@@ -275,7 +275,7 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    Log?.LogError(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log?.LogError(ex, "Couldn't get data reader from command\r\n{CommandText}\r\n{Parameters}\r\n", command.CommandText, command.GetParamsAsString());
                 }
                 throw;
             }
@@ -323,7 +323,7 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    Log?.LogError(ex, string.Format("Couldn't get data reader from command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log?.LogError(ex, "Couldn't get data reader from command\r\n{CommandText}\r\n{Parameters}\r\n", command.CommandText, command.GetParamsAsString());
                 }
                 throw;
             }
@@ -363,7 +363,7 @@ namespace inercya.EntityLite
                 int maxRetries = DataService.IsActiveTransaction ? 0 : DataService.MaxRetries;
                 command = GetCommand();
                 Func<Task<T>> func = async () => {
-                    await ConfigureCommandAndOpenConnectionAsync(command);
+                    await ConfigureCommandAndOpenConnectionAsync(command).ConfigureAwait(false);
                     return await executeCommandAsyncFunc(command).ConfigureAwait(false);
                 };
                 var watch = Stopwatch.StartNew();
@@ -383,7 +383,7 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    Log?.LogError(ex, string.Format("Couldn't execute command\r\n{0}\r\n{1}", command.CommandText, command.GetParamsAsString()));
+                    Log?.LogError(ex, "Couldn't execute command\r\n{CommandText}\r\n{Parameters}", command.CommandText, command.GetParamsAsString());
                 }
                 throw;
             }
@@ -432,10 +432,11 @@ namespace inercya.EntityLite
             else return GetCommandFunc();
         }
 
-        public readonly Dictionary<string, object> OutputParameterValues = new Dictionary<string, object>();
+        public Dictionary<string, object> OutputParameterValues { get; }  = new Dictionary<string, object>();
 
         protected override void SetOutPutParameters(DbCommand command)
         {
+            if (command == null) throw new ArgumentNullException(nameof(command));
             OutputParameterValues.Clear();
             foreach (var p in command.Parameters.Cast<DbParameter>().Where( x => (x.Direction & ParameterDirection.Output) == ParameterDirection.Output && x.Direction != ParameterDirection.ReturnValue))
             {

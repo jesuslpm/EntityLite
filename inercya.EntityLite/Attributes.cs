@@ -27,10 +27,10 @@ using inercya.EntityLite.Extensions;
 namespace inercya.EntityLite
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class SqlFieldAttribute : Attribute
+    public sealed class SqlFieldAttribute : Attribute
     {
-        public DbType DbType { get; set; }
-        public int Size { get; set; }
+        public DbType DbType { get; private set; }
+        public int Size { get; private set; }
         public byte Precision { get; set; }
         public byte Scale { get; set; }
         public bool IsKey { get; set; }
@@ -53,7 +53,7 @@ namespace inercya.EntityLite
     }
 
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=false)]
-    public class SqlEntityAttribute : Attribute
+    public sealed class SqlEntityAttribute : Attribute
     {
         public string BaseTableName { get; set; }
         public string SchemaName { get; set; }
@@ -62,16 +62,16 @@ namespace inercya.EntityLite
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class DefaultOrderAttribute : Attribute
+    public sealed class DefaultOrderAttribute : Attribute
     {
-        public string Order { get; set; }
+        public string Order { get; private set; }
         public IEnumerable<SortDescriptor> GetSort()
         {
             var tokens = this.Order.Split(',').Select(s => s.Trim());
             foreach (var token in tokens)
             {
                 SortDescriptor sort = new SortDescriptor(token.Split(' ').FirstOrDefault().Trim());
-                if (token.EndsWith(" DESC"))
+                if (token.EndsWith(" DESC", StringComparison.Ordinal))
                 {
                     sort.SortOrder = System.Data.SqlClient.SortOrder.Descending;
                 }
@@ -86,7 +86,7 @@ namespace inercya.EntityLite
     }
 	
 	[AttributeUsage(AttributeTargets.Property)]
-	public class LocalizedFieldAttribute : Attribute
+	public sealed class LocalizedFieldAttribute : Attribute
 	{
 	}
 }

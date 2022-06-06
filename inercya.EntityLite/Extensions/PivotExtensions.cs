@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using inercya.EntityLite;
@@ -11,9 +12,9 @@ namespace inercya.EntityLite.Extensions
     {
         public static DataTable Pivot(this IDataReader reader, PivotDef pivotDef, Comparison<PivotedColumn> pivotedColumnComparison)
         {
-            if (reader == null) throw new ArgumentNullException("reader");
-            if (pivotDef == null) throw new ArgumentNullException("pivotDef");
-            if (pivotedColumnComparison == null) throw new ArgumentNullException("pivotedColumnComparison");
+            if (reader == null) throw new ArgumentNullException(nameof(reader));
+            if (pivotDef == null) throw new ArgumentNullException(nameof(pivotDef));
+            if (pivotedColumnComparison == null) throw new ArgumentNullException(nameof(pivotedColumnComparison));
             if (pivotDef.UnpivotedColumnNames == null) throw new ArgumentException("UnpivotedColumns must not be null");
             if (pivotDef.PivotTransforms == null) throw new ArgumentException("PivotColumns must not be null");
             if (pivotDef.PivotTransforms.Any(x => x == null)) throw new ArgumentException("All PivotColums mut be not null");
@@ -39,12 +40,12 @@ namespace inercya.EntityLite.Extensions
 
             var comparable = c1.PivotColumnValue as IComparable;
             if (comparable != null) return comparable.CompareTo(c2.PivotColumnValue);
-            return (c1.ColumnName.CompareTo(c2.ColumnName));
+            return string.Compare(c1.ColumnName, c2.ColumnName, StringComparison.OrdinalIgnoreCase);
         }
 
-   
 
-        
+
+
 
 
         private class SimplePivotBuilder
@@ -56,7 +57,6 @@ namespace inercya.EntityLite.Extensions
 
             private Record PreviousKey;
             private Record CurrentKey;
-            private DataTable TargetTable;
             private DataRow CurrentRow;
 
             private int[] KeyFieldsMappings;
@@ -99,7 +99,7 @@ namespace inercya.EntityLite.Extensions
                     string localizedFieldName = CurrentLanguageService.GetSufixedLocalizedFieldName(fieldName);
                     if (!readerFields.TryGetValue(localizedFieldName, out fieldIndex) && !pascalReaderFields.TryGetValue(localizedFieldName, out fieldIndex))
                     {
-                        throw new InvalidOperationException(string.Format("Field {0} not found in data reader", fieldName));
+                        throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Field {0} not found in data reader", fieldName));
                     }
                 }
                 return fieldIndex;
@@ -143,60 +143,60 @@ namespace inercya.EntityLite.Extensions
             {
                 BuildMappings();
 
-                TargetTable = new DataTable();
-                TargetTable.BeginLoadData();
-                AddUnpivotedColumnsColumsToDataTable();
+                var targetTable = new DataTable();
+                targetTable.BeginLoadData();
+                AddUnpivotedColumnsColumsToDataTable(targetTable);
 
                 while (Reader.Read())
                 {
                     ReadCurrentKey();
-                    AddNewRowIfNeeded();
-                    SetColumnValues();
+                    AddNewRowIfNeeded(targetTable);
+                    SetColumnValues(targetTable);
                 }
-                if (CurrentRow != null) this.TargetTable.Rows.Add(CurrentRow);
+                if (CurrentRow != null) targetTable.Rows.Add(CurrentRow);
 
-                ReorderColumns();
+                ReorderColumns(targetTable);
 
-                TargetTable.AcceptChanges();
-                TargetTable.EndLoadData();
-                return TargetTable;
+                targetTable.AcceptChanges();
+                targetTable.EndLoadData();
+                return targetTable;
             }
 
-            private void ReorderColumns()
+            private void ReorderColumns(DataTable targetTable)
             {
                 this.PivotedColumns.Sort(this.PivotedColumnComparison);
                 int ordinalBase = this.PivotDef.UnpivotedColumnNames.Length;
                 for (int i = 0; i < this.PivotedColumns.Count; i++)
                 {
                     var pivotedColumn = this.PivotedColumns[i];
-                    this.TargetTable.Columns[pivotedColumn.ColumnName].SetOrdinal(ordinalBase + i);
+                    targetTable.Columns[pivotedColumn.ColumnName].SetOrdinal(ordinalBase + i);
                 }
             }
 
-            private void SetColumnValues()
+            private void SetColumnValues(DataTable targetTable)
             {
                 for (int i = 0; i < this.PivotDef.PivotTransforms.Length; i++)
                 {
                     var pivotColumn = this.PivotDef.PivotTransforms[i];
                     object pivotColumnValue = Reader[this.PivotColumnsMappings[i]];
                     string targetColumnName = pivotColumn.GetPivotedColumnName(pivotColumnValue);
-                    DataColumn targetColumn = this.TargetTable.Columns[targetColumnName];
+                    DataColumn targetColumn = targetTable.Columns[targetColumnName];
                     if (targetColumn == null)
                     {
-                        targetColumn = this.TargetTable.Columns.Add(targetColumnName, Reader.GetFieldType(this.ValueColumnsMappings[i]));
+                        targetColumn = targetTable.Columns.Add(targetColumnName, Reader.GetFieldType(this.ValueColumnsMappings[i]));
                         PivotedColumns.Add(new PivotedColumn(pivotColumn.PivotColumnName, pivotColumnValue, i, targetColumnName));
                     }
                     CurrentRow[targetColumn] = Reader[this.ValueColumnsMappings[i]];
                 }
             }
 
-            private void AddNewRowIfNeeded()
+            private void AddNewRowIfNeeded(DataTable targetTable)
             {
                 if (!Record.Equals(this.PreviousKey, this.CurrentKey))
                 {
-                    if (CurrentRow != null) this.TargetTable.Rows.Add(CurrentRow);
+                    if (CurrentRow != null) targetTable.Rows.Add(CurrentRow);
 
-                    CurrentRow = this.TargetTable.NewRow();
+                    CurrentRow = targetTable.NewRow();
                     for (int i = 0; i < this.CurrentKey.FieldCount; i++)
                     {
                         CurrentRow[i] = this.CurrentKey[i];
@@ -205,12 +205,12 @@ namespace inercya.EntityLite.Extensions
                 }
             }
 
-            private void AddUnpivotedColumnsColumsToDataTable()
+            private void AddUnpivotedColumnsColumsToDataTable(DataTable targetTable)
             {
                 for (int i = 0; i < this.PivotDef.UnpivotedColumnNames.Length; i++)
                 {
                     string keyField = this.PivotDef.UnpivotedColumnNames[i];
-                    TargetTable.Columns.Add(keyField, Reader.GetFieldType(this.KeyFieldsMappings[i]));
+                    targetTable.Columns.Add(keyField, Reader.GetFieldType(this.KeyFieldsMappings[i]));
                 }
             }
         }

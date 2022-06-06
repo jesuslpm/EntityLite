@@ -25,7 +25,7 @@ using System.Text;
 namespace inercya.EntityLite.Templates
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class DbParameterSerieAttribute : Attribute
+    public sealed class DbParameterSerieAttribute : Attribute
     {
         public DbType DbType { get; set; }
 

@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -26,6 +27,7 @@ namespace inercya.EntityLite.Extensions
         
         public static string ToPascalNamingConvention(this string str)
         {
+            if (str == null) return null;
             StringBuilder sb = new StringBuilder(str.Length);
             bool isPreviousLower = false;
             bool isNewWord = true;
@@ -48,11 +50,11 @@ namespace inercya.EntityLite.Extensions
                 if (isNewWord)
                 {
                     isNewWord = false;
-                    if (isLower) c = char.ToUpper(c);
+                    if (isLower) c = char.ToUpper(c, CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    if (isUpper) c = char.ToLower(c);
+                    if (isUpper) c = char.ToLower(c, CultureInfo.InvariantCulture);
                 }
                 isPreviousLower = isLower;
                 sb.Append(c);
@@ -63,6 +65,7 @@ namespace inercya.EntityLite.Extensions
 
         public static string ToUnderscoreLowerCaseNamingConvention(this string str)
         {
+            if (str == null) return null;
             StringBuilder sb = new StringBuilder(str.Length + 6);
             bool isPreviousCharLowerCase = false;
             for (int i = 0; i < str.Length; i++ )
@@ -75,7 +78,7 @@ namespace inercya.EntityLite.Extensions
                 }
                 if (c == ' ') c = '_';
                 isPreviousCharLowerCase = char.IsLower(c);
-                if (isUpper) c = char.ToLower(c);
+                if (isUpper) c = char.ToLower(c, CultureInfo.InvariantCulture);
                 sb.Append(c);
             }
             return sb.ToString();
@@ -83,6 +86,7 @@ namespace inercya.EntityLite.Extensions
 
         public static string ToUnderscoreUpperCaseNamingConvention(this string str)
         {
+            if (str == null) return null;
             StringBuilder sb = new StringBuilder(str.Length + 8);
             bool isPreviousCharLowerCase = false;
             for (int i = 0; i < str.Length; i++)
@@ -95,7 +99,7 @@ namespace inercya.EntityLite.Extensions
                 }
                 if (c == ' ') c = '_';
                 isPreviousCharLowerCase = isLower;
-                if (isLower) c = char.ToUpper(c);
+                if (isLower) c = char.ToUpper(c, CultureInfo.InvariantCulture);
                 sb.Append(c);
             }
             return sb.ToString();
@@ -103,6 +107,7 @@ namespace inercya.EntityLite.Extensions
 
         public static bool HasUpperAndLowerCaseChars(this string str)
         {
+            if (str == null) return false;
             bool hasLower = false;
             bool hasUpper = false;
             foreach(char c in str)
@@ -116,14 +121,15 @@ namespace inercya.EntityLite.Extensions
 
         public static string Transform(this string str, TextTransform textTransform)
         {
+            if (str == null) return null;
             switch (textTransform)
             {
                 case TextTransform.None:
                     return str;
                 case TextTransform.ToLower:
-                    return str.ToLower();
+                    return str.ToLowerInvariant();
                 case TextTransform.ToUpper:
-                    return str.ToUpper();
+                    return str.ToUpperInvariant();
                 case TextTransform.ToPascalNamingConvention:
                     return str.ToPascalNamingConvention();
                 case TextTransform.ToUnderscoreLowerCaseNamingConvention:
@@ -137,6 +143,7 @@ namespace inercya.EntityLite.Extensions
 
         public static StringBuilder Indent(this StringBuilder builder, int indentation)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
             var chars = indentation * 3;
             for(int i =0; i < chars; i++)
             {
@@ -147,6 +154,7 @@ namespace inercya.EntityLite.Extensions
 
         public static StringBuilder NewIndentedLine(this StringBuilder builder, int indentation)
         {
+            if (builder == null) throw new ArgumentNullException(nameof(builder));
             return builder.Append('\n').Indent(indentation);
         }
     }

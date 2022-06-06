@@ -17,11 +17,10 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Xml;
+using System.Globalization;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -30,6 +29,7 @@ namespace inercya.EntityLite.Extensions
 
 		public static bool IsNullableValueType(this Type type)
 		{
+			if (type == null) throw new ArgumentNullException(nameof(type));
 			return (type.IsGenericType && type.IsValueType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
 		}
 
@@ -79,6 +79,7 @@ namespace inercya.EntityLite.Extensions
 
 		public static IEnumerable<SortDescriptor> GetDefaultSort(this Type entityType)
 		{
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
 			DefaultOrderAttribute defaultOrder = (DefaultOrderAttribute)entityType.GetCustomAttributes(typeof(DefaultOrderAttribute), true).FirstOrDefault();
 			if (defaultOrder == null)
 			{
@@ -104,20 +105,20 @@ namespace inercya.EntityLite.Extensions
 
 		public static string GetPrimaryKeyFieldName(this Type entityType)
 		{
-			if (entityType == null) throw new ArgumentNullException("entityType");
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
 			EntityMetadata entityMetadata = entityType.GetEntityMetadata();
 			if (entityMetadata == null)
 			{
-				throw new InvalidOperationException(string.Format("{0} has no primary key", entityType.Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "{0} has no primary key", entityType.Name));
 			}
 			ICollection<string> primaryKeyFieldNames = entityMetadata.PrimaryKeyPropertyNames;
 			if (primaryKeyFieldNames.Count == 0)
 			{
-				throw new InvalidOperationException(string.Format("{0} has no primary key", entityType.Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "{0} has no primary key", entityType.Name));
 			}
 			if (primaryKeyFieldNames.Count > 1)
 			{
-				throw new InvalidOperationException(string.Format("The {0} primary key is multiple", entityType.Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "The {0} primary key is multiple", entityType.Name));
 			}
 			return primaryKeyFieldNames.First();
 		}
@@ -137,9 +138,13 @@ namespace inercya.EntityLite.Extensions
 
         public static object DataContractDeserialize(this Type type, TextReader reader)
         {
-            using (var xreader = new XmlTextReader(reader))
-            {
-                return type.DataContractDeserialize(reader);
+#if NET35
+			using (var xreader = XmlReader.Create(reader, new XmlReaderSettings() { ProhibitDtd = true }))
+#else
+			using (var xreader = new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit })
+#endif
+			{
+                return type.DataContractDeserialize(xreader);
             }
         }
 

@@ -16,11 +16,11 @@ namespace inercya.EntityLite.SqliteProfiler
 {
     public class LogItem
     {
-        public string CommandText;
-        public TimeSpan ExecutionTime;
-        public string Params;
-        public string ApplicationContext;
-        public Guid DataServiceInstanceId;
+        public string CommandText { get; set; }
+        public TimeSpan ExecutionTime { get; set; }
+        public string Params { get; set; }
+        public string ApplicationContext { get; set; }
+        public Guid DataServiceInstanceId { get; set; }
     }
 
     public enum ProfileFileFrecuency
@@ -31,11 +31,13 @@ namespace inercya.EntityLite.SqliteProfiler
     }
 
 
-    public class Profiler : inercya.EntityLite.IProfilerLite
+    public sealed class Profiler : inercya.EntityLite.IProfilerLite, IDisposable
     {
         private static ILogger logger;
 
-        private static bool isLoggerInitialized = false;
+        private static bool isLoggerInitialized;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "logging should not throw")]
         private static ILogger Log
         {
             get
@@ -59,11 +61,11 @@ namespace inercya.EntityLite.SqliteProfiler
         private object syncObject = new object();
         private Thread workingThread;
 
-        public readonly ProfileFileFrecuency ProfileDatabaseFrecuency;
-        public readonly string ProfileDatabaseFileNamePrefix;
-        public readonly int MaxProfileDatabaseFiles;
-        public readonly string ProfileDatabaseFolderPath;
-        public readonly bool FullLogging;
+        public ProfileFileFrecuency ProfileDatabaseFrecuency { get; private set; }
+        public string ProfileDatabaseFileNamePrefix { get; private set; }
+        public int MaxProfileDatabaseFiles { get; private set; }
+        public string ProfileDatabaseFolderPath { get; private set; }
+        public bool FullLogging { get; private set; }
 
         private DateTime lastDataServiceCreateDay;
 
@@ -112,12 +114,12 @@ namespace inercya.EntityLite.SqliteProfiler
             switch (this.ProfileDatabaseFrecuency)
             {
                 case ProfileFileFrecuency.Daily:
-                    return Path.Combine(this.ProfileDatabaseFolderPath, string.Format("{0}{1}.db", this.ProfileDatabaseFileNamePrefix, today.ToString("yyyy-MM-dd")));
+                    return Path.Combine(this.ProfileDatabaseFolderPath, string.Format(CultureInfo.InvariantCulture, "{0}{1}.db", this.ProfileDatabaseFileNamePrefix, today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)));
                 case ProfileFileFrecuency.Weekly:
-                    return Path.Combine(this.ProfileDatabaseFolderPath, string.Format("{0}{1:0000}-W{2:00}.db", this.ProfileDatabaseFileNamePrefix, today.Year,
+                    return Path.Combine(this.ProfileDatabaseFolderPath, string.Format(CultureInfo.InvariantCulture, "{0}{1:0000}-W{2:00}.db", this.ProfileDatabaseFileNamePrefix, today.Year,
                         CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday)));
                 case ProfileFileFrecuency.Monthly:
-                    return Path.Combine(this.ProfileDatabaseFolderPath, string.Format("{0}{1}.db", this.ProfileDatabaseFileNamePrefix, today.ToString("yyyy-'M'MM")));
+                    return Path.Combine(this.ProfileDatabaseFolderPath, string.Format(CultureInfo.InvariantCulture, "{0}{1}.db", this.ProfileDatabaseFileNamePrefix, today.ToString("yyyy-'M'MM", CultureInfo.InvariantCulture)));
                 default:
                     throw new InvalidOperationException("Invalid ProfileDatabaseFrecuency");
             }
@@ -128,6 +130,8 @@ namespace inercya.EntityLite.SqliteProfiler
 
         public void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
         {
+            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (dataService == null) throw new ArgumentNullException(nameof(dataService));
             if (!IsRunning || dataService is SqliteProfilerDataService) return;
             if (logItemsQueue.Count >= MaxAllowedQueueLength) return;
             var item = new LogItem
@@ -161,8 +165,9 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
-        public int MaxQueueLength = 0;
+        public int MaxQueueLength { get; private set; }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Dataservice is ensured to be disposed")]
         private void ProcessLogItems()
         {
             SqliteProfilerDataService dataService = null;
@@ -180,7 +185,9 @@ namespace inercya.EntityLite.SqliteProfiler
                         startTime = DateTime.UtcNow;
                         attempt = 1;
                     }
+#pragma warning disable CA1031 // I don't care which exception is thrown, it it fails I need to retry.
                     catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                     {
                         if (++attempt > 10 && DateTime.UtcNow.Subtract(startTime) > TimeSpan.FromMinutes(2))
                         {
@@ -194,9 +201,11 @@ namespace inercya.EntityLite.SqliteProfiler
                     {
                         ProcessLogItems(dataService);
                     }
+#pragma warning disable CA1031 // I don't care which exception is thrown. If it fails I need to log it and continue
                     catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                     {
-                        Log?.LogError(ex, string.Format("Error processing log items after {0}", DateTime.UtcNow.Subtract(processLogItemsStartTime)));
+                        Log?.LogError(ex, "Error processing log items after {Elapsed}", DateTime.UtcNow.Subtract(processLogItemsStartTime));
                         signal.Set();
                     }
                 } 
@@ -268,7 +277,7 @@ namespace inercya.EntityLite.SqliteProfiler
             }
         }
 
-        public int MaxDataServiceAttempts = 0;
+        public int MaxDataServiceAttempts { get; private set; }
         private SqliteProfilerDataService EnsureDataServiceAndDeleteOldFiles(SqliteProfilerDataService dataService)
         {
             string filePath = null;
@@ -322,6 +331,18 @@ namespace inercya.EntityLite.SqliteProfiler
             catch (Exception ex)
             {
                 Log?.LogError(ex, "Error deleting old profiler database files");
+            }
+        }
+
+        public bool IsDisposed { get; private set; }
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+            IsDisposed = true;
+            var disposable = this.signal as IDisposable;
+            if (disposable != null)
+            {
+                disposable.Dispose();
             }
         }
     }

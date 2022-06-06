@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using inercya.EntityLite.Extensions;
 using System.Reflection;
+using System.Globalization;
 #if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
 #endif
@@ -36,7 +37,9 @@ namespace inercya.EntityLite
         bool Update(object entity, params string[] fieldsToUpdate);
         bool Delete(object entity);
         Type EntityType { get; }
-		object Get(Projection projection, object entityId, FetchMode fetchMode);
+#pragma warning disable CA1716 // Identifiers should not match keywords
+        object Get(Projection projection, object entityId, FetchMode fetchMode);
+#pragma warning restore CA1716 // Identifiers should not match keywords
         object Get(string projectionName, object entityId, FetchMode fetchMode);
         object Get(Projection projection, object entityId, string[] fields);
         object Get(string projectionName, object entityId, string[] fields);
@@ -133,31 +136,60 @@ namespace inercya.EntityLite
         }
 
 
-
-        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>> saveCollection;
-
-#if (NET452 || NETSTANDARD2_0)
-        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>> saveCollectionAsync;
-#endif
-
-        static Repository()
+        private static volatile bool isSaveCollectionFunctionInitialized;
+        private static object saveCollectionFunctionSyncObject = new object();
+        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>> _saveCollectionFunction;
+        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>> SaveCollectionFunction
         {
-            if (EntityMetadata != null && EntityMetadata.PrimaryKeyType != null)
+            get
             {
-
-                var mi = typeof(Repository<TEntity>).GetMethod("SaveCollection", BindingFlags.NonPublic | BindingFlags.Static);
-                mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
-                saveCollection = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>>), mi);
-
-#if (NET452 || NETSTANDARD2_0)
-                mi = typeof(Repository<TEntity>).GetMethod("SaveCollectionAsync", BindingFlags.NonPublic | BindingFlags.Static);
-                mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
-                saveCollectionAsync = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>), mi);
-#endif
-
+                if (isSaveCollectionFunctionInitialized == false)
+                {
+                    lock (saveCollectionFunctionSyncObject)
+                    {
+#pragma warning disable CA1508 // This waring is incorrect, isSaveCollectionFunctionInitialized will not always be false, the next line assigns it to true
+                        if (isSaveCollectionFunctionInitialized == false)
+#pragma warning restore CA1508 // Avoid dead conditional code 
+                        {
+                            isSaveCollectionFunctionInitialized = true;
+                            var mi = typeof(Repository<TEntity>).GetMethod("SaveCollection", BindingFlags.NonPublic | BindingFlags.Static);
+                            mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
+                            _saveCollectionFunction = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, SaveCollectionResult<TEntity>>), mi);
+                        }
+                    }
+                }
+                return _saveCollectionFunction;
             }
         }
 
+#if (NET452 || NETSTANDARD2_0)
+        private static volatile bool isSaveCollectionAsyncFunctionInitialized;
+        private static object saveCollectionAsyncFunctionSyncObject = new object();
+        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>> _saveCollectionAsyncFunction;
+        static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>> SaveCollectionAsyncFunction
+        {
+            get
+            {
+                if (isSaveCollectionAsyncFunctionInitialized == false)
+                {
+                    lock (saveCollectionAsyncFunctionSyncObject)
+                    {
+#pragma warning disable CA1508 // This waring is incorrect, isSaveCollectionAsyncFunctionInitialized will not always be false, the next line assigns it to true
+                        if (isSaveCollectionAsyncFunctionInitialized == false)
+#pragma warning restore CA1508 // Avoid dead conditional code 
+                        {
+                            isSaveCollectionAsyncFunctionInitialized = true;
+                            var mi = typeof(Repository<TEntity>).GetMethod("SaveCollection", BindingFlags.NonPublic | BindingFlags.Static);
+                            mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
+                            _saveCollectionAsyncFunction = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>), mi);
+                        }
+                    }
+                }
+                return _saveCollectionAsyncFunction;
+            }
+        }
+
+#endif
 
         public Repository(DataService dataService)
         {
@@ -247,33 +279,33 @@ namespace inercya.EntityLite
 
         public SaveCollectionResult<TEntity> Save(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities)
         {
-            if (saveCollection == null)
+            if (SaveCollectionFunction == null)
             {
-                throw new NotImplementedException($"Entity {typeof(TEntity).Name} has no single primary key");
+                throw new NotSupportedException($"Entity {typeof(TEntity).Name} has no single primary key");
             }
-            return saveCollection(this, entities, currentEntities);
+            return SaveCollectionFunction(this, entities, currentEntities);
         }
 
         public static bool IsNew(TEntity entity)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
             if (metadata == null)
             {
-                throw new ArgumentException(string.Format("{0} cannot be saved because it is not an entity, it has no SqlEntity attribute", entityType.Name));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0} cannot be saved because it is not an entity, it has no SqlEntity attribute", entityType.Name));
             }
             if (string.IsNullOrEmpty(metadata.BaseTableName))
             {
-                throw new ArgumentException(string.Format("{0} cannot be saved because it has no base table", entityType.Name));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0} cannot be saved because it has no base table", entityType.Name));
             }
             if (metadata.PrimaryKeyPropertyNames.Count == 0)
             {
-                throw new ArgumentException(string.Format("{0} cannot be saved, because is has no primary key", entityType.Name));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0} cannot be saved, because is has no primary key", entityType.Name));
             }
             if (metadata.PrimaryKeyPropertyNames.Count > 1)
             {
-                throw new ArgumentException(string.Format("{0} cannot be saved, because its primary key is multiple, use insert or update instead", entityType.Name));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,"{0} cannot be saved, because its primary key is multiple, use insert or update instead", entityType.Name));
             }
             string primaryKeyFieldName = metadata.PrimaryKeyPropertyNames.FirstOrDefault();
 
@@ -298,12 +330,12 @@ namespace inercya.EntityLite
                 var idTypeCode = Type.GetTypeCode(id.GetType());
                 if (idTypeCode == TypeCode.Int16 || idTypeCode == TypeCode.Int32 || idTypeCode == TypeCode.Int64 || idTypeCode == TypeCode.Decimal)
                 {
-                    decimal decimalId = Convert.ToDecimal(id);
+                    decimal decimalId = Convert.ToDecimal(id, CultureInfo.InvariantCulture);
                     if (decimalId == 0m) isNew = true;
                 }
                 else
                 {
-                    throw new ArgumentException(string.Format("{0} cannot be saved, because the type of {1}  is not supported, use insert and update instead", entityType.Name, primaryKeyFieldName));
+                    throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0} cannot be saved, because the type of {1}  is not supported, use insert or update instead", entityType.Name, primaryKeyFieldName));
                 }
             }
             return isNew;
@@ -328,18 +360,13 @@ namespace inercya.EntityLite
         }
 
 
-
-
-
-
-
         public Task<SaveCollectionResult<TEntity>> SaveAsync(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities)
         {
-            if (saveCollectionAsync == null)
+            if (SaveCollectionAsyncFunction == null)
             {
-                throw new NotImplementedException($"Entity {typeof(TEntity).Name} has no single primary key");
+                throw new NotSupportedException($"Entity {typeof(TEntity).Name} has no single primary key");
             }
-            return saveCollectionAsync(this, entities, currentEntities);
+            return SaveCollectionAsyncFunction(this, entities, currentEntities);
         }
 
 

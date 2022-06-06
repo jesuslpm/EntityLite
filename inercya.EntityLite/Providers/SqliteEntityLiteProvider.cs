@@ -49,6 +49,7 @@ namespace inercya.EntityLite.Providers
 
         protected override void AppendGetAutoincrementField(StringBuilder commandText, EntityMetadata entityMetadata)
         {
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
             commandText.Append(";\nSELECT last_insert_rowid() AS AutoIncrementField;");
         }
 
@@ -59,6 +60,7 @@ namespace inercya.EntityLite.Providers
 
         public override void SetProviderTypeToParameter(IDbDataParameter parameter, int providerType)
         {
+            if (parameter == null) throw new ArgumentNullException(nameof(parameter));
             parameter.DbType = (DbType)providerType;
         }
     }

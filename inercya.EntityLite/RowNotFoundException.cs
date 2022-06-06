@@ -21,6 +21,7 @@ using System.Text;
 
 namespace inercya.EntityLite
 {
+    [Serializable]
     public class RowNotFoundException : Exception
     {
         public RowNotFoundException(): base()
@@ -32,6 +33,11 @@ namespace inercya.EntityLite
         }
 
         public RowNotFoundException(string message, Exception innerException): base(message, innerException)
+        {
+        }
+
+        protected RowNotFoundException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+            :base(serializationInfo, streamingContext)
         {
         }
     }

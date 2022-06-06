@@ -24,6 +24,7 @@ using inercya.EntityLite.Extensions;
 using System.Diagnostics;
 using inercya.EntityLite.Builders;
 using System.Data;
+using System.Globalization;
 #if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
 #endif
@@ -31,13 +32,13 @@ using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
 {
-    [Serializable]
     public abstract class AbstractQueryLite : IQueryLite
     {
 
         private static ILogger logger;
-        private static bool isLoggerInitialized = false;
+        private static bool isLoggerInitialized;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "logging should not throw")]
         private static ILogger Log
         {
             get
@@ -160,7 +161,7 @@ namespace inercya.EntityLite
                 GetCommandFunc = GetCountCommand,
                 CommandTimeout = this.CommandTimeout
             };
-            return Convert.ToInt32(cmd.ExecuteScalar());
+            return Convert.ToInt32(cmd.ExecuteScalar(), CultureInfo.InvariantCulture);
         }
 
         public int Delete()
@@ -225,7 +226,7 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
 
-            return Convert.ToInt32(cmd.ExecuteScalar()) == 1; 
+            return Convert.ToInt32(cmd.ExecuteScalar(), CultureInfo.InvariantCulture) == 1; 
         }
 
 
@@ -312,7 +313,7 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             object result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
-            return Convert.ToInt32(result);
+            return Convert.ToInt32(result, CultureInfo.InvariantCulture);
         }
 
         public Task<int> DeleteAsync()
@@ -343,7 +344,7 @@ namespace inercya.EntityLite
                 CommandTimeout = this.CommandTimeout
             };
             var result = await cmd.ExecuteScalarAsync().ConfigureAwait(false);
-            return Convert.ToInt32(cmd.ExecuteScalar()) == 1;
+            return Convert.ToInt32(result, CultureInfo.InvariantCulture) == 1;
         }
 
         public Task<int> InsertIntoAsync(string destinationTableName, params string[] columnNames)

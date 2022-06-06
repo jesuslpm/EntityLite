@@ -5,6 +5,7 @@ using System.Text;
 
 namespace inercya.EntityLite
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1716:Identifiers should not match keywords", Justification = "Alias is not a keyword in c# and we need to be backward compatible")]
     public class Alias
     {
         public string Name { get; set; }

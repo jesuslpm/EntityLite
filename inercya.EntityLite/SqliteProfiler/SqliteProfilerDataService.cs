@@ -26,8 +26,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
         public static SqliteProfilerDataService Create(string filePath)
         {
             //string connectionString = string.Format("Data Source=\"{0}\";journal mode=Off;page size=4096;cache size=1024;synchronous=Off", filePath);
-            //TODO: turn off journal mode.
-            string connectionString = string.Format("Data Source=\"{0}\"", filePath);
+            string connectionString = string.Format(CultureInfo.InvariantCulture, "Data Source=\"{0}\"", filePath);
             var ds = new SqliteProfilerDataService(connectionString, "System.Data.SQLite");
             ds.FilePath = filePath;
             ds.CommandTimeout = 8;
@@ -56,7 +55,7 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
             using (var getJournalModeCmd = this.Connection.CreateCommand())
             {
                 getJournalModeCmd.CommandText = "PRAGMA journal_mode;";
-                journalMode = Convert.ToString(getJournalModeCmd.ExecuteScalar());
+                journalMode = Convert.ToString(getJournalModeCmd.ExecuteScalar(), CultureInfo.InvariantCulture);
             }
             if (journalMode != "off")
             {
@@ -105,11 +104,13 @@ namespace inercya.EntityLite.SqliteProfiler.Entities
             }
         }
 
+#pragma warning disable CA5351 // Not used for Cryptography, It is used for an index in SQLite database.
         private static readonly MD5 md5 = System.Security.Cryptography.MD5.Create();
+#pragma warning restore CA5351 // Do Not Use Broken Cryptographic Algorithms
 
         public void LogCommandExecution(LogItem item, bool fullLogging)
         {
-
+            if (item == null) throw new ArgumentNullException(nameof(item));
             var normalizedCommandText = listOfValuesRegex.Replace(item.CommandText, "(#ListOfValues#)");
             normalizedCommandText = guidRegex.Replace(normalizedCommandText, "#Guid#");
             byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(normalizedCommandText);

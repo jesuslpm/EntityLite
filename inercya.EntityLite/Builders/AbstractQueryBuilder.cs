@@ -41,6 +41,7 @@ namespace inercya.EntityLite.Builders
 
 		public void SetOptions(StringBuilder commandText)
 		{
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
 			if (QueryLite.Options != null && QueryLite.Options.Count > 0)
 			{
 				commandText.Append("\nOPTION (");
@@ -51,7 +52,7 @@ namespace inercya.EntityLite.Builders
 					else commandText.Append(", ");
 					commandText.Append(option);
 				}
-				commandText.Append(")");
+				commandText.Append(')');
 			}
 		}
 
@@ -62,7 +63,11 @@ namespace inercya.EntityLite.Builders
 
         public virtual string[] GetColumns(Type entityType, IList<string> propertyNames)
         {
-            if (propertyNames == null || propertyNames.Count == 0 || propertyNames[0] == "*") return new string[] { "*" } ;
+            if (propertyNames == null || propertyNames.Count == 0 || propertyNames[0] == "*")
+            {
+                return new string[] { "*" };
+            }
+            if (entityType == null) throw new ArgumentNullException(nameof(entityType));
             var properties = entityType.GetEntityMetadata().Properties;
             string startQuote = QueryLite.DataService.EntityLiteProvider.StartQuote;
             string endQuote = QueryLite.DataService.EntityLiteProvider.EndQuote;
@@ -72,7 +77,8 @@ namespace inercya.EntityLite.Builders
                 var fieldName = propertyNames[i];
                 if (!properties.TryGetValue(fieldName, out var propertyMetadata))
                 {
-                    throw new KeyNotFoundException(string.Format("property '{0}' not found in type '{1}'", fieldName, entityType.Name));
+                    var message = string.Format(CultureInfo.InvariantCulture, "property '{0}' not found in type '{1}'", fieldName, entityType.Name);
+                    throw new KeyNotFoundException(message);
                 }
                 if (propertyMetadata.IsLocalizedFiled)
                 {
@@ -87,11 +93,13 @@ namespace inercya.EntityLite.Builders
 
         public void GetSelectQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation, bool addSelectKeyword = true)
         {
+            if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
             commandText.Indent(indentation);
             var columnList = GetColumnList();
             bool isStar = columnList == "*";
             if (addSelectKeyword) commandText.Append("SELECT ");
-            if (isStar) commandText.Append("*");
+            if (isStar) commandText.Append('*');
             else commandText.NewIndentedLine(++indentation).Append(columnList);
             if (!isStar) indentation--;    
             commandText.NewIndentedLine(indentation).Append("FROM ")
@@ -115,6 +123,9 @@ namespace inercya.EntityLite.Builders
 
         public void GetDeleteQuery(DbCommand cmd, ref int paramIndex, StringBuilder commandText, int indentation)
         {
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
+
             commandText.Indent(indentation);
             commandText.Append("DELETE FROM ").Append(GetFromClauseContent(cmd, ref paramIndex, indentation));
             bool hasWhereClause = QueryLite.Filter != null && !QueryLite.Filter.IsEmpty();
@@ -128,6 +139,7 @@ namespace inercya.EntityLite.Builders
 
         public string GetDeleteQuery(DbCommand cmd, ref int paramIndex, int indentation)
         {
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
             StringBuilder commandText = new StringBuilder();
             GetDeleteQuery(cmd, ref paramIndex, commandText, indentation);
             var query = commandText.ToString();
@@ -136,11 +148,14 @@ namespace inercya.EntityLite.Builders
 
         public void GetSelectIntoQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation, string destinationTableName)
         {
+            if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
+            if (destinationTableName == null) throw new ArgumentNullException(nameof(destinationTableName));
             commandText.Indent(indentation);
             var columnList = GetColumnList();
             bool isStar = columnList == "*";
             commandText.Append("SELECT ");
-            if (isStar) commandText.Append("*");
+            if (isStar) commandText.Append('*');
             else commandText.NewIndentedLine(++indentation).Append(columnList);
             if (!isStar) indentation--;
 
@@ -148,7 +163,7 @@ namespace inercya.EntityLite.Builders
             string startQuote = this.QueryLite.DataService.EntityLiteProvider.StartQuote;
             string endQuote = this.QueryLite.DataService.EntityLiteProvider.EndQuote;
             string quotedObjectName = null;
-            if (destinationTableName.StartsWith(startQuote) && destinationTableName.EndsWith(endQuote))
+            if (destinationTableName.StartsWith(startQuote, StringComparison.Ordinal) && destinationTableName.EndsWith(endQuote, StringComparison.Ordinal))
             {
                 quotedObjectName = destinationTableName;
             }
@@ -177,10 +192,12 @@ namespace inercya.EntityLite.Builders
             }
         }
 
-        public string GetSelectIntoQuery(DbCommand selectCommand, ref int paramIndex, int indentation, string destinationTableName)
+        public string GetSelectIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName)
         {
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (destinationTableName == null) throw new ArgumentNullException(nameof(destinationTableName));
             StringBuilder commandText = new StringBuilder();
-            GetSelectIntoQuery(selectCommand, ref paramIndex, commandText, indentation, destinationTableName);
+            GetSelectIntoQuery(cmd, ref paramIndex, commandText, indentation, destinationTableName);
             SetOptions(commandText);
             var query = commandText.ToString();
             return query;
@@ -188,10 +205,13 @@ namespace inercya.EntityLite.Builders
 
         public void GetInsertIntoQuery(DbCommand selectCommand, ref int paramIndex, StringBuilder commandText, int indentation, string destinationTableName, string[] columnNames)
         {
+            if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
+            if (destinationTableName == null) throw new ArgumentNullException(nameof(destinationTableName));
             string startQuote = this.QueryLite.DataService.EntityLiteProvider.StartQuote;
             string endQuote = this.QueryLite.DataService.EntityLiteProvider.EndQuote;
             string quotedObjectName = null;
-            if (destinationTableName.StartsWith(startQuote) && destinationTableName.EndsWith(endQuote))
+            if (destinationTableName.StartsWith(startQuote, StringComparison.Ordinal) && destinationTableName.EndsWith(endQuote, StringComparison.Ordinal))
             {
                 quotedObjectName = destinationTableName;
             }
@@ -205,13 +225,13 @@ namespace inercya.EntityLite.Builders
             commandText.Append("INSERT INTO ").Append(quotedObjectName);
             if (columnNames != null && columnNames.Length > 0)
             {
-                commandText.Append("(");
+                commandText.Append('(');
                 var firstTime = true;
                 foreach (var column in columnNames)
                 {
                     if (firstTime) firstTime = false;
                     else commandText.Append(", ");
-                    if (column.StartsWith(startQuote) && column.EndsWith(endQuote))
+                    if (column.StartsWith(startQuote, StringComparison.Ordinal) && column.EndsWith(endQuote, StringComparison.Ordinal))
                     {
                         commandText.Append(column);
                     }
@@ -220,7 +240,7 @@ namespace inercya.EntityLite.Builders
                         commandText.Append(startQuote).Append(column).Append(endQuote);
                     }
                 }
-                commandText.Append(")");
+                commandText.Append(')');
             }
 
             commandText.NewIndentedLine(indentation);
@@ -237,10 +257,11 @@ namespace inercya.EntityLite.Builders
         }
 
 
-        public string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int indentation)
+        public string GetSelectQuery(DbCommand cmd, ref int paramIndex, int indentation)
         {
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
             StringBuilder commandText = new StringBuilder();
-            GetSelectQuery(selectCommand, ref paramIndex, commandText, indentation);
+            GetSelectQuery(cmd, ref paramIndex, commandText, indentation);
             SetOptions(commandText);
             var query = commandText.ToString();
             return query;
@@ -288,25 +309,28 @@ namespace inercya.EntityLite.Builders
 
         protected IDbDataParameter CreateParameter(PropertyMetadata propertyMetadata, object paramValue, ref int paramIndex, out string parameterName)
         {
-            parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+            if (propertyMetadata == null) throw new ArgumentNullException(nameof(propertyMetadata));
+            parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString(CultureInfo.InvariantCulture);
             IDbDataParameter parameter = QueryLite.DataService.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.Size = propertyMetadata.SqlField.Size;
 
             Type propertyType = propertyMetadata.PropertyInfo.PropertyType.UndelyingType();
             var sqlParam = parameter as SqlParameter;
-            if (propertyType.FullName.StartsWith("Microsoft.SqlServer.Types.Sql"))
+            if (propertyType.FullName.StartsWith("Microsoft.SqlServer.Types.Sql", StringComparison.Ordinal))
             {
                 if (sqlParam != null)
                 {
                     sqlParam.SqlDbType = SqlDbType.Udt;
                     //TODO: En .NET Core no va a funcionar porque no existe la propiedad "UdtTypeName" y dará un error en tiempo de ejecución.
-                    udtTypeNameSetter?.Invoke(sqlParam, propertyType.Name.Substring(3).ToLower());
+#pragma warning disable CA1308 // Normalize strings to uppercase
+                    udtTypeNameSetter?.Invoke(sqlParam, propertyType.Name.ToLowerInvariant());
+#pragma warning restore CA1308 // Normalize strings to uppercase
                 }
                 else
                 {
                     parameter.DbType = DbType.String;
-                    if (propertyType.Name.StartsWith("SqlHierarchyId"))
+                    if (propertyType.Name.StartsWith("SqlHierarchyId", StringComparison.Ordinal))
                     {
                         parameter.Size = 4000;
                     }
@@ -370,7 +394,7 @@ namespace inercya.EntityLite.Builders
 
         public IDbDataParameter CreateIn32Parameter(int paramValue, ref int paramIndex, out string parameterName)
         {
-            parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+            parameterName = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString(CultureInfo.InvariantCulture);
             IDbDataParameter parameter = QueryLite.DataService.DbProviderFactory.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.DbType = DbType.Int32;
@@ -379,8 +403,10 @@ namespace inercya.EntityLite.Builders
             return parameter;
         }
 
-        private PropertyMetadata GetPropertyMetadata(Type entityType, string fieldName)
+        private static PropertyMetadata GetPropertyMetadata(Type entityType, string fieldName)
         {
+            if (entityType == null) throw new ArgumentNullException(nameof(entityType));
+            if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
             PropertyMetadata propertyMetadata;
             EntityMetadata entityMetadata = entityType.GetEntityMetadata();
             if (entityMetadata == null) throw new InvalidOperationException("Entity " + entityType.Name + " has no metadata");
@@ -411,6 +437,9 @@ namespace inercya.EntityLite.Builders
 
         protected virtual void GenerateFilterForCondition(DbCommand cmd, ConditionLite condition, StringBuilder sb, ref int paramIndex, ref bool firstCondition, int indentation)
         {
+            if (condition == null) throw new ArgumentNullException(nameof(condition));
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (sb == null) throw new ArgumentNullException(nameof(sb));
             string parameterName = null;
             if (condition.Filter != null && condition.Filter.IsEmpty()) return;
             if (firstCondition) { ;}
@@ -429,7 +458,7 @@ namespace inercya.EntityLite.Builders
             IQueryBuilder queryBuilder = condition.SubQuery == null ? null : condition.SubQuery.QueryBuilder;
             if (condition.Operator == OperatorLite.In || condition.Operator == OperatorLite.NotIn)
             {
-                if (values == null && queryBuilder == null) throw new ArgumentException("The value for In and NotIn operators must be enumerable or a subquery", "expression");
+                if (values == null && queryBuilder == null) throw new ArgumentException("The value for In and NotIn operators must be enumerable or a subquery", nameof(condition));
                 if (values != null)
                 {
                     bool hasAnyValue = values.AreThereMoreThan(0);
@@ -564,7 +593,7 @@ namespace inercya.EntityLite.Builders
                     break;
                 case OperatorLite.STDistanceLess:
                 case OperatorLite.STDistanceLessOrEquals:
-                    string pname = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString();
+                    string pname = QueryLite.DataService.EntityLiteProvider.ParameterPrefix + "P" + paramIndex.ToString(CultureInfo.InvariantCulture);
                     cmd.Parameters.AddWithValue(pname, condition.Parameter);
                     paramIndex++;
                     sb.Append(".STDistance(" + parameterName + ") " + (condition.Operator == OperatorLite.STDistanceLess ? "< " : "<= ") + pname);
@@ -587,7 +616,7 @@ namespace inercya.EntityLite.Builders
                 {
                     bool firstChunk = true;
                     int valueCount = 0;
-                    sb.Append("(");
+                    sb.Append('(');
                     foreach (object v in values)
                     {
                         object value = v;
@@ -645,7 +674,7 @@ namespace inercya.EntityLite.Builders
                         else sb.Append(", ");
                         sb.Append(parameterName);
                     }
-                    sb.Append(")");
+                    sb.Append(')');
                 }
             }
             else
@@ -653,13 +682,15 @@ namespace inercya.EntityLite.Builders
                 sb.Append(quotedColumnName).Append(condition.Operator == OperatorLite.In ? " IN (" : " NOT IN (");
                 sb.Append('\n').Append(queryBuilder.GetSelectQuery(cmd, ref paramIndex, ++indentation));
                 sb.NewIndentedLine(--indentation);
-                sb.Append(")");
+                sb.Append(')');
             }
             
         }
 
         public virtual string GetFilter(DbCommand selectCommand, ref int paramIndex, ICollection<ConditionLite> filter, int indentation, bool parenthesis)
         {
+            if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
+            if (filter == null) throw new ArgumentNullException(nameof(filter));
             StringBuilder sb = new StringBuilder();
             bool firstCondition = true;
             if (parenthesis) sb.Append('(').NewIndentedLine(++indentation);
@@ -692,6 +723,8 @@ namespace inercya.EntityLite.Builders
 
         protected virtual bool GenerateOrderByForOneField(StringBuilder commandText, bool firstTime, SortDescriptor sortDescriptor)
         {
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
+            if (sortDescriptor == null) throw new ArgumentNullException(nameof(sortDescriptor));
 			PropertyMetadata propertyMetadata = null;
             var entityMetadata = QueryLite.EntityType.GetEntityMetadata();
             if (entityMetadata == null) throw new InvalidOperationException("Entity " + QueryLite.EntityType.Name + " has no metadata");

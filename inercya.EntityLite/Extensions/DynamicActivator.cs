@@ -36,11 +36,17 @@ namespace inercya.EntityLite.Extensions
 			return delegate { return (T)activator(); };
 		}
 
+#if NET35 || NET452
+		private static Type[] emtpyTypeArray = new Type[] { };
+#else
+		private static Type[] emtpyTypeArray = Array.Empty<Type>();
+#endif
+
 		private static DynamicMethod CreateDynamicActivatorMethod(this Type type)
 		{
 			DynamicMethod dm = new DynamicMethod("DynamicActivator<" + type.FullName + ">", typeof(object), null);
-			ConstructorInfo cinfo = type.GetConstructor(new Type[] { });
-			if (cinfo == null) throw new ArgumentException(type.FullName + " doesn't have public default constructor", "type");
+			ConstructorInfo cinfo = type.GetConstructor(emtpyTypeArray);
+			if (cinfo == null) throw new ArgumentException(type.FullName + " doesn't have public default constructor", nameof(type));
 			var il = dm.GetILGenerator();
 			il.Emit(OpCodes.Newobj, cinfo);
 			il.Emit(OpCodes.Ret);
@@ -49,6 +55,7 @@ namespace inercya.EntityLite.Extensions
 
         public static Func<object> CreateDynamicActivator(this Type type)
         {
+			if (type == null) throw new ArgumentNullException(nameof(type));
 			DynamicMethod dm = CreateDynamicActivatorMethod(type);
 			return (Func<object>)dm.CreateDelegate(typeof(Func<object>));
         }

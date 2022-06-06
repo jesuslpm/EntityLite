@@ -23,7 +23,6 @@ using System.Xml.Serialization;
 
 namespace inercya.EntityLite.Extensions
 {
-	[Serializable]
 	[DataContract]
 	public class TreeNode<T>
 	{

@@ -26,7 +26,7 @@ namespace inercya.EntityLite.Extensions
 	{
 		public static string GetMemberName(this LambdaExpression selector)
 		{
-			if (selector == null) throw new ArgumentNullException("selector");
+			if (selector == null) throw new ArgumentNullException(nameof(selector));
 			var memberExpression = selector.Body as MemberExpression;
 			if (memberExpression == null)
 			{
@@ -37,7 +37,7 @@ namespace inercya.EntityLite.Extensions
 				}
 
 			}
-			if (memberExpression == null) throw new ArgumentException("selector must be a member expression", "selector");
+			if (memberExpression == null) throw new ArgumentException("selector must be a member expression", nameof(selector));
 			return memberExpression.Member.Name;
 		}
 	}

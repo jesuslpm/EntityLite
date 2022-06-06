@@ -26,8 +26,8 @@ namespace inercya.EntityLite.Collections
 {
     public class SynchronizedDictionary<TKey, TValue>: IDictionary<TKey, TValue>
     {
-        private volatile bool isWriterInProgress = false;
-        private volatile int version = 0;
+        private volatile bool isWriterInProgress;
+        private volatile int version;
 
         private Dictionary<TKey, TValue> dictionary;
 
@@ -250,7 +250,7 @@ namespace inercya.EntityLite.Collections
 
         bool ICollection<KeyValuePair<TKey,TValue>>.Contains(KeyValuePair<TKey, TValue> item)
         {
-            if (item.Key == null) throw new ArgumentNullException("item.key");
+            if (item.Key == null) throw new ArgumentException("item.key is null");
             return SyncrhonizedReadFunction(delegate { return dictionary.Contains(item); });
         }
 

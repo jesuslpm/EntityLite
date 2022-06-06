@@ -147,6 +147,8 @@ namespace inercya.EntityLite
         /// <returns>Puntero al método Set para la propiedad 'propertyName' del tipo 'type'.</returns>
         public static PropertySetter GetPropertySetter(Type type, string propertyName)
         {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
             PropertyInfo pi = type.GetProperty(propertyName);
             if (pi == null)
             {
@@ -165,6 +167,7 @@ namespace inercya.EntityLite
         /// <returns>Puntero al método Set para la propiedad especificada en ProperyInfo.</returns>
         public static PropertySetter GetPropertySetter(PropertyInfo pi)
         {
+            if (pi == null) throw new ArgumentNullException(nameof(pi));
             //Si la propiedad es de solo lectura no tendrá metodo Set.
             MethodInfo mi = pi.GetSetMethod();
             if (mi == null) return null;
@@ -220,7 +223,8 @@ namespace inercya.EntityLite
         /// en caso contrario, no se almacenará en caché.</param>
         /// <returns>Diccionario de duplas (NombrePropiedad, MétodoGetDinámico).</returns>
         public static IPropertyGetterDictionary CreatePropertyGetters(Type type)
-        {          
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
             PropertyInfo[] props = type.GetProperties();
             Dictionary<string, PropertyGetter> internalGetters = new Dictionary<string, PropertyGetter>(props.Length);
             foreach (PropertyInfo pi in props)
@@ -248,6 +252,8 @@ namespace inercya.EntityLite
         /// <returns>Puntero al método Get para la propiedad 'propertyName' del tipo 'type'.</returns>
         public static PropertyGetter GetPropertyGetter(Type type, string propertyName)
         {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
             PropertyInfo pi = type.GetProperty(propertyName);
             if (pi == null)
             {
@@ -265,6 +271,7 @@ namespace inercya.EntityLite
         /// <returns>Puntero al método Set para la propiedad especificada en ProperyInfo.</returns>
         public static PropertyGetter GetPropertyGetter(PropertyInfo pi)
         {
+            if (pi == null) throw new ArgumentNullException(nameof(pi));
             //Si la propiedad es de solo escritura no tendrá metodo Get.
             MethodInfo mi = pi.GetGetMethod();
             if (mi == null) return null;

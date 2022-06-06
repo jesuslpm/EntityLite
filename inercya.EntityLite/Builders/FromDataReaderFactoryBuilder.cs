@@ -24,6 +24,7 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 //using Microsoft.SqlServer.Types;
 using inercya.EntityLite.Extensions;
+using System.Globalization;
 //using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Builders
@@ -75,7 +76,7 @@ namespace inercya.EntityLite.Builders
             }
             else
             {
-                throw new NotSupportedException(string.Format("Fields of type {0} are not supported", fieldType.FullName));
+                throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Fields of type {0} are not supported", fieldType.FullName));
             }
         }
 
@@ -253,7 +254,7 @@ namespace inercya.EntityLite.Builders
                 OpCode opCode;
                 if (!nativeConversionOpcodes.TryGetValue(toType, out opCode))
                 {
-                    throw new InvalidCastException(string.Format("Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
+                    throw new InvalidCastException(string.Format(CultureInfo.InvariantCulture, "Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
                 }
                 cil.Emit(opCode);
             }
@@ -266,7 +267,7 @@ namespace inercya.EntityLite.Builders
                 MethodInfo toStringMethod = fromType.GetMethod("ToString", Type.EmptyTypes);
                 if (toStringMethod == null)
                 {
-                    throw new InvalidCastException(string.Format("Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
+                    throw new InvalidCastException(string.Format(CultureInfo.InvariantCulture, "Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
                 }
                 if (fromType.IsValueType)
                 {
@@ -282,11 +283,11 @@ namespace inercya.EntityLite.Builders
             }
             else
             {
-                throw new InvalidCastException(string.Format("Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
+                throw new InvalidCastException(string.Format(CultureInfo.InvariantCulture, "Cannot convert from {0} to {1}", fromType.FullName, toType.FullName));
             }
         }
 
-        private bool TryFindMappingProperty(Dictionary<string, PropertyMetadata> columnToPropertyMap, Dictionary<string, PropertyInfo> properties, string fieldName, out PropertyInfo pi )
+        private static bool TryFindMappingProperty(Dictionary<string, PropertyMetadata> columnToPropertyMap, Dictionary<string, PropertyInfo> properties, string fieldName, out PropertyInfo pi )
         {
             if (columnToPropertyMap != null && columnToPropertyMap.TryGetValue(fieldName, out var propertyMetadata) && propertyMetadata.PropertyInfo != null)
             {
@@ -308,6 +309,14 @@ namespace inercya.EntityLite.Builders
             return false;
         }
 
+#if NETSTANDARD2_0
+        private static Type[] emptyTypeArray = Array.Empty<Type>();
+#endif
+
+#if NET452 || NET35
+        private static Type[] emptyTypeArray = new Type[] {};
+#endif
+
         private DynamicMethod CreateDynamicMethod()
         {
             DynamicMethod dm = new DynamicMethod("ObjectFromDataReader<" + this.entityType.FullName + ">", typeof(object), new Type[] { typeof(IDataReader) });
@@ -315,7 +324,7 @@ namespace inercya.EntityLite.Builders
 
 			// T entity = new T();
 			LocalBuilder entityVar = cil.DeclareLocal(this.entityType);
-            cil.Emit(OpCodes.Newobj, this.entityType.GetConstructor(new Type[] { }));
+            cil.Emit(OpCodes.Newobj, this.entityType.GetConstructor(emptyTypeArray));
             cil.Emit(OpCodes.Stloc_0);
 
             var properties = entityType.GetProperties().ToDictionary(x => x.Name);

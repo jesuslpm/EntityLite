@@ -55,7 +55,7 @@ namespace inercya.EntityLite.Builders
             string startQuote =  this.QueryLite.DataService.EntityLiteProvider.StartQuote;
             string endQuote =  this.QueryLite.DataService.EntityLiteProvider.EndQuote;
             string quotedObjectName = null;
-            if (tableOrViewName.StartsWith(startQuote) && tableOrViewName.EndsWith(endQuote))
+            if (tableOrViewName.StartsWith(startQuote, StringComparison.Ordinal) && tableOrViewName.EndsWith(endQuote, StringComparison.Ordinal))
             {
                 quotedObjectName = tableOrViewName;
             }

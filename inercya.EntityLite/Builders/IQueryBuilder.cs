@@ -24,12 +24,12 @@ namespace inercya.EntityLite.Builders
 {
     public interface IQueryBuilder
     {
-        string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int indentation);
-        string GetSelectQuery(DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex, int indentation);
-        string GetCountQuery(DbCommand selectCommand, ref int paramIndex);
-        string GetAnyQuery(DbCommand selectCommand, ref int paramIndex);
-        string GetDeleteQuery(DbCommand selectCommand, ref int paramIndex, int indentation);
-        string GetSelectIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinatioTableName);
+        string GetSelectQuery(DbCommand cmd, ref int paramIndex, int indentation);
+        string GetSelectQuery(DbCommand cmd, ref int paramIndex, int fromRowIndex, int toRowIndex, int indentation);
+        string GetCountQuery(DbCommand cmd, ref int paramIndex);
+        string GetAnyQuery(DbCommand cmd, ref int paramIndex);
+        string GetDeleteQuery(DbCommand cmd, ref int paramIndex, int indentation);
+        string GetSelectIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName);
         string GetInsertIntoQuery(DbCommand cmd, ref int paramIndex, int indentation, string destinationTableName, string[] columnNames);
         IQueryLite QueryLite { get; }
         string[] GetColumns(Type entityType, IList<string> propertyNames);

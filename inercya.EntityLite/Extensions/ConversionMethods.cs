@@ -65,6 +65,8 @@ namespace inercya.EntityLite.Extensions
 
         public static MethodInfo GetConversionMethod(Type fromType, Type toType)
         {
+            if (fromType == null) throw new ArgumentNullException(nameof(fromType));
+            if (toType == null) throw new ArgumentNullException(nameof(toType));
             MethodInfo converter = SpecialConvertersTable
                 .Where(entry => entry.FromType == fromType && entry.ToType == toType)
                 .Select(entry => entry.Method)

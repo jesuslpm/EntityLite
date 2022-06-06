@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -29,9 +30,9 @@ namespace inercya.EntityLite
 
         private static string[] DefaultSupportedLanguages = { "en", "es" };
 
-        public static string[] _supportedLanguages;
+        private static string[] _supportedLanguages;
 
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1819:Properties should not return arrays", Justification = "backward compatibility")]
         public static string[] SupportedLanguages
         {
             get
@@ -70,7 +71,7 @@ namespace inercya.EntityLite
         public static string GetSufixedLocalizedFieldName(string localizedFieldName)
         {
             int index = GetCurrentLanguageIndex();
-            return localizedFieldName + "Lang" + (index + 1).ToString();
+            return localizedFieldName + "Lang" + (index + 1).ToString(CultureInfo.InvariantCulture);
         }
 
         public static string GetLocalizedValue(object entity, string localizedFieldName)

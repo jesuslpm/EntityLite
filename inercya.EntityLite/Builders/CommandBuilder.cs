@@ -29,12 +29,14 @@ using Microsoft.Extensions.Logging;
 namespace inercya.EntityLite.Builders
 {
 
-	public class CommandBuilder : IDisposable
+
+
+    public class CommandBuilder : IDisposable
 	{
         private static ILogger logger;
+        private static bool isLoggerInitialized;
 
-
-        private static bool isLoggerInitialized = false;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "logging should not throw")]
         private static ILogger Log
         {
             get
@@ -52,14 +54,14 @@ namespace inercya.EntityLite.Builders
             }
         }
 
-        public readonly DataService DataService;
+        public DataService DataService { get; private set; }
 
 		public CommandBuilder(DataService dataService)
 		{
 			this.DataService = dataService;
 		}
 
-        private Dictionary<Type, string, DbCommand> updateCommandCache = new Dictionary<Type, string, DbCommand>();
+        private Dictionary<TypeStringKey, DbCommand> updateCommandCache = new Dictionary<TypeStringKey, DbCommand>();
 
         private Dictionary<Type, DbCommand> insertCommandCache = new Dictionary<Type, DbCommand>();
 
@@ -68,24 +70,29 @@ namespace inercya.EntityLite.Builders
 
         public DbCommand GetUpdateCommand(object entity, IEnumerable<string> fieldsToUpdate, EntityMetadata entityMetadata)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (fieldsToUpdate == null) throw new ArgumentNullException(nameof(fieldsToUpdate));
+            if (entityMetadata == null) throw new ArgumentNullException(nameof(entityMetadata));
             Type entityType = entity.GetType();
             string fieldsKey = fieldsToUpdate.Join();
             DbCommand command;
-            if (updateCommandCache.TryGetValue(entityType, fieldsKey, out command))
+            var key = new TypeStringKey(entityType, fieldsKey);
+            if (updateCommandCache.TryGetValue(key, out command))
             {
                 SetParameterValuesFromObject(command, entity, entityMetadata);
             }
             else
             {
                 command = GenerateUpdateCommand(entity, fieldsToUpdate);
-                updateCommandCache.Add(entityType, fieldsKey, command);
+                updateCommandCache.Add(key, command);
             }
             return command;
         }
 
 		public  DbCommand GetInsertCommand(object entity, EntityMetadata entityMetadata)
 		{
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (entityMetadata == null) throw new ArgumentNullException(nameof(entityMetadata));
 			Type entityType = entityMetadata.EntityType;
 			DbCommand command;
 			if (insertCommandCache.TryGetValue(entityType, out command))
@@ -110,6 +117,8 @@ namespace inercya.EntityLite.Builders
 
         public DbCommand GetDeleteCommand(object entity, EntityMetadata entityMetadata)
         {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (entityMetadata == null) throw new ArgumentNullException(nameof(entityMetadata));
             Type entityType = entity.GetType();
             DbCommand command;
             if (deleteCommandCache.TryGetValue(entityType, out command))
@@ -124,9 +133,11 @@ namespace inercya.EntityLite.Builders
             return command;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Reviewed")]
         private DbCommand GenerateUpdateCommand(object entity, IEnumerable<string> fieldsToUpdate)
         {
-            if (entity == null) throw new ArgumentNullException("entity", "to generate a update command, entity argument must be not null ");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (fieldsToUpdate == null) throw new ArgumentNullException(nameof(fieldsToUpdate));
 
             Type entityType = entity.GetType();
             EntityMetadata entityMetadata = entityType.GetEntityMetadata();
@@ -171,12 +182,12 @@ namespace inercya.EntityLite.Builders
                     return;
                 }
                 if (!field.IsKey
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedByFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.DbChangeNumberFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedByFieldName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.ModifiedDateFieldName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.DbChangeNumberFieldName, StringComparison.OrdinalIgnoreCase)
                     )
                 {
                     propertiesMetadata.Add(propMetadata);
@@ -224,7 +235,7 @@ namespace inercya.EntityLite.Builders
             {
                 var property = entityMetadata.Properties[whereField];
                 SqlFieldAttribute field = property.SqlField;
-                if (string.Equals(field.ColumnName, field.BaseColumnName, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(field.ColumnName, field.BaseColumnName, StringComparison.OrdinalIgnoreCase))
                 {
                     string parameterName;
                     IDbDataParameter parameter = CreateParameter(property, whereField, out parameterName);
@@ -261,8 +272,8 @@ namespace inercya.EntityLite.Builders
                 if (!entityMetadata.UpdatableProperties.TryGetValue(propertyName, out propMetadata)) continue;
                 SqlFieldAttribute field = propMetadata.SqlField;
                 if (!field.IsKey
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.InvariantCultureIgnoreCase)
-                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.InvariantCultureIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedByFieldName, StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(propertyName, DataService.SpecialFieldNames.CreatedDateFieldName, StringComparison.OrdinalIgnoreCase)
                     )
                 {
                     if (firstTime)
@@ -274,7 +285,7 @@ namespace inercya.EntityLite.Builders
                     {
                         commandText.Append(",\n    ");
                     }
-                    if (string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(propertyName, DataService.SpecialFieldNames.EntityRowVersionFieldName, StringComparison.OrdinalIgnoreCase))
                     {
                         hasEntityRowVersionField = true;
                         commandText.Append(this.DataService.EntityLiteProvider.StartQuote + propMetadata.SqlField.BaseColumnName + this.DataService.EntityLiteProvider.EndQuote).Append(" = ")
@@ -321,6 +332,9 @@ namespace inercya.EntityLite.Builders
 
         public void AppendInsertStatement(object entity, DbCommand cmd, StringBuilder commandText)
         {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (commandText == null) throw new ArgumentNullException(nameof(commandText));
             var entityType = entity.GetType();
             var entityMetadata = entityType.GetEntityMetadata();
             string fullTableName = entityMetadata.GetFullTableName(this.DataService.EntityLiteProvider.DefaultSchema, this.DataService.EntityLiteProvider.StartQuote, this.DataService.EntityLiteProvider.EndQuote);
@@ -344,7 +358,7 @@ namespace inercya.EntityLite.Builders
                 string propertyName = kv.Key;
                 if (firstTime)
                 {
-                    commandText.Append("(");
+                    commandText.Append('(');
                     valuesText.Append("\nVALUES (");
                     firstTime = false;
                 }
@@ -357,7 +371,7 @@ namespace inercya.EntityLite.Builders
                 
                 if (propertyName == entityRowVersionFieldName)
                 {
-                    valuesText.Append("1");
+                    valuesText.Append('1');
                 }
                 else if (propertyName == DataService.SpecialFieldNames.DbChangeNumberFieldName)
                 {
@@ -383,8 +397,8 @@ namespace inercya.EntityLite.Builders
                     parameters.Add(param);
                 }
             }
-            commandText.Append(")");
-            valuesText.Append(")");
+            commandText.Append(')');
+            valuesText.Append(')');
             commandText.Append(valuesText.ToString());
         }
 
@@ -437,7 +451,7 @@ namespace inercya.EntityLite.Builders
 
 
 
-		private void SetParameterValuesFromObject(DbCommand command, object obj, EntityMetadata entityMetadata)
+		private static void SetParameterValuesFromObject(DbCommand command, object obj, EntityMetadata entityMetadata)
 		{
 			IPropertyGetterDictionary getters = entityMetadata.Getters;
             var parameters = command.Parameters;
@@ -454,6 +468,8 @@ namespace inercya.EntityLite.Builders
 
 		protected IDbDataParameter CreateParameter(PropertyMetadata property, string fieldName, out string parameterName)
 		{
+            if (property == null) throw new ArgumentNullException(nameof(property));
+            if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
 			var field = property.SqlField;
 			parameterName = DataService.EntityLiteProvider.ParameterPrefix + fieldName;
 			IDbDataParameter parameter = DataService.DbProviderFactory.CreateParameter();
@@ -499,11 +515,12 @@ namespace inercya.EntityLite.Builders
 			return parameter;
 		}
 
-		private DbCommand GenerateDeleteCommand(object entity)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Reviewed")]
+        private DbCommand GenerateDeleteCommand(object entity)
 		{
 			try
 			{
-				if (entity == null) throw new ArgumentNullException("entity");
+				if (entity == null) throw new ArgumentNullException(nameof(entity));
 				Type entityType = entity.GetType();
 				EntityMetadata entityMetadata = entityType.GetEntityMetadata();
 				if (entityMetadata == null)
@@ -555,8 +572,12 @@ namespace inercya.EntityLite.Builders
 				}
 				else
 				{
-					Log?.LogError(ex, string.Format("Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, entity.GetPrimaryKey().ToListString() ?? "{no id}"));
-				}
+                    string primaryKey = entity.GetPrimaryKey().ToListString() ?? "'no id'";
+                    string message = string.Format(CultureInfo.InvariantCulture, "Error generating delete command for entity of type {0} with primary key: {1}", entity.GetType().Name, primaryKey);
+#pragma warning disable CA2254 // Template should be a static expression
+                    Log?.LogError(ex, message);
+#pragma warning restore CA2254 // Template should be a static expression
+                }
 				throw;
 			}
 
@@ -564,15 +585,14 @@ namespace inercya.EntityLite.Builders
 
 		public bool IsDisposed { get; private set; }
 
-		public void Dispose()
-		{
-			if (!IsDisposed)
-			{
-				IsDisposed = true;
-				foreach (DbCommand command in this.insertCommandCache.Values)
-				{
-					command.Dispose();
-				}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing && IsDisposed == false)
+            {
+                foreach (DbCommand command in this.insertCommandCache.Values)
+                {
+                    command.Dispose();
+                }
                 this.insertCommandCache.Clear();
 
                 foreach (DbCommand command in this.deleteCommandCache.Values)
@@ -586,7 +606,14 @@ namespace inercya.EntityLite.Builders
                     command.Dispose();
                 }
                 this.updateCommandCache.Clear();
-			}
+            }
+            IsDisposed = true;
+        }
+
+		public void Dispose()
+		{
+            Dispose(true);
+            GC.SuppressFinalize(this);
 		}
 	}
 }

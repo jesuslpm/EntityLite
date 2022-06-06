@@ -151,7 +151,7 @@ namespace inercya.EntityLite
 					SqlFieldAttribute field = (SqlFieldAttribute)attributes[0];
 					propertyMetadata.SqlField = field;
                     entityMetadata.ColumnToPropertyMap.Add(field.ColumnName, propertyMetadata);
-					if (field.IsKey && !string.IsNullOrEmpty(field.BaseTableName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
+					if (field.IsKey && !string.IsNullOrEmpty(field.BaseTableName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.OrdinalIgnoreCase))
 					{
 						// propiedad con la misma columna base
 						string conflictingPrimaryKeyPropertyName = entityMetadata.PrimaryKeyPropertyNames
@@ -161,7 +161,7 @@ namespace inercya.EntityLite
 						{
 							entityMetadata.PrimaryKeyPropertyNames.Add(pi.Name);
 						}
-						else if (string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
+						else if (string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.OrdinalIgnoreCase))
 						{
 							entityMetadata.PrimaryKeyPropertyNames.Remove(conflictingPrimaryKeyPropertyName);
 							entityMetadata.PrimaryKeyPropertyNames.Add(pi.Name);
@@ -169,7 +169,7 @@ namespace inercya.EntityLite
 					}
 
 					if (field.IsAutoincrement == false && field.IsReadOnly == false && string.IsNullOrEmpty(entityMetadata.BaseTableName) == false
-						&& string.Equals(entityMetadata.BaseTableName, field.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
+						&& string.Equals(entityMetadata.BaseTableName, field.BaseTableName, StringComparison.OrdinalIgnoreCase))
 					{
 						string conflictingPropertyName = entityMetadata.UpdatableProperties
 							.FirstOrDefault(kv => kv.Value.SqlField != null && kv.Value.SqlField.BaseColumnName == field.BaseColumnName).Key;
@@ -178,24 +178,24 @@ namespace inercya.EntityLite
 						{
 							entityMetadata.UpdatableProperties.Add(pi.Name, propertyMetadata);
 						}
-						else if (string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
+						else if (string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.OrdinalIgnoreCase))
 						{
 							entityMetadata.UpdatableProperties.Remove(conflictingPropertyName);
 							entityMetadata.UpdatableProperties.Add(pi.Name, propertyMetadata);
 						}
 					}
 
-					if (field.IsAutoincrement && !string.IsNullOrEmpty(field.BaseTableName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
+					if (field.IsAutoincrement && !string.IsNullOrEmpty(field.BaseTableName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.OrdinalIgnoreCase))
 					{
-						if (string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName) || string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
+						if (string.IsNullOrEmpty(entityMetadata.AutoIncrementFieldName) || string.Equals(field.BaseColumnName, field.ColumnName, StringComparison.OrdinalIgnoreCase))
 						{
 							entityMetadata.AutoIncrementFieldName = pi.Name;
 						}
 					}
 
-                    if (!string.IsNullOrEmpty(field.SequenceName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.InvariantCultureIgnoreCase))
+                    if (!string.IsNullOrEmpty(field.SequenceName) && field.BaseTableName.Equals(entityMetadata.BaseTableName, StringComparison.OrdinalIgnoreCase))
                     { 
-                        if (string.IsNullOrEmpty(entityMetadata.SequenceName) || string.Equals(field.BaseTableName, field.ColumnName, StringComparison.InvariantCultureIgnoreCase))
+                        if (string.IsNullOrEmpty(entityMetadata.SequenceName) || string.Equals(field.BaseTableName, field.ColumnName, StringComparison.OrdinalIgnoreCase))
                         {
                             entityMetadata.SequenceFieldName = pi.Name;
                             entityMetadata.SequenceName = field.SequenceName;
@@ -224,8 +224,8 @@ namespace inercya.EntityLite
 
     public class PropertyMetadata
     {
-        public SqlFieldAttribute SqlField;
-        public PropertyInfo PropertyInfo;
-		public bool IsLocalizedFiled;
+        public SqlFieldAttribute SqlField { get; internal set; }
+        public PropertyInfo PropertyInfo { get; internal set; }
+        public bool IsLocalizedFiled { get; internal set; }
     }
 }

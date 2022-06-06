@@ -8,7 +8,9 @@ namespace inercya.EntityLite
 {
     public interface IDbProviderFactories
     {
+#pragma warning disable CA1716 // need to be backward compatible
         DbProviderFactory Get(string providerInvariantName);
+#pragma warning restore CA1716 // Identifiers should not match keywords
         void Register(string providerInvariantName, DbProviderFactory dbProviderFactory);
     }
 
@@ -45,7 +47,9 @@ namespace inercya.EntityLite
 #else
                 errorMessage += ". To make the it available you can call ConfigurationLite.DbProviderFactories.Register or you can include it in DbProviderFactories section of the configuration file.";
 #endif
+#pragma warning disable CA1508 // It can be not null in NET35 and NET452
                 if (ex == null)
+#pragma warning restore CA1508 // Avoid dead conditional code
                 {
                     throw new ArgumentException(errorMessage, nameof(providerInvariantName));
                 }

@@ -21,6 +21,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Xml;
+using System.Globalization;
 
 namespace inercya.EntityLite.Extensions
 {
@@ -28,8 +29,8 @@ namespace inercya.EntityLite.Extensions
 	{
 		public static object GetPropertyValue(this object instance, string propertyName)
 		{
-			if (instance == null) throw new ArgumentNullException("instance");
-			if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException("propertyName");
+			if (instance == null) throw new ArgumentNullException(nameof(instance));
+			if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 			var type = instance.GetType();
 			var getters = type.GetPropertyGetters();
 			PropertyGetter getter = null;
@@ -39,14 +40,14 @@ namespace inercya.EntityLite.Extensions
 			}
 			else
 			{
-				throw new ArgumentException(string.Format("{0} is not a public property of {1}", propertyName, type.Name));
+				throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0} is not a public property of {1}", propertyName, type.Name));
 			}
 		}
 
 		public static void SetPropertyValue(this object instance, string propertyName, object propertyValue)
 		{
-			if (instance == null) throw new ArgumentNullException("instance");
-			if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException("propertyName");
+			if (instance == null) throw new ArgumentNullException(nameof(instance));
+			if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 			Type type = instance.GetType();
 			PropertySetter setter = null;
 			if (PropertyHelper.GetPropertySetters(type).TryGetValue(propertyName, out setter))
@@ -55,7 +56,7 @@ namespace inercya.EntityLite.Extensions
 			}
 			else
 			{
-				throw new ArgumentException(string.Format("{0} is not a public property of {1}", propertyName, type.Name));
+				throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "{0} is not a public property of {1}", propertyName, type.Name));
 			}
 		}
 
@@ -88,15 +89,16 @@ namespace inercya.EntityLite.Extensions
 
         public static PropertyGetter GetIdGetter(this Type entityType)
         {
+			if (entityType == null) throw new ArgumentNullException(nameof(entityType));
             EntityMetadata entityMetadata = entityType.GetEntityMetadata();
             ICollection<string> primaryKeyFieldNames = entityMetadata.PrimaryKeyPropertyNames;
             if (primaryKeyFieldNames.Count == 0)
             {
-                throw new InvalidOperationException(string.Format("cannot get {0} ID, because it has no primary key", entityType.Name));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} ID, because it has no primary key", entityType.Name));
             }
             if (primaryKeyFieldNames.Count > 1)
             {
-                throw new InvalidOperationException(string.Format("cannot get {0} ID,, because its primary key is multiple", entityType.Name));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} ID, because its primary key is multiple", entityType.Name));
             }
             string primaryKeyFieldName = primaryKeyFieldNames.First();
             var propertyGetters = PropertyHelper.GetPropertyGetters(entityType);
@@ -105,17 +107,17 @@ namespace inercya.EntityLite.Extensions
 
 		public static object GetId(this object entity)
 		{
-			if (entity == null) throw new ArgumentNullException("entity");
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
 			Type entityType = entity.GetType();
 			EntityMetadata entityMetadata = entityType.GetEntityMetadata();
 			ICollection<string> primaryKeyFieldNames = entityMetadata.PrimaryKeyPropertyNames;
 			if (primaryKeyFieldNames.Count == 0)
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} ID, because it has no primary key", entityType.Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} ID, because it has no primary key", entityType.Name));
 			}
 			if (primaryKeyFieldNames.Count > 1)
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} ID,, because its primary key is multiple", entityType.Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} ID,, because its primary key is multiple", entityType.Name));
 			}
 			string primaryKeyFieldName = primaryKeyFieldNames.First();
 			var propertyGetters = PropertyHelper.GetPropertyGetters(entityType);
@@ -140,7 +142,7 @@ namespace inercya.EntityLite.Extensions
 
 		public static string GetPrimaryKeyFieldName(this object entity)
 		{
-			if (entity == null) throw new ArgumentNullException("entity");
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
 			return entity.GetType().GetPrimaryKeyFieldName();
 		}
 
@@ -204,8 +206,8 @@ namespace inercya.EntityLite.Extensions
 
         public static void AssignPropertiesFrom(this object target, object source)
 		{
-			if (target == null) throw new ArgumentNullException("target");
-			if (source == null) throw new ArgumentNullException("source");
+			if (target == null) throw new ArgumentNullException(nameof(target));
+			if (source == null) throw new ArgumentNullException(nameof(source));
 
 			Type targetType = target.GetType();
 			Type sourceType = source.GetType();
@@ -227,6 +229,7 @@ namespace inercya.EntityLite.Extensions
 
         public static string ToDataContractXmlString(this object obj)
         {
+			if (obj == null) throw new ArgumentNullException(nameof(obj));
             var serializer = new DataContractSerializer(obj.GetType());
             using (var swriter = new StringWriter())
             using (var xwriter = new XmlTextWriter(swriter))

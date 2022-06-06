@@ -13,7 +13,6 @@ namespace inercya.EntityLite.Collections
 
     public class CollectionDataReader<T> : IDataReader where T:class
     {
-        private IEnumerable<T> collection;
         PropertyGetter[] getters;
         PropertyInfo[] properties;
         Type itemType;
@@ -23,15 +22,15 @@ namespace inercya.EntityLite.Collections
 
         public CollectionDataReader(IEnumerable<T> collection)
         {
-            this.collection = collection;
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
             itemType = typeof(T);
             properties = itemType.GetProperties();
             getters = GetPropertyGetters();
             enumerator = collection.GetEnumerator();
-            buffer = new object[this.FieldCount];
+            buffer = new object[FieldCount];
         }
 
-        PropertyGetter ToStringGetter(PropertyGetter getter)
+        static PropertyGetter ToStringGetter(PropertyGetter getter)
         {
             return (value) => getter(value)?.ToString();
         }
@@ -112,8 +111,22 @@ namespace inercya.EntityLite.Collections
 
         #region IDisposable Members
 
+        public bool IsDisposed { get; private set; }
+
         public void  Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (IsDisposed) return;
+            IsDisposed = true;
+            if (disposing)
+            {
+                if (enumerator != null) enumerator.Dispose();
+            }
         }
 
         #endregion
@@ -264,6 +277,7 @@ namespace inercya.EntityLite.Collections
 
         public int GetValues(object[] values)
         {
+            if (values == null) throw new ArgumentNullException(nameof(values));
             int n = 0;
             for (int i = 0; i < this.FieldCount && i < values.Length; i++)
             {

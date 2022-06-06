@@ -41,6 +41,7 @@ namespace inercya.EntityLite
 
 		public static bool IsEmpty(this ICollection<ConditionLite> filter)
 		{
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
 			if (filter.Count == 0) return true;
 			if (filter.Any(sc => sc.Filter == null)) return false;
 			if (filter.Any(sc => sc.Filter != null && !sc.Filter.IsEmpty())) return false;
@@ -49,6 +50,7 @@ namespace inercya.EntityLite
 
 		public static ICollection<ConditionLite> Clone(this ICollection<ConditionLite> filter)
 		{
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
 			ICollection<ConditionLite> filterClone = new List<ConditionLite>();
 			foreach (var condition in filter)
 			{
@@ -73,19 +75,19 @@ namespace inercya.EntityLite
 
 		public static ICollection<ConditionLite> Where(this ICollection<ConditionLite> existingFilter, ICollection<ConditionLite> filter)
 		{
+			if (existingFilter == null) throw new ArgumentNullException(nameof(existingFilter));
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
 			existingFilter.Add(new ConditionLite { LogicalOperator = LogicalOperatorLite.And, Operator = OperatorLite.None, Filter = filter });
 			return existingFilter;
 		}
 
-		public static FilterLite<TEntity> Where<TEntity>(this FilterLite<TEntity> existingFilter, FilterLite<TEntity> filter) where TEntity : class, new()
-		{
-		    return (FilterLite<TEntity>) ((ICollection<ConditionLite>)existingFilter).Where(filter);
-		}
 		 
 
 		public static ICollection<ConditionLite> Where(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper)
 		{
-			if (oper != OperatorLite.IsNotNull && oper != OperatorLite.IsNull) throw new ArgumentException("El operador sólo puede ser IsNull o IsNotNull", "oper");
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
+			if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
+			if (oper != OperatorLite.IsNotNull && oper != OperatorLite.IsNull) throw new ArgumentException("El operador sólo puede ser IsNull o IsNotNull", nameof(oper));
 			filter.Add(new ConditionLite
 			{
 				LogicalOperator = LogicalOperatorLite.And,
@@ -95,20 +97,14 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)  where TEntity: class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper);
-		//}
 
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> existingFilter, ICollection<ConditionLite> filter)
 		{
+			if (existingFilter == null) throw new ArgumentNullException(nameof(existingFilter));
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
 			return existingFilter.Where(filter);
 		}
 
-		public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> existingFilter, FilterLite<TEntity> filter) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>) ((ICollection<ConditionLite>) existingFilter).Where((ICollection<ConditionLite>)filter);
-		}
 
 
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper)
@@ -116,21 +112,14 @@ namespace inercya.EntityLite
 			return filter.Where(fieldName, oper);
 		}
 
-		//public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>) filter.And(selector.GetMemberName(), oper);
-		//}
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
 			query.Filter.Where(fieldName, oper);
 			return query;
 		}
-
-		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
-		//{
-		//	return query.Where(selector.GetMemberName(), oper);
-		//}
 
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue)
@@ -138,13 +127,11 @@ namespace inercya.EntityLite
 			return query.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue)
-		//{
-		//	return query.Where(selector.GetMemberName(), fieldValue);
-		//}
 
 		public static IQueryLite<TEntity> Option<TEntity>(this IQueryLite<TEntity> query, string option)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			if (option == null) throw new ArgumentNullException(nameof(option));
 			query.Options.Add(option);
 			return query;
 		}
@@ -154,15 +141,11 @@ namespace inercya.EntityLite
 			return filter.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), fieldValue);
-		//}
-
 		public static ICollection<ConditionLite> Where(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue)
 		{
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
 			if (oper == OperatorLite.IsNotNull || oper == OperatorLite.IsNull || oper == OperatorLite.STDistanceLess || oper == OperatorLite.STDistanceLessOrEquals)
-				throw new ArgumentException("Binary operators only", "oper");
+				throw new ArgumentException("Binary operators only", nameof(oper));
 			var subQuery = fieldValue as IQueryLite;
 			filter.Add(new ConditionLite
 			{
@@ -175,15 +158,11 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper, fieldValue);
-		//}
-
 		public static ICollection<ConditionLite> Where(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
 			if (oper != OperatorLite.STDistanceLess && oper != OperatorLite.STDistanceLessOrEquals)
-				throw new ArgumentException("Ternary operators only", "oper");
+				throw new ArgumentException("Ternary operators only", nameof(oper));
 			filter.Add(new ConditionLite
 			{
 				LogicalOperator = LogicalOperatorLite.And,
@@ -195,35 +174,20 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		//public static FilterLite<TEntity> Where<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Where(selector.GetMemberName(), oper, fieldValue, param);
-		//}
-
-
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> filter, string fieldName, object fieldValue)
 		{
 			return filter.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
-
-		//public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.And(selector.GetMemberName(), fieldValue);
-		//}
 
 		public static ICollection<ConditionLite> And(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue)
 		{
 			return filter.Where(fieldName, oper, fieldValue);
 		}
 
-		//public static FilterLite<TEntity> And<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.And(selector.GetMemberName(), oper, fieldValue);
-		//}
-
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, ICollection<ConditionLite> filter)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.Where(filter);
 			return query;
 		}
@@ -231,33 +195,27 @@ namespace inercya.EntityLite
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.Where(fieldName, oper, fieldValue);
 			return query;
 		}
 
         public static DbCommand GetSelectCommandForDebuggingPurposes(this IQueryLite query)
         {
-            return ((AbstractQueryLite)query).GetSelectCommand();
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			return ((AbstractQueryLite)query).GetSelectCommand();
         }
-
-		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
-		//{
-		//	return query.Where(selector.GetMemberName(), oper, (object) fieldValue);
-		//}
 
 		public static IQueryLite<TEntity> Where<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.Where(fieldName, oper, fieldValue, param);
 			return query;
 		}
 
-		//public static IQueryLite<TEntity> Where<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
-		//{
-		//	return query.Where(selector.GetMemberName(), oper, (object)fieldValue, param);
-		//}
-
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, ICollection<ConditionLite> filter)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.And(filter);
 			return query;
 		}
@@ -267,55 +225,32 @@ namespace inercya.EntityLite
 			return query.Where(fieldName, oper);
 		}
 
-		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
-		//{
-		//	return query.And(selector.GetMemberName(), oper);
-		//}
-
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue)
 		{
 			return query.Where(fieldName, oper, fieldValue);
 		}
-
-		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
-		//{
-		//	return query.And(selector.GetMemberName(), oper, (object) fieldValue);
-		//}
 
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
 			return query.Where(fieldName, oper, fieldValue, param);
 		}
 
-		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
-		//{
-		//	return query.And(selector.GetMemberName(), oper, (object)fieldValue, param);
-		//}
-
 		public static IQueryLite<TEntity> And<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue)
 		{
 			return query.Where(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		//public static IQueryLite<TEntity> And<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue)
-		//{
-		//	return query.And(selector.GetMemberName(), (object)fieldValue);
-		//}
-
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> existingFilter, ICollection<ConditionLite> filter)
 		{
+			if (existingFilter == null) throw new ArgumentNullException(nameof(existingFilter));
 			existingFilter.Add(new ConditionLite { LogicalOperator = LogicalOperatorLite.Or, Operator = OperatorLite.None, Filter = filter });
 			return existingFilter;
 		}
 
-		public static FilterLite<TEntity> Or<TEntity>(this FilterLite<TEntity> existingFilter, FilterLite<TEntity> filter) where TEntity : class, new()
-		{
-			return (FilterLite<TEntity>) ((ICollection<ConditionLite>)existingFilter).Or(filter);
-		}
-
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper)
 		{
-			if (oper != OperatorLite.IsNotNull && oper != OperatorLite.IsNull) throw new ArgumentException("El operador sólo puede ser IsNull o IsNotNull", "oper");
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
+			if (oper != OperatorLite.IsNotNull && oper != OperatorLite.IsNull) throw new ArgumentException("El operador sólo puede ser IsNull o IsNotNull", nameof(oper));
 			filter.Add(new ConditionLite
 			{
 				LogicalOperator = LogicalOperatorLite.Or,
@@ -325,36 +260,25 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper);
-		//}
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper)
 		{
-			if (oper != OperatorLite.IsNotNull && oper != OperatorLite.IsNull) throw new ArgumentException("El operador sólo puede ser IsNull o IsNotNull", "oper");
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			if (oper != OperatorLite.IsNotNull && oper != OperatorLite.IsNull) throw new ArgumentException("El operador sólo puede ser IsNull o IsNotNull", nameof(oper));
 			query.Filter.Or(fieldName, oper);
 			return query;
 		}
-
-		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper)
-		//{
-		//	return query.Or(selector.GetMemberName(), oper);
-		//}
 
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, object fieldValue)
 		{
 			return filter.Or(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, TProperty fieldValue) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), fieldValue);
-		//}
 
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue)
 		{
-			if (oper == OperatorLite.IsNotNull || oper == OperatorLite.IsNull) throw new ArgumentException("Sólo puedes usar operadores binarios", "oper");
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
+			if (oper == OperatorLite.IsNotNull || oper == OperatorLite.IsNull) throw new ArgumentException("Binary operators only", nameof(oper));
 			var subQuery = fieldValue as IQueryLite;
 			filter.Add(new ConditionLite()
 			{
@@ -367,14 +291,11 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper, fieldValue);
-		//}
-
 		public static ICollection<ConditionLite> Or(this ICollection<ConditionLite> filter, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
-			if (oper != OperatorLite.STDistanceLess && oper == OperatorLite.STDistanceLessOrEquals) throw new ArgumentException("Ternary operators only", "oper");
+			if (filter == null) throw new ArgumentNullException(nameof(filter));
+			if (fieldName == null) throw new ArgumentNullException(nameof(fieldName));
+			if (oper != OperatorLite.STDistanceLess && oper == OperatorLite.STDistanceLessOrEquals) throw new ArgumentException("Ternary operators only", nameof(oper));
 			filter.Add(new ConditionLite()
 			{
 				LogicalOperator = LogicalOperatorLite.Or,
@@ -386,53 +307,38 @@ namespace inercya.EntityLite
 			return filter;
 		}
 
-		//public static FilterLite<TEntity> Or<TEntity, TProperty>(this FilterLite<TEntity> filter, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param) where TEntity : class, new()
-		//{
-		//	return (FilterLite<TEntity>)filter.Or(selector.GetMemberName(), oper, fieldValue, param);
-		//}
-
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, ICollection<ConditionLite> filter)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.Or(filter);
 			return query;
 		}
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.Or(fieldName, oper, fieldValue);
 			return query;
 		}
 
-		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue)
-		//{
-		//	return query.Or(selector.GetMemberName(), oper, (object) fieldValue);
-		//}
 
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, OperatorLite oper, object fieldValue, object param)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			query.Filter.Or(fieldName, oper, fieldValue, param);
 			return query;
 		}
-
-		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector, OperatorLite oper, TProperty fieldValue, object param)
-		//{
-		//	return query.Or(selector.GetMemberName(), oper, (object)fieldValue, param);
-		//}
-
 		public static IQueryLite<TEntity> Or<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue)
 		{
 			return query.Or(fieldName, OperatorLite.Equals, fieldValue);
 		}
 
-		//public static IQueryLite<TEntity> Or<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector,  TProperty fieldValue)
-		//{
-		//	return query.Or(selector.GetMemberName(), (object)fieldValue);
-		//}	
-
 
 		public static IQueryLite<TEntity> OrderBy<TEntity>(this IQueryLite<TEntity> query, params string[] sortFieldNames)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			if (sortFieldNames == null) throw new ArgumentNullException(nameof(sortFieldNames));
 			foreach (var sortFieldName in sortFieldNames)
 			{
 				query.Sort.Add(new SortDescriptor(sortFieldName));
@@ -440,13 +346,11 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		//public static IQueryLite<TEntity> OrderBy<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector)
-		//{
-		//	return query.OrderBy(selector.GetMemberName());
-		//}
 
 		public static IQueryLite<TEntity> OrderByDesc<TEntity>(this IQueryLite<TEntity> query, params string[] sortFieldNames)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			if (sortFieldNames == null) throw new ArgumentNullException(nameof(sortFieldNames));
 			foreach (var sortFieldName in sortFieldNames)
 			{
 				query.Sort.Add(new SortDescriptor(sortFieldName, SortOrder.Descending));
@@ -454,13 +358,9 @@ namespace inercya.EntityLite
 			return query;
 		}
 
-		//public static IQueryLite<TEntity> OrderByDesc<TEntity, TProperty>(this IQueryLite<TEntity> query, Expression<Func<TEntity, TProperty>> selector)
-		//{
-		//	return query.OrderByDesc(selector.GetMemberName());
-		//}
-
 		public static object Get(this IQueryLite query, object ID)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			string primaryKeyFieldName = query.EntityType.GetPrimaryKeyFieldName();
 			var condition = new ConditionLite
 			{
@@ -474,22 +374,23 @@ namespace inercya.EntityLite
 
 		private static object Get<TPrimaryKey>(this IQueryLite query, TPrimaryKey id)
 		{
+			if (query == null) throw new ArgumentNullException(nameof(query));
 			Type entityType = query.EntityType;
 			EntityMetadata entityMetadata = entityType.GetEntityMetadata();
 			ICollection<string> primaryKeyFieldNames = entityMetadata.PrimaryKeyPropertyNames;
 			if (primaryKeyFieldNames.Count == 0)
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} by {1} ID, because it has no primary key", entityType.Name, typeof(TPrimaryKey).Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} by {1} ID, because it has no primary key", entityType.Name, typeof(TPrimaryKey).Name));
 			}
 			if (primaryKeyFieldNames.Count > 1)
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} by {1} ID, because its primary key is multiple", entityType.Name, typeof(TPrimaryKey).Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} by {1} ID, because its primary key is multiple", entityType.Name, typeof(TPrimaryKey).Name));
 			}
 			string primaryKeyFieldName = primaryKeyFieldNames.First();
 			PropertyInfo pi = entityMetadata.Properties[primaryKeyFieldName].PropertyInfo;
 			if (pi == null || pi.PropertyType != typeof(TPrimaryKey))
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} by {1} ID, because its primary key is not an {1}", entityType.Name, typeof(TPrimaryKey).Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} by {1} ID, because its primary key is not an {1}", entityType.Name, typeof(TPrimaryKey).Name));
 			}
 			query.Filter.Add(new ConditionLite 
 			{ 
@@ -513,17 +414,17 @@ namespace inercya.EntityLite
 			ICollection<string> primaryKeyFieldNames = entityMetadata.PrimaryKeyPropertyNames;
 			if (primaryKeyFieldNames.Count == 0)
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} by {1} ID, because it has no primary key", entityType.Name, typeof(TPrimaryKey).Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} by {1} ID, because it has no primary key", entityType.Name, typeof(TPrimaryKey).Name));
 			}
 			if (primaryKeyFieldNames.Count > 1)
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} by {1} ID, because its primary key is multiple", entityType.Name, typeof(TPrimaryKey).Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} by {1} ID, because its primary key is multiple", entityType.Name, typeof(TPrimaryKey).Name));
 			}
 			string primaryKeyFieldName = primaryKeyFieldNames.First();
 			PropertyInfo pi = entityMetadata.Properties[primaryKeyFieldName].PropertyInfo;
 			if (pi == null || pi.PropertyType != typeof(TPrimaryKey))
 			{
-				throw new InvalidOperationException(string.Format("cannot get {0} by {1} ID, because its primary key is not an {1}", entityType.Name, typeof(TPrimaryKey).Name));
+				throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "cannot get {0} by {1} ID, because its primary key is not an {1}", entityType.Name, typeof(TPrimaryKey).Name));
 			}
 			return query.Where(primaryKeyFieldName, OperatorLite.Equals, ID).FirstOrDefault();
 		}
@@ -549,6 +450,7 @@ namespace inercya.EntityLite
         /// <returns></returns>
         public static IQueryLite<TEntity> Fields<TEntity>(this IQueryLite<TEntity> query, FieldsOption options, params string[] fields)
         {
+			if (query == null) throw new ArgumentNullException(nameof(query));
             if (fields == null || fields.Length == 0) return query;
 
             var metadata = typeof(TEntity).GetEntityMetadata();
@@ -565,7 +467,7 @@ namespace inercya.EntityLite
 
             if (invalidField != null)
             {
-                throw new ArgumentException(string.Format("\"{0}\" is an invalid field for \"{1}\"", invalidField, typeof(TEntity).Name));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "\"{0}\" is an invalid field for \"{1}\"", invalidField, typeof(TEntity).Name));
             }
 
             List<string> sortedFields = new List<string>(fields);
@@ -573,7 +475,7 @@ namespace inercya.EntityLite
             // Ordenamos los campos por dos razones:
             // 1.- evitar tener que crear un nuero método dinámico de carga de un datareader cuando son los mismos campos especificados en orden diferente
             // 2.- acelerar la búsqueda de los campos de la clave primaria y EntityRowVersion
-            sortedFields.Sort(StringComparer.InvariantCultureIgnoreCase);
+            sortedFields.Sort(StringComparer.OrdinalIgnoreCase);
 
             if ((options & FieldsOption.IncludePrimaryKey) != 0)
             {
@@ -603,6 +505,8 @@ namespace inercya.EntityLite
 
         public static IQueryLite<TEntity> WithAlias<TEntity>(this IQueryLite<TEntity> query, Alias alias)
         {
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			if (alias == null) throw new ArgumentNullException(nameof(alias));
             if (query.EntityType != alias.EntityType)
             {
                 throw new ArgumentException("The entity type of the alias must be the same as the entity type of the query");
@@ -613,13 +517,15 @@ namespace inercya.EntityLite
 
         public static IQueryLite<TEntity> WithAlias<TEntity>(this IQueryLite<TEntity> query, string aliasName)
         {
+			if (query == null) throw new ArgumentNullException(nameof(query));
             query.Alias = new Alias(aliasName, typeof(TEntity));
             return query;
         }
 
         public static IQueryLite<TEntity> WithTimeout<TEntity>(this IQueryLite<TEntity> query, int timeout)
         {
-            query.CommandTimeout = timeout;
+			if (query == null) throw new ArgumentNullException(nameof(query));
+			query.CommandTimeout = timeout;
             return query;
         }
 	}

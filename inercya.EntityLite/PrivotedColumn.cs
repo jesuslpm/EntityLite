@@ -7,10 +7,10 @@ namespace inercya.EntityLite
 {
     public class PivotedColumn
     {
-        public readonly string PivotColumnName;
-        public readonly string ColumnName;
-        public readonly object PivotColumnValue;
-        public readonly int PivotTransformIndex;
+        public string PivotColumnName { get; private set; }
+        public string ColumnName { get; private set; }
+        public object PivotColumnValue { get; private set; }
+        public int PivotTransformIndex { get; private set; }
 
         public PivotedColumn(string pivotColumnName, object pivotColumnValue, int pivotTransformIndex, string columnName)
         {

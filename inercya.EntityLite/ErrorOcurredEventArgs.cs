@@ -28,7 +28,7 @@ namespace inercya.EntityLite
 
         public ErrorOcurredEventArgs(Exception exception, bool willRetry)
         {
-            if (exception == null) throw new ArgumentNullException("exception");
+            if (exception == null) throw new ArgumentNullException(nameof(exception));
             this.Exception = exception;
         }
     }

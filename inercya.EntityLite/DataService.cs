@@ -28,6 +28,7 @@ using inercya.EntityLite.Builders;
 using System.Linq;
 using inercya.EntityLite.Collections;
 using inercya.EntityLite.Providers;
+using System.Globalization;
 #if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
 #endif
@@ -128,8 +129,10 @@ namespace inercya.EntityLite
 
         private static ILogger logger;
 
-        public readonly Guid InstanceId = Guid.NewGuid();
-        private static bool isLoggerInitialized = false;
+        public Guid InstanceId { get; private set; } = Guid.NewGuid();
+        private static bool isLoggerInitialized;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "logging should not throw")]
         private static ILogger Log
         {
             get
@@ -211,10 +214,12 @@ namespace inercya.EntityLite
         }
 
         public event EventHandler<ErrorOcurredEventArgs> ErrorOcurred;
+#pragma warning disable CA1713 // Events should not have 'Before' or 'After' prefix
         public event EventHandler BeforeCommit;
         public event EventHandler AfterCommit;
         public event EventHandler BeforeRollback;
         public event EventHandler AfterRollback;
+#pragma warning restore CA1713 // Events should not have 'Before' or 'After' prefix
 
         private string _connectionString;
         public  string ConnectionString
@@ -494,7 +499,7 @@ namespace inercya.EntityLite
         {
             if (string.IsNullOrEmpty(connectionStringName))
             {
-                throw new ArgumentNullException("connectionStringName");
+                throw new ArgumentNullException(nameof(connectionStringName));
             }
             
             this.ConnectionStringName = connectionStringName;
@@ -505,11 +510,11 @@ namespace inercya.EntityLite
         {
             if (string.IsNullOrEmpty(connectionString))
             {
-                throw new ArgumentNullException("connectionString");
+                throw new ArgumentNullException(nameof(connectionString));
             }
             if (string.IsNullOrEmpty(providerName))
             {
-                throw new ArgumentNullException("providerName");
+                throw new ArgumentNullException(nameof(providerName));
             }
             this._connectionString = connectionString;
             this._providerName = providerName;
@@ -540,6 +545,10 @@ namespace inercya.EntityLite
                     _connection.Dispose();
                     _connection = null;
                 }
+                if (commandBuilder != null)
+                {
+                    commandBuilder.Dispose();
+                }
             }
             _isDisposed = true;
         }
@@ -547,6 +556,7 @@ namespace inercya.EntityLite
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
 #endregion
@@ -581,7 +591,7 @@ namespace inercya.EntityLite
 
         protected internal virtual bool Delete(object entity)
 		{
-			if (entity == null) throw new ArgumentNullException("entity");
+			if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
 
@@ -615,7 +625,7 @@ namespace inercya.EntityLite
 #if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task<bool> DeleteAsync(object entity)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
 
@@ -655,7 +665,7 @@ namespace inercya.EntityLite
 
         private SetAuditObjectResult  TrySetAuditUser(string fieldName, object entity, EntityMetadata entityMetadata)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             object previousValue = null;
             if (entityMetadata.Getters.TryGetValue(fieldName, out PropertyGetter getter))
             {
@@ -674,7 +684,7 @@ namespace inercya.EntityLite
 #if (NET452 || NETSTANDARD2_0)
         private async Task<SetAuditObjectResult> TrySetAuditUserAsync(string fieldName, object entity, EntityMetadata entityMetadata)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             object previousValue = null;
             if (entityMetadata.Getters.TryGetValue(fieldName, out PropertyGetter getter))
             {
@@ -693,7 +703,7 @@ namespace inercya.EntityLite
 
         private SetAuditObjectResult TrySetAuditDate(string fieldName, object entity, EntityMetadata metadata)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             object previousValue = null;
             if (metadata.Getters.TryGetValue(fieldName, out PropertyGetter getter))
             {
@@ -746,7 +756,7 @@ namespace inercya.EntityLite
 
         protected internal void Insert(object entity)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             Insert(entity, EntityMetadata.GetEntityMetadata(entityType));
         }
@@ -754,7 +764,7 @@ namespace inercya.EntityLite
 #if (NET452 || NETSTANDARD2_0)
         protected internal virtual Task InsertAsync(object entity)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             return InsertAsync(entity, EntityMetadata.GetEntityMetadata(entityType));
         }
@@ -762,7 +772,8 @@ namespace inercya.EntityLite
 
         protected internal virtual void Insert(object entity, EntityMetadata entityMetadata)
 		{
-		    if (entity == null) throw new ArgumentNullException("entity");
+		    if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (entityMetadata == null) throw new ArgumentNullException(nameof(entityMetadata));
 
             if (IsAutomaticAuditDateFieldsEnabled)
             {
@@ -812,7 +823,7 @@ namespace inercya.EntityLite
                         var autogeneratedFieldParam = dbcmd.Parameters.Cast<IDataParameter>().FirstOrDefault(x => x.Direction == ParameterDirection.Output);
                         if (autogeneratedFieldParam == null)
                         {
-                            throw new InvalidOperationException(string.Format("There is no output parameter in insert command for autogenerated field {0}.{1},", entityMetadata.EntityType.Name, autogeneratedFieldName));
+                            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "There is no output parameter in insert command for autogenerated field {0}.{1},", entityMetadata.EntityType.Name, autogeneratedFieldName));
                         }
                         autogeneratedFieldValue = autogeneratedFieldParam.Value;
                     };
@@ -829,12 +840,12 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    entityMetadata.Setters[autogeneratedFieldName](entity, Convert.ChangeType(autogeneratedFieldValue, entityMetadata.PrimaryKeyType));
+                    entityMetadata.Setters[autogeneratedFieldName](entity, Convert.ChangeType(autogeneratedFieldValue, entityMetadata.PrimaryKeyType, CultureInfo.InvariantCulture));
                 }
             }
             if (entityMetadata.Properties.ContainsKey(SpecialFieldNames.EntityRowVersionFieldName))
             {
-                entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType.UndelyingType()));
+                entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType.UndelyingType(), CultureInfo.InvariantCulture));
             }
             if (isAuditableEntity)
             {
@@ -846,7 +857,8 @@ namespace inercya.EntityLite
 #if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task InsertAsync(object entity, EntityMetadata entityMetadata)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+            if (entityMetadata == null) throw new ArgumentNullException(nameof(entityMetadata));
 
 
             if (IsAutomaticAuditDateFieldsEnabled)
@@ -858,8 +870,11 @@ namespace inercya.EntityLite
             {
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
+// Call async methods when in an async method. When CurrentUserIdAsyncGetter is null TrySetAuditUerAsync fails
+#pragma warning disable CA1849
                     TrySetAuditUser(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata);
                     TrySetAuditUser(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata);
+#pragma warning restore CA1849
                 }
                 else
                 {
@@ -904,7 +919,10 @@ namespace inercya.EntityLite
                         var autogeneratedFieldParam = dbcmd.Parameters.Cast<IDataParameter>().FirstOrDefault(x => x.Direction == ParameterDirection.Output);
                         if (autogeneratedFieldParam == null)
                         {
-                            throw new InvalidOperationException(string.Format("There is no output parameter in insert command for autogenerated field {0}.{1},", entityMetadata.EntityType.Name, autogeneratedFieldName));
+                            var message = string.Format(CultureInfo.InvariantCulture, 
+                                "There is no output parameter in insert command for autogenerated field {0}.{1},", 
+                                entityMetadata.EntityType.Name, autogeneratedFieldName);
+                            throw new InvalidOperationException(message);
                         }
                         autogeneratedFieldValue = autogeneratedFieldParam.Value;
                     };
@@ -921,12 +939,16 @@ namespace inercya.EntityLite
                 }
                 else
                 {
-                    entityMetadata.Setters[autogeneratedFieldName](entity, Convert.ChangeType(autogeneratedFieldValue, entityMetadata.PrimaryKeyType));
+                    var value = Convert.ChangeType(autogeneratedFieldValue, entityMetadata.PrimaryKeyType, 
+                        CultureInfo.InvariantCulture);
+                    entityMetadata.Setters[autogeneratedFieldName](entity, value);
                 }
             }
             if (entityMetadata.Properties.ContainsKey(SpecialFieldNames.EntityRowVersionFieldName))
             {
-                entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, Convert.ChangeType(1, entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType));
+                var type = entityMetadata.Properties[SpecialFieldNames.EntityRowVersionFieldName].PropertyInfo.PropertyType;
+                var value = Convert.ChangeType(1, type, CultureInfo.InvariantCulture);
+                entityMetadata.Setters[SpecialFieldNames.EntityRowVersionFieldName](entity, value);
             }
             if (isAuditableEntity)
             {
@@ -1012,6 +1034,7 @@ namespace inercya.EntityLite
 
         protected IQueryLite GetByPrimaryKeyQuery(EntityMetadata metadata, object entity, string projectionName = "BaseTable" )
         {
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
             var q = this.CreateQueryLite(metadata.EntityType, projectionName);
             foreach (var pkf in metadata.PrimaryKeyPropertyNames)
             {
@@ -1029,7 +1052,7 @@ namespace inercya.EntityLite
 
         protected internal virtual bool Update(object entity, List<string> sortedFields)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
 
@@ -1101,7 +1124,10 @@ namespace inercya.EntityLite
             if (hasEntityRowVersion)
             {
                 var entityRowVersionFieldMetadata = metadata.Properties[SpecialFieldNames.EntityRowVersionFieldName];
-                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, Convert.ChangeType(Convert.ToInt64(entityRowVersion) + 1, entityRowVersionFieldMetadata.PropertyInfo.PropertyType));
+                var type = entityRowVersionFieldMetadata.PropertyInfo.PropertyType;
+                var incrementedEntityRowVersion = Convert.ToInt64(entityRowVersion, CultureInfo.InvariantCulture) + 1;
+                var value = Convert.ChangeType(incrementedEntityRowVersion, type, CultureInfo.InvariantCulture);
+                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, value);
             }
             if (isAuditableEntity)
             {
@@ -1114,7 +1140,7 @@ namespace inercya.EntityLite
 #if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task<bool> UpdateAsync(object entity, List<string> sortedFields)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
 
@@ -1125,7 +1151,10 @@ namespace inercya.EntityLite
             {
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
+// Call async methods when in an async method. when CurrentUserIdAsyncGetter is null TrySetAuditUserAsync fails
+#pragma warning disable CA1849
                     previousModifiedBy = TrySetAuditUser(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, metadata);
+#pragma warning restore CA1849 // Call async methods when in an async method
                 }
                 else
                 {
@@ -1190,11 +1219,13 @@ namespace inercya.EntityLite
             if (hasEntityRowVersion)
             {
                 var entityRowVersionFieldMetadata = metadata.Properties[SpecialFieldNames.EntityRowVersionFieldName];
-                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, Convert.ChangeType(Convert.ToInt64(entityRowVersion) + 1, entityRowVersionFieldMetadata.PropertyInfo.PropertyType));
+                object value = Convert.ChangeType(Convert.ToInt64(entityRowVersion, CultureInfo.InvariantCulture) + 1, 
+                    entityRowVersionFieldMetadata.PropertyInfo.PropertyType, CultureInfo.InvariantCulture);
+                entity.SetPropertyValue(SpecialFieldNames.EntityRowVersionFieldName, value);
             }
             if (isAuditableEntity)
             {
-                await audit.LogChangeAsync(previousEntity, await this.GetCurrentEntityAsync(metadata, entity).ConfigureAwait(false), sortedFields, metadata);
+                await audit.LogChangeAsync(previousEntity, await this.GetCurrentEntityAsync(metadata, entity).ConfigureAwait(false), sortedFields, metadata).ConfigureAwait(false);
                 Commit();
             }
             return true;
@@ -1203,13 +1234,13 @@ namespace inercya.EntityLite
 
         protected internal List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)
         {
-            if (entity == null) throw new ArgumentNullException("entity");
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             var metadata = entityType.GetEntityMetadata();
 
             if (string.IsNullOrEmpty(metadata.BaseTableName))
             {
-                throw new InvalidOperationException(string.Format("Entity \"{0}\" is not updatable because it has no base table", entityType.Name));
+                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Entity \"{0}\" is not updatable because it has no base table", entityType.Name));
             }
             List<string> sortedFields = null;
 
@@ -1232,11 +1263,11 @@ namespace inercya.EntityLite
             {
                 if (metadata.PrimaryKeyPropertyNames.Contains(field, StringComparer.InvariantCultureIgnoreCase))
                 {
-                    throw new NotSupportedException(string.Format("Updating primary key fields is an unsupported operation. And you are trying to update the primary key field \"{0}\"", field));
+                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Updating primary key fields is an unsupported operation. And you are trying to update the primary key field \"{0}\"", field));
                 }
                 if (!metadata.UpdatableProperties.ContainsKey(field) || field == SpecialFieldNames.CreatedDateFieldName || field == SpecialFieldNames.CreatedByFieldName)
                 {
-                    throw new InvalidOperationException(string.Format("\"{0}\" is not an updatable field of table \"{0}\"", field, metadata.BaseTableName));
+                    throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "\"{0}\" is not an updatable field of table \"{1}\"", field, metadata.BaseTableName));
                 }
             }
             return sortedFields;

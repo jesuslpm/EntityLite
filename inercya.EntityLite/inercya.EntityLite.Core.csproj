@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net452;net35</TargetFrameworks>
+    <TargetFrameworks>net35;netstandard2.0;net452</TargetFrameworks>
     <Version>2.16.0</Version>
     <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -14,6 +14,8 @@
     <AssemblyName>EntityLite</AssemblyName>
     <AssemblyVersion>2.16.0.0</AssemblyVersion>
     <FileVersion>2.16.0.0</FileVersion>
+		<AnalysisMode>All</AnalysisMode>
+		<LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
