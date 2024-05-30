@@ -37,7 +37,13 @@ namespace inercya.EntityLite.Extensions
                 FromType = typeof(DateTimeOffset), 
                 ToType = typeof(DateTime), 
                 Method = typeof(ConversionMethods).GetMethod("FromDateTimeOffsetToLocalDateTime")
-            }
+            },
+            new ConverterEntry
+            {
+                FromType = typeof(string), 
+                ToType = typeof(Uri), 
+                Method = typeof(ConversionMethods).GetMethod("FromStringToUri")
+            },
             //new ConverterEntry
             //{
             //    FromType = typeof(string),
@@ -61,6 +67,12 @@ namespace inercya.EntityLite.Extensions
         public static DateTime FromDateTimeOffsetToLocalDateTime(DateTimeOffset dateTimeOffset)
         {
             return dateTimeOffset.LocalDateTime;
+        }
+
+        public static Uri FromStringToUri(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return null;
+            return new Uri(str);
         }
 
         public static MethodInfo GetConversionMethod(Type fromType, Type toType)
