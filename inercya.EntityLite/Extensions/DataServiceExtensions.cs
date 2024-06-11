@@ -23,12 +23,12 @@ namespace inercya.EntityLite.Extensions
 {
 	public static class DataServiceExtensions
 	{
-		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataService, string projectionName) where TEntity : class, new()
+		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataService, string projectionName) where TEntity : class
 		{
 			return new QueryLite<TEntity>(projectionName, dataService);
 		}
 
-		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataService, Projection projection) where TEntity : class, new()
+		public static IQueryLite<TEntity> CreateQueryLite<TEntity>(this DataService dataService, Projection projection) where TEntity : class
 		{
 			return new QueryLite<TEntity>(projection, dataService);
 		}

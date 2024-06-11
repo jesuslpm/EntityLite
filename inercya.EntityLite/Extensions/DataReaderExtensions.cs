@@ -153,12 +153,12 @@ namespace inercya.EntityLite.Extensions
 			return null;
 		}
 
-        public static List<T> ToList<T>(this IDataReader reader) where T : class, new()
+        public static List<T> ToList<T>(this IDataReader reader) where T : class
         {
 			return reader.ToEnumerable<T>().ToList();
         }
 
-		public static T FirstOrDefault<T>(this IDataReader reader) where T : class, new()
+		public static T FirstOrDefault<T>(this IDataReader reader) where T : class
 		{
 			if (reader == null) throw new ArgumentNullException(nameof(reader));
 			using (reader)
@@ -174,7 +174,7 @@ namespace inercya.EntityLite.Extensions
 			}
 		}
 
-		public static IEnumerable<T> ToEnumerable<T>(this IDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
+		public static IEnumerable<T> ToEnumerable<T>(this IDataReader reader, Action onEnumerationCompleted = null) where T : class
 		{
 			if (reader == null) throw new ArgumentNullException(nameof(reader));
             try
@@ -195,7 +195,7 @@ namespace inercya.EntityLite.Extensions
 		}
 
 #if (NET452 || NETSTANDARD2_0)
-        public static async Task<List<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class, new()
+        public static async Task<List<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
             var list = new List<T>();
@@ -220,7 +220,7 @@ namespace inercya.EntityLite.Extensions
 
 
         [Obsolete("Use ToList instead")]
-        public static List<T> GetList<T>(this IDataReader reader) where T : class, new()
+        public static List<T> GetList<T>(this IDataReader reader) where T : class
         {
             return reader.ToList<T>();
         }

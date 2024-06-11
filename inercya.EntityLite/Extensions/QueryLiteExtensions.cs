@@ -407,7 +407,7 @@ namespace inercya.EntityLite
 			return query.Get<int>(id);
 		}
 
-		private static TEntity Get<TEntity, TPrimaryKey>(IQueryLite<TEntity> query, TPrimaryKey ID) where TEntity : class, new()
+		private static TEntity Get<TEntity, TPrimaryKey>(IQueryLite<TEntity> query, TPrimaryKey ID) where TEntity : class
 		{
 			Type entityType = typeof(TEntity);
 			EntityMetadata entityMetadata = entityType.GetEntityMetadata(); 
@@ -429,13 +429,13 @@ namespace inercya.EntityLite
 			return query.Where(primaryKeyFieldName, OperatorLite.Equals, ID).FirstOrDefault();
 		}
 
-		public static TEntity Get<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue) where TEntity : class, new()
+		public static TEntity Get<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue) where TEntity : class
 		{
 			return query.Where(fieldName, OperatorLite.Equals, fieldValue).FirstOrDefault();
 		}
 
 #if (NET452 || NETSTANDARD2_0)
-        public static Task<TEntity> GetAsync<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue) where TEntity : class, new()
+        public static Task<TEntity> GetAsync<TEntity>(this IQueryLite<TEntity> query, string fieldName, object fieldValue) where TEntity : class
         {
             return query.Where(fieldName, OperatorLite.Equals, fieldValue).FirstOrDefaultAsync();
         }

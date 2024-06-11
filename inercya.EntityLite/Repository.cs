@@ -90,7 +90,7 @@ namespace inercya.EntityLite
 
     }
 
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity: class, new()
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity: class
     {
 		public DataService DataService { get;  set; }
 

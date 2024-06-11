@@ -24,7 +24,7 @@ using inercya.EntityLite.Templates;
 
 namespace inercya.EntityLite
 {
-	public class TemplatedQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITemplatedQueryLite where TEntity : class, new()
+	public class TemplatedQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITemplatedQueryLite where TEntity : class
     {
 
         public TemplatedQueryLite()

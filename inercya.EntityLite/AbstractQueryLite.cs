@@ -384,7 +384,7 @@ namespace inercya.EntityLite
 
     }
 
-    public class AbstractQueryLite<TEntity> : AbstractQueryLite, IQueryLite<TEntity> where TEntity : class, new()
+    public class AbstractQueryLite<TEntity> : AbstractQueryLite, IQueryLite<TEntity> where TEntity : class
     {
 
         private static ILogger logger;

@@ -95,12 +95,12 @@ namespace inercya.EntityLite
 
         protected abstract void SetOutPutParameters(DbCommand command);
 
-        public T FirstOrDefault<T>() where T : class, new()
+        public T FirstOrDefault<T>() where T : class
         {
             return this.ToEnumerable<T>().FirstOrDefault();
         }
 
-        public IEnumerable<T> ToEnumerable<T>() where T : class, new()
+        public IEnumerable<T> ToEnumerable<T>() where T : class
         {
             DbCommand command = null;
             Stopwatch watch;
@@ -159,7 +159,7 @@ namespace inercya.EntityLite
             Log?.LogDebug("Command completed in {Elapsed}.\r\n{CommandText}\r\nParameters: {Parameters}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
-        public IList<T> ToList<T>() where T : class, new()
+        public IList<T> ToList<T>() where T : class
         {
             return this.ToEnumerable<T>().ToList();
         }
@@ -243,12 +243,12 @@ namespace inercya.EntityLite
             return this.ExecuteCommandAsync(cmd => cmd.ExecuteReaderAsync());
         }
 
-        public async Task<T> FirstOrDefaultAsync<T>() where T : class, new()
+        public async Task<T> FirstOrDefaultAsync<T>() where T : class
         {
             return (await this.ToEnumerableAsync<T>().ConfigureAwait(false)).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<T>> ToEnumerableAsync<T>() where T : class, new()
+        public async Task<IEnumerable<T>> ToEnumerableAsync<T>() where T : class
         {
             DbCommand command = null;
             Stopwatch watch;
@@ -294,7 +294,7 @@ namespace inercya.EntityLite
             });
         }
 
-        public async Task<List<T>> ToListAsync<T>() where T : class, new()
+        public async Task<List<T>> ToListAsync<T>() where T : class
         {
             DbCommand command = null;
             Stopwatch watch;

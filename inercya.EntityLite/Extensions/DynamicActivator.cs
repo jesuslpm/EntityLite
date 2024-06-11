@@ -30,7 +30,7 @@ namespace inercya.EntityLite.Extensions
 			return dynamicActivatorsCache.GetItem(type);
         }
 
-		public static Func<T> GetDynamicActivator<T>() where T: class, new()
+		public static Func<T> GetDynamicActivator<T>() where T: class
 		{
 			var activator = GetDynamicActivator(typeof(T));
 			return delegate { return (T)activator(); };
@@ -60,7 +60,7 @@ namespace inercya.EntityLite.Extensions
 			return (Func<object>)dm.CreateDelegate(typeof(Func<object>));
         }
 
-		public static Func<T> CreateDynamicActivator<T>() where T: class, new()
+		public static Func<T> CreateDynamicActivator<T>() where T: class
 		{
 			DynamicMethod dm = CreateDynamicActivatorMethod(typeof(T));
 			return (Func<T>)dm.CreateDelegate(typeof(Func<T>));

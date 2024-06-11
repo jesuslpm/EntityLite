@@ -36,7 +36,7 @@ namespace inercya.EntityLite
 {
 
     [Serializable]
-    public class QueryLite<TEntity> : AbstractQueryLite<TEntity>, IProjectedQueryLite where TEntity : class, new()
+    public class QueryLite<TEntity> : AbstractQueryLite<TEntity>, IProjectedQueryLite where TEntity : class
     {
         public QueryLite(Projection projection, DataService dataAccess) : this(projection.GetProjectionName(), dataAccess)
         {  
@@ -57,7 +57,7 @@ namespace inercya.EntityLite
     }
 
     [Serializable]
-    public class TableOrViewQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITableOrViewQueryLite where TEntity : class, new()
+    public class TableOrViewQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITableOrViewQueryLite where TEntity : class
     {
 
 

@@ -23,7 +23,7 @@ using inercya.EntityLite.Builders;
 
 namespace inercya.EntityLite
 {
-	public class FunctionQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITableValuedFunctionQueryLite where TEntity : class, new()
+	public class FunctionQueryLite<TEntity> : AbstractQueryLite<TEntity>, ITableValuedFunctionQueryLite where TEntity : class
     {
 
         public FunctionQueryLite()

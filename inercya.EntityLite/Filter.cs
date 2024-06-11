@@ -32,7 +32,7 @@ using System.Data.SqlTypes;
 
 namespace inercya.EntityLite
 {
-	public class FilterLite<TEntity> : List<ConditionLite> where TEntity : class, new()
+	public class FilterLite<TEntity> : List<ConditionLite> where TEntity : class
 	{
 		public FilterLite() : base()
 		{
