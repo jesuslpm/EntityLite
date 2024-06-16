@@ -1,4 +1,4 @@
-# inercya.Newtonsoft.Json.Converters
+# inercya.System.Text.Json.Converters
 
 This package contains three custom converters for System.Text.Json:
 
