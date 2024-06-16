@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
 		<!--<TargetFramework>net462</TargetFramework>-->
-		<Version>3.0.0</Version>
+		<Version>3.0.0-beta1</Version>
 		<Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageId>EntityLite.Core</PackageId>
