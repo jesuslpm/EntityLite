@@ -14,7 +14,7 @@
 			RoundDateJsonConverter, UtcDateTimeJsonConverter and LocalDateTimeJsonConverter for System.Text.Json
 		</description>
 		<summary>
-			Some Json.NET converters 
+			Some System.Text.Json converters for DateTime
 		</summary>
 		<language>en-US</language>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
