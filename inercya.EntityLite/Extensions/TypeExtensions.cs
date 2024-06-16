@@ -138,11 +138,7 @@ namespace inercya.EntityLite.Extensions
 
         public static object DataContractDeserialize(this Type type, TextReader reader)
         {
-#if NET35
-			using (var xreader = XmlReader.Create(reader, new XmlReaderSettings() { ProhibitDtd = true }))
-#else
 			using (var xreader = new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit })
-#endif
 			{
                 return type.DataContractDeserialize(xreader);
             }

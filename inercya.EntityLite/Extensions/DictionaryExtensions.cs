@@ -28,11 +28,7 @@ namespace inercya.EntityLite.Extensions
 		{
 			if (dictionary == null) throw new ArgumentNullException(nameof(dictionary));
 			var strings = dictionary.Select(kv => string.Format(CultureInfo.InvariantCulture, "{0}: {1}", kv.Key, kv.Value));
-#if NET35
-			return string.Join(", ", strings.ToArray());
-#else
 			return string.Join(", ", strings);
-#endif
 		}
 	}
 }

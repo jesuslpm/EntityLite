@@ -22,9 +22,7 @@ using System.Data;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Collections;
 using System.Globalization;
-#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-#endif
 using System.Data.Common;
 
 
@@ -194,7 +192,6 @@ namespace inercya.EntityLite.Extensions
             }
 		}
 
-#if (NET452 || NETSTANDARD2_0)
         public static async Task<List<T>> ToListAsync<T>(this DbDataReader reader, Action onEnumerationCompleted = null) where T : class
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
@@ -215,14 +212,6 @@ namespace inercya.EntityLite.Extensions
             {
                 onEnumerationCompleted?.Invoke();
             }
-        }
-#endif
-
-
-        [Obsolete("Use ToList instead")]
-        public static List<T> GetList<T>(this IDataReader reader) where T : class
-        {
-            return reader.ToList<T>();
         }
 
     }

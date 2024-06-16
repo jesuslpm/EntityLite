@@ -21,9 +21,7 @@ using System.Text;
 using inercya.EntityLite.Extensions;
 using System.Reflection;
 using System.Globalization;
-#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-#endif
 
 namespace inercya.EntityLite
 {
@@ -43,8 +41,6 @@ namespace inercya.EntityLite
         object Get(string projectionName, object entityId, FetchMode fetchMode);
         object Get(Projection projection, object entityId, string[] fields);
         object Get(string projectionName, object entityId, string[] fields);
-
-#if (NET452 || NETSTANDARD2_0)
         Task<object> GetAsync(string projectionName, object entityId, string[] fields);
         Task<object> GetAsync(Projection projection, object entityId, string[] fields);
         Task<object> GetAsync(string projectionName, object entityId, FetchMode fetchMode);
@@ -54,7 +50,6 @@ namespace inercya.EntityLite
         Task<bool> UpdateAsync(object entity);
         Task InsertAsync(object entity);
         Task<SaveResult> SaveAsync(object entity);
-#endif
 
     }
 
@@ -72,8 +67,6 @@ namespace inercya.EntityLite
 		new TEntity Get(string projectionName, object entityId, FetchMode fetchMode);
         new TEntity Get(Projection projection, object entityId, string[] fields);
         new TEntity Get(string projectionName, object entityId, string[] fields);
-
-#if (NET452 || NETSTANDARD2_0)
         Task<SaveResult> SaveAsync(TEntity entity);
         Task InsertAsync(TEntity entity);
         Task<bool> UpdateAsync(TEntity entity);
@@ -85,9 +78,6 @@ namespace inercya.EntityLite
         new Task<TEntity> GetAsync(string projectionName, object entityId, string[] fields);
 
         Task<SaveCollectionResult<TEntity>> SaveAsync(IEnumerable<TEntity> entities, IEnumerable<TEntity> currentEntities);
-
-#endif
-
     }
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity: class
@@ -162,7 +152,6 @@ namespace inercya.EntityLite
             }
         }
 
-#if (NET452 || NETSTANDARD2_0)
         private static volatile bool isSaveCollectionAsyncFunctionInitialized;
         private static object saveCollectionAsyncFunctionSyncObject = new object();
         static Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>> _saveCollectionAsyncFunction;
@@ -188,8 +177,6 @@ namespace inercya.EntityLite
                 return _saveCollectionAsyncFunction;
             }
         }
-
-#endif
 
         public Repository(DataService dataService)
         {
@@ -341,8 +328,6 @@ namespace inercya.EntityLite
             return isNew;
         }
 
-
-#if (NET452 || NETSTANDARD2_0)
         public virtual async Task<SaveResult> SaveAsync(TEntity entity)
         {
             bool isNew = IsNew(entity);
@@ -433,20 +418,16 @@ namespace inercya.EntityLite
             }
             return SaveResult.NotModified;
         }
-#endif
 
         public virtual void Insert(TEntity entity)
         {
             this.DataService.Insert(entity, EntityMetadata);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         public virtual Task InsertAsync(TEntity entity)
         {
             return this.DataService.InsertAsync(entity, EntityMetadata);
         }
-#endif
-
 
         public bool Update(TEntity entity)
         {
@@ -464,7 +445,6 @@ namespace inercya.EntityLite
             return this.Update(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
-#if (NET452 || NETSTANDARD2_0)
         public Task<bool> UpdateAsync(TEntity entity)
         {
             return this.UpdateAsync(entity, this.DataService.GetValidatedForUpdateSortedFields(entity));
@@ -480,20 +460,16 @@ namespace inercya.EntityLite
             if (fieldsToUpdate != null && fieldsToUpdate.Length == 0) return Task.FromResult(false);
             return this.UpdateAsync(entity, this.DataService.GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
-#endif
-
 
         public virtual bool Delete(TEntity entity)
         {
             return this.DataService.Delete(entity);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         public virtual Task<bool> DeleteAsync(TEntity entity)
         {
             return this.DataService.DeleteAsync(entity);
         }
-#endif
 
         public IQueryLite<TEntity> Query(Projection projection)
         {
@@ -545,7 +521,6 @@ namespace inercya.EntityLite
 
 #endregion
 
-#if (NET452 || NETSTANDARD2_0)
         Task<TEntity> IRepository<TEntity>.GetAsync(Projection projection, object entityId, FetchMode fetchMode)
         {
             return ((IRepository<TEntity>)this).GetAsync(projection.GetProjectionName(), entityId, fetchMode);
@@ -584,7 +559,6 @@ namespace inercya.EntityLite
         {
             return ((IRepository<TEntity>)this).GetAsync(projection.GetProjectionName(), entityId, fields);
         }
-#endif
 
 #region IRepository Members
 
@@ -603,36 +577,30 @@ namespace inercya.EntityLite
             return this.Save((TEntity)entity);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         Task<SaveResult> IRepository.SaveAsync(object entity)
         {
             return this.SaveAsync((TEntity)entity);
         }
-#endif
 
         bool IRepository.Update(object entity, string[] fieldsToUpdate)
         {
             return this.Update((TEntity)entity, fieldsToUpdate);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         Task<bool> IRepository.UpdateAsync(object entity, string[] fieldsToUpdate)
         {
             return this.UpdateAsync((TEntity)entity, fieldsToUpdate);
         }
-#endif
 
         bool IRepository.Delete(object entity)
         {
             return this.Delete((TEntity)entity);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         Task<bool> IRepository.DeleteAsync(object entity)
         {
             return this.DeleteAsync((TEntity)entity);
         }
-#endif
 
 
         void IRepository.Insert(object entity)
@@ -640,12 +608,10 @@ namespace inercya.EntityLite
             this.Insert((TEntity)entity);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         Task IRepository.InsertAsync(object entity)
         {
             return this.InsertAsync((TEntity)entity);
         }
-#endif
 
 
         bool IRepository.Update(object entity)
@@ -653,12 +619,10 @@ namespace inercya.EntityLite
             return this.Update((TEntity)entity);
         }
 
-#if (NET452 || NETSTANDARD2_0)
         Task<bool> IRepository.UpdateAsync(object entity)
         {
             return this.UpdateAsync((TEntity)entity);
         }
-#endif
 
         object IRepository.Get(Projection projection, object entityId, FetchMode fetchMode)
 		{
@@ -685,7 +649,6 @@ namespace inercya.EntityLite
             get { return typeof(TEntity); }
         }
 
-#if (NET452 || NETSTANDARD2_0)
         async Task<object> IRepository.GetAsync(Projection projection, object entityId, FetchMode fetchMode)
         {
             return await ((IRepository<TEntity>)this).GetAsync(projection, entityId, fetchMode).ConfigureAwait(false);
@@ -705,7 +668,6 @@ namespace inercya.EntityLite
         {
             return await ((IRepository<TEntity>)this).GetAsync(proyectionName, entityId, fields).ConfigureAwait(false);
         }
-#endif
 
 #endregion
     }

@@ -36,11 +36,7 @@ namespace inercya.EntityLite.Extensions
 			return delegate { return (T)activator(); };
 		}
 
-#if NET35 || NET452
-		private static Type[] emtpyTypeArray = new Type[] { };
-#else
 		private static Type[] emtpyTypeArray = Array.Empty<Type>();
-#endif
 
 		private static DynamicMethod CreateDynamicActivatorMethod(this Type type)
 		{

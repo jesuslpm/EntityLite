@@ -29,9 +29,7 @@ using System.Linq;
 using inercya.EntityLite.Collections;
 using inercya.EntityLite.Providers;
 using System.Globalization;
-#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-#endif
 using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
@@ -42,56 +40,51 @@ namespace inercya.EntityLite
 
         public static readonly IDictionary<string, Func<DataService, IEntityLiteProvider>> EntityLiteProviderFactories = new Dictionary<string, Func<DataService, IEntityLiteProvider>>();
 
-        private static readonly CacheLite<string, ConnectionStringSettings> connectionStrings = new CacheLite<string, ConnectionStringSettings>((name) => ConfigurationManager.ConnectionStrings[name]);
 
         private object _currentUserId;
 
-
+        [Obsolete("Use CurrentUserId property instead")]
         public Func<object> CurrentUserIdGetter { get; set; }
 
-#if (NET452 || NETSTANDARD2_0)
+        [Obsolete("Use CurrentUserId property instead")]
         public Func<Task<object>> CurrentUserIdAsyncGetter { get; set; }
-#endif
 
         public object CurrentUserId 
-        { 
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
             get 
             {
+
                 if (CurrentUserIdGetter != null) return CurrentUserIdGetter();
-#if (NET452 || NETSTANDARD2_0)
-                if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter().Result;
-#endif
+                if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter().GetAwaiter().GetResult();
                 return _currentUserId;
             }
             set
             {
                 _currentUserId = value;
                 CurrentUserIdGetter = null;
-#if (NET452 || NETSTANDARD2_0)
                 CurrentUserIdAsyncGetter = null;
-#endif
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
 
 
-#if (NET452 || NETSTANDARD2_0)
-        public Task<object> GetCurrentUserIdAsync()
+        public async Task<object> GetCurrentUserIdAsync()
         {
-            if (CurrentUserIdAsyncGetter != null) return CurrentUserIdAsyncGetter();
-            return Task.FromResult(CurrentUserId);
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (CurrentUserIdAsyncGetter != null) return await CurrentUserIdAsyncGetter();
+#pragma warning restore CS0618 // Type or member is obsolete
+            return CurrentUserId;
         }
-#endif
 
         public Func<string> ApplicationContextGetter { get; set; }
 
-        public Func<string> CorrelationIdGetter { get; set; }
+        public Dictionary<string, string> ApplicationContext { get; } = new Dictionary<string, string>();
 
 		public int MaxRetries { get; set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }
 		public SpecialFieldNames SpecialFieldNames { get; set; }
-
-        private IEntityLiteProvider _entityLiteProvider;
 
         public int CommandTimeout { get; set; }
 
@@ -102,26 +95,8 @@ namespace inercya.EntityLite
 
         public bool IsPreventingSuperfluousUpdatesEnabled { get; set; } = true;
 
-        public IEntityLiteProvider EntityLiteProvider
-        {
-            get
-            {
-                if (_entityLiteProvider == null)
-                {
-                    if (string.IsNullOrEmpty(this.ProviderName))
-                    {
-                        throw new InvalidOperationException("The ProviderName property of the data service has not been set. Please check that the connection string \"" + this.ConnectionStringName + "\"  exists in the configuration file and it includes the attribute ProviderName");
-                    }
-                    Func<DataService, IEntityLiteProvider> factory = null;
-                    if (!EntityLiteProviderFactories.TryGetValue(this.ProviderName, out factory))
-                    {
-                        throw new InvalidOperationException("There is no registered EntityLite provider for: " + this.ProviderName);
-                    }
-                    _entityLiteProvider = factory(this);
-                }
-                return _entityLiteProvider;
-            }
-        }
+        public IEntityLiteProvider EntityLiteProvider { get; set; }
+
 
         public TextTransform EntityNameToEntityViewTransform { get; set; }
 
@@ -150,58 +125,6 @@ namespace inercya.EntityLite
             }
         }
 
-        private string _connectionStringName;
-        public string ConnectionStringName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_connectionStringName))
-                {
-                    return "ConnectionString";
-                }
-                else
-                {
-                    return _connectionStringName;
-                }
-            }
-            set
-            {
-                if (value != this.ConnectionStringName)
-                {
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        ConnectionStringSettings settings = connectionStrings.GetItem(value);
-                        if (settings == null)
-                        {
-                            throw new ArgumentException("The connection string \"" + value + "\" doesn't exist in the configuration file");
-                        }
-                        if (string.IsNullOrEmpty(settings.ProviderName))
-                        {
-                            throw new ArgumentException("Invalid connection string \"" + value + "\" in configuration file. The providerName attribute is missing or empty");
-                        }
-                        if (string.IsNullOrEmpty(settings.ConnectionString))
-                        {
-                            throw new ArgumentException("Invalid connection string \"" + value + "\" in configuration file. The connectionString attribute is missing or empty");
-                        }
-                        _connectionStringName = value;
-                        _connectionString = settings.ConnectionString;
-                        _providerName = settings.ProviderName;
-                    }
-                    else
-                    {
-                        _connectionStringName = value;
-                        _connectionString = null;
-                        _providerName = null;
-                    }
-                    _dbProviderFactory = null;
-                    _entityLiteProvider = null;
-                    _connection = null;
-                    _transaction = null;
-                    this.TransactionCount = 0;
-                }
-            }
-        }
-
         public bool IsAutomaticAuditDateFieldsEnabled { get; set; }
         public bool IsAutomaticAuditUserFieldsEnabled { get; set; }
 
@@ -221,48 +144,7 @@ namespace inercya.EntityLite
         public event EventHandler AfterRollback;
 #pragma warning restore CA1713 // Events should not have 'Before' or 'After' prefix
 
-        private string _connectionString;
-        public  string ConnectionString
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_connectionString))
-                {
-                    var connectionStringSetting = connectionStrings.GetItem(ConnectionStringName);
-                    if (connectionStringSetting != null)
-                    {
-                        _connectionString = connectionStringSetting.ConnectionString;
-                    }
-                }
-                return _connectionString;
-            }
-            protected set
-            {
-                this._connectionString = value;
-            }
-        }
-
-        private string _providerName;
-        public string ProviderName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_providerName))
-                {
-					var connectionStringSetting = ConfigurationManager.ConnectionStrings[ConnectionStringName];
-					if (connectionStringSetting != null)
-					{
-						_providerName = connectionStringSetting.ProviderName;
-					}
-                }
-                return _providerName;
-            }
-            protected set
-            {
-                this._providerName = value;
-            }
-        }
-
+        public string ConnectionString { get; set; }
 
         private IIdentityMap _identityMap;
 
@@ -285,30 +167,30 @@ namespace inercya.EntityLite
 
         static DataService()
         {
-            EntityLiteProviderFactories.Add(SqlServerEntityLiteProvider.ProviderName, (ds) => new SqlServerEntityLiteProvider(ds));
-            EntityLiteProviderFactories.Add(SqliteEntityLiteProvider.ProviderName, (ds) => new SqliteEntityLiteProvider(ds));
-            EntityLiteProviderFactories.Add(MySqlEntityLiteProvider.ProviderName, (ds) => new MySqlEntityLiteProvider(ds));
-            EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ProviderName, (ds) => new OracleEntityLiteProvider(ds));
-            EntityLiteProviderFactories.Add(OracleEntityLiteProvider.ManagedProviderName, (ds) => new OracleEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("System.Data.SqlClient.SqlClientFactory", (ds) => new SqlServerEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("Microsoft.Data.SqlClient.SqlClientFactory", (ds) => new SqlServerEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("System.Data.SQLite.SQLiteFactory", (ds) => new SqliteEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("MySql.Data.MySqlClient.MySqlClientFactory", (ds) => new MySqlEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("Oracle.ManagedDataAccess.Client.OracleClientFactory", (ds) => new OracleEntityLiteProvider(ds));
             EntityLiteProviderFactories.Add(DevArtEntityLiteProvider.ProviderName, (ds) => new DevArtEntityLiteProvider(ds));
-            EntityLiteProviderFactories.Add(NpgsqlEntityLiteProvider.ProviderName, (ds) => new NpgsqlEntityLiteProvider(ds));
-            EntityLiteProviderFactories.Add(FirebirdEntityLiteProvider.ProviderName, (ds) => new FirebirdEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("Npgsql.NpgsqlFactory", (ds) => new NpgsqlEntityLiteProvider(ds));
+            EntityLiteProviderFactories.Add("FirebirdSql.Data.FirebirdClient.FirebirdClientFactory", (ds) => new FirebirdEntityLiteProvider(ds));
         }
 
         private DbProviderFactory _dbProviderFactory;
         public DbProviderFactory DbProviderFactory
         {
-            get
+            get => _dbProviderFactory;
+            set
             {
-                if (_dbProviderFactory == null)
+                if (value == null) throw new ArgumentNullException(nameof(value));
+                var name = value.GetType().FullName;
+                if (!EntityLiteProviderFactories.TryGetValue(name, out var factory))
                 {
-                    if (string.IsNullOrEmpty(this.ProviderName))
-                    {
-                        throw new InvalidOperationException("The ProviderName property of the data service has not been set. Please check the connection string \"" + this.ConnectionStringName + "\" in the configuration file exists and includes the attribute ProviderName");
-                    }
-                    _dbProviderFactory = ConfigurationLite.DbProviderFactories.Get(this.ProviderName);
+                    throw new InvalidOperationException($"The db provider factory {name} is not supported");
                 }
-                return _dbProviderFactory;
+                EntityLiteProvider = factory(this);
+                _dbProviderFactory = value;
             }
         }
 
@@ -322,7 +204,11 @@ namespace inercya.EntityLite
                 {
                     if (string.IsNullOrEmpty(this.ConnectionString))
                     {
-                        throw new InvalidOperationException("The ConnectionString property of the data service has not been set. Please check that the connection string \"" + this.ConnectionStringName + "\"  exists in the configuration file");
+                        throw new InvalidOperationException("The ConnectionString property of the data service has not been set.");
+                    }
+                    if (DbProviderFactory == null)
+                    {
+                        throw new InvalidOperationException("The DbProviderFactory property of the data service has not been set.");
                     }
                     _connection = DbProviderFactory.CreateConnection();
                     _connection.StateChange += new StateChangeEventHandler(_connection_StateChange);
@@ -366,18 +252,15 @@ namespace inercya.EntityLite
             }
         }
 
-#if (NET452 || NETSTANDARD2_0)
         private static Task completedTask = Task.FromResult((object)null);
 
-        public virtual Task OpenConnectionAsync()
+        public virtual async Task OpenConnectionAsync()
         {
             if (this.Connection.State != ConnectionState.Open)
             {
-                return this.Connection.OpenAsync();
+                await this.Connection.OpenAsync();
             }
-            return completedTask;
         }
-#endif
 
         public int TransactionCount { get; private set; }
 
@@ -495,29 +378,19 @@ namespace inercya.EntityLite
             this.CommandTimeout = -1;
         }
 
-        public DataService(string connectionStringName)
-        {
-            if (string.IsNullOrEmpty(connectionStringName))
-            {
-                throw new ArgumentNullException(nameof(connectionStringName));
-            }
-            
-            this.ConnectionStringName = connectionStringName;
-            Initialize();
-        }
-
-        public DataService(string connectionString, string providerName)
+        public DataService(DbProviderFactory dbProviderFactory, string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new ArgumentNullException(nameof(connectionString));
             }
-            if (string.IsNullOrEmpty(providerName))
+            if (dbProviderFactory == null)
             {
-                throw new ArgumentNullException(nameof(providerName));
+                throw new ArgumentNullException(nameof(dbProviderFactory));
             }
-            this._connectionString = connectionString;
-            this._providerName = providerName;
+            this.ConnectionString = connectionString;
+            this.DbProviderFactory = dbProviderFactory;
+            
             Initialize();
         }
 
@@ -574,7 +447,6 @@ namespace inercya.EntityLite
             return entity;
         }
 
-#if (NET452 || NETSTANDARD2_0)
         public virtual Task<object> GetPreviousEntityAsync(EntityMetadata metadata, object entity)
         {
             return this.GetByPrimaryKeyAsync(metadata, entity);
@@ -584,7 +456,6 @@ namespace inercya.EntityLite
         {
             return Task.FromResult<object>(entity);
         }
-#endif
 
         #region Modification methods
 
@@ -621,8 +492,6 @@ namespace inercya.EntityLite
             }
             return affectedRecords > 0;
 		}
-
-#if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task<bool> DeleteAsync(object entity)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -654,7 +523,6 @@ namespace inercya.EntityLite
             }
             return affectedRecords > 0;
         }
-#endif
 
 
         internal struct SetAuditObjectResult
@@ -681,7 +549,6 @@ namespace inercya.EntityLite
             return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue }; ;
         }
 
-#if (NET452 || NETSTANDARD2_0)
         private async Task<SetAuditObjectResult> TrySetAuditUserAsync(string fieldName, object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -699,7 +566,6 @@ namespace inercya.EntityLite
             setter(entity, currentUserId);
             return new SetAuditObjectResult { IsSet = true, PreviousValue = previousValue };
         }
-#endif
 
         private SetAuditObjectResult TrySetAuditDate(string fieldName, object entity, EntityMetadata metadata)
         {
@@ -761,14 +627,12 @@ namespace inercya.EntityLite
             Insert(entity, EntityMetadata.GetEntityMetadata(entityType));
         }
 
-#if (NET452 || NETSTANDARD2_0)
         protected internal virtual Task InsertAsync(object entity)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
             Type entityType = entity.GetType();
             return InsertAsync(entity, EntityMetadata.GetEntityMetadata(entityType));
         }
-#endif
 
         protected internal virtual void Insert(object entity, EntityMetadata entityMetadata)
 		{
@@ -854,7 +718,6 @@ namespace inercya.EntityLite
             }
 		}
 
-#if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task InsertAsync(object entity, EntityMetadata entityMetadata)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -868,6 +731,7 @@ namespace inercya.EntityLite
             }
             if (IsAutomaticAuditUserFieldsEnabled)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
 // Call async methods when in an async method. When CurrentUserIdAsyncGetter is null TrySetAuditUerAsync fails
@@ -881,6 +745,7 @@ namespace inercya.EntityLite
                     await TrySetAuditUserAsync(entityMetadata.FieldPrefix + this.SpecialFieldNames.CreatedByFieldName, entity, entityMetadata).ConfigureAwait(false);
                     await TrySetAuditUserAsync(entityMetadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, entityMetadata).ConfigureAwait(false);
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             DbCommand cmd = null;
@@ -956,19 +821,16 @@ namespace inercya.EntityLite
                 Commit();
             }
         }
-#endif
 
         protected internal bool Update(object entity)
         {
             return Update(entity, GetValidatedForUpdateSortedFields(entity));
         }
 
-#if (NET452 || NETSTANDARD2_0)
         protected internal Task<bool> UpdateAsync(object entity)
         {
             return UpdateAsync(entity, GetValidatedForUpdateSortedFields(entity));
         }
-#endif
 
 
         protected internal bool Update(object entity, params string[] fieldsToUpdate)
@@ -977,13 +839,11 @@ namespace inercya.EntityLite
             return Update(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
 
-#if (NET452 || NETSTANDARD2_0)        
         protected internal Task<bool> UpdateAsync(object entity, params string[] fieldsToUpdate)
         {
             if (fieldsToUpdate != null && fieldsToUpdate.Length == 0) return Task.FromResult(false);
             return UpdateAsync(entity, GetValidatedForUpdateSortedFields(entity, fieldsToUpdate));
         }
-#endif
         private object GeByPrimaryKeyIncludingJustPkAndRowVersionFields(EntityMetadata metadata, object entity)
         {
             IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(metadata, entity);
@@ -996,7 +856,6 @@ namespace inercya.EntityLite
             return q.FirstOrDefault();
         }
 
-#if (NET452 || NETSTANDARD2_0)
         private Task<object> GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsAsync(EntityMetadata metadata, object entity)
         {
             IQueryLite q = GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(metadata, entity);
@@ -1008,7 +867,6 @@ namespace inercya.EntityLite
             IQueryLite q = GetByPrimaryKeyQuery(metadata, entity);
             return q.FirstOrDefaultAsync();
         }
-#endif
 
         private IQueryLite GetByPrimaryKeyIncludingJustPkAndRowVersionFieldsQuery(EntityMetadata metadata, object entity)
         {
@@ -1137,7 +995,6 @@ namespace inercya.EntityLite
             return true;
         }
 
-#if (NET452 || NETSTANDARD2_0)
         protected internal virtual async Task<bool> UpdateAsync(object entity, List<string> sortedFields)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
@@ -1149,6 +1006,7 @@ namespace inercya.EntityLite
 
             if (IsAutomaticAuditUserFieldsEnabled)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (this.CurrentUserIdAsyncGetter == null)
                 {
 // Call async methods when in an async method. when CurrentUserIdAsyncGetter is null TrySetAuditUserAsync fails
@@ -1160,6 +1018,7 @@ namespace inercya.EntityLite
                 {
                     previousModifiedBy = await TrySetAuditUserAsync(metadata.FieldPrefix + this.SpecialFieldNames.ModifiedByFieldName, entity, metadata).ConfigureAwait(false);
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             if (IsAutomaticAuditDateFieldsEnabled)
             {
@@ -1230,7 +1089,6 @@ namespace inercya.EntityLite
             }
             return true;
         }
-#endif
 
         protected internal List<string> GetValidatedForUpdateSortedFields(object entity, string[] fieldsToUpdate = null)
         {

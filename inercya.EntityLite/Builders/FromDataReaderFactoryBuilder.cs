@@ -309,13 +309,7 @@ namespace inercya.EntityLite.Builders
             return false;
         }
 
-#if NETSTANDARD2_0
         private static Type[] emptyTypeArray = Array.Empty<Type>();
-#endif
-
-#if NET452 || NET35
-        private static Type[] emptyTypeArray = new Type[] {};
-#endif
 
         private DynamicMethod CreateDynamicMethod()
         {

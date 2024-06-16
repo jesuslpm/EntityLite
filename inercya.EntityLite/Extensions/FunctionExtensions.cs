@@ -20,9 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Data.Common;
-#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-#endif
 
 namespace inercya.EntityLite.Extensions
 {
@@ -54,7 +52,6 @@ namespace inercya.EntityLite.Extensions
 			}
 		}
 
-#if (NET452 || NETSTANDARD2_0)
         public async static Task<T> ExecuteWithRetriesAsync<T>(this Func<Task<T>> function, int maxRetries, int firstMillisecondsDelay, Action<Exception, bool> onErrorAction = null)
         {
 			if (function == null) throw new ArgumentNullException(nameof(function));
@@ -78,8 +75,6 @@ namespace inercya.EntityLite.Extensions
                 }
             }
         }
-#endif
-
         public static IEnumerable<T> ToEnumerable<T>(this Func<DbCommand> createCommand)
 		{
 			if (createCommand == null) throw new ArgumentNullException(nameof(createCommand));

@@ -22,9 +22,7 @@ using System.Collections;
 using inercya.EntityLite.Builders;
 using inercya.EntityLite.Templates;
 using System.Data;
-#if NET452 || NETSTANDARD2_0
 using System.Threading.Tasks;
-#endif
 
 namespace inercya.EntityLite
 {
@@ -58,7 +56,6 @@ namespace inercya.EntityLite
         int InsertIntoBaseTable(params string[] propertyNames);
         int InsertIntoBaseTable<T>(params string[] propertyNames);
 
-#if NET452 || NETSTANDARD2_0
         Task<IEnumerable> ToEnumerableAsync();
         Task<IEnumerable> ToEnumerableAsync(int fromIndex, int toIndex);
         Task<IList> ToListAsync();
@@ -72,7 +69,6 @@ namespace inercya.EntityLite
         Task<int> InsertIntoAsync<T>(string destinationTableName, params string[] propertyNames);
         Task<int> InsertIntoBaseTableAsync(params string[] propertyNames);
         Task<int> InsertIntoBaseTableAsync<T>(params string[] propertyNames);
-#endif
 
     }
 
@@ -83,14 +79,11 @@ namespace inercya.EntityLite
         new IEnumerable<TEntity> ToEnumerable(int fromIndex, int toIndex);
         new List<TEntity> ToList();
         new List<TEntity> ToList(int fromIndex, int toIndex);
-
-#if NET452 || NETSTANDARD2_0
         new Task<TEntity> FirstOrDefaultAsync();
         new Task<IEnumerable<TEntity>> ToEnumerableAsync();
         new Task<IEnumerable<TEntity>> ToEnumerableAsync(int fromIndex, int toIndex);
         new Task<List<TEntity>> ToListAsync();
         new Task<List<TEntity>> ToListAsync(int fromIndex, int toIndex);
-#endif
     }
 
     public interface IProjectedQueryLite : IQueryLite

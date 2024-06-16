@@ -30,10 +30,6 @@ namespace inercya.EntityLite.Providers
 
         public DevArtEntityLiteProvider(DataService dataService): base(dataService)
         {
-            if (DataService.ProviderName != ProviderName)
-            {
-                throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName +  ". Not for " + DataService.ProviderName);
-            }
         }
     }
 }

@@ -12,18 +12,10 @@ namespace inercya.EntityLite
         static ConfigurationLite()
         {
             Profiler = new NullProfilerLite();
-#if NET452 || NET35
-            LoggerFactory = new NLogFactory();
-#elif NETSTANDARD2_0
             LoggerFactory = new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory();
-#endif
-
-            DbProviderFactories = new inercya.EntityLite.DefaultDbProviderFactories();
-            DbProviderFactories.Register("System.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
         }
 
         public static IProfilerLite Profiler { get; set; } 
-        public static IDbProviderFactories DbProviderFactories { get; set; }
         public static ILoggerFactory LoggerFactory { get; set; }
     }
 }

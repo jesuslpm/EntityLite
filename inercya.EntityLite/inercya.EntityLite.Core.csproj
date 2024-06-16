@@ -1,86 +1,49 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net35;netstandard2.0;net452</TargetFrameworks>
-    <Version>2.16.0</Version>
-    <Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageId>EntityLite.Core</PackageId>
-    <RootNamespace>inercya.EntityLite</RootNamespace>
-    <Authors>Jesús López</Authors>
-    <Company>i-nercya</Company>
-    <Product>i-nercya EntityLite</Product>
-    <Copyright></Copyright>
-    <AssemblyName>EntityLite</AssemblyName>
-    <AssemblyVersion>2.16.0.0</AssemblyVersion>
-    <FileVersion>2.16.0.0</FileVersion>
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+		<!--<TargetFramework>net462</TargetFramework>-->
+		<Version>3.0.0</Version>
+		<Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageId>EntityLite.Core</PackageId>
+		<RootNamespace>inercya.EntityLite</RootNamespace>
+		<Authors>Jesús López</Authors>
+		<Company>i-nercya</Company>
+		<Product>i-nercya EntityLite</Product>
+		<Copyright></Copyright>
+		<AssemblyName>EntityLite</AssemblyName>
+		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<FileVersion>3.0.0.0</FileVersion>
 		<AnalysisMode>All</AnalysisMode>
 		<LangVersion>10.0</LangVersion>
-  </PropertyGroup>
+		<EmbedAllSources>true</EmbedAllSources>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-    <AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net462'">
+		<AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
+		<SignAssembly>true</SignAssembly>
+		<DelaySign>false</DelaySign>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
-    <AssemblyOriginatorKeyFile>EntityLite.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <DelaySign>false</DelaySign>
-  </PropertyGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+		<PackageReference Include="System.Data.Common" Version="4.3.0" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="SqliteProfiler\EntityLiteProfile.db" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net462'">
+		<Reference Include="System.Configuration" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="SqliteProfiler\EntityLiteProfile.db" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net462'">
+		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Reference Include="System.Configuration" />
-    <PackageReference Include="NLog" Version="4.7.15" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='net35'">
-    <Reference Include="System.Configuration" />
-    <PackageReference Include="NLog" Version="4.7.15" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="SqliteProfiler\DataLayer.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DataLayer.cs</LastGenOutput>
-    </None>
-    <None Update="SqliteProfiler\EntityLite.ttinclude\ProcedureGeneration.ttinclude">
-      <Generator></Generator>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="SqliteProfiler\DataLayer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DataLayer.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition="'$(TargetFramework)'=='netstandard2.0'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\netstandard2.0\ /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\netstandard2.0\ /Y" />
-    <Exec Condition="'$(TargetFramework)'=='net452'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\net452\ /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\net452\ /Y" />
-    <Exec Condition="'$(TargetFramework)'=='net35'" Command="COPY $(TargetDir)EntityLite.dll $(SolutionDir)nuget\Core\lib\net35\ /Y&#xD;&#xA;COPY $(TargetDir)EntityLite.pdb $(SolutionDir)nuget\Core\lib\net35\ /Y" />
-  </Target>
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
 </Project>

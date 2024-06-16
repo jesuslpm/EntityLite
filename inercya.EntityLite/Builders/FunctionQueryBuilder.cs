@@ -21,6 +21,7 @@ using System.Text;
 using inercya.EntityLite.Extensions;
 using System.Data.Common;
 using System.Globalization;
+using inercya.EntityLite.Providers;
 
 namespace inercya.EntityLite.Builders
 {
@@ -45,7 +46,7 @@ namespace inercya.EntityLite.Builders
         {
             if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
             var sb = new StringBuilder();
-            if (this.QueryLite.ParameterValues.Length > 0 || this.QueryLite.DataService.ProviderName != "FirebirdSql.Data.FirebirdClient")
+            if (this.QueryLite.ParameterValues.Length > 0 || (this.QueryLite.DataService.EntityLiteProvider is FirebirdEntityLiteProvider == false))
             {
                 sb.Append(this.QueryLite.FunctionName).Append('(');
             }
@@ -59,7 +60,7 @@ namespace inercya.EntityLite.Builders
                 sb.Append(paramName);
 				paramIndex++;
             }
-            if (this.QueryLite.ParameterValues.Length > 0 || this.QueryLite.DataService.ProviderName != "FirebirdSql.Data.FirebirdClient")
+            if (this.QueryLite.ParameterValues.Length > 0 || (this.QueryLite.DataService.EntityLiteProvider is FirebirdEntityLiteProvider == false))
             {
                 sb.Append(')');
             }

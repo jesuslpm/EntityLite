@@ -25,9 +25,7 @@ using System.Diagnostics;
 using inercya.EntityLite.Builders;
 using System.Data;
 using System.Globalization;
-#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-#endif
 using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
@@ -269,7 +267,6 @@ namespace inercya.EntityLite
             }
         }
 
-#if NET452 || NETSTANDARD2_0
         protected abstract Task<IEnumerable> NonGenericToEnumerableAsync();
 
         Task<IEnumerable> IQueryLite.ToEnumerableAsync()
@@ -380,8 +377,6 @@ namespace inercya.EntityLite
         {
             return InsertIntoBaseTableAsync(typeof(T), propertyNames);
         }
-#endif
-
     }
 
     public class AbstractQueryLite<TEntity> : AbstractQueryLite, IQueryLite<TEntity> where TEntity : class
@@ -469,7 +464,6 @@ namespace inercya.EntityLite
 			return (IList)ToList(fromIndex, toIndex);
 		}
 
-#if (NET452 || NETSTANDARD2_0)
         public virtual Task<IEnumerable<TEntity>> ToEnumerableAsync()
         {
             var cmd = new CommandExecutor(this.DataService, true)
@@ -539,8 +533,6 @@ namespace inercya.EntityLite
         {
             return (IList) await ToListAsync(fromIndex, toIndex).ConfigureAwait(false);
         }
-#endif
-
     }
 
 }

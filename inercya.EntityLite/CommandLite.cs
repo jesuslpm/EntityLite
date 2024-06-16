@@ -23,9 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Diagnostics;
-#if (NET452 || NETSTANDARD2_0)
 using System.Threading.Tasks;
-#endif
 using Microsoft.Extensions.Logging;
 
 namespace inercya.EntityLite
@@ -149,13 +147,11 @@ namespace inercya.EntityLite
 
         private void LogQueryExecution(DbCommand cmd, TimeSpan timeTaken)
         {
-            if (this.DataService is SqliteProfiler.Entities.SqliteProfilerDataService) return;
             Log?.LogDebug("Query completed in {Elapsed}.\r\n{CommandText}\r\nParameters: {Parameters}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
         private void LogCommandExecution(DbCommand cmd, TimeSpan timeTaken)
         {
-            if (this.DataService is SqliteProfiler.Entities.SqliteProfilerDataService) return;
             Log?.LogDebug("Command completed in {Elapsed}.\r\n{CommandText}\r\nParameters: {Parameters}", timeTaken, cmd.CommandText, cmd.GetParamsAsString());
         }
 
@@ -217,7 +213,6 @@ namespace inercya.EntityLite
             }
         }
 
-#if NET452 || NETSTANDARD2_0
         public Task<int> ExecuteNonQueryAsync()
         {
            return this.ExecuteCommandAsync(async (cmd) =>
@@ -392,7 +387,6 @@ namespace inercya.EntityLite
                 if (command != null && DisposeCommand) command.Dispose();
             }
         }
-#endif
     }
 
     public class CommandExecutor : AbstractCommand

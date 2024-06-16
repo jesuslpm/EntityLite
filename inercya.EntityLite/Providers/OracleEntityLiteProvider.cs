@@ -31,10 +31,6 @@ namespace inercya.EntityLite.Providers
 
         public OracleEntityLiteProvider(DataService dataService): base(dataService)
         {
-            if (DataService.ProviderName != ProviderName && DataService.ProviderName != ManagedProviderName)
-            {
-                throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName +  " and for " + ManagedProviderName + ". Not for " + DataService.ProviderName);
-            }
         }
 
         private static PropertySetter BindByNameSetter;

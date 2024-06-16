@@ -31,10 +31,6 @@ namespace inercya.EntityLite.Providers
 
         public FirebirdEntityLiteProvider(DataService dataService): base(dataService)
         {
-            if (DataService.ProviderName != ProviderName)
-            {
-                throw new InvalidOperationException(this.GetType().Name + " is for " + ProviderName + ". Not for " + DataService.ProviderName);
-            }
         }
 
         protected override void AppendGetAutoincrementField(StringBuilder commandText, EntityMetadata entityMetadata)
