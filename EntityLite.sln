@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5FAB9A35-2
 		nuget\Core\Build.cmd = nuget\Core\Build.cmd
 		nuget\Core\EntityLite.Core.nuspec = nuget\Core\EntityLite.Core.nuspec
 		nuget\Core\Publish.cmd = nuget\Core\Publish.cmd
+		nuget\Core\README.md = nuget\Core\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{0493F652-14B1-45DD-A168-A4686ACBB9D8}"
@@ -67,11 +68,40 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inercya.EntityLite.Core", "inercya.EntityLite\inercya.EntityLite.Core.csproj", "{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebirdFx", "FirebirdFx\FirebirdFx.csproj", "{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityLite.RavenDbProfiler", "EntityLite.RavenDbProfiler\EntityLite.RavenDbProfiler.csproj", "{5D0DB272-4FAA-420B-B83A-3A6E0858F032}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inercya.Newtonsoft.Json.Converters", "inercya.Newtonsoft.Json\inercya.Newtonsoft.Json.Converters.csproj", "{4A1C15B3-F7D4-41F7-A39E-C6FAFD5B4A63}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SqliteProfiler", "SqliteProfiler", "{0FB54134-6D01-4068-9749-F48F724541A3}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\SqliteProfiler\Build.cmd = nuget\SqliteProfiler\Build.cmd
+		nuget\SqliteProfiler\EntityLite.png = nuget\SqliteProfiler\EntityLite.png
+		nuget\SqliteProfiler\EntityLite.SqliteProfiler.nuspec = nuget\SqliteProfiler\EntityLite.SqliteProfiler.nuspec
+		nuget\SqliteProfiler\Publish.cmd = nuget\SqliteProfiler\Publish.cmd
+		nuget\SqliteProfiler\README.md = nuget\SqliteProfiler\README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inercya.EntityLite.SqliteProfiler", "inercya.EntityLite.SqliteProfiler\inercya.EntityLite.SqliteProfiler.csproj", "{B9BABB40-4794-48A0-8196-9216D26D5ABB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inercya.System.Text.Json.Converters", "inercya.System.Text.Json.Converters\inercya.System.Text.Json.Converters.csproj", "{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewtonsoftConverters", "NewtonsoftConverters", "{7AD236F6-1C1A-49B2-8E0A-1CB21AE878A1}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Converters\Build.cmd = nuget\Converters\Build.cmd
+		nuget\Converters\EntityLite.png = nuget\Converters\EntityLite.png
+		nuget\Converters\inercya.Newtonsoft.Json.Converters.nuspec = nuget\Converters\inercya.Newtonsoft.Json.Converters.nuspec
+		nuget\Converters\Publish.cmd = nuget\Converters\Publish.cmd
+		nuget\Converters\README.md = nuget\Converters\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SystemTextJsonConverters", "SystemTextJsonConverters", "{AA798415-5327-42D7-87A3-C2710DC210A1}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\SystemTextJsonConverters\Build.cmd = nuget\SystemTextJsonConverters\Build.cmd
+		nuget\SystemTextJsonConverters\EntityLite.png = nuget\SystemTextJsonConverters\EntityLite.png
+		nuget\SystemTextJsonConverters\inercya.System.Text.Json.Converters.nuspec = nuget\SystemTextJsonConverters\inercya.System.Text.Json.Converters.nuspec
+		nuget\SystemTextJsonConverters\Publish.cmd = nuget\SystemTextJsonConverters\Publish.cmd
+		nuget\SystemTextJsonConverters\README.md = nuget\SystemTextJsonConverters\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,14 +135,6 @@ Global
 		{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{E112A2C9-E199-43C1-96F7-EEA32BEB28FE}.Release|x86.Build.0 = Release|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Debug|x86.Build.0 = Debug|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Release|x86.ActiveCfg = Release|Any CPU
-		{B36276B2-AFFF-4ECC-BAFB-0E37240B9564}.Release|x86.Build.0 = Release|Any CPU
 		{5D0DB272-4FAA-420B-B83A-3A6E0858F032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5D0DB272-4FAA-420B-B83A-3A6E0858F032}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D0DB272-4FAA-420B-B83A-3A6E0858F032}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -129,6 +151,22 @@ Global
 		{4A1C15B3-F7D4-41F7-A39E-C6FAFD5B4A63}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A1C15B3-F7D4-41F7-A39E-C6FAFD5B4A63}.Release|x86.ActiveCfg = Release|Any CPU
 		{4A1C15B3-F7D4-41F7-A39E-C6FAFD5B4A63}.Release|x86.Build.0 = Release|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Debug|x86.Build.0 = Debug|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Release|x86.ActiveCfg = Release|Any CPU
+		{B9BABB40-4794-48A0-8196-9216D26D5ABB}.Release|x86.Build.0 = Release|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{75C4ED19-02EA-4741-B1A6-FA49A3FD55E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -139,6 +177,9 @@ Global
 		{03CAC007-291D-420D-8E8C-CC9FA92BFEB5} = {0493F652-14B1-45DD-A168-A4686ACBB9D8}
 		{345D112F-72B2-49C2-907B-40F219FA928C} = {03CAC007-291D-420D-8E8C-CC9FA92BFEB5}
 		{BCEE35A4-CA5B-489E-B1BE-E3AD44F04C81} = {F926993D-D441-4457-9A74-E1BC8A746B52}
+		{0FB54134-6D01-4068-9749-F48F724541A3} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
+		{7AD236F6-1C1A-49B2-8E0A-1CB21AE878A1} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
+		{AA798415-5327-42D7-87A3-C2710DC210A1} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.Logging.6.0.1304.0\lib\NET45
