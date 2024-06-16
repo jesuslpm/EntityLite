@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
 	<metadata>
-		<id>EntityLite.Core</id>
+		<id>EntityLite.SqliteProfiler</id>
 		<version>3.0.0-beta1</version>
-		<title>i-nercya EntityLite Core</title>
+		<title>i-nercya EntityLite Profiler</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>
 		<license type="expression">Apache-2.0</license>
@@ -11,38 +11,35 @@
 		<repository url="https://github.com/jesuslpm/EntityLite" />
 		<icon>EntityLite.png</icon>
 		<description>
-			A lightweight, database first, micro ORM
+			A profiler for EntityLite that logs the SQL commands executed by EntityLite in a SQLite database.
 		</description>
 		<releaseNotes>
 		</releaseNotes>
 		<summary>
-			The EntityLite core assembly
+			The SQLite profiler for EntityLite.
 		</summary>
 		<language>en-US</language>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<copyright>Copyright 2013-2024</copyright>
 		<dependencies>
 			<group targetFramework="netstandard2.0">
-				<dependency id="Microsoft.Bcl.HashCode" version="1.1.1" exclude="Build,Analyzers" />
-				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="6.0.0"  exclude="Build,Analyzers" />
-				<dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
-				<dependency id="System.Data.SqlClient" version="4.8.6" exclude="Build,Analyzers" />
-				<dependency id="System.Reflection.Emit.Lightweight" version="4.7.0" exclude="Build,Analyzers" />
+				<dependency id="System.Data.SQLite.Core" version="1.0.118" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta1" exclude="Build,Analyzers" />
 			</group>
 			<group targetFramework="net462">
-				<dependency id="Microsoft.Bcl.HashCode" version="1.1.1" exclude="Build,Analyzers" />
-				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="6.0.0"  exclude="Build,Analyzers" />
+				<dependency id="System.Data.SQLite.Core" version="1.0.118" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta1" exclude="Build,Analyzers" />
 			</group>
 		</dependencies>
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System.Data" targetFramework="net462"/>
 			<frameworkAssembly assemblyName="System.Runtime.Serialization"  targetFramework="net462" />
 		</frameworkAssemblies>
-		<tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
+		<tags>EntityLite SqliteProfiler</tags>
 		<readme>docs\README.md</readme>
 	</metadata>
 	<files>
-		<file src="..\..\inercya.EntityLite\bin\Release\**\EntityLite.*" target="lib" />
+		<file src="..\..\inercya.EntityLite.SqliteProfiler\bin\Release\**\EntityLite.SqliteProfiler.*" target="lib" />
 		<file src="EntityLite.png" target="" />
 		<file src="README.md" target="docs" />
 	</files>

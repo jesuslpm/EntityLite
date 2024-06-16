@@ -1,0 +1,1 @@
+dotnet build %~dp0..\..\inercya.EntityLite\inercya.EntityLite.Core.csproj -c Release

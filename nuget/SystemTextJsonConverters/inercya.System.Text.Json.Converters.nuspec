@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
 	<metadata>
-		<id>inercya.Newtonsoft.Json.Converters</id>
-		<version>1.0.1</version>
-		<title>inercya.Newtonsoft.Json.Converters</title>
+		<id>inercya.System.Text.Json.Converters</id>
+		<version>1.0.0</version>
+		<title>inercya.System.Text.Json.Converters</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>
 		<license type="expression">Apache-2.0</license>
@@ -11,7 +11,7 @@
 		<repository url="https://github.com/jesuslpm/EntityLite" />
 		<icon>EntityLite.png</icon>
 		<description>
-			RoundDateJsonConverter and UtcDateJsonConverter for Json.NET
+			RoundDateJsonConverter, UtcDateTimeJsonConverter and LocalDateTimeJsonConverter for System.Text.Json
 		</description>
 		<summary>
 			Some Json.NET converters 
@@ -21,14 +21,14 @@
 		<copyright>Copyright 2013-2024</copyright>
 		<dependencies>
 			<group targetFramework="netstandard2.0">
-				<dependency id="Newtonsoft.Json" version="13.0.3" exclude="Build,Analyzers" />
+				<dependency id="System.Text.Json" version="6.0.0" exclude="Build,Analyzers" />
 			</group>
 		</dependencies>
 		<tags>Date converter</tags>
 		<readme>docs\README.md</readme>
 	</metadata>
 	<files>
-		<file src="..\..\inercya.Newtonsoft.Json\bin\Release\**\inercya.Newtonsoft.Json.Converters.*" target="lib" />
+		<file src="..\..\inercya.System.Text.Json.Converters\bin\Release\**\inercya.System.Text.Json.Converters.*" target="lib" />
 		<file src="EntityLite.png" target="" />
 		<file src="README.md" target="docs" />
 	</files>
