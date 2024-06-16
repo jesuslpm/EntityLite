@@ -45,20 +45,16 @@ namespace <#= generation.RootNamespace #>
 			OnCreated();
 		}
 
-        public <#= generation.DataServiceName #>() : base("<#= generation.ConnectionStringName #>")
+        public <#= generation.DataServiceName #>() : base()
         {
 			Init();
         }
 
-        public <#= generation.DataServiceName #>(string connectionStringName) : base(connectionStringName)
+        public <#= generation.DataServiceName #>(string connectionString) : base(<#= generation.DbProviderFactoryInstanceName #>, connectionString)
         {
 			Init();
         }
 
-        public <#= generation.DataServiceName #>(string connectionString, string providerName) : base(connectionString, providerName)
-        {
-			Init();
-        }
 <#+
 	foreach (var entity in generation.EntitySettings)
     {

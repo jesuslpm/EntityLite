@@ -28,7 +28,6 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.Diagnostics;
-using inercya.EntityLite.SqliteProfiler;
 using inercya.EntityLite.Collections;
 using System.ComponentModel;
 using Newtonsoft.Json.Linq;
@@ -38,6 +37,13 @@ using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
+using NReco.Logging.File;
+using Microsoft.Extensions.Configuration;
+using System.Text.Json.Nodes;
+using inercya.EntityLite.SqliteProfiler;
+using System.Text.Json;
+using inercya.System.Text.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace Samples
 {
@@ -47,6 +53,15 @@ namespace Samples
 
         static NorthwindDataService ds;
         static Profiler profiler;
+        static IConfiguration configuration;
+
+        static JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Converters = { new UtcDateTimeJsonConverter() }
+        };
 
         static void TestHttp()
         {
@@ -57,11 +72,42 @@ namespace Samples
             }
         }
 
+        static NorthwindDataService CreateDataService()
+        {
+            var connectionString = configuration.GetConnectionString("Northwind");
+            var ds = new NorthwindDataService(connectionString);
+            ds.ApplicationContext["App"] = "EntityLite.Tests";
+            return ds;
+        }
+
+        static IConfiguration CreateConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            return builder.Build();
+        }
+
+        static void TestDates()
+        {
+            var dateItem = new DateItem
+            {
+                UtcDateTime = DateTime.UtcNow,
+                ItemDateTime = DateTime.Now,
+                ItemDate = DateTime.Now,
+            };
+
+            var json = JsonSerializer.Serialize(dateItem, JsonSerializerOptions);
+
+            dateItem = JsonSerializer.Deserialize<DateItem>(json, JsonSerializerOptions);
+        }
+
 
         static void Main(string[] args)
         {
+
+            configuration = CreateConfiguration();
             //TestHttp();
-            ConfigurationLite.DbProviderFactories.Register("System.Data.SQLite", System.Data.SQLite.SQLiteFactory.Instance);
             var loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.SetMinimumLevel(LogLevel.Information)
@@ -72,7 +118,7 @@ namespace Samples
 
 
             ////for (int i =0; i < 100; i++) TestQueue();
-            profiler = new inercya.EntityLite.SqliteProfiler.Profiler(
+            profiler = new Profiler(
                 AppDomain.CurrentDomain.BaseDirectory,
                 ProfileFileFrecuency.Daily,
                 true
@@ -80,18 +126,19 @@ namespace Samples
             ConfigurationLite.Profiler = profiler;
             ConfigurationLite.LoggerFactory = loggerFactory;
             profiler.StartProfiling();
-            using (ds = new NorthwindDataService())
+            using (ds = CreateDataService())
             {
+                TestDates();
+                TestJsonItems();
+
                 //ds.ApplicationContextGetter = () => "EntityLite.Tests";
                 //InsertIntoAsyncTest().Wait();
                 //TestEnums();
                 //SingleTest(50000, InsertSingleItemEntityLite);
                 //SequenceTest();
-                for (int i = 0; i < 100_000; i++)
-                {
+
                     // Console.WriteLine(i);
-                    QueryByPrimaryKey();
-                }
+                //QueryByPrimaryKey();
                 //ShowSomeProducts();
                 //ShowOrderDetails();
                 //ShowQuesoCabralesOrders();
@@ -123,6 +170,27 @@ namespace Samples
             loggerFactory.Dispose();
         }
 
+        static void TestJsonItems()
+        {
+            var item = new JsonItem
+            {
+                Data = new JsonObject
+                {
+                    ["id"] = 1,
+                    ["name"] = "Jesús"
+                }
+            };
+            ds.JsonItemRepository.Insert(item);
+
+            var items = ds.JsonItemRepository.Query(Projection.BaseTable)
+                .ToList();
+
+            foreach (var i in items)
+            { 
+                Console.WriteLine(i.Data.ToString());
+            }
+        }
+
         static void deleteTest()
         {
             ds.BeginTransaction();
@@ -146,10 +214,10 @@ namespace Samples
             var q = ds.OrderDetailRepository.Query(Projection.BaseTable)
                 .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9);
 
-await ds.OrderDetailRepository
-    .Query(Projection.BaseTable)
-    .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
-    .DeleteAsync();
+            await ds.OrderDetailRepository
+                .Query(Projection.BaseTable)
+                .Where(nameof(OrderDetail.ProductId), OperatorLite.Equals, 9)
+                .DeleteAsync();
 
             var count = await q.GetCountAsync();
 
@@ -341,7 +409,7 @@ await ds.OrderDetailRepository
 
         //static void InsertSingleItemEntityLite(int i)
         //{
-        //    using (var ds = new NorthwindDataService())
+        //    using (var ds = CreateDataService())
         //    {
         //        var item = new Entities.Item
         //        {
@@ -430,7 +498,7 @@ await ds.OrderDetailRepository
 
         //private static void EmployeeSubTree_RefCursor()
         //{
-        //    using (var ds = new NorthwindDataService())
+        //    using (var ds = CreateDataService())
         //    {
         //        object cSubTree;
         //        ds.EmployeeRepository.EmployeeSubtree(2, out cSubTree);
@@ -512,12 +580,12 @@ await ds.OrderDetailRepository
             // reaads a category from the database by CategoryId
             // SELECT * FROM dbo.Categories WHERE CategoryId = @P0
             Category c = ds.CategoryRepository.Get(Projection.BaseTable, 1, FetchMode.DirectDatabaseAccess);
-            // Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
+            Console.WriteLine("Category {0}, {1}", c.CategoryId, c.CategoryName);
 
             // Loads the product with ProductId = 2 from the database
             // SELECT CategoryName, ProductName FROM Product_Detailed WHERE ProductId = @P0
             Product p = ds.ProductRepository.Get(Projection.Detailed, 2, nameof(Product.CategoryName), nameof(Product.ProductName));
-            // Console.WriteLine("{0}, {1}\n", p.CategoryName, p.ProductName);
+            Console.WriteLine("{0}, {1}\n", p.CategoryName, p.ProductName);
         }
 
         static void SubFilter()

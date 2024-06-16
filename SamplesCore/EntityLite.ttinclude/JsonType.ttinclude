@@ -18,6 +18,7 @@ public enum JsonType
 {
 	None = 0,
     JToken= 1,
-    JObject = 2
+    JObject = 2,
+    JsonNode = 3
 }
 #>

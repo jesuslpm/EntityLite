@@ -19,7 +19,41 @@ public class DataLayerGeneration : IDisposable
 	private string _connectionString;
 
 	public string UserSecretsId {get; set;}
-    public string ProviderName { get; set; }
+
+	public bool AnnotateNullableReferenceTypes {get; set;} = false;
+
+	private string _providerName;
+    public string ProviderName { 
+		get {
+			return _providerName; 
+		}
+		set {
+			DbProviderFactoryInstanceName = GetDbProviderFactoryInstanceName(value);
+			_providerName = value;
+		}
+	}
+
+	private string GetDbProviderFactoryInstanceName(string providerName)
+	{
+		switch (providerName)
+		{
+			case "System.Data.SqlClient":
+				return "System.Data.SqlClient.SqlClientFactory.Instance";
+			case "System.Data.SQLite":
+				return "System.Data.SQLite.SQLiteFactory.Instance";
+			case "Npgsql":
+				return "Npgsql.NpgsqlFactory.Instance";
+			case "MySql.Data.MySqlClient":
+				return "MySql.Data.MySqlClient.MySqlClientFactory.Instance";
+			case "Oracle.ManagedDataAccess.Client":
+				return "Oracle.ManagedDataAccess.Client.OracleClientFactory.Instance";
+			default:
+				throw new NotSupportedException("Provider " + providerName + " is not supported");
+		}
+	}
+
+	public string DbProviderFactoryInstanceName {get; private set;}
+
     public string ConnectionString 	{
 		get
 		{
@@ -416,10 +450,22 @@ public class DataLayerGeneration : IDisposable
                     };
 
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
+
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
 					{
-						fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
+						if (this.JsonType == JsonType.JsonNode)
+						{
+							fieldMetadata.PropertyTypeName = "System.Text.Json.Nodes.JsonNode";
+						}
+						else
+						{
+							fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
+						}
 						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
+					}
+					if (AnnotateNullableReferenceTypes && fieldMetadata.PropertyType.IsClass)
+					{
+						fieldMetadata.PropertyTypeName += "?";
 					}
 					EnumSetting enumSetting;
 					var fullPropertyName = EntitySetting.GetFullEntityName(fieldMetadata.PropertyName, entity.Schema, DefaultSchema);
@@ -680,6 +726,7 @@ public class DataLayerGeneration : IDisposable
 					DataRow existingRow = schemaUnion.Rows.Find(columnName);
 					if ((bool)existingRow["AllowDBNull"] == false  && (bool)row["AllowDBNull"] == true)
 					{
+						schemaUnion.Columns["AllowDBNull"].ReadOnly = false;
 						existingRow["AllowDBNull"] = true;
 					}
 				}
@@ -1029,20 +1076,16 @@ namespace <#= generation.RootNamespace #>
 			OnCreated();
 		}
 
-        public <#= generation.DataServiceName #>() : base("<#= generation.ConnectionStringName #>")
+        public <#= generation.DataServiceName #>() : base()
         {
 			Init();
         }
 
-        public <#= generation.DataServiceName #>(string connectionStringName) : base(connectionStringName)
+        public <#= generation.DataServiceName #>(string connectionString) : base(<#= generation.DbProviderFactoryInstanceName #>, connectionString)
         {
 			Init();
         }
 
-        public <#= generation.DataServiceName #>(string connectionString, string providerName) : base(connectionString, providerName)
-        {
-			Init();
-        }
 <#+
 	foreach (var entity in generation.EntitySettings)
     {
@@ -1243,14 +1286,37 @@ if (generation.GenerateMessagePackAttributes)
 <#+
 if (generation.UseUtcDateJsonConverter && field.IsRoundDate == false && field.PropertyTypeName.StartsWith("DateTime") && (propertyName.EndsWith("Utc") || propertyName.EndsWith("UtcDate") || propertyName.EndsWith("UtcDateTime")))
 {
+	if (generation.JsonType == JsonType.JsonNode)
+	{
+#>
+		[System.Text.Json.Serialization.JsonConverter(typeof(inercya.System.Text.Json.Converters.UtcDateTimeJsonConverter))]
+<#+
+	}
+	else
+	{
 #>
 		[Newtonsoft.Json.JsonConverter(typeof(inercya.Newtonsoft.Json.Converters.UtcDateJsonConverter))]
 <#+
+	}
 }
 #>
-<#+					if (field.IsRoundDate) { #>
+<#+					
+if (field.IsRoundDate) 
+{ 
+	if (generation.JsonType == JsonType.JsonNode)
+	{
+#>
+		[System.Text.Json.Serialization.JsonConverter(typeof(inercya.System.Text.Json.Converters.RoundDateJsonConverter))]
+<#+
+	}
+	else
+	{
+#>
 		[Newtonsoft.Json.JsonConverter(typeof(inercya.Newtonsoft.Json.Converters.RoundDateJsonConverter))]
-<#+					} #>
+<#+					
+	} 
+}
+#>
 		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #><#= field.Precision == 0 || field.Precision == 255 ? string.Empty : ", Precision = " + field.Precision.ToString() #><#= field.Scale == 0 || field.Scale == 255 ? string.Empty : ", Scale=" + field.Scale.ToString() #><#= field.ProviderType.HasValue ? ", ProviderType=" + field.ProviderType.Value.ToString() : string.Empty #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.SequenceName == null ? string.Empty : ", SequenceName = \"" + field.SequenceName + "\"" #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #><#= field.ColumnName == null ? string.Empty : ", ColumnName =\"" + field.ColumnName + "\"" #><#= field.BaseColumnName == null ? string.Empty : ", BaseColumnName =\"" + field.BaseColumnName + "\"" #><#= field.BaseTableName == null ? string.Empty : ", BaseTableName = \"" + field.BaseTableName + "\"" #> )]		
 		public <#= field.PropertyTypeName #> <#= propertyName #> 
 		{ 
@@ -2405,7 +2471,8 @@ public enum JsonType
 {
 	None = 0,
     JToken= 1,
-    JObject = 2
+    JObject = 2,
+    JsonNode = 3
 }
 #>
 ﻿<#+

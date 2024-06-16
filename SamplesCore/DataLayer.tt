@@ -42,13 +42,14 @@ To generate the datalayer for MySQL you need  to:
 		//DefaultSchema = "public",
 		//EntityNameToEntityViewTransform = TextTransform.ToUnderscoreLowerCaseNamingConvention,
 		
-		JsonType = JsonType.JToken,
+		AnnotateNullableReferenceTypes = true,
+		JsonType = JsonType.JsonNode,
 		ConnectionStringName = "Northwind",
 		RootNamespace = "Samples.Entities",
 		DataServiceName = "NorthwindDataService",
-		GenerateTypeScript = true,
 		GenerateProjectionColumnLists = true,
 		UseUtcDateJsonConverter = true,
+		GenerateDataContractAttributes = false,
 		EntitySettings = new List<EntitySetting>
 		{
 			new EntitySetting 
@@ -102,10 +103,21 @@ To generate the datalayer for MySQL you need  to:
 			},
 			new EntitySetting 
 			{
+				EntityName = "JsonItem",
+				BaseTableName = "JsonItems"
+			},
+			new EntitySetting 
+			{
+				EntityName = "DateItem",
+				BaseTableName = "DateItems",
+				RoundDateFields = "ItemDate"
+			},
+			/*
+			new EntitySetting 
+			{
 				EntityName = "BusinessEvent",
 				BaseTableName = "BusinessEvents"
 			},
-			/*
 			new EntitySetting 
 			{
 				BaseTableName = "my_table",

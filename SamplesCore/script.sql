@@ -147,6 +147,20 @@ SELECT * INTO OrderDetailsCopy
 FROM [dbo].[Order Details]
 WHERE 1 = 0
 
+
+CREATE TABLE dbo.JsonItems 
+(
+	JsonItemId int NOT NULL IDENTITY(1,1) CONSTRAINT PK_JsonItems PRIMARY KEY,
+	DataJson nvarchar(max)
+)
+
+CREATE TABLE dbo.DateItems
+(
+    DateItemId int NOT NULL IDENTITY(1,1) CONSTRAINT PK_DateItems PRIMARY KEY,
+    [UtcDateTime] datetime,
+    ItemDateTime datetime,
+    ItemDate datetime
+)
 GO
 
 

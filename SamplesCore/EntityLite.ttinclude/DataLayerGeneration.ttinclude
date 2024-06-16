@@ -19,7 +19,41 @@ public class DataLayerGeneration : IDisposable
 	private string _connectionString;
 
 	public string UserSecretsId {get; set;}
-    public string ProviderName { get; set; }
+
+	public bool AnnotateNullableReferenceTypes {get; set;} = false;
+
+	private string _providerName;
+    public string ProviderName { 
+		get {
+			return _providerName; 
+		}
+		set {
+			DbProviderFactoryInstanceName = GetDbProviderFactoryInstanceName(value);
+			_providerName = value;
+		}
+	}
+
+	private string GetDbProviderFactoryInstanceName(string providerName)
+	{
+		switch (providerName)
+		{
+			case "System.Data.SqlClient":
+				return "System.Data.SqlClient.SqlClientFactory.Instance";
+			case "System.Data.SQLite":
+				return "System.Data.SQLite.SQLiteFactory.Instance";
+			case "Npgsql":
+				return "Npgsql.NpgsqlFactory.Instance";
+			case "MySql.Data.MySqlClient":
+				return "MySql.Data.MySqlClient.MySqlClientFactory.Instance";
+			case "Oracle.ManagedDataAccess.Client":
+				return "Oracle.ManagedDataAccess.Client.OracleClientFactory.Instance";
+			default:
+				throw new NotSupportedException("Provider " + providerName + " is not supported");
+		}
+	}
+
+	public string DbProviderFactoryInstanceName {get; private set;}
+
     public string ConnectionString 	{
 		get
 		{
@@ -416,10 +450,22 @@ public class DataLayerGeneration : IDisposable
                     };
 
 					fieldMetadata.PropertyTypeName = GetTypeName(fieldMetadata.PropertyType) + (fieldMetadata.IsNullable && !typeof(INullable).IsAssignableFrom(fieldMetadata.PropertyType) ? "?" : string.Empty);
+
 					if (this.JsonType != JsonType.None && fieldMetadata.PropertyType == typeof(string) && fieldMetadata.PropertyName.EndsWith("Json"))
 					{
-						fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
+						if (this.JsonType == JsonType.JsonNode)
+						{
+							fieldMetadata.PropertyTypeName = "System.Text.Json.Nodes.JsonNode";
+						}
+						else
+						{
+							fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
+						}
 						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
+					}
+					if (AnnotateNullableReferenceTypes && fieldMetadata.PropertyType.IsClass)
+					{
+						fieldMetadata.PropertyTypeName += "?";
 					}
 					EnumSetting enumSetting;
 					var fullPropertyName = EntitySetting.GetFullEntityName(fieldMetadata.PropertyName, entity.Schema, DefaultSchema);
@@ -680,6 +726,7 @@ public class DataLayerGeneration : IDisposable
 					DataRow existingRow = schemaUnion.Rows.Find(columnName);
 					if ((bool)existingRow["AllowDBNull"] == false  && (bool)row["AllowDBNull"] == true)
 					{
+						schemaUnion.Columns["AllowDBNull"].ReadOnly = false;
 						existingRow["AllowDBNull"] = true;
 					}
 				}

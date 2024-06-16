@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 // using Microsoft.SqlServer.Types;
-using System.Runtime.Serialization;
 
 using System.ComponentModel;
 using inercya.EntityLite;	
@@ -13,9 +12,6 @@ using inercya.EntityLite.Extensions;
 
 namespace Samples.Entities
 {
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Categories")]
 	public partial class Category : INotifyPropertyChanged
 	{
@@ -31,7 +27,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _categoryId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Categories" )]		
 		public Int32 CategoryId 
 		{ 
@@ -43,10 +38,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryName;
-		[DataMember]
+		private String? _categoryName;
 		[SqlField(DbType.String, 15, ColumnName ="CategoryName", BaseColumnName ="CategoryName", BaseTableName = "Categories" )]		
-		public String CategoryName 
+		public String? CategoryName 
 		{ 
 		    get { return _categoryName; } 
 			set 
@@ -56,10 +50,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _description;
-		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]		
-		public String Description 
+		private String? _description;
+		[SqlField(DbType.String, 1073741823, ColumnName ="Description", BaseColumnName ="Description", BaseTableName = "Categories" )]		
+		public String? Description 
 		{ 
 		    get { return _description; } 
 			set 
@@ -69,10 +62,9 @@ namespace Samples.Entities
 			}
         }
 
-		private Byte[] _picture;
-		[DataMember]
+		private Byte[]? _picture;
 		[SqlField(DbType.Binary, 2147483647, ColumnName ="Picture", BaseColumnName ="Picture", BaseTableName = "Categories" )]		
-		public Byte[] Picture 
+		public Byte[]? Picture 
 		{ 
 		    get { return _picture; } 
 			set 
@@ -148,9 +140,6 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Customers")]
 	public partial class Customer : INotifyPropertyChanged
 	{
@@ -165,10 +154,9 @@ namespace Samples.Entities
             }
         }				
 		
-		private String _customerId;
-		[DataMember]
+		private String? _customerId;
 		[SqlField(DbType.StringFixedLength, 5, IsKey=true, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Customers" )]		
-		public String CustomerId 
+		public String? CustomerId 
 		{ 
 		    get { return _customerId; } 
 			set 
@@ -178,10 +166,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _companyName;
-		[DataMember]
+		private String? _companyName;
 		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Customers" )]		
-		public String CompanyName 
+		public String? CompanyName 
 		{ 
 		    get { return _companyName; } 
 			set 
@@ -191,10 +178,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _contactName;
-		[DataMember]
+		private String? _contactName;
 		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Customers" )]		
-		public String ContactName 
+		public String? ContactName 
 		{ 
 		    get { return _contactName; } 
 			set 
@@ -204,10 +190,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _contactTitle;
-		[DataMember]
+		private String? _contactTitle;
 		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Customers" )]		
-		public String ContactTitle 
+		public String? ContactTitle 
 		{ 
 		    get { return _contactTitle; } 
 			set 
@@ -217,10 +202,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _address;
-		[DataMember]
+		private String? _address;
 		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Customers" )]		
-		public String Address 
+		public String? Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -230,10 +214,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _city;
-		[DataMember]
+		private String? _city;
 		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Customers" )]		
-		public String City 
+		public String? City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -243,10 +226,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _region;
-		[DataMember]
+		private String? _region;
 		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Customers" )]		
-		public String Region 
+		public String? Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -256,10 +238,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _postalCode;
-		[DataMember]
+		private String? _postalCode;
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Customers" )]		
-		public String PostalCode 
+		public String? PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -269,10 +250,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _country;
-		[DataMember]
+		private String? _country;
 		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Customers" )]		
-		public String Country 
+		public String? Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -282,10 +262,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _phone;
-		[DataMember]
+		private String? _phone;
 		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Customers" )]		
-		public String Phone 
+		public String? Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -295,10 +274,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _fax;
-		[DataMember]
+		private String? _fax;
 		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Customers" )]		
-		public String Fax 
+		public String? Fax 
 		{ 
 		    get { return _fax; } 
 			set 
@@ -324,37 +302,37 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
-		public Customer Get(string projectionName, String customerId)
+		public Customer Get(string projectionName, String? customerId)
 		{
 			return ((IRepository<Customer>)this).Get(projectionName, customerId, FetchMode.UseIdentityMap);
 		}
 
-		public Customer Get(string projectionName, String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public Customer Get(string projectionName, String? customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Customer>)this).Get(projectionName, customerId, fetchMode);
 		}
 
-		public Customer Get(Projection projection, String customerId)
+		public Customer Get(Projection projection, String? customerId)
 		{
 			return ((IRepository<Customer>)this).Get(projection, customerId, FetchMode.UseIdentityMap);
 		}
 
-		public Customer Get(Projection projection, String customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public Customer Get(Projection projection, String? customerId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
 			return ((IRepository<Customer>)this).Get(projection, customerId, fetchMode);
 		}
 
-		public Customer Get(string projectionName, String customerId, params string[] fields)
+		public Customer Get(string projectionName, String? customerId, params string[] fields)
 		{
 			return ((IRepository<Customer>)this).Get(projectionName, customerId, fields);
 		}
 
-		public Customer Get(Projection projection, String customerId, params string[] fields)
+		public Customer Get(Projection projection, String? customerId, params string[] fields)
 		{
 			return ((IRepository<Customer>)this).Get(projection, customerId, fields);
 		}
 
-		public bool Delete(String customerId)
+		public bool Delete(String? customerId)
 		{
 			var entity = new Customer { CustomerId = customerId };
 			return this.Delete(entity);
@@ -381,9 +359,6 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Employees")]
 	public partial class Employee : INotifyPropertyChanged
 	{
@@ -399,7 +374,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _employeeId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Employees" )]		
 		public Int32 EmployeeId 
 		{ 
@@ -411,10 +385,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _lastName;
-		[DataMember]
+		private String? _lastName;
 		[SqlField(DbType.String, 20, ColumnName ="LastName", BaseColumnName ="LastName", BaseTableName = "Employees" )]		
-		public String LastName 
+		public String? LastName 
 		{ 
 		    get { return _lastName; } 
 			set 
@@ -424,10 +397,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _firstName;
-		[DataMember]
+		private String? _firstName;
 		[SqlField(DbType.String, 10, ColumnName ="FirstName", BaseColumnName ="FirstName", BaseTableName = "Employees" )]		
-		public String FirstName 
+		public String? FirstName 
 		{ 
 		    get { return _firstName; } 
 			set 
@@ -437,10 +409,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _title;
-		[DataMember]
+		private String? _title;
 		[SqlField(DbType.String, 30, ColumnName ="Title", BaseColumnName ="Title", BaseTableName = "Employees" )]		
-		public String Title 
+		public String? Title 
 		{ 
 		    get { return _title; } 
 			set 
@@ -450,10 +421,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _titleOfCourtesy;
-		[DataMember]
+		private String? _titleOfCourtesy;
 		[SqlField(DbType.String, 25, ColumnName ="TitleOfCourtesy", BaseColumnName ="TitleOfCourtesy", BaseTableName = "Employees" )]		
-		public String TitleOfCourtesy 
+		public String? TitleOfCourtesy 
 		{ 
 		    get { return _titleOfCourtesy; } 
 			set 
@@ -464,7 +434,6 @@ namespace Samples.Entities
         }
 
 		private DateTime? _birthDate;
-		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="BirthDate", BaseColumnName ="BirthDate", BaseTableName = "Employees" )]		
 		public DateTime? BirthDate 
 		{ 
@@ -477,7 +446,6 @@ namespace Samples.Entities
         }
 
 		private DateTime? _hireDate;
-		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="HireDate", BaseColumnName ="HireDate", BaseTableName = "Employees" )]		
 		public DateTime? HireDate 
 		{ 
@@ -489,10 +457,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _address;
-		[DataMember]
+		private String? _address;
 		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Employees" )]		
-		public String Address 
+		public String? Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -502,10 +469,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _city;
-		[DataMember]
+		private String? _city;
 		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Employees" )]		
-		public String City 
+		public String? City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -515,10 +481,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _region;
-		[DataMember]
+		private String? _region;
 		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Employees" )]		
-		public String Region 
+		public String? Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -528,10 +493,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _postalCode;
-		[DataMember]
+		private String? _postalCode;
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Employees" )]		
-		public String PostalCode 
+		public String? PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -541,10 +505,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _country;
-		[DataMember]
+		private String? _country;
 		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Employees" )]		
-		public String Country 
+		public String? Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -554,10 +517,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _homePhone;
-		[DataMember]
+		private String? _homePhone;
 		[SqlField(DbType.String, 24, ColumnName ="HomePhone", BaseColumnName ="HomePhone", BaseTableName = "Employees" )]		
-		public String HomePhone 
+		public String? HomePhone 
 		{ 
 		    get { return _homePhone; } 
 			set 
@@ -567,10 +529,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _extension;
-		[DataMember]
+		private String? _extension;
 		[SqlField(DbType.String, 4, ColumnName ="Extension", BaseColumnName ="Extension", BaseTableName = "Employees" )]		
-		public String Extension 
+		public String? Extension 
 		{ 
 		    get { return _extension; } 
 			set 
@@ -580,10 +541,9 @@ namespace Samples.Entities
 			}
         }
 
-		private Byte[] _photo;
-		[DataMember]
+		private Byte[]? _photo;
 		[SqlField(DbType.Binary, 2147483647, ColumnName ="Photo", BaseColumnName ="Photo", BaseTableName = "Employees" )]		
-		public Byte[] Photo 
+		public Byte[]? Photo 
 		{ 
 		    get { return _photo; } 
 			set 
@@ -593,10 +553,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _notes;
-		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]		
-		public String Notes 
+		private String? _notes;
+		[SqlField(DbType.String, 1073741823, ColumnName ="Notes", BaseColumnName ="Notes", BaseTableName = "Employees" )]		
+		public String? Notes 
 		{ 
 		    get { return _notes; } 
 			set 
@@ -607,7 +566,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _reportsTo;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ReportsTo", BaseColumnName ="ReportsTo", BaseTableName = "Employees" )]		
 		public Int32? ReportsTo 
 		{ 
@@ -619,10 +577,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _photoPath;
-		[DataMember]
+		private String? _photoPath;
 		[SqlField(DbType.String, 255, ColumnName ="PhotoPath", BaseColumnName ="PhotoPath", BaseTableName = "Employees" )]		
-		public String PhotoPath 
+		public String? PhotoPath 
 		{ 
 		    get { return _photoPath; } 
 			set 
@@ -712,9 +669,6 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Order Details")]
 	public partial class OrderDetail : INotifyPropertyChanged
 	{
@@ -730,7 +684,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _orderId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Order Details" )]		
 		public Int32 OrderId 
 		{ 
@@ -743,7 +696,6 @@ namespace Samples.Entities
         }
 
 		private Int32 _productId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Order Details" )]		
 		public Int32 ProductId 
 		{ 
@@ -756,7 +708,6 @@ namespace Samples.Entities
         }
 
 		private Decimal _unitPrice;
-		[DataMember]
 		[SqlField(DbType.Currency, 8, Precision = 19, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Order Details" )]		
 		public Decimal UnitPrice 
 		{ 
@@ -769,7 +720,6 @@ namespace Samples.Entities
         }
 
 		private Int16 _quantity;
-		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "Order Details" )]		
 		public Int16 Quantity 
 		{ 
@@ -782,7 +732,6 @@ namespace Samples.Entities
         }
 
 		private Single _discount;
-		[DataMember]
 		[SqlField(DbType.Single, 4, Precision = 7, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "Order Details" )]		
 		public Single Discount 
 		{ 
@@ -794,10 +743,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _productName;
-		[DataMember]
+		private String? _productName;
 		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]		
-		public String ProductName 
+		public String? ProductName 
 		{ 
 		    get { return _productName; } 
 			set 
@@ -807,10 +755,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryName;
-		[DataMember]
+		private String? _categoryName;
 		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]		
-		public String CategoryName 
+		public String? CategoryName 
 		{ 
 		    get { return _categoryName; } 
 			set 
@@ -821,7 +768,6 @@ namespace Samples.Entities
         }
 
 		private Decimal? _subTotal;
-		[DataMember]
 		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, IsReadOnly = true, ColumnName ="SubTotal" )]		
 		public Decimal? SubTotal 
 		{ 
@@ -833,10 +779,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _city;
-		[DataMember]
+		private String? _city;
 		[SqlField(DbType.String, 15, ColumnName ="City" )]		
-		public String City 
+		public String? City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -846,10 +791,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _country;
-		[DataMember]
+		private String? _country;
 		[SqlField(DbType.String, 15, ColumnName ="Country" )]		
-		public String Country 
+		public String? Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -859,10 +803,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _customerId;
-		[DataMember]
+		private String? _customerId;
 		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID" )]		
-		public String CustomerId 
+		public String? CustomerId 
 		{ 
 		    get { return _customerId; } 
 			set 
@@ -872,10 +815,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _customerName;
-		[DataMember]
+		private String? _customerName;
 		[SqlField(DbType.String, 40, ColumnName ="CustomerName" )]		
-		public String CustomerName 
+		public String? CustomerName 
 		{ 
 		    get { return _customerName; } 
 			set 
@@ -885,10 +827,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _region;
-		[DataMember]
+		private String? _region;
 		[SqlField(DbType.String, 15, ColumnName ="Region" )]		
-		public String Region 
+		public String? Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -899,7 +840,6 @@ namespace Samples.Entities
         }
 
 		private DateTime? _orderDate;
-		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate" )]		
 		public DateTime? OrderDate 
 		{ 
@@ -955,9 +895,6 @@ namespace Samples.Entities
 		public const string Detailed = "Detailed";
 		public const string Extended = "Extended";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="OrderDetailsCopy")]
 	public partial class OrderDetailCopy : INotifyPropertyChanged
 	{
@@ -973,7 +910,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _orderId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "OrderDetailsCopy" )]		
 		public Int32 OrderId 
 		{ 
@@ -986,7 +922,6 @@ namespace Samples.Entities
         }
 
 		private Int32 _productId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "OrderDetailsCopy" )]		
 		public Int32 ProductId 
 		{ 
@@ -999,7 +934,6 @@ namespace Samples.Entities
         }
 
 		private Decimal _unitPrice;
-		[DataMember]
 		[SqlField(DbType.Currency, 8, Precision = 19, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "OrderDetailsCopy" )]		
 		public Decimal UnitPrice 
 		{ 
@@ -1012,7 +946,6 @@ namespace Samples.Entities
         }
 
 		private Int16 _quantity;
-		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, ColumnName ="Quantity", BaseColumnName ="Quantity", BaseTableName = "OrderDetailsCopy" )]		
 		public Int16 Quantity 
 		{ 
@@ -1025,7 +958,6 @@ namespace Samples.Entities
         }
 
 		private Single _discount;
-		[DataMember]
 		[SqlField(DbType.Single, 4, Precision = 7, ColumnName ="Discount", BaseColumnName ="Discount", BaseTableName = "OrderDetailsCopy" )]		
 		public Single Discount 
 		{ 
@@ -1068,9 +1000,6 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Orders")]
 	public partial class Order : INotifyPropertyChanged
 	{
@@ -1086,7 +1015,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _orderId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="OrderID", BaseColumnName ="OrderID", BaseTableName = "Orders" )]		
 		public Int32 OrderId 
 		{ 
@@ -1098,10 +1026,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _customerId;
-		[DataMember]
+		private String? _customerId;
 		[SqlField(DbType.StringFixedLength, 5, ColumnName ="CustomerID", BaseColumnName ="CustomerID", BaseTableName = "Orders" )]		
-		public String CustomerId 
+		public String? CustomerId 
 		{ 
 		    get { return _customerId; } 
 			set 
@@ -1112,7 +1039,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _employeeId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="EmployeeID", BaseColumnName ="EmployeeID", BaseTableName = "Orders" )]		
 		public Int32? EmployeeId 
 		{ 
@@ -1125,7 +1051,6 @@ namespace Samples.Entities
         }
 
 		private DateTime? _orderDate;
-		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="OrderDate", BaseColumnName ="OrderDate", BaseTableName = "Orders" )]		
 		public DateTime? OrderDate 
 		{ 
@@ -1138,7 +1063,6 @@ namespace Samples.Entities
         }
 
 		private DateTime? _requiredDate;
-		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="RequiredDate", BaseColumnName ="RequiredDate", BaseTableName = "Orders" )]		
 		public DateTime? RequiredDate 
 		{ 
@@ -1151,7 +1075,6 @@ namespace Samples.Entities
         }
 
 		private DateTime? _shippedDate;
-		[DataMember]
 		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ShippedDate", BaseColumnName ="ShippedDate", BaseTableName = "Orders" )]		
 		public DateTime? ShippedDate 
 		{ 
@@ -1164,7 +1087,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _shipVia;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="ShipVia", BaseColumnName ="ShipVia", BaseTableName = "Orders" )]		
 		public Int32? ShipVia 
 		{ 
@@ -1177,7 +1099,6 @@ namespace Samples.Entities
         }
 
 		private Decimal? _freight;
-		[DataMember]
 		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="Freight", BaseColumnName ="Freight", BaseTableName = "Orders" )]		
 		public Decimal? Freight 
 		{ 
@@ -1189,10 +1110,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipName;
-		[DataMember]
+		private String? _shipName;
 		[SqlField(DbType.String, 40, ColumnName ="ShipName", BaseColumnName ="ShipName", BaseTableName = "Orders" )]		
-		public String ShipName 
+		public String? ShipName 
 		{ 
 		    get { return _shipName; } 
 			set 
@@ -1202,10 +1122,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipAddress;
-		[DataMember]
+		private String? _shipAddress;
 		[SqlField(DbType.String, 60, ColumnName ="ShipAddress", BaseColumnName ="ShipAddress", BaseTableName = "Orders" )]		
-		public String ShipAddress 
+		public String? ShipAddress 
 		{ 
 		    get { return _shipAddress; } 
 			set 
@@ -1215,10 +1134,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipCity;
-		[DataMember]
+		private String? _shipCity;
 		[SqlField(DbType.String, 15, ColumnName ="ShipCity", BaseColumnName ="ShipCity", BaseTableName = "Orders" )]		
-		public String ShipCity 
+		public String? ShipCity 
 		{ 
 		    get { return _shipCity; } 
 			set 
@@ -1228,10 +1146,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipRegion;
-		[DataMember]
+		private String? _shipRegion;
 		[SqlField(DbType.String, 15, ColumnName ="ShipRegion", BaseColumnName ="ShipRegion", BaseTableName = "Orders" )]		
-		public String ShipRegion 
+		public String? ShipRegion 
 		{ 
 		    get { return _shipRegion; } 
 			set 
@@ -1241,10 +1158,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipPostalCode;
-		[DataMember]
+		private String? _shipPostalCode;
 		[SqlField(DbType.String, 10, ColumnName ="ShipPostalCode", BaseColumnName ="ShipPostalCode", BaseTableName = "Orders" )]		
-		public String ShipPostalCode 
+		public String? ShipPostalCode 
 		{ 
 		    get { return _shipPostalCode; } 
 			set 
@@ -1254,10 +1170,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipCountry;
-		[DataMember]
+		private String? _shipCountry;
 		[SqlField(DbType.String, 15, ColumnName ="ShipCountry", BaseColumnName ="ShipCountry", BaseTableName = "Orders" )]		
-		public String ShipCountry 
+		public String? ShipCountry 
 		{ 
 		    get { return _shipCountry; } 
 			set 
@@ -1267,10 +1182,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _customerCompanyName;
-		[DataMember]
+		private String? _customerCompanyName;
 		[SqlField(DbType.String, 40, ColumnName ="CustomerCompanyName" )]		
-		public String CustomerCompanyName 
+		public String? CustomerCompanyName 
 		{ 
 		    get { return _customerCompanyName; } 
 			set 
@@ -1280,10 +1194,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _employeeFirstName;
-		[DataMember]
+		private String? _employeeFirstName;
 		[SqlField(DbType.String, 10, ColumnName ="EmployeeFirstName" )]		
-		public String EmployeeFirstName 
+		public String? EmployeeFirstName 
 		{ 
 		    get { return _employeeFirstName; } 
 			set 
@@ -1293,10 +1206,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _employeeLastName;
-		[DataMember]
+		private String? _employeeLastName;
 		[SqlField(DbType.String, 20, ColumnName ="EmployeeLastName" )]		
-		public String EmployeeLastName 
+		public String? EmployeeLastName 
 		{ 
 		    get { return _employeeLastName; } 
 			set 
@@ -1306,10 +1218,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _shipperCompanyName;
-		[DataMember]
+		private String? _shipperCompanyName;
 		[SqlField(DbType.String, 40, ColumnName ="ShipperCompanyName" )]		
-		public String ShipperCompanyName 
+		public String? ShipperCompanyName 
 		{ 
 		    get { return _shipperCompanyName; } 
 			set 
@@ -1320,7 +1231,6 @@ namespace Samples.Entities
         }
 
 		private Double? _orderTotal;
-		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 15, AllowNull = true, ColumnName ="OrderTotal" )]		
 		public Double? OrderTotal 
 		{ 
@@ -1333,7 +1243,6 @@ namespace Samples.Entities
         }
 
 		private Int64? _lineCount;
-		[DataMember]
 		[SqlField(DbType.Int64, 8, Precision = 19, AllowNull = true, ColumnName ="LineCount" )]		
 		public Int64? LineCount 
 		{ 
@@ -1429,9 +1338,6 @@ namespace Samples.Entities
 		public const string BaseTable = "BaseTable";
 		public const string Extended = "Extended";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Products")]
 	public partial class Product : INotifyPropertyChanged
 	{
@@ -1447,7 +1353,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _productId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ProductID", BaseColumnName ="ProductID", BaseTableName = "Products" )]		
 		public Int32 ProductId 
 		{ 
@@ -1459,10 +1364,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _productName;
-		[DataMember]
+		private String? _productName;
 		[SqlField(DbType.String, 40, ColumnName ="ProductName", BaseColumnName ="ProductName", BaseTableName = "Products" )]		
-		public String ProductName 
+		public String? ProductName 
 		{ 
 		    get { return _productName; } 
 			set 
@@ -1473,7 +1377,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _supplierId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Products" )]		
 		public Int32? SupplierId 
 		{ 
@@ -1486,7 +1389,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _categoryId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID", BaseColumnName ="CategoryID", BaseTableName = "Products" )]		
 		public Int32? CategoryId 
 		{ 
@@ -1498,10 +1400,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _quantityPerUnit;
-		[DataMember]
+		private String? _quantityPerUnit;
 		[SqlField(DbType.String, 20, ColumnName ="QuantityPerUnit", BaseColumnName ="QuantityPerUnit", BaseTableName = "Products" )]		
-		public String QuantityPerUnit 
+		public String? QuantityPerUnit 
 		{ 
 		    get { return _quantityPerUnit; } 
 			set 
@@ -1512,7 +1413,6 @@ namespace Samples.Entities
         }
 
 		private Decimal? _unitPrice;
-		[DataMember]
 		[SqlField(DbType.Currency, 8, Precision = 19, AllowNull = true, ColumnName ="UnitPrice", BaseColumnName ="UnitPrice", BaseTableName = "Products" )]		
 		public Decimal? UnitPrice 
 		{ 
@@ -1525,7 +1425,6 @@ namespace Samples.Entities
         }
 
 		private Int16? _unitsInStock;
-		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsInStock", BaseColumnName ="UnitsInStock", BaseTableName = "Products" )]		
 		public Int16? UnitsInStock 
 		{ 
@@ -1538,7 +1437,6 @@ namespace Samples.Entities
         }
 
 		private Int16? _unitsOnOrder;
-		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="UnitsOnOrder", BaseColumnName ="UnitsOnOrder", BaseTableName = "Products" )]		
 		public Int16? UnitsOnOrder 
 		{ 
@@ -1551,7 +1449,6 @@ namespace Samples.Entities
         }
 
 		private Int16? _reorderLevel;
-		[DataMember]
 		[SqlField(DbType.Int16, 2, Precision = 5, AllowNull = true, ColumnName ="ReorderLevel", BaseColumnName ="ReorderLevel", BaseTableName = "Products" )]		
 		public Int16? ReorderLevel 
 		{ 
@@ -1564,7 +1461,6 @@ namespace Samples.Entities
         }
 
 		private Boolean _discontinued;
-		[DataMember]
 		[SqlField(DbType.Boolean, 1, ColumnName ="Discontinued", BaseColumnName ="Discontinued", BaseTableName = "Products" )]		
 		public Boolean Discontinued 
 		{ 
@@ -1576,10 +1472,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryName;
-		[DataMember]
+		private String? _categoryName;
 		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]		
-		public String CategoryName 
+		public String? CategoryName 
 		{ 
 		    get { return _categoryName; } 
 			set 
@@ -1589,10 +1484,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _supplierName;
-		[DataMember]
+		private String? _supplierName;
 		[SqlField(DbType.String, 40, ColumnName ="SupplierName" )]		
-		public String SupplierName 
+		public String? SupplierName 
 		{ 
 		    get { return _supplierName; } 
 			set 
@@ -1678,9 +1572,6 @@ namespace Samples.Entities
 		public const string BaseTable = "BaseTable";
 		public const string Detailed = "Detailed";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Shippers")]
 	public partial class Shipper : INotifyPropertyChanged
 	{
@@ -1696,7 +1587,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _shipperId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="ShipperID", BaseColumnName ="ShipperID", BaseTableName = "Shippers" )]		
 		public Int32 ShipperId 
 		{ 
@@ -1708,10 +1598,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _companyName;
-		[DataMember]
+		private String? _companyName;
 		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Shippers" )]		
-		public String CompanyName 
+		public String? CompanyName 
 		{ 
 		    get { return _companyName; } 
 			set 
@@ -1721,10 +1610,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _phone;
-		[DataMember]
+		private String? _phone;
 		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Shippers" )]		
-		public String Phone 
+		public String? Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -1799,9 +1687,6 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity(BaseTableName="Suppliers")]
 	public partial class Supplier : INotifyPropertyChanged
 	{
@@ -1817,7 +1702,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32 _supplierId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="SupplierID", BaseColumnName ="SupplierID", BaseTableName = "Suppliers" )]		
 		public Int32 SupplierId 
 		{ 
@@ -1829,10 +1713,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _companyName;
-		[DataMember]
+		private String? _companyName;
 		[SqlField(DbType.String, 40, ColumnName ="CompanyName", BaseColumnName ="CompanyName", BaseTableName = "Suppliers" )]		
-		public String CompanyName 
+		public String? CompanyName 
 		{ 
 		    get { return _companyName; } 
 			set 
@@ -1842,10 +1725,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _contactName;
-		[DataMember]
+		private String? _contactName;
 		[SqlField(DbType.String, 30, ColumnName ="ContactName", BaseColumnName ="ContactName", BaseTableName = "Suppliers" )]		
-		public String ContactName 
+		public String? ContactName 
 		{ 
 		    get { return _contactName; } 
 			set 
@@ -1855,10 +1737,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _contactTitle;
-		[DataMember]
+		private String? _contactTitle;
 		[SqlField(DbType.String, 30, ColumnName ="ContactTitle", BaseColumnName ="ContactTitle", BaseTableName = "Suppliers" )]		
-		public String ContactTitle 
+		public String? ContactTitle 
 		{ 
 		    get { return _contactTitle; } 
 			set 
@@ -1868,10 +1749,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _address;
-		[DataMember]
+		private String? _address;
 		[SqlField(DbType.String, 60, ColumnName ="Address", BaseColumnName ="Address", BaseTableName = "Suppliers" )]		
-		public String Address 
+		public String? Address 
 		{ 
 		    get { return _address; } 
 			set 
@@ -1881,10 +1761,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _city;
-		[DataMember]
+		private String? _city;
 		[SqlField(DbType.String, 15, ColumnName ="City", BaseColumnName ="City", BaseTableName = "Suppliers" )]		
-		public String City 
+		public String? City 
 		{ 
 		    get { return _city; } 
 			set 
@@ -1894,10 +1773,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _region;
-		[DataMember]
+		private String? _region;
 		[SqlField(DbType.String, 15, ColumnName ="Region", BaseColumnName ="Region", BaseTableName = "Suppliers" )]		
-		public String Region 
+		public String? Region 
 		{ 
 		    get { return _region; } 
 			set 
@@ -1907,10 +1785,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _postalCode;
-		[DataMember]
+		private String? _postalCode;
 		[SqlField(DbType.String, 10, ColumnName ="PostalCode", BaseColumnName ="PostalCode", BaseTableName = "Suppliers" )]		
-		public String PostalCode 
+		public String? PostalCode 
 		{ 
 		    get { return _postalCode; } 
 			set 
@@ -1920,10 +1797,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _country;
-		[DataMember]
+		private String? _country;
 		[SqlField(DbType.String, 15, ColumnName ="Country", BaseColumnName ="Country", BaseTableName = "Suppliers" )]		
-		public String Country 
+		public String? Country 
 		{ 
 		    get { return _country; } 
 			set 
@@ -1933,10 +1809,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _phone;
-		[DataMember]
+		private String? _phone;
 		[SqlField(DbType.String, 24, ColumnName ="Phone", BaseColumnName ="Phone", BaseTableName = "Suppliers" )]		
-		public String Phone 
+		public String? Phone 
 		{ 
 		    get { return _phone; } 
 			set 
@@ -1946,10 +1821,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _fax;
-		[DataMember]
+		private String? _fax;
 		[SqlField(DbType.String, 24, ColumnName ="Fax", BaseColumnName ="Fax", BaseTableName = "Suppliers" )]		
-		public String Fax 
+		public String? Fax 
 		{ 
 		    get { return _fax; } 
 			set 
@@ -1959,10 +1833,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _homePage;
-		[DataMember]
-		[SqlField(DbType.String, 2147483647, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]		
-		public String HomePage 
+		private String? _homePage;
+		[SqlField(DbType.String, 1073741823, ColumnName ="HomePage", BaseColumnName ="HomePage", BaseTableName = "Suppliers" )]		
+		public String? HomePage 
 		{ 
 		    get { return _homePage; } 
 			set 
@@ -2046,9 +1919,6 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
 	[SqlEntity()]
 	public partial class ProductSale : INotifyPropertyChanged
 	{
@@ -2064,7 +1934,6 @@ namespace Samples.Entities
         }				
 		
 		private Int32? _categoryId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="CategoryID" )]		
 		public Int32? CategoryId 
 		{ 
@@ -2076,10 +1945,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _categoryName;
-		[DataMember]
+		private String? _categoryName;
 		[SqlField(DbType.String, 15, ColumnName ="CategoryName" )]		
-		public String CategoryName 
+		public String? CategoryName 
 		{ 
 		    get { return _categoryName; } 
 			set 
@@ -2090,7 +1958,6 @@ namespace Samples.Entities
         }
 
 		private Int32 _productId;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, ColumnName ="ProductID" )]		
 		public Int32 ProductId 
 		{ 
@@ -2102,10 +1969,9 @@ namespace Samples.Entities
 			}
         }
 
-		private String _productName;
-		[DataMember]
+		private String? _productName;
 		[SqlField(DbType.String, 40, ColumnName ="ProductName" )]		
-		public String ProductName 
+		public String? ProductName 
 		{ 
 		    get { return _productName; } 
 			set 
@@ -2116,7 +1982,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _year;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Year" )]		
 		public Int32? Year 
 		{ 
@@ -2129,7 +1994,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _quarter;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Quarter" )]		
 		public Int32? Quarter 
 		{ 
@@ -2142,7 +2006,6 @@ namespace Samples.Entities
         }
 
 		private Double? _sales;
-		[DataMember]
 		[SqlField(DbType.Double, 8, Precision = 15, AllowNull = true, ColumnName ="Sales" )]		
 		public Double? Sales 
 		{ 
@@ -2155,7 +2018,6 @@ namespace Samples.Entities
         }
 
 		private Int32? _orders;
-		[DataMember]
 		[SqlField(DbType.Int32, 4, Precision = 10, AllowNull = true, ColumnName ="Orders" )]		
 		public Int32? Orders 
 		{ 
@@ -2203,11 +2065,8 @@ namespace Samples.Entities
 		public const string Quarter = "Quarter";
 		public const string Year = "Year";
 	}
-	[Serializable]
-	[DataContract]
-    [TypeScript] 
-	[SqlEntity(BaseTableName="BusinessEvents")]
-	public partial class BusinessEvent : INotifyPropertyChanged
+	[SqlEntity(BaseTableName="JsonItems")]
+	public partial class JsonItem : INotifyPropertyChanged
 	{
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -2220,66 +2079,37 @@ namespace Samples.Entities
             }
         }				
 		
-		private Int32 _businessEventId;
-		[DataMember]
-		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="BusinessEventId", BaseColumnName ="BusinessEventId", BaseTableName = "BusinessEvents" )]		
-		public Int32 BusinessEventId 
+		private Int32 _jsonItemId;
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="JsonItemId", BaseColumnName ="JsonItemId", BaseTableName = "JsonItems" )]		
+		public Int32 JsonItemId 
 		{ 
-		    get { return _businessEventId; } 
+		    get { return _jsonItemId; } 
 			set 
 			{
-			    _businessEventId = value;
-				NotifyPropertyChange("BusinessEventId");
+			    _jsonItemId = value;
+				NotifyPropertyChange("JsonItemId");
 			}
         }
 
-		private String _eventName;
-		[DataMember]
-		[SqlField(DbType.AnsiString, 128, ColumnName ="EventName", BaseColumnName ="EventName", BaseTableName = "BusinessEvents" )]		
-		public String EventName 
+		private System.Text.Json.Nodes.JsonNode? _data;
+		[SqlField(DbType.String, 2147483647, ColumnName ="DataJson", BaseColumnName ="DataJson", BaseTableName = "JsonItems" )]		
+		public System.Text.Json.Nodes.JsonNode? Data 
 		{ 
-		    get { return _eventName; } 
+		    get { return _data; } 
 			set 
 			{
-			    _eventName = value;
-				NotifyPropertyChange("EventName");
+			    _data = value;
+				NotifyPropertyChange("Data");
 			}
         }
 
-		private DateTime _eventDate;
-		[DataMember]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, ColumnName ="EventDate", BaseColumnName ="EventDate", BaseTableName = "BusinessEvents" )]		
-		public DateTime EventDate 
-		{ 
-		    get { return _eventDate; } 
-			set 
-			{
-			    _eventDate = value;
-				NotifyPropertyChange("EventDate");
-			}
-        }
-
-		private DateTime _eventDateUtc;
-		[DataMember]
-		[Newtonsoft.Json.JsonConverter(typeof(inercya.Newtonsoft.Json.Converters.UtcDateJsonConverter))]
-		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, ColumnName ="EventDateUtc", BaseColumnName ="EventDateUtc", BaseTableName = "BusinessEvents" )]		
-		public DateTime EventDateUtc 
-		{ 
-		    get { return _eventDateUtc; } 
-			set 
-			{
-			    _eventDateUtc = value;
-				NotifyPropertyChange("EventDateUtc");
-			}
-        }
-
-		public const string BaseTableProjectionColumnList = "[BusinessEventId], [EventName], [EventDate], [EventDateUtc]";
+		public const string BaseTableProjectionColumnList = "[JsonItemId], [DataJson]";
 
 	}
 
-	public partial class BusinessEventRepository : Repository<BusinessEvent> 
+	public partial class JsonItemRepository : Repository<JsonItem> 
 	{
-		public BusinessEventRepository(DataService DataService) : base(DataService)
+		public JsonItemRepository(DataService DataService) : base(DataService)
 		{
 		}
 
@@ -2289,53 +2119,181 @@ namespace Samples.Entities
 			set { base.DataService = value; }
 		}
 
-		public BusinessEvent Get(string projectionName, Int32 businessEventId)
+		public JsonItem Get(string projectionName, Int32 jsonItemId)
 		{
-			return ((IRepository<BusinessEvent>)this).Get(projectionName, businessEventId, FetchMode.UseIdentityMap);
+			return ((IRepository<JsonItem>)this).Get(projectionName, jsonItemId, FetchMode.UseIdentityMap);
 		}
 
-		public BusinessEvent Get(string projectionName, Int32 businessEventId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public JsonItem Get(string projectionName, Int32 jsonItemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
-			return ((IRepository<BusinessEvent>)this).Get(projectionName, businessEventId, fetchMode);
+			return ((IRepository<JsonItem>)this).Get(projectionName, jsonItemId, fetchMode);
 		}
 
-		public BusinessEvent Get(Projection projection, Int32 businessEventId)
+		public JsonItem Get(Projection projection, Int32 jsonItemId)
 		{
-			return ((IRepository<BusinessEvent>)this).Get(projection, businessEventId, FetchMode.UseIdentityMap);
+			return ((IRepository<JsonItem>)this).Get(projection, jsonItemId, FetchMode.UseIdentityMap);
 		}
 
-		public BusinessEvent Get(Projection projection, Int32 businessEventId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		public JsonItem Get(Projection projection, Int32 jsonItemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
 		{
-			return ((IRepository<BusinessEvent>)this).Get(projection, businessEventId, fetchMode);
+			return ((IRepository<JsonItem>)this).Get(projection, jsonItemId, fetchMode);
 		}
 
-		public BusinessEvent Get(string projectionName, Int32 businessEventId, params string[] fields)
+		public JsonItem Get(string projectionName, Int32 jsonItemId, params string[] fields)
 		{
-			return ((IRepository<BusinessEvent>)this).Get(projectionName, businessEventId, fields);
+			return ((IRepository<JsonItem>)this).Get(projectionName, jsonItemId, fields);
 		}
 
-		public BusinessEvent Get(Projection projection, Int32 businessEventId, params string[] fields)
+		public JsonItem Get(Projection projection, Int32 jsonItemId, params string[] fields)
 		{
-			return ((IRepository<BusinessEvent>)this).Get(projection, businessEventId, fields);
+			return ((IRepository<JsonItem>)this).Get(projection, jsonItemId, fields);
 		}
 
-		public bool Delete(Int32 businessEventId)
+		public bool Delete(Int32 jsonItemId)
 		{
-			var entity = new BusinessEvent { BusinessEventId = businessEventId };
+			var entity = new JsonItem { JsonItemId = jsonItemId };
 			return this.Delete(entity);
 		}
 
 			}
 	// [Obsolete("Use nameof instead")]
-	public static partial class BusinessEventFields
+	public static partial class JsonItemFields
 	{
-		public const string BusinessEventId = "BusinessEventId";
-		public const string EventName = "EventName";
-		public const string EventDate = "EventDate";
-		public const string EventDateUtc = "EventDateUtc";
+		public const string JsonItemId = "JsonItemId";
+		public const string Data = "Data";
 	}
 
-	public static partial class BusinessEventProjections
+	public static partial class JsonItemProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
+	[SqlEntity(BaseTableName="DateItems")]
+	public partial class DateItem : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Int32 _dateItemId;
+		[SqlField(DbType.Int32, 4, Precision = 10, IsKey=true, IsAutoincrement=true, IsReadOnly = true, ColumnName ="DateItemId", BaseColumnName ="DateItemId", BaseTableName = "DateItems" )]		
+		public Int32 DateItemId 
+		{ 
+		    get { return _dateItemId; } 
+			set 
+			{
+			    _dateItemId = value;
+				NotifyPropertyChange("DateItemId");
+			}
+        }
+
+		private DateTime? _utcDateTime;
+		[System.Text.Json.Serialization.JsonConverter(typeof(inercya.System.Text.Json.Converters.UtcDateTimeJsonConverter))]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="UtcDateTime", BaseColumnName ="UtcDateTime", BaseTableName = "DateItems" )]		
+		public DateTime? UtcDateTime 
+		{ 
+		    get { return _utcDateTime; } 
+			set 
+			{
+			    _utcDateTime = value;
+				NotifyPropertyChange("UtcDateTime");
+			}
+        }
+
+		private DateTime? _itemDateTime;
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ItemDateTime", BaseColumnName ="ItemDateTime", BaseTableName = "DateItems" )]		
+		public DateTime? ItemDateTime 
+		{ 
+		    get { return _itemDateTime; } 
+			set 
+			{
+			    _itemDateTime = value;
+				NotifyPropertyChange("ItemDateTime");
+			}
+        }
+
+		private DateTime? _itemDate;
+		[System.Text.Json.Serialization.JsonConverter(typeof(inercya.System.Text.Json.Converters.RoundDateJsonConverter))]
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, AllowNull = true, ColumnName ="ItemDate", BaseColumnName ="ItemDate", BaseTableName = "DateItems" )]		
+		public DateTime? ItemDate 
+		{ 
+		    get { return _itemDate; } 
+			set 
+			{
+			    _itemDate = value;
+				NotifyPropertyChange("ItemDate");
+			}
+        }
+
+		public const string BaseTableProjectionColumnList = "[DateItemId], [UtcDateTime], [ItemDateTime], [ItemDate]";
+
+	}
+
+	public partial class DateItemRepository : Repository<DateItem> 
+	{
+		public DateItemRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public DateItem Get(string projectionName, Int32 dateItemId)
+		{
+			return ((IRepository<DateItem>)this).Get(projectionName, dateItemId, FetchMode.UseIdentityMap);
+		}
+
+		public DateItem Get(string projectionName, Int32 dateItemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<DateItem>)this).Get(projectionName, dateItemId, fetchMode);
+		}
+
+		public DateItem Get(Projection projection, Int32 dateItemId)
+		{
+			return ((IRepository<DateItem>)this).Get(projection, dateItemId, FetchMode.UseIdentityMap);
+		}
+
+		public DateItem Get(Projection projection, Int32 dateItemId, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<DateItem>)this).Get(projection, dateItemId, fetchMode);
+		}
+
+		public DateItem Get(string projectionName, Int32 dateItemId, params string[] fields)
+		{
+			return ((IRepository<DateItem>)this).Get(projectionName, dateItemId, fields);
+		}
+
+		public DateItem Get(Projection projection, Int32 dateItemId, params string[] fields)
+		{
+			return ((IRepository<DateItem>)this).Get(projection, dateItemId, fields);
+		}
+
+		public bool Delete(Int32 dateItemId)
+		{
+			var entity = new DateItem { DateItemId = dateItemId };
+			return this.Delete(entity);
+		}
+
+			}
+	// [Obsolete("Use nameof instead")]
+	public static partial class DateItemFields
+	{
+		public const string DateItemId = "DateItemId";
+		public const string UtcDateTime = "UtcDateTime";
+		public const string ItemDateTime = "ItemDateTime";
+		public const string ItemDate = "ItemDate";
+	}
+
+	public static partial class DateItemProjections
 	{
 		public const string BaseTable = "BaseTable";
 	}
@@ -2354,20 +2312,16 @@ namespace Samples.Entities
 			OnCreated();
 		}
 
-        public NorthwindDataService() : base("Northwind")
+        public NorthwindDataService() : base()
         {
 			Init();
         }
 
-        public NorthwindDataService(string connectionStringName) : base(connectionStringName)
+        public NorthwindDataService(string connectionString) : base(System.Data.SqlClient.SqlClientFactory.Instance, connectionString)
         {
 			Init();
         }
 
-        public NorthwindDataService(string connectionString, string providerName) : base(connectionString, providerName)
-        {
-			Init();
-        }
 
 		private Samples.Entities.CategoryRepository _CategoryRepository;
 		public Samples.Entities.CategoryRepository CategoryRepository
@@ -2499,43 +2453,30 @@ namespace Samples.Entities
 			}
 		}
 
-		private Samples.Entities.BusinessEventRepository _BusinessEventRepository;
-		public Samples.Entities.BusinessEventRepository BusinessEventRepository
+		private Samples.Entities.JsonItemRepository _JsonItemRepository;
+		public Samples.Entities.JsonItemRepository JsonItemRepository
 		{
 			get 
 			{
-				if ( _BusinessEventRepository == null)
+				if ( _JsonItemRepository == null)
 				{
-					_BusinessEventRepository = new Samples.Entities.BusinessEventRepository(this);
+					_JsonItemRepository = new Samples.Entities.JsonItemRepository(this);
 				}
-				return _BusinessEventRepository;
+				return _JsonItemRepository;
+			}
+		}
+
+		private Samples.Entities.DateItemRepository _DateItemRepository;
+		public Samples.Entities.DateItemRepository DateItemRepository
+		{
+			get 
+			{
+				if ( _DateItemRepository == null)
+				{
+					_DateItemRepository = new Samples.Entities.DateItemRepository(this);
+				}
+				return _DateItemRepository;
 			}
 		}
 	}
-}
-namespace Samples.Entities
-{
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum, AllowMultiple = false)]
-    public partial class TypeScriptAttribute : Attribute
-    {
-        public static IEnumerable<Type> GetClasses()
-        {
-            var asm = System.Reflection.Assembly.GetExecutingAssembly();
-            foreach (var t in asm.GetTypes().Where(x => x.IsClass))
-            {
-                var attrs = t.GetCustomAttributes(typeof(TypeScriptAttribute), false);
-                if (attrs != null && attrs.Length > 0) yield return t;
-            }
-        }
-
-        public static IEnumerable<Type> GetEnums()
-        {
-            var asm = System.Reflection.Assembly.GetExecutingAssembly();
-            foreach (var t in asm.GetTypes().Where(x => x.IsEnum))
-            {
-                var attrs = t.GetCustomAttributes(typeof(TypeScriptAttribute), false);
-                if (attrs != null && attrs.Length > 0) yield return t;
-            }
-        }
-    }
 }

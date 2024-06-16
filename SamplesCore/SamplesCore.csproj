@@ -1,51 +1,57 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>annotations</Nullable>
+		<EmbedAllSources>true</EmbedAllSources>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
-    <PackageReference Include="NewtonSoft.Json" Version="13.0.1" />
-    <PackageReference Include="NLog" Version="5.0.0-beta10" />
-    <PackageReference Include="NReco.Logging.File" Version="1.1.4" />
-    <PackageReference Include="System.Data.Sqlite.Core" Version="1.0.115.5" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+		<PackageReference Include="NewtonSoft.Json" Version="13.0.3" />
+		<PackageReference Include="NLog" Version="5.3.2" />
+		<PackageReference Include="NReco.Logging.File" Version="1.2.1" />
+		<PackageReference Include="System.Data.Sqlite.Core" Version="1.0.118" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.Core.csproj" />
-    <ProjectReference Include="..\inercya.Newtonsoft.Json\inercya.Newtonsoft.Json.Converters.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\inercya.EntityLite.SqliteProfiler\inercya.EntityLite.SqliteProfiler.csproj" />
+		<ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.Core.csproj" />
+		<ProjectReference Include="..\inercya.Newtonsoft.Json\inercya.Newtonsoft.Json.Converters.csproj" />
+		<ProjectReference Include="..\inercya.System.Text.Json.Converters\inercya.System.Text.Json.Converters.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update=".dockerignore">
-      <DependentUpon>Dockerfile</DependentUpon>
-    </None>
-    <None Update="DataLayer.tt">
-      <LastGenOutput>DataLayer.cs</LastGenOutput>
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="EntityLite.ttinclude\TextTransform.ttinclude">
-      <Generator></Generator>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update=".dockerignore">
+			<DependentUpon>Dockerfile</DependentUpon>
+		</None>
+		<None Update="appsettings.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="DataLayer.tt">
+			<LastGenOutput>DataLayer.cs</LastGenOutput>
+			<Generator>TextTemplatingFileGenerator</Generator>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="DataLayer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DataLayer.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="DataLayer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>DataLayer.tt</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude /Y&#xD;&#xA;COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)inercya.EntityLite\SqliteProfiler\EntityLite.ttinclude /Y&#xD;&#xA;COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)DataLayerItemTemplate\EntityLite.ttinclude /Y" />
-  </Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)Nuget\Generators\Content\EntityLite.ttinclude /Y&#xD;&#xA;COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)inercya.EntityLite\SqliteProfiler\EntityLite.ttinclude /Y&#xD;&#xA;COPY $(ProjectDir)EntityLite.ttinclude\*.ttinclude $(SolutionDir)DataLayerItemTemplate\EntityLite.ttinclude /Y" />
+	</Target>
 
 </Project>

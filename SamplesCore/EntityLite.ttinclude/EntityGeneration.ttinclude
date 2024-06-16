@@ -174,14 +174,37 @@ if (generation.GenerateMessagePackAttributes)
 <#+
 if (generation.UseUtcDateJsonConverter && field.IsRoundDate == false && field.PropertyTypeName.StartsWith("DateTime") && (propertyName.EndsWith("Utc") || propertyName.EndsWith("UtcDate") || propertyName.EndsWith("UtcDateTime")))
 {
+	if (generation.JsonType == JsonType.JsonNode)
+	{
+#>
+		[System.Text.Json.Serialization.JsonConverter(typeof(inercya.System.Text.Json.Converters.UtcDateTimeJsonConverter))]
+<#+
+	}
+	else
+	{
 #>
 		[Newtonsoft.Json.JsonConverter(typeof(inercya.Newtonsoft.Json.Converters.UtcDateJsonConverter))]
 <#+
+	}
 }
 #>
-<#+					if (field.IsRoundDate) { #>
+<#+					
+if (field.IsRoundDate) 
+{ 
+	if (generation.JsonType == JsonType.JsonNode)
+	{
+#>
+		[System.Text.Json.Serialization.JsonConverter(typeof(inercya.System.Text.Json.Converters.RoundDateJsonConverter))]
+<#+
+	}
+	else
+	{
+#>
 		[Newtonsoft.Json.JsonConverter(typeof(inercya.Newtonsoft.Json.Converters.RoundDateJsonConverter))]
-<#+					} #>
+<#+					
+	} 
+}
+#>
 		[SqlField(DbType.<#= field.DbType #>, <#= field.ColumnSize #><#= field.Precision == 0 || field.Precision == 255 ? string.Empty : ", Precision = " + field.Precision.ToString() #><#= field.Scale == 0 || field.Scale == 255 ? string.Empty : ", Scale=" + field.Scale.ToString() #><#= field.ProviderType.HasValue ? ", ProviderType=" + field.ProviderType.Value.ToString() : string.Empty #><#= field.IsKey ? ", IsKey=true": string.Empty #><#= field.SequenceName == null ? string.Empty : ", SequenceName = \"" + field.SequenceName + "\"" #><#= field.IsAutoIncrement ? ", IsAutoincrement=true": string.Empty #><#= field.IsNullable ? ", AllowNull = true" : string.Empty#><#= field.IsReadOnly ? ", IsReadOnly = true" : string.Empty  #><#= field.ColumnName == null ? string.Empty : ", ColumnName =\"" + field.ColumnName + "\"" #><#= field.BaseColumnName == null ? string.Empty : ", BaseColumnName =\"" + field.BaseColumnName + "\"" #><#= field.BaseTableName == null ? string.Empty : ", BaseTableName = \"" + field.BaseTableName + "\"" #> )]		
 		public <#= field.PropertyTypeName #> <#= propertyName #> 
 		{ 
