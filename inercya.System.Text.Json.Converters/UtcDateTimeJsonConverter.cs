@@ -14,7 +14,7 @@ namespace inercya.System.Text.Json.Converters
             switch (date.Kind)
             {
                 case DateTimeKind.Unspecified:
-                    return new DateTime(date.Ticks, DateTimeKind.Utc);
+                    return DateTime.SpecifyKind(date, DateTimeKind.Utc);
                 case DateTimeKind.Local:
                     return date.ToUniversalTime();
                 case DateTimeKind.Utc:
@@ -29,13 +29,13 @@ namespace inercya.System.Text.Json.Converters
             switch (value.Kind)
             {
                 case DateTimeKind.Unspecified:
-                    writer.WriteStringValue(new DateTime(value.Ticks, DateTimeKind.Utc));
-                    break;
-                case DateTimeKind.Local:
-                    writer.WriteStringValue(value.ToUniversalTime());
+                    writer.WriteStringValue(DateTime.SpecifyKind(value, DateTimeKind.Utc));
                     break;
                 case DateTimeKind.Utc:
                     writer.WriteStringValue(value);
+                    break;
+                case DateTimeKind.Local:
+                    writer.WriteStringValue(value.ToUniversalTime());
                     break;
                 default:
                     throw new NotSupportedException($"DateTimeKind.{value.Kind} not supported");

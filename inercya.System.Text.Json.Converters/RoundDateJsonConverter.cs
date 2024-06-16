@@ -17,7 +17,7 @@ namespace inercya.System.Text.Json.Converters
             }
             if (date.Kind == DateTimeKind.Local)
             {
-                date = new DateTime(date.Ticks, DateTimeKind.Unspecified);
+                date = DateTime.SpecifyKind(date, DateTimeKind.Unspecified);
             }
             return date.AddHours(12).Date;
         }

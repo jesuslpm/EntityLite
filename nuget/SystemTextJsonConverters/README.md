@@ -25,7 +25,7 @@ Because when you read dates from the database, they are unspecified.
 
 It is a custom converter for DateTime type that converts the date to local time when serializing to JSON.
 If the date is already local, it will not be modified.
-If the date is in local UTC, it will be converted to local by calling DateTime.ToLocalTime().
+If the date is UTC, it will be converted to local by calling DateTime.ToLocalTime().
 If the date is in unspecified time, it will be treated as it was in local time by calling DateTime.SpecifyKind(date, DateTimeKind.Local).
 
 When deserializing a JSON string to a DateTime object, it will convert the date to local if it is not already in UTC format.

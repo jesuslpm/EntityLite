@@ -13,12 +13,12 @@ namespace inercya.System.Text.Json.Converters
             var date = reader.GetDateTime();
             switch (date.Kind)
             {
-                case DateTimeKind.Unspecified:
-                    return new DateTime(date.Ticks, DateTimeKind.Local);
-                case DateTimeKind.Local:
-                    return date;
                 case DateTimeKind.Utc:
                     return date.ToLocalTime();
+                case DateTimeKind.Local:
+                    return date;
+                case DateTimeKind.Unspecified:
+                    return DateTime.SpecifyKind(date, DateTimeKind.Local);
                 default:
                     throw new NotSupportedException($"DateTimeKind.{date.Kind} not supported");
             }
@@ -29,13 +29,13 @@ namespace inercya.System.Text.Json.Converters
             switch (value.Kind)
             {
                 case DateTimeKind.Unspecified:
-                    writer.WriteStringValue(new DateTime(value.Ticks, DateTimeKind.Local));
-                    break;
-                case DateTimeKind.Local:
-                    writer.WriteStringValue(value);
+                    writer.WriteStringValue(DateTime.SpecifyKind(value, DateTimeKind.Local));
                     break;
                 case DateTimeKind.Utc:
                     writer.WriteStringValue(value.ToLocalTime());
+                    break;
+                case DateTimeKind.Local:
+                    writer.WriteStringValue(value);
                     break;
                 default:
                     throw new NotSupportedException($"DateTimeKind.{value.Kind} not supported");

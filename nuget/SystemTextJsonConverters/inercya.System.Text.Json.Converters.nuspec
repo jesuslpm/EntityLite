@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>inercya.System.Text.Json.Converters</id>
-		<version>1.0.0</version>
+		<version>1.0.2</version>
 		<title>inercya.System.Text.Json.Converters</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>
