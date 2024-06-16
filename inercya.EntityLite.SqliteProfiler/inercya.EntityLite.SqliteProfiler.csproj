@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+		<AssemblyName>EntityLite.SqliteProfiler</AssemblyName>
+		<EmbedAllSources>true</EmbedAllSources>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="EntityLiteProfile.db" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="EntityLiteProfile.db" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\inercya.EntityLite\inercya.EntityLite.Core.csproj" />
+	</ItemGroup>
+
+</Project>
