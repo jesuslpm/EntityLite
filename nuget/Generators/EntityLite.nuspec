@@ -1,54 +1,48 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata>
-    <id>EntityLite</id>
-    <version>2.17.0</version>
-    <title>i-nercya EntityLite</title>
-    <authors>Jesús López</authors>
-    <owners>i-nercya intelligent software</owners>
-	<license type="expression">Apache-2.0</license>
-    <projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
-    <repository url="https://github.com/jesuslpm/EntityLite" />
-	<icon>EntityLite.png</icon>
-    <description>
-      A lightweight, database first, micro ORM
-    </description>
-    <releaseNotes>
-		see http://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M for an introduction to EntityLite.
-
-		IMPORTANT NOTE for .NET Core and .NET Stanadard users:
-		Content files are no longer copied to project folder. You need to copy C:\Users\your.user.name\.nuget\packages\entitylite\2.13.0\content to your project folder manually.
-
-		Alternatively you can download the EntityLite Code Generators item template from Visual Studio Gallery:
-		https://visualstudiogallery.msdn.microsoft.com/36ce38a1-49f9-4b97-933b-ad47c7173ada/file/285803/1/EntityLite.vsix
-	</releaseNotes>
-    <summary>
-      The EntityLite code generators and core library
-    </summary>
-    <language>en-US</language>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright 2013-2017</copyright>
-    <dependencies>
-      <group targetFramework="netstandard2.0">
-        <dependency id="EntityLite.Core" version="2.17.0" />
-      </group>
-      <group targetFramework="net452">
-        <dependency id="EntityLite.Core" version="2.17.0" />
-      </group>
-      <group targetFramework="net35">
-        <dependency id="EntityLite.Core" version="2.17.0" />
-      </group>
-    </dependencies>
-    <references></references>
-    <tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
-    <contentFiles>
-      <files include="content/DataLayer.tt" buildAction="None" />
-      <files include="content/EntityLite.ttinclude/*.ttinclude" buildAction="None" />
-    </contentFiles>
-  </metadata>
-  <files>
-    <file src="content\DataLayer.tt" target="content\" />
-	<file src="content\EntityLite.ttinclude\*.ttinclude" target="content\EntityLite.ttinclude\" />
-	<file src="EntityLite.png" target="" />
-  </files>
+	<metadata>
+		<id>EntityLite</id>
+		<version>3.0.0-beta1</version>
+		<title>i-nercya EntityLite</title>
+		<authors>Jesús López</authors>
+		<owners>i-nercya intelligent software</owners>
+		<license type="expression">Apache-2.0</license>
+		<projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
+		<repository url="https://github.com/jesuslpm/EntityLite" />
+		<icon>EntityLite.png</icon>
+		<description>
+			A lightweight, database first, micro ORM
+		</description>
+		<releaseNotes>
+		</releaseNotes>
+		<summary>
+			The EntityLite code generators and core library
+		</summary>
+		<language>en-US</language>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<copyright>Copyright 2013-2017</copyright>
+		<dependencies>
+			<group targetFramework="netstandard2.0">
+				<dependency id="EntityLite.Core" version="3.0.0-beta1" />
+				<dependency id="inercya.Newtonsoft.Json.Converters" version="1.0.1" />
+				<dependency id="inercya.System.Text.Json.Converters" version="1.0.2" />
+			</group>
+			<group targetFramework="net462">
+				<dependency id="EntityLite.Core" version="3.0.0-beta1" />
+				<dependency id="inercya.Newtonsoft.Json.Converters" version="1.0.1" />
+				<dependency id="inercya.System.Text.Json.Converters" version="1.0.2" />
+			</group>
+		</dependencies>
+		<references></references>
+		<tags>Micro-ORM ORM SQL DAL Database SQLServer SQLite MySQL Npgsql Postgres PostgreSQL ORACLE EntityLite</tags>
+		<contentFiles>
+			<files include="content/**" buildAction="None" />
+		</contentFiles>
+		<readme>docs\README.md</readme>
+	</metadata>
+	<files>
+		<file src="content\**" target="content" />
+		<file src="EntityLite.png" target="" />
+		<file src="README.md" target="docs" />
+	</files>
 </package>

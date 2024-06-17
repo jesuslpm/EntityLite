@@ -36,7 +36,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityLite.ttinclude", "Ent
 	ProjectSection(SolutionItems) = preProject
 		nuget\Generators\content\EntityLite.ttinclude\DataLayerGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\DataLayerGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\DataServiceGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\DataServiceGeneration.ttinclude
-		nuget\Generators\content\EntityLite.ttinclude\Dummy.txt = nuget\Generators\content\EntityLite.ttinclude\Dummy.txt
 		nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityGeneration.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntityLite.ttinclude
 		nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude = nuget\Generators\content\EntityLite.ttinclude\EntitySetting.ttinclude
@@ -182,8 +181,8 @@ Global
 		{AA798415-5327-42D7-87A3-C2710DC210A1} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.Logging.6.0.1304.0\lib\NET45
-		SolutionGuid = {782DA5B6-532A-472F-AD6B-13C67BF701CF}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\EnterpriseLibrary.Logging.5.0.505.1\lib\NET35
+		SolutionGuid = {782DA5B6-532A-472F-AD6B-13C67BF701CF}
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.Logging.6.0.1304.0\lib\NET45
 	EndGlobalSection
 EndGlobal

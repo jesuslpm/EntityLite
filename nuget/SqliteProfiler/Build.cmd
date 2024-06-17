@@ -1,4 +1,4 @@
-dotnet build %~dp0..\..\inercya.EntityLite.SqliteProfiler\inercya.EntityLite.SqliteProfiler.csproj -c Release
+dotnet build %~dp0..\..\inercya.EntityLite.SqliteProfiler\inercya.EntityLite.SqliteProfiler.csproj -c Release -p:ContinuousIntegrationBuild=true 
 %~dp0..\NuGet.exe Update -self
 REM %~dp0..\NuGet.exe SetApiKey MyApiKey
 %~dp0..\NuGet.exe Pack EntityLite.SqliteProfiler.nuspec
