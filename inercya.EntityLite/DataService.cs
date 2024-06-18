@@ -80,7 +80,7 @@ namespace inercya.EntityLite
 
         public Func<string> ApplicationContextGetter { get; set; }
 
-        public Dictionary<string, string> ApplicationContext { get; } = new Dictionary<string, string>();
+        public SortedDictionary<string, string> AppContext { get; } = new();
 
 		public int MaxRetries { get; set; }
 		public int InitialMillisecondsRetryDelay { get; protected set; }

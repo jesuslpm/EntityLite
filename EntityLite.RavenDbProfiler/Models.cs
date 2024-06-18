@@ -12,7 +12,8 @@ namespace EntityLite.RavenDbProfiler
         public TimeSpan ExecutionDelay;
         public DateTime ExecutionDate;
         public object UserId;
-        public string Context;
+        public Guid DataServiceInstanceId;
+        public SortedDictionary<string, string> Context;
         public Dictionary<string, object> Parameters;
     }
 
@@ -35,10 +36,11 @@ namespace EntityLite.RavenDbProfiler
         public string SqlStatementId { get; set; }
         public string NormalizedSqlStatementId { get; set; }
         public CommandType CommandType { get; set; }
-        public TimeSpan ExecutionDelay { get; set; }
+        public double ExecutionMilliseconds { get; set; }
         public DateTime ExecutionDate { get; set; }
         public object UserId { get; set; }
-        public string Context { get; set; }
+        public SortedDictionary<string, string> Context { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
+        public Guid DataServiceInstanceId { get; set; }
     }
 }
