@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net472</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+		<EmbedAllSources>true</EmbedAllSources>
+
+		<Version>1.0.0-beta1</Version>
+		<Description>EntityLite integration with MassTransit</Description>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageId>EntityLite.MassTransit</PackageId>
+		<RootNamespace>MassTransit</RootNamespace>
+		<Authors>Jesús López</Authors>
+		<Company>i-nercya</Company>
+		<Product>i-nercya EntityLite</Product>
+		<Copyright>Copyright 2024</Copyright>
+		<AssemblyName>EntityLite.MassTransit</AssemblyName>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MassTransit" Version="8.2.3" />
+		<PackageReference Include="EntityLite.Core" Version="3.0.0-beta1" />
+	</ItemGroup>
+
+</Project>

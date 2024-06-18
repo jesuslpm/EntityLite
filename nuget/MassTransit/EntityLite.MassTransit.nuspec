@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>EntityLite.MassTransit</id>
+		<version>1.0.0-beta1</version>
+		<title>EntityLite MassTransit Integration</title>
+		<authors>Jesús López</authors>
+		<owners>i-nercya intelligent software</owners>
+		<license type="expression">Apache-2.0</license>
+		<projectUrl>https://github.com/jesuslpm/EntityLite</projectUrl>
+		<repository url="https://github.com/jesuslpm/EntityLite" />
+		<icon>EntityLite.png</icon>
+		<description>
+			EntityLite MassTransit integration. Transactional Outbox and Saga Repository
+		</description>
+		<releaseNotes>
+		</releaseNotes>
+		<summary>
+			EntityLite MassTransit integration. Transactional Outbox and Saga Repository
+		</summary>
+		<language>en-US</language>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<copyright>Copyright 2024</copyright>
+		<dependencies>
+			<group targetFramework="netstandard2.0">
+				<dependency id="MassTransit" version="8.2.3" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta1"  exclude="Build,Analyzers" />
+			</group>
+			<group targetFramework="net6.0">
+				<dependency id="MassTransit" version="8.2.3" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta1"  exclude="Build,Analyzers" />
+			</group>
+			<group targetFramework="net8.0">
+				<dependency id="MassTransit" version="8.2.3" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta1"  exclude="Build,Analyzers" />
+			</group>
+			<group targetFramework="net472">
+				<dependency id="MassTransit" version="8.2.3" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta1"  exclude="Build,Analyzers" />
+			</group>
+		</dependencies>
+		<tags>EntityLite MassTransit</tags>
+		<readme>docs\README.md</readme>
+	</metadata>
+	<files>
+		<file src="..\..\EntityLite.MassTransit\bin\Release\**\EntityLite.MassTransit.*" target="lib" />
+		<file src="EntityLite.png" target="" />
+		<file src="README.md" target="docs" />
+	</files>
+</package>
