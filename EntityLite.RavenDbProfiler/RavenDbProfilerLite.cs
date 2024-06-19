@@ -8,17 +8,15 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using inercya.EntityLite;
 using Microsoft.Extensions.Logging;
-using Raven.Client;
 using Raven.Client.Documents;
 using Raven.Client.Documents.BulkInsert;
 using Raven.Client.Documents.Session;
 using Raven.Client.Json;
 
-namespace EntityLite.RavenDbProfiler
+namespace inercya.EntityLite.RavenDbProfiler
 {
-    public class RavenDbProfilerLite : IProfilerLite
+    public class RavenDbProfilerLite : IProfilerLite, IDisposable, IAsyncDisposable
     {
         private volatile bool isRunning;
 
@@ -34,15 +32,16 @@ namespace EntityLite.RavenDbProfiler
 
         private static Regex listOfValuesRegex = new Regex(@"\((?:(?:[:@]P)*\d+(?:,\s*(?:[:@]P)*\d+)*)\)", RegexOptions.Compiled);
 
-        public RavenDbProfilerLite(IDocumentStore store, string database, TimeSpan expiration, ILogger<RavenDbProfilerLite> logger)
+        public RavenDbProfilerLite(IDocumentStore store, RavenDbProfilerSettings settings, ILogger<RavenDbProfilerLite> logger)
         {
             this.store = store;
-            this.database = database;
+            this.database = settings.DatabaseName;
             this.logger = logger;
-            this.expiration = expiration;
+            this.expiration = settings.Expiration;
+            this.StartProfiling();
         }
 
-        public void StartProfiling()
+        private void StartProfiling()
         {
             if (isRunning) throw new InvalidOperationException("Already running");
             logger.LogInformation("started profiling");
@@ -52,7 +51,7 @@ namespace EntityLite.RavenDbProfiler
 
         }
 
-        public async Task StopProfiling()
+        private async Task StopProfiling()
         {
             this.StopProfilingImpl();
             await this.workerTask;
@@ -92,12 +91,11 @@ namespace EntityLite.RavenDbProfiler
                     DataServiceInstanceId = dataService.InstanceId,
                     Parameters = command.Parameters.Cast<DbParameter>().ToDictionary(x => x.ParameterName, x => ParameterValue(x))
                 };
-                if (blockingCollection.TryAdd(record, TimeSpan.Zero))
+                if (blockingCollection.TryAdd(record, 4))
                 {
                     if (logger.IsEnabled(LogLevel.Trace))
                     {
                         var len = Math.Min(command.CommandText.Length, 30);
-                        logger.LogTrace("Command execution added to the log queue: " + command.CommandText.Substring(0, len).Replace("\n", " ").Replace("\r", "").Replace("\t", " ") + " ...");
                     }
                 }
                 else
@@ -276,6 +274,24 @@ namespace EntityLite.RavenDbProfiler
                     logger.LogError(ex, "Falied to store EntityLite profile record to ravendb");
                 }
             }
+        }
+
+        public bool IsDisposed { get; private set; }
+
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+            IsDisposed = true;
+            StopProfiling().GetAwaiter().GetResult();
+            try { this.blockingCollection.Dispose(); } catch { }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (IsDisposed) return;
+            IsDisposed = true;
+            await StopProfiling();
+            try { this.blockingCollection.Dispose(); } catch { }
         }
     }
 }

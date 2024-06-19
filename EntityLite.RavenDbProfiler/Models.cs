@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace EntityLite.RavenDbProfiler
+namespace inercya.EntityLite.RavenDbProfiler
 {
     internal class ProfilerRecord
     {
