@@ -28,7 +28,7 @@ namespace inercya.EntityLite
         void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime);
     }
 
-    internal class NullProfilerLite : IProfilerLite
+    public class NullProfilerLite : IProfilerLite
     {
         public void LogCommandExecution(DbCommand command, DataService dataService, TimeSpan executionTime)
         {
