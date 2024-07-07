@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>EntityLite.RavenDbProfiler</id>
+		<version>3.0.0-beta3</version>
+		<title>EntityLite RavenDB Profiler</title>
+		<authors>Jesús López</authors>
+		<owners>i-nercya intelligent software</owners>
+		<license type="expression">Apache-2.0</license>
+		<projectUrl>https://www.codeproject.com/Articles/753796/i-nercya-EntityLite-A-Lightweight-Database-First-M</projectUrl>
+		<repository url="https://github.com/jesuslpm/EntityLite" />
+		<icon>EntityLite.png</icon>
+		<description>
+			A profiler for EntityLite that logs the SQL commands executed by EntityLite in a RavenDB database.
+		</description>
+		<releaseNotes>
+		</releaseNotes>
+		<summary>
+			The RavenDB profiler for EntityLite.
+		</summary>
+		<language>en-US</language>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<copyright>Copyright 2013-2024</copyright>
+		<dependencies>
+			<group targetFramework="netstandard2.0">
+				<dependency id="Microsoft.Extensions.Hosting.Abstractions" version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta3" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Options" version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="RavenDB.Client" version="5.4.200" exclude="Build,Analyzers" />
+				<dependency id="RT.Comb" version="3.0.0" exclude="Build,Analyzers" />
+			</group>
+		</dependencies>
+		<tags>EntityLite RavenDbProfiler</tags>
+		<readme>docs\README.md</readme>
+	</metadata>
+	<files>
+		<file src="..\..\EntityLite.RavenDbProfiler\bin\Release\**\EntityLite.RavenDbProfiler.*" target="lib" />
+		<file src="EntityLite.png" target="" />
+		<file src="README.md" target="docs" />
+	</files>
+</package>
