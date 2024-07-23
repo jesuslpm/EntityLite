@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>EntityLite.RavenDbProfiler</id>
-		<version>3.0.0-beta3</version>
+		<version>3.0.0-beta4</version>
 		<title>EntityLite RavenDB Profiler</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>

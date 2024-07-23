@@ -102,7 +102,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SystemTextJsonConverters", 
 		nuget\SystemTextJsonConverters\README.md = nuget\SystemTextJsonConverters\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityLite.MassTransit", "EntityLite.MassTransit\EntityLite.MassTransit.csproj", "{38D34BCA-E358-4CA2-894C-9F83CACBF1A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityLite.MassTransit", "EntityLite.MassTransit\EntityLite.MassTransit.csproj", "{38D34BCA-E358-4CA2-894C-9F83CACBF1A5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RavenDbProfiler", "RavenDbProfiler", "{AA5E4F47-54D2-4984-B8A6-D5D018C52CFA}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\RavenDbProfiler\Build.cmd = nuget\RavenDbProfiler\Build.cmd
+		nuget\RavenDbProfiler\EntityLite.RavenDbProfiler.nuspec = nuget\RavenDbProfiler\EntityLite.RavenDbProfiler.nuspec
+		nuget\RavenDbProfiler\Publish.cmd = nuget\RavenDbProfiler\Publish.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -189,10 +196,11 @@ Global
 		{0FB54134-6D01-4068-9749-F48F724541A3} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
 		{7AD236F6-1C1A-49B2-8E0A-1CB21AE878A1} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
 		{AA798415-5327-42D7-87A3-C2710DC210A1} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
+		{AA5E4F47-54D2-4984-B8A6-D5D018C52CFA} = {6ADBA794-C80D-48EE-80F9-41639CF9CF08}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\EnterpriseLibrary.Logging.5.0.505.1\lib\NET35
-		SolutionGuid = {782DA5B6-532A-472F-AD6B-13C67BF701CF}
 		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45;packages\EnterpriseLibrary.Logging.6.0.1304.0\lib\NET45
+		SolutionGuid = {782DA5B6-532A-472F-AD6B-13C67BF701CF}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\EnterpriseLibrary.Logging.5.0.505.1\lib\NET35
 	EndGlobalSection
 EndGlobal

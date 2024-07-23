@@ -211,7 +211,6 @@ namespace inercya.EntityLite.RavenDbProfiler
                 if (stopRequested || error)
                 {
                     try { this.blockingCollection.Dispose(); } catch { }
-                    this.blockingCollection = null;
                     if (bulkInsert != null) try { bulkInsert.Dispose(); } catch { }
                     if (session != null) try { session.Dispose(); } catch { }
                     return;
@@ -283,7 +282,7 @@ namespace inercya.EntityLite.RavenDbProfiler
             if (IsDisposed) return;
             IsDisposed = true;
             StopProfiling().GetAwaiter().GetResult();
-            try { this.blockingCollection.Dispose(); } catch { }
+            try { this.blockingCollection?.Dispose(); } catch { }
         }
 
         public async ValueTask DisposeAsync()
@@ -291,7 +290,7 @@ namespace inercya.EntityLite.RavenDbProfiler
             if (IsDisposed) return;
             IsDisposed = true;
             await StopProfiling();
-            try { this.blockingCollection.Dispose(); } catch { }
+            try { this.blockingCollection?.Dispose(); } catch { }
         }
     }
 }
