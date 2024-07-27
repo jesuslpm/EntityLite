@@ -84,21 +84,14 @@ namespace inercya.EntityLite.RavenDbProfiler
                 {
                     CommandText = command.CommandText,
                     CommandType = command.CommandType,
-                    Context = dataService.AppContext,
+                    Context = new SortedDictionary<string, string>(dataService.AppContext),
                     ExecutionDate = DateTime.UtcNow,
                     ExecutionDelay = executionTime,
                     UserId = dataService.CurrentUserId,
                     DataServiceInstanceId = dataService.InstanceId,
                     Parameters = command.Parameters.Cast<DbParameter>().ToDictionary(x => x.ParameterName, x => ParameterValue(x))
                 };
-                if (blockingCollection.TryAdd(record, 4))
-                {
-                    if (logger.IsEnabled(LogLevel.Trace))
-                    {
-                        var len = Math.Min(command.CommandText.Length, 30);
-                    }
-                }
-                else
+                if (blockingCollection.TryAdd(record, 4) == false)
                 {
                     logger.LogWarning("Command execution discarded. The queue is full");
                 }
