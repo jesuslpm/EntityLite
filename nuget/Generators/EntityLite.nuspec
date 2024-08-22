@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>EntityLite</id>
-		<version>3.0.0-beta3</version>
+		<version>3.0.0-beta4</version>
 		<title>i-nercya EntityLite</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>
@@ -23,12 +23,12 @@
 		<copyright>Copyright 2013-2017</copyright>
 		<dependencies>
 			<group targetFramework="netstandard2.0">
-				<dependency id="EntityLite.Core" version="3.0.0-beta3" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta4" />
 				<dependency id="inercya.Newtonsoft.Json.Converters" version="1.0.1" />
 				<dependency id="inercya.System.Text.Json.Converters" version="1.0.2" />
 			</group>
 			<group targetFramework="net462">
-				<dependency id="EntityLite.Core" version="3.0.0-beta3" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta4" />
 				<dependency id="inercya.Newtonsoft.Json.Converters" version="1.0.1" />
 				<dependency id="inercya.System.Text.Json.Converters" version="1.0.2" />
 			</group>

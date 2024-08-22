@@ -76,7 +76,7 @@ namespace Samples
         {
             var connectionString = configuration.GetConnectionString("Northwind");
             var ds = new NorthwindDataService(connectionString);
-            ds.ApplicationContext["App"] = "EntityLite.Tests";
+            ds.AppContext["App"] = "EntityLite.Tests";
             return ds;
         }
 
@@ -128,7 +128,7 @@ namespace Samples
             profiler.StartProfiling();
             using (ds = CreateDataService())
             {
-                TestDates();
+                // TestDates();
                 TestJsonItems();
 
                 //ds.ApplicationContextGetter = () => "EntityLite.Tests";
@@ -174,11 +174,7 @@ namespace Samples
         {
             var item = new JsonItem
             {
-                Data = new JsonObject
-                {
-                    ["id"] = 1,
-                    ["name"] = "Jesús"
-                }
+                Data = new JsonArray ("1", "2", "3")
             };
             ds.JsonItemRepository.Insert(item);
 
@@ -187,7 +183,8 @@ namespace Samples
 
             foreach (var i in items)
             { 
-                Console.WriteLine(i.Data.ToString());
+                Console.WriteLine(i.Data.ToJsonString());
+                File.WriteAllText("jsonitem.json", JsonSerializer.Serialize(i));
             }
         }
 

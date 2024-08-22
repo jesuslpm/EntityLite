@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Text.Json.Nodes;
 //using Newtonsoft.Json.Linq;
 
 namespace inercya.EntityLite.Extensions
@@ -44,6 +45,12 @@ namespace inercya.EntityLite.Extensions
                 ToType = typeof(Uri), 
                 Method = typeof(ConversionMethods).GetMethod("FromStringToUri")
             },
+            new ConverterEntry
+            {
+                FromType = typeof(string),
+                ToType = typeof(JsonNode),
+                Method = typeof(ConversionMethods).GetMethod("FromStringToJsonNode")
+            }
             //new ConverterEntry
             //{
             //    FromType = typeof(string),
@@ -73,6 +80,12 @@ namespace inercya.EntityLite.Extensions
         {
             if (string.IsNullOrEmpty(str)) return null;
             return new Uri(str);
+        }
+
+        public static JsonNode FromStringToJsonNode(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return null;
+            return JsonNode.Parse(str);
         }
 
         public static MethodInfo GetConversionMethod(Type fromType, Type toType)

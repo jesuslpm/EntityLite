@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
 		<!--<TargetFramework>net462</TargetFramework>-->
-		<Version>3.0.0-beta1</Version>
+		<Version>3.0.0-beta4</Version>
 		<Description>i-nercya EntityLite a lightweigth, database first, micro-ORM</Description>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageId>EntityLite.Core</PackageId>
@@ -32,12 +32,14 @@
 		<PackageReference Include="System.Data.Common" Version="4.3.0" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
 		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+		<PackageReference Include="System.Text.Json" Version="6.0.9" />
 	</ItemGroup>
 
 
 	<ItemGroup Condition="'$(TargetFramework)'=='net462'">
 		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+		<PackageReference Include="System.Text.Json" Version="6.0.9" />
 	</ItemGroup>
 
 	<ItemGroup>

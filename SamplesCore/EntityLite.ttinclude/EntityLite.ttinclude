@@ -35,12 +35,20 @@
 	{
 		using (generation)
         {
+		    #>
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+			<#+ 
             generation.Initialize();
             EntityGeneration_Render(generation);
 			EnumGeneration_Render(generation);
             DataServiceGeneration_Render(generation);
             ProcedureGeneration_Render(generation);
 			TypeScriptAttributeGeneration_Render(generation);
+			#>
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+			<#+
         }
 	}
 #>
