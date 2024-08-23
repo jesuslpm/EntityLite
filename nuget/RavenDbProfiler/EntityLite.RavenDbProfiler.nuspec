@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>EntityLite.RavenDbProfiler</id>
-		<version>3.0.0-beta4</version>
+		<version>3.0.0-beta5</version>
 		<title>EntityLite RavenDB Profiler</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>
@@ -24,7 +24,14 @@
 		<dependencies>
 			<group targetFramework="netstandard2.0">
 				<dependency id="Microsoft.Extensions.Hosting.Abstractions" version="6.0.0" exclude="Build,Analyzers" />
-				<dependency id="EntityLite.Core" version="3.0.0-beta3" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta4" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Options" version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="RavenDB.Client" version="5.4.200" exclude="Build,Analyzers" />
+				<dependency id="RT.Comb" version="3.0.0" exclude="Build,Analyzers" />
+			</group>
+			<group targetFramework="net8.0">
+				<dependency id="Microsoft.Extensions.Hosting.Abstractions" version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="EntityLite.Core" version="3.0.0-beta4" exclude="Build,Analyzers" />
 				<dependency id="Microsoft.Extensions.Options" version="6.0.0" exclude="Build,Analyzers" />
 				<dependency id="RavenDB.Client" version="5.4.200" exclude="Build,Analyzers" />
 				<dependency id="RT.Comb" version="3.0.0" exclude="Build,Analyzers" />
