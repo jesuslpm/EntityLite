@@ -1,5 +1,7 @@
 ﻿
-using System;
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+			using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data;
@@ -2297,6 +2299,238 @@ namespace Samples.Entities
 	{
 		public const string BaseTable = "BaseTable";
 	}
+	[SqlEntity(BaseTableName="intervener_list_participants")]
+	public partial class IntervenerListParticipant : INotifyPropertyChanged
+	{
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChange(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }				
+		
+		private Guid _intervenerListParticipantGuid;
+		[SqlField(DbType.Guid, 16, IsKey=true, ColumnName ="intervener_list_participant_guid", BaseColumnName ="intervener_list_participant_guid", BaseTableName = "intervener_list_participants" )]		
+		public Guid IntervenerListParticipantGuid 
+		{ 
+		    get { return _intervenerListParticipantGuid; } 
+			set 
+			{
+			    _intervenerListParticipantGuid = value;
+				NotifyPropertyChange("IntervenerListParticipantGuid");
+			}
+        }
+
+		private Guid _intervenerListGuid;
+		[SqlField(DbType.Guid, 16, ColumnName ="intervener_list_guid", BaseColumnName ="intervener_list_guid", BaseTableName = "intervener_list_participants" )]		
+		public Guid IntervenerListGuid 
+		{ 
+		    get { return _intervenerListGuid; } 
+			set 
+			{
+			    _intervenerListGuid = value;
+				NotifyPropertyChange("IntervenerListGuid");
+			}
+        }
+
+		private Guid _participantGuid;
+		[SqlField(DbType.Guid, 16, ColumnName ="participant_guid", BaseColumnName ="participant_guid", BaseTableName = "intervener_list_participants" )]		
+		public Guid ParticipantGuid 
+		{ 
+		    get { return _participantGuid; } 
+			set 
+			{
+			    _participantGuid = value;
+				NotifyPropertyChange("ParticipantGuid");
+			}
+        }
+
+		private Int32 _participantTypeId;
+		[SqlField(DbType.Int32, 4, Precision = 10, ColumnName ="participant_type_id", BaseColumnName ="participant_type_id", BaseTableName = "intervener_list_participants" )]		
+		public Int32 ParticipantTypeId 
+		{ 
+		    get { return _participantTypeId; } 
+			set 
+			{
+			    _participantTypeId = value;
+				NotifyPropertyChange("ParticipantTypeId");
+			}
+        }
+
+		private String? _intervenerListParticipantName;
+		[SqlField(DbType.AnsiString, 128, ColumnName ="intervener_list_participant_name", BaseColumnName ="intervener_list_participant_name", BaseTableName = "intervener_list_participants" )]		
+		public String? IntervenerListParticipantName 
+		{ 
+		    get { return _intervenerListParticipantName; } 
+			set 
+			{
+			    _intervenerListParticipantName = value;
+				NotifyPropertyChange("IntervenerListParticipantName");
+			}
+        }
+
+		private String? _intervenerListParticipantEmail;
+		[SqlField(DbType.AnsiString, 128, ColumnName ="intervener_list_participant_email", BaseColumnName ="intervener_list_participant_email", BaseTableName = "intervener_list_participants" )]		
+		public String? IntervenerListParticipantEmail 
+		{ 
+		    get { return _intervenerListParticipantEmail; } 
+			set 
+			{
+			    _intervenerListParticipantEmail = value;
+				NotifyPropertyChange("IntervenerListParticipantEmail");
+			}
+        }
+
+		private String? _intervenerListParticipantCompany;
+		[SqlField(DbType.AnsiString, 128, ColumnName ="intervener_list_participant_company", BaseColumnName ="intervener_list_participant_company", BaseTableName = "intervener_list_participants" )]		
+		public String? IntervenerListParticipantCompany 
+		{ 
+		    get { return _intervenerListParticipantCompany; } 
+			set 
+			{
+			    _intervenerListParticipantCompany = value;
+				NotifyPropertyChange("IntervenerListParticipantCompany");
+			}
+        }
+
+		private String? _intervenerListParticipantPosition;
+		[SqlField(DbType.AnsiString, 128, ColumnName ="intervener_list_participant_position", BaseColumnName ="intervener_list_participant_position", BaseTableName = "intervener_list_participants" )]		
+		public String? IntervenerListParticipantPosition 
+		{ 
+		    get { return _intervenerListParticipantPosition; } 
+			set 
+			{
+			    _intervenerListParticipantPosition = value;
+				NotifyPropertyChange("IntervenerListParticipantPosition");
+			}
+        }
+
+		private DateTime _createdDate;
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, ColumnName ="created_date", BaseColumnName ="created_date", BaseTableName = "intervener_list_participants" )]		
+		public DateTime CreatedDate 
+		{ 
+		    get { return _createdDate; } 
+			set 
+			{
+			    _createdDate = value;
+				NotifyPropertyChange("CreatedDate");
+			}
+        }
+
+		private Guid _createdBy;
+		[SqlField(DbType.Guid, 16, ColumnName ="created_by", BaseColumnName ="created_by", BaseTableName = "intervener_list_participants" )]		
+		public Guid CreatedBy 
+		{ 
+		    get { return _createdBy; } 
+			set 
+			{
+			    _createdBy = value;
+				NotifyPropertyChange("CreatedBy");
+			}
+        }
+
+		private DateTime _modifiedDate;
+		[SqlField(DbType.DateTime, 8, Precision = 23, Scale=3, ColumnName ="modified_date", BaseColumnName ="modified_date", BaseTableName = "intervener_list_participants" )]		
+		public DateTime ModifiedDate 
+		{ 
+		    get { return _modifiedDate; } 
+			set 
+			{
+			    _modifiedDate = value;
+				NotifyPropertyChange("ModifiedDate");
+			}
+        }
+
+		private Guid _modifiedBy;
+		[SqlField(DbType.Guid, 16, ColumnName ="modified_by", BaseColumnName ="modified_by", BaseTableName = "intervener_list_participants" )]		
+		public Guid ModifiedBy 
+		{ 
+		    get { return _modifiedBy; } 
+			set 
+			{
+			    _modifiedBy = value;
+				NotifyPropertyChange("ModifiedBy");
+			}
+        }
+
+		public const string BaseTableProjectionColumnList = "[intervener_list_participant_guid], [intervener_list_guid], [participant_guid], [participant_type_id], [intervener_list_participant_name], [intervener_list_participant_email], [intervener_list_participant_company], [intervener_list_participant_position], [created_date], [created_by], [modified_date], [modified_by]";
+
+	}
+
+	public partial class IntervenerListParticipantRepository : Repository<IntervenerListParticipant> 
+	{
+		public IntervenerListParticipantRepository(DataService DataService) : base(DataService)
+		{
+		}
+
+		public new NorthwindDataService  DataService  
+		{
+			get { return (NorthwindDataService) base.DataService; }
+			set { base.DataService = value; }
+		}
+
+		public IntervenerListParticipant Get(string projectionName, Guid intervenerListParticipantGuid)
+		{
+			return ((IRepository<IntervenerListParticipant>)this).Get(projectionName, intervenerListParticipantGuid, FetchMode.UseIdentityMap);
+		}
+
+		public IntervenerListParticipant Get(string projectionName, Guid intervenerListParticipantGuid, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<IntervenerListParticipant>)this).Get(projectionName, intervenerListParticipantGuid, fetchMode);
+		}
+
+		public IntervenerListParticipant Get(Projection projection, Guid intervenerListParticipantGuid)
+		{
+			return ((IRepository<IntervenerListParticipant>)this).Get(projection, intervenerListParticipantGuid, FetchMode.UseIdentityMap);
+		}
+
+		public IntervenerListParticipant Get(Projection projection, Guid intervenerListParticipantGuid, FetchMode fetchMode = FetchMode.UseIdentityMap)
+		{
+			return ((IRepository<IntervenerListParticipant>)this).Get(projection, intervenerListParticipantGuid, fetchMode);
+		}
+
+		public IntervenerListParticipant Get(string projectionName, Guid intervenerListParticipantGuid, params string[] fields)
+		{
+			return ((IRepository<IntervenerListParticipant>)this).Get(projectionName, intervenerListParticipantGuid, fields);
+		}
+
+		public IntervenerListParticipant Get(Projection projection, Guid intervenerListParticipantGuid, params string[] fields)
+		{
+			return ((IRepository<IntervenerListParticipant>)this).Get(projection, intervenerListParticipantGuid, fields);
+		}
+
+		public bool Delete(Guid intervenerListParticipantGuid)
+		{
+			var entity = new IntervenerListParticipant { IntervenerListParticipantGuid = intervenerListParticipantGuid };
+			return this.Delete(entity);
+		}
+
+			}
+	// [Obsolete("Use nameof instead")]
+	public static partial class IntervenerListParticipantFields
+	{
+		public const string IntervenerListParticipantGuid = "IntervenerListParticipantGuid";
+		public const string IntervenerListGuid = "IntervenerListGuid";
+		public const string ParticipantGuid = "ParticipantGuid";
+		public const string ParticipantTypeId = "ParticipantTypeId";
+		public const string IntervenerListParticipantName = "IntervenerListParticipantName";
+		public const string IntervenerListParticipantEmail = "IntervenerListParticipantEmail";
+		public const string IntervenerListParticipantCompany = "IntervenerListParticipantCompany";
+		public const string IntervenerListParticipantPosition = "IntervenerListParticipantPosition";
+		public const string CreatedDate = "CreatedDate";
+		public const string CreatedBy = "CreatedBy";
+		public const string ModifiedDate = "ModifiedDate";
+		public const string ModifiedBy = "ModifiedBy";
+	}
+
+	public static partial class IntervenerListParticipantProjections
+	{
+		public const string BaseTable = "BaseTable";
+	}
 }
 
 namespace Samples.Entities
@@ -2478,5 +2712,21 @@ namespace Samples.Entities
 				return _DateItemRepository;
 			}
 		}
+
+		private Samples.Entities.IntervenerListParticipantRepository _IntervenerListParticipantRepository;
+		public Samples.Entities.IntervenerListParticipantRepository IntervenerListParticipantRepository
+		{
+			get 
+			{
+				if ( _IntervenerListParticipantRepository == null)
+				{
+					_IntervenerListParticipantRepository = new Samples.Entities.IntervenerListParticipantRepository(this);
+				}
+				return _IntervenerListParticipantRepository;
+			}
+		}
 	}
 }
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+			

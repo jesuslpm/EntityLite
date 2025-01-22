@@ -168,7 +168,7 @@ namespace inercya.EntityLite
 #pragma warning restore CA1508 // Avoid dead conditional code 
                         {
                             isSaveCollectionAsyncFunctionInitialized = true;
-                            var mi = typeof(Repository<TEntity>).GetMethod("SaveCollection", BindingFlags.NonPublic | BindingFlags.Static);
+                            var mi = typeof(Repository<TEntity>).GetMethod("SaveCollectionAsync", BindingFlags.NonPublic | BindingFlags.Static);
                             mi = mi.MakeGenericMethod(EntityMetadata.PrimaryKeyType);
                             _saveCollectionAsyncFunction = (Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>)Delegate.CreateDelegate(typeof(Func<Repository<TEntity>, IEnumerable<TEntity>, IEnumerable<TEntity>, Task<SaveCollectionResult<TEntity>>>), mi);
                         }

@@ -112,6 +112,12 @@ To generate the datalayer for MySQL you need  to:
 				BaseTableName = "DateItems",
 				RoundDateFields = "ItemDate"
 			},
+			new EntitySetting 
+			{
+				EntityName = "IntervenerListParticipant",
+				BaseTableName = "intervener_list_participants"
+			},
+
 			/*
 			new EntitySetting 
 			{

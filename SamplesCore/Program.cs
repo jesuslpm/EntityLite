@@ -102,6 +102,28 @@ namespace Samples
             dateItem = JsonSerializer.Deserialize<DateItem>(json, JsonSerializerOptions);
         }
 
+        static void TestSaveCollection()
+        {
+            var participants = new List<IntervenerListParticipant>
+            {
+                new IntervenerListParticipant {
+                    IntervenerListGuid = Guid.NewGuid(),
+                    IntervenerListParticipantCompany = "Company 1",
+                    IntervenerListParticipantEmail = "jesuslpm@hotmail.com",
+                    IntervenerListParticipantGuid = Guid.NewGuid(),
+                    IntervenerListParticipantName = "Jesus Lopez",
+                    IntervenerListParticipantPosition = "Developer",
+                    ParticipantGuid = Guid.NewGuid(),
+                    ParticipantTypeId = 1
+                }
+            };
+            var existing = ds.IntervenerListParticipantRepository.Query(Projection.BaseTable)
+                .ToList();
+
+            ds.IntervenerListParticipantRepository.SaveAsync(participants, existing).GetAwaiter().GetResult();
+
+		}
+
 
         static void Main(string[] args)
         {
@@ -129,7 +151,8 @@ namespace Samples
             using (ds = CreateDataService())
             {
                 // TestDates();
-                TestJsonItems();
+                // TestJsonItems();
+                TestSaveCollection();
 
                 //ds.ApplicationContextGetter = () => "EntityLite.Tests";
                 //InsertIntoAsyncTest().Wait();
