@@ -721,7 +721,7 @@ public class DataLayerGeneration : IDisposable
                     }
                     schemaUnion.ImportRow(rowToImport);
                 }
-				else
+				else if (baseTableSchema != null && baseTableSchema.Rows.Find(columnName) == null)
 				{
 					DataRow existingRow = schemaUnion.Rows.Find(columnName);
 					if ((bool)existingRow["AllowDBNull"] == false  && (bool)row["AllowDBNull"] == true)
