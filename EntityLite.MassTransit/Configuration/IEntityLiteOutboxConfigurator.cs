@@ -24,6 +24,8 @@ namespace MassTransit
         /// </summary>
         public TimeSpan QueryDelay { set; }
 
+        public TimeSpan InboxQueryDelay { set; }
+
         /// <summary>
         /// The maximum number of messages to query from the database at a time
         /// </summary>
