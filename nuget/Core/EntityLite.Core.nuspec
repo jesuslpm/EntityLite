@@ -23,17 +23,17 @@
 		<copyright>Copyright 2013-2025</copyright>
 		<dependencies>
 			<group targetFramework="netstandard2.0">
-				<dependency id="Microsoft.Bcl.HashCode" Version="6.0.0" exclude="Build,Analyzers" />
-				<dependency id="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8"   exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Bcl.HashCode" version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="9.0.8"   exclude="Build,Analyzers" />
 				<dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
 				<dependency id="System.Data.SqlClient" version="4.8.6" exclude="Build,Analyzers" />
 				<dependency id="System.Reflection.Emit.Lightweight" version="4.7.0" exclude="Build,Analyzers" />
-				<dependency id="System.Text.Json" Version="9.0.8" exclude="Build,Analyzers" />
+				<dependency id="System.Text.Json" version="9.0.8" exclude="Build,Analyzers" />
 			</group>
 			<group targetFramework="net462">
-				<dependency id="Microsoft.Bcl.HashCode" Version="6.0.0" exclude="Build,Analyzers" />
-				<dependency id="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8"  exclude="Build,Analyzers" />
-				<dependency id="System.Text.Json" Version="9.0.8" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Bcl.HashCode" version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="9.0.8"  exclude="Build,Analyzers" />
+				<dependency id="System.Text.Json" version="9.0.8" exclude="Build,Analyzers" />
 			</group>
 		</dependencies>
 		<frameworkAssemblies>
