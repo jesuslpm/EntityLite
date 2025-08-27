@@ -69,13 +69,45 @@ namespace inercya.EntityLite.Providers
             return ConcatByOperator(" + ", strs);
         }
 
+		private string GetSelectTopQuery(AbstractQueryBuilder builder, DbCommand selectCommand, int top, ref int paramIndex)
+		{
+            var commandText = new StringBuilder();
+			int indentation = 0;
+			if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
+			if (commandText == null) throw new ArgumentNullException(nameof(commandText));
+			commandText.Indent(indentation);
+			var columnList = builder.GetColumnList();
+			bool isStar = columnList == "*";
+			commandText.Append("SELECT TOP (").Append(top.ToString(CultureInfo.InvariantCulture)).Append(")");
+			if (isStar) commandText.Append(" *");
+			else commandText.NewIndentedLine(++indentation).Append(columnList);
+			if (!isStar) indentation--;
+			commandText.NewIndentedLine(indentation).Append("FROM ")
+				.NewIndentedLine(++indentation).Append(builder.GetFromClauseContent(selectCommand, ref paramIndex, indentation));
+			indentation--;
+			bool hasWhereClause = builder.QueryLite.Filter != null && !builder.QueryLite.Filter.IsEmpty();
+			if (hasWhereClause)
+			{
+				commandText.NewIndentedLine(indentation).Append("WHERE");
+				commandText.NewIndentedLine(++indentation).Append(builder.GetFilter(selectCommand, ref paramIndex, builder.QueryLite.Filter, indentation, false));
+				indentation--;
+			}
+			bool hasOrderbyClause = builder.QueryLite.Sort != null && builder.QueryLite.Sort.Count > 0;
+			if (hasOrderbyClause)
+			{
+				commandText.NewIndentedLine(indentation).Append("ORDER BY");
+				commandText.NewIndentedLine(++indentation).Append(builder.GetSort());
+				indentation--;
+			}
+            return commandText.ToString();
+		}
 
-
-        public override string GetPagedQuery(AbstractQueryBuilder builder, DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
+		public override string GetPagedQuery(AbstractQueryBuilder builder, DbCommand selectCommand, ref int paramIndex, int fromRowIndex, int toRowIndex)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (selectCommand == null) throw new ArgumentNullException(nameof(selectCommand));
-            StringBuilder commandText = new StringBuilder();
+            if (fromRowIndex == 0) return GetSelectTopQuery(builder, selectCommand, toRowIndex + 1, ref paramIndex);
+			StringBuilder commandText = new StringBuilder();
             bool hasOrderbyClause = builder.QueryLite.Sort != null && builder.QueryLite.Sort.Count > 0;
             if (!hasOrderbyClause)
             {
