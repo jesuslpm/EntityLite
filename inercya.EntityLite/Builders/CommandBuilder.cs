@@ -25,6 +25,7 @@ using System.Globalization;
 using inercya.EntityLite.Extensions;
 using inercya.EntityLite.Collections;
 using Microsoft.Extensions.Logging;
+using System.Text.Json.Nodes;
 
 namespace inercya.EntityLite.Builders
 {
@@ -435,15 +436,23 @@ namespace inercya.EntityLite.Builders
 			{
 				if (fieldValue != null && (param.DbType == DbType.String || param.DbType == DbType.AnsiString) && !(fieldValue is string))
 				{
-					var convertible = fieldValue as IConvertible;
-					if (convertible != null)
-					{
-						fieldValue = convertible.ToString(CultureInfo.InvariantCulture);
-					}
-					else
-					{
-						fieldValue = fieldValue.ToString();
-					}
+                    var jsonNode = fieldValue as JsonNode;
+                    if (jsonNode != null)
+                    {
+                        fieldValue = jsonNode.ToJsonString(DefaultJsonSerializerOptions.Instance);
+                    }
+                    else
+                    {
+                        var convertible = fieldValue as IConvertible;
+                        if (convertible != null)
+                        {
+                            fieldValue = convertible.ToString(CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            fieldValue = fieldValue.ToString();
+                        }
+                    }
 				}
 				param.Value = fieldValue ?? DBNull.Value;
 			}

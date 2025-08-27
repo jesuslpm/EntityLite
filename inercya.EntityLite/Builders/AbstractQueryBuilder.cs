@@ -14,17 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using inercya.EntityLite.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Data.Common;
-using inercya.EntityLite.Extensions;
-using System.Data;
-using System.Globalization;
-using System.Data.SqlTypes;
-using System.Collections;
-using System.Data.SqlClient;
+using System.Text.Json.Nodes;
 
 
 namespace inercya.EntityLite.Builders
@@ -376,14 +377,22 @@ namespace inercya.EntityLite.Builders
 
             if (paramValue != null && (parameter.DbType == DbType.String || parameter.DbType == DbType.AnsiString) && !(paramValue is string))
             {
-                var convertible = paramValue as IConvertible;
-                if (convertible != null)
+				var jsonNode = paramValue as JsonNode;
+                if (jsonNode != null)
                 {
-                    paramValue = convertible.ToString(CultureInfo.InvariantCulture);
+                    paramValue = jsonNode.ToJsonString(DefaultJsonSerializerOptions.Instance);
                 }
                 else
                 {
-                    paramValue = paramValue.ToString();
+                    var convertible = paramValue as IConvertible;
+                    if (convertible != null)
+                    {
+                        paramValue = convertible.ToString(CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        paramValue = paramValue.ToString();
+                    }
                 }
             }
             INullable sqlNullable = paramValue as INullable;
