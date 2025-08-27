@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>EntityLite.Core</id>
-		<version>3.0.0</version>
+		<version>3.1.0</version>
 		<title>i-nercya EntityLite Core</title>
 		<authors>Jesús López</authors>
 		<owners>i-nercya intelligent software</owners>
@@ -20,20 +20,20 @@
 		</summary>
 		<language>en-US</language>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<copyright>Copyright 2013-2024</copyright>
+		<copyright>Copyright 2013-2025</copyright>
 		<dependencies>
 			<group targetFramework="netstandard2.0">
-				<dependency id="Microsoft.Bcl.HashCode" version="1.1.1" exclude="Build,Analyzers" />
-				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="6.0.0"  exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Bcl.HashCode" Version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8"   exclude="Build,Analyzers" />
 				<dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
 				<dependency id="System.Data.SqlClient" version="4.8.6" exclude="Build,Analyzers" />
 				<dependency id="System.Reflection.Emit.Lightweight" version="4.7.0" exclude="Build,Analyzers" />
-				<dependency id="System.Text.Json" version="6.0.9" exclude="Build,Analyzers" />
+				<dependency id="System.Text.Json" Version="9.0.8" exclude="Build,Analyzers" />
 			</group>
 			<group targetFramework="net462">
-				<dependency id="Microsoft.Bcl.HashCode" version="1.1.1" exclude="Build,Analyzers" />
-				<dependency id="Microsoft.Extensions.Logging.Abstractions" version="6.0.0"  exclude="Build,Analyzers" />
-				<dependency id="System.Text.Json" version="6.0.9" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Bcl.HashCode" Version="6.0.0" exclude="Build,Analyzers" />
+				<dependency id="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8"  exclude="Build,Analyzers" />
+				<dependency id="System.Text.Json" Version="9.0.8" exclude="Build,Analyzers" />
 			</group>
 		</dependencies>
 		<frameworkAssemblies>
