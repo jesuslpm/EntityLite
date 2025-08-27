@@ -245,9 +245,17 @@ namespace inercya.EntityLite
 
         public virtual void OpenConnection()
         {
+            if (this.Connection.State == ConnectionState.Broken)
+            {
+                try { _connection.Dispose(); } catch { }
+                this._transaction = null;
+                this._connection = null;
+                this.TransactionCount = 0;
+                throw new ConnectionBrokenException("The connection is broken and cannot be used.");
+			}
+
             if (this.Connection.State != ConnectionState.Open)
             {
-                
                 this.Connection.Open();
             }
         }
@@ -256,33 +264,50 @@ namespace inercya.EntityLite
 
         public virtual async Task OpenConnectionAsync()
         {
-            if (this.Connection.State != ConnectionState.Open)
-            {
-                await this.Connection.OpenAsync();
-            }
-        }
+			if (this.Connection.State == ConnectionState.Broken)
+			{
+				try { _connection.Dispose(); } catch { }
+				this._transaction = null;
+				this._connection = null;
+				this.TransactionCount = 0;
+				throw new ConnectionBrokenException("The connection is broken and cannot be used.");
+			}
+
+			if (this.Connection.State != ConnectionState.Open)
+			{
+				await this.Connection.OpenAsync();
+			}
+		}
 
         public int TransactionCount { get; private set; }
 
         public void BeginTransaction()
         {
-            OpenConnection();
-            if (!IsActiveTransaction)
-            {
-                _transaction = this.CreateTransaction(); ;
-            }
-            TransactionCount++;
-        }
+			OpenConnection();
+			if (!IsActiveTransaction)
+			{
+				_transaction = this.CreateTransaction();
+				TransactionCount = 1;
+			}
+			else
+			{
+				TransactionCount++;
+			}
+		}
 
         public void BeginTransaction(IsolationLevel isolationLevel)
         {
-            OpenConnection();
-            if (!IsActiveTransaction)
-            {
-                _transaction = this.CreateTransaction(isolationLevel); ;
-            }
-            TransactionCount++;
-        }
+			OpenConnection();
+			if (!IsActiveTransaction)
+			{
+				_transaction = this.CreateTransaction(isolationLevel);
+				TransactionCount = 1;
+			}
+			else
+			{
+				TransactionCount++;
+			}
+		}
 
         protected virtual DbTransaction CreateTransaction()
         {
@@ -296,7 +321,7 @@ namespace inercya.EntityLite
 
         public bool IsActiveTransaction
         {
-            get { return this.Transaction != null && this.Transaction.Connection != null; }
+            get { return this.Transaction != null && this.Transaction.Connection != null && this.Transaction.Connection.State == ConnectionState.Open; }
         }
 
         private void CheckDisposed()
@@ -326,7 +351,13 @@ namespace inercya.EntityLite
 				}
 				else
 				{
-					throw new InvalidOperationException("Cannot commit because there is no active transaction");
+                    if (_transaction != null)
+                    {
+                        try { _transaction.Dispose(); } catch { }
+                        _transaction = null;
+                        TransactionCount = 0;
+					}
+					throw new NoActiveTransactionException("Cannot commit because there is no active transaction");
 				}
 			}
 			catch (Exception ex)
@@ -351,7 +382,13 @@ namespace inercya.EntityLite
 				}
 				else
 				{
-					throw new InvalidOperationException("Cannot rollback because there is no active transaction");
+					if (_transaction != null)
+					{
+						try { _transaction.Dispose(); } catch { }
+						_transaction = null;
+						TransactionCount = 0;
+					}
+					throw new NoActiveTransactionException("Cannot rollback because there is no active transaction");
 				}
 			}
 			catch (Exception ex)

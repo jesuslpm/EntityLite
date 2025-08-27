@@ -85,7 +85,8 @@ namespace inercya.EntityLite.Extensions
         public static JsonNode FromStringToJsonNode(string str)
         {
             if (string.IsNullOrEmpty(str)) return null;
-            return JsonNode.Parse(str);
+            var jsonNode = JsonNode.Parse(str);
+            return jsonNode;
         }
 
         public static MethodInfo GetConversionMethod(Type fromType, Type toType)
