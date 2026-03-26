@@ -30,6 +30,7 @@
 <#@ include file ="ProcedureResultSetKind.ttinclude" #>
 <#@ include file ="ProcedureSetting.ttinclude" #>
 <#@ include file ="TypeScriptAttributeGeneration.ttinclude" #>
+<#@ include file ="NullabilityPrecedence.ttinclude" #>
 <#+ 
 	void Render(DataLayerGeneration generation)
 	{

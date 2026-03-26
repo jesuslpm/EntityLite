@@ -93,6 +93,7 @@ public class DataLayerGeneration : IDisposable
 	public string SequencePrefix {get; set;}
 	public string SequenceSuffix {get; set;}
 	public bool UseUtcDateJsonConverter {get; set;}
+	public NullabilityPrecedence NullabilityPrecedence {get; set;} = NullabilityPrecedence.BaseTable;
 
     private Dictionary<EntitySetting, List<FieldMetadata>> FieldsMetadataByEntity;
 
@@ -461,7 +462,8 @@ public class DataLayerGeneration : IDisposable
 						{
 							fieldMetadata.PropertyTypeName = "Newtonsoft.Json.Linq." + this.JsonType.ToString();
 						}
-						fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
+						if (fieldMetadata.PropertyName.Length > 4)
+							fieldMetadata.PropertyName = fieldMetadata.PropertyName.Substring(0, fieldMetadata.PropertyName.Length - 4);
 					}
 					if (AnnotateNullableReferenceTypes && fieldMetadata.PropertyType.IsClass)
 					{
@@ -721,13 +723,17 @@ public class DataLayerGeneration : IDisposable
                     }
                     schemaUnion.ImportRow(rowToImport);
                 }
-				else if (baseTableSchema != null && baseTableSchema.Rows.Find(columnName) == null)
+				else
 				{
 					DataRow existingRow = schemaUnion.Rows.Find(columnName);
-					if ((bool)existingRow["AllowDBNull"] == false  && (bool)row["AllowDBNull"] == true)
+					if  (NullabilityPrecedence == NullabilityPrecedence.Views || 
+						baseTableSchema != null && baseTableSchema.Rows.Find(columnName) == null)
 					{
-						schemaUnion.Columns["AllowDBNull"].ReadOnly = false;
-						existingRow["AllowDBNull"] = true;
+						if ((bool)existingRow["AllowDBNull"] == false  && (bool)row["AllowDBNull"] == true)
+						{
+							schemaUnion.Columns["AllowDBNull"].ReadOnly = false;
+							existingRow["AllowDBNull"] = true;
+						}
 					}
 				}
             }
